@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "baseUrl": "../",
+    "sourceMap": true,
+    "moduleResolution": "bundler",
+    "noImplicitAny": true,
+    "target": "es2021",
+    "module": "esnext",
+    "jsx": "react-jsx",
+  }
+}

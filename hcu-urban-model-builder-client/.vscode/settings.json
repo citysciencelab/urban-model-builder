@@ -1,0 +1,40 @@
+{
+  "peacock.color": "#45b4f8",
+  "[handlebars]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[glimmer-js]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.foldingStrategy": "indentation"
+  },
+  "[glimmer-ts]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.foldingStrategy": "indentation"
+  },
+  "eslint.validate": [
+    "glimmer-ts",
+    "glimmer-js"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+  },
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#76c8fa",
+    "activityBar.background": "#76c8fa",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#f6099c",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "commandCenter.border": "#15202b99",
+    "sash.hoverBorder": "#76c8fa",
+    "statusBar.background": "#45b4f8",
+    "statusBar.foreground": "#15202b",
+    "statusBarItem.hoverBackground": "#14a0f6",
+    "statusBarItem.remoteBackground": "#45b4f8",
+    "statusBarItem.remoteForeground": "#15202b",
+    "titleBar.activeBackground": "#45b4f8",
+    "titleBar.activeForeground": "#15202b",
+    "titleBar.inactiveBackground": "#45b4f899",
+    "titleBar.inactiveForeground": "#15202b99"
+  },
+}
