@@ -4,6 +4,8 @@
     "baseUrl": ".",
     "sourceMap": true,
     "moduleResolution": "bundler",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     "noImplicitAny": true,
     "target": "es2021",
     "module": "esnext",

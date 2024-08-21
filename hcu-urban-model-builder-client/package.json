@@ -28,6 +28,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
     "@ember-data-types/adapter": "^5.4.0-alpha.99",
     "@ember-data-types/graph": "^5.4.0-alpha.99",
     "@ember-data-types/json-api": "^5.4.0-alpha.99",

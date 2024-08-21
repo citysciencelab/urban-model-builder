@@ -38,7 +38,6 @@ module.exports = function (defaults) {
         devtool: 'source-map',
         resolve: {
           alias: {
-            // 'react-canvas': path.resolve(__dirname, 'lib/react-canvas'),
             canvas: path.resolve(__dirname, 'canvas'),
           },
         },
@@ -46,8 +45,14 @@ module.exports = function (defaults) {
           rules: [
             {
               test: /.*\.tsx/,
-              loader: 'ts-loader',
+              loader: 'babel-loader',
               exclude: /node_modules/,
+              options: {
+                presets: [
+                  '@babel/preset-typescript',
+                  ['@babel/preset-react', { runtime: 'automatic' }],
+                ],
+              },
             },
           ],
         },
