@@ -1,0 +1,72 @@
+import Adapter from '@ember-data/adapter';
+import RESTAdapter from '@ember-data/adapter/rest';
+import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
+import type { Snapshot } from '@ember-data/legacy-compat/legacy-network-handler/snapshot';
+import type { SnapshotRecordArray } from '@ember-data/legacy-compat/legacy-network-handler/snapshot-record-array';
+import { pluralize } from '@ember-data/request-utils/string';
+import type { Store } from '@ember-data/store/-private/store-service';
+import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
+import { service } from '@ember/service';
+import { dasherize } from '@ember/string';
+import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
+
+export default class ApplicationAdapter extends Adapter {
+  host = 'http://localhost:3030';
+  @service feathers!: FeathersService;
+
+  async findAll(store: Store, type: ModelSchema): Promise<AdapterPayload> {
+    return this.query(store, type, {});
+  }
+
+  async query(
+    store: Store,
+    type: ModelSchema,
+    query: any,
+  ): Promise<AdapterPayload> {
+    return this.feathers.app
+      .service(this.pathForType(type.modelName))
+      .find({ query });
+  }
+
+  async createRecord(
+    store: Store,
+    type: ModelSchema,
+    snapshot: Snapshot<any>,
+  ): Promise<AdapterPayload> {
+    const data = this.serialize(snapshot, {});
+
+    return this.feathers.app
+      .service(this.pathForType(type.modelName))
+      .create(data);
+  }
+
+  async updateRecord(
+    store: Store,
+    type: ModelSchema,
+    snapshot: Snapshot,
+  ): Promise<AdapterPayload> {
+    const data = this.serialize(snapshot, {});
+
+    return this.feathers.app
+      .service(this.pathForType(type.modelName))
+      .patch(snapshot.id, data);
+  }
+
+  async deleteRecord(
+    store: Store,
+    type: ModelSchema,
+    snapshot: Snapshot,
+  ): Promise<AdapterPayload> {
+    return this.feathers.app
+      .service(this.pathForType(type.modelName))
+      .remove(snapshot.id);
+  }
+
+  pathForType(modelName: string): string {
+    return modelName.split('/').reduce((accumulator, currentValue, index) => {
+      const separator = index === 0 ? '' : '/';
+      const camelized = dasherize(currentValue);
+      return `${accumulator}${separator}${pluralize(camelized)}`;
+    }, '');
+  }
+}
