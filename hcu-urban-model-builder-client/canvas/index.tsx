@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ReactFlow,
@@ -10,65 +10,18 @@ import {
   Panel,
   addEdge,
   ReactFlowInstance,
-  NodeProps,
-  Position,
-  Handle,
   MarkerType,
   SmoothStepEdge,
   ConnectionLineType,
-  HandleType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-// import { BaseNode } from "./lib/base-node";
+import { BaseNode } from "./lib/base-node.tsx";
 
 type NodeActions = {
   create: (data: any) => Promise<any>;
   save: (id: string, data: any) => void;
   delete: (id: string) => Promise<void>;
 };
-
-export const BaseNode = memo(({ data, isConnectable }: NodeProps) => {
-  const positions = [
-    Position.Top,
-    Position.Bottom,
-    Position.Left,
-    Position.Right,
-  ];
-
-  return (
-    <div className="react-flow__node-default">
-      {positions.map((position, index) => (
-        <Handle
-          id={`target-${position}`}
-          key={position}
-          type="target"
-          position={position}
-        />
-      ))}
-      {positions.map((position, index) => (
-        <Handle
-          id={`source-${position}`}
-          key={position}
-          type="source"
-          position={position}
-        />
-      ))}
-
-      {["target", "source"].map((type: HandleType) =>
-        positions.map((position) => (
-          <Handle
-            id={`${type}-${position}`}
-            key={`${type}-${position}`}
-            type={type}
-            position={position}
-          />
-        )),
-      )}
-
-      {data.label as string}
-    </div>
-  );
-});
 
 const nodeTypes = {
   base: BaseNode,
@@ -88,8 +41,6 @@ function Flow({
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const [nodes, setNodes] = useState(() => initialNodes.map((n) => n.rawNode));
   const [edges, setEdges] = useState([]);
-
-  console.log("nodes", initialNodes);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     for (const change of changes) {
