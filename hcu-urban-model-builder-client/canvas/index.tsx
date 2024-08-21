@@ -73,6 +73,12 @@ function Flow({
     setEdges((eds) => applyEdgeChanges(changes, eds));
   }, []);
 
+  // TODO: Validate connection
+  const isValidConnection = useCallback(
+    (connection: Connection) => true, // connection.source !== connection.target,
+    [],
+  );
+
   const getTmpEdgeId = (params: Connection) =>
     `tmp_source-${params.source}_target-${params.target}`;
 
@@ -143,6 +149,7 @@ function Flow({
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
       onReconnect={onReconnect}
+      isValidConnection={isValidConnection}
       nodeTypes={nodeTypes}
       edgeTypes={edgesTypes}
       connectionLineType={ConnectionLineType.SmoothStep}
