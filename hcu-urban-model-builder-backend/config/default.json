@@ -1,0 +1,17 @@
+{
+  "host": "localhost",
+  "port": 3030,
+  "public": "./public/",
+  "origins": [
+    "http://localhost:3030",
+    "http://localhost:4200"
+  ],
+  "paginate": {
+    "default": 10,
+    "max": 50
+  },
+  "postgresql": {
+    "client": "pg",
+    "connection": "postgres://postgres:@localhost:5432/hcu-urban-model-builder-backend"
+  }
+}
