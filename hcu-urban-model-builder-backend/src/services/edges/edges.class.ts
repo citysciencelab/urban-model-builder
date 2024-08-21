@@ -4,18 +4,18 @@ import { MemoryService, MemoryServiceOptions } from '@feathersjs/memory'
 import { AdapterParams } from '@feathersjs/adapter-commons'
 
 import type { Application } from '../../declarations'
-import type { Nodes, NodesData, NodesPatch, NodesQuery } from './nodes.schema'
+import type { Edges, EdgesData, EdgesPatch, EdgesQuery } from './edges.schema'
 
-export type { Nodes, NodesData, NodesPatch, NodesQuery }
+export type { Edges, EdgesData, EdgesPatch, EdgesQuery }
 
-export interface NodesParams extends AdapterParams<NodesQuery> { }
+export interface EdgesParams extends AdapterParams<EdgesQuery> { }
 
 // By default calls the standard Knex adapter service methods but can be customized with your own functionality.
-export class NodesService<ServiceParams extends Params = NodesParams> extends MemoryService<
-  Nodes,
-  NodesData,
+export class EdgesService<ServiceParams extends Params = EdgesParams> extends MemoryService<
+  Edges,
+  EdgesData,
   ServiceParams,
-  NodesPatch
+  EdgesPatch
 > { }
 
 export const getOptions = (app: Application): MemoryServiceOptions => {
