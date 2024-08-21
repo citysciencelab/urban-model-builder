@@ -5,11 +5,13 @@ import Component from '@glimmer/component';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import { service } from '@ember/service';
 import type Store from '@ember-data/store';
+import type Edge from 'hcu-urban-model-builder-client/models/edge';
 
 export interface ReactWrapperSignature {
   // The arguments accepted by the component
   Args: {
     nodes: Node[];
+    edges: Edge[];
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -25,14 +27,14 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
   @tracked counter = 0;
 
   get canInsert() {
-    return !!this.args.nodes;
+    return !!this.args.nodes || !!this.args.edges;
   }
 
   get nodeActions() {
     return {
-      save: this.saveNode,
-      create: this.createNode,
-      delete: this.deleteNode,
+      save: this.save,
+      create: this.create,
+      delete: this.delete,
     };
   }
 
@@ -40,27 +42,47 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
   didInsert(element: HTMLElement) {
     console.log('ReactWrapperComponent.didInsert', this.args.nodes);
 
-    initReact(element, this.args.nodes, this.nodeActions);
+    initReact(element, this.args.nodes, this.args.edges, this.nodeActions);
   }
 
   @action
-  async saveNode(id: string, data: any) {
-    const record = this.store.peekRecord<Node>('node', id);
+  async save(type: 'node' | 'edge', id: string, rawData: any) {
+    const record = this.store.peekRecord<Node | Edge>(type, id);
     if (!record) {
       throw new Error(`Node with id ${id} not found`);
+    }
+
+    const data = { ...rawData };
+    for (const key of ['source', 'target']) {
+      console.log('createNode', key, rawData[key]);
+
+      if (key in rawData) {
+        console.log(key, rawData[key]);
+        data[key] = this.store.peekRecord<Node>('node', rawData[key]);
+      }
     }
     Object.assign(record, data);
     await record.save();
   }
 
   @action
-  async createNode(data: any) {
-    return this.store.createRecord<Node>('node', data).save();
+  async create(type: 'node' | 'edge', rawData: any) {
+    const data = { ...rawData };
+    for (const key of ['source', 'target']) {
+      console.log('createNode', key, rawData[key]);
+
+      if (key in rawData) {
+        console.log(key, rawData[key]);
+        data[key] = this.store.peekRecord<Node>('node', rawData[key]);
+      }
+    }
+
+    return this.store.createRecord<Node | Edge>(type, data).save();
   }
 
   @action
-  async deleteNode(id: string) {
-    const record = this.store.peekRecord<Node>('node', id);
+  async delete(type: 'node' | 'edge', id: string) {
+    const record = this.store.peekRecord<Node | Edge>(type, id);
     if (!record) {
       throw new Error(`Node with id ${id} not found`);
     }

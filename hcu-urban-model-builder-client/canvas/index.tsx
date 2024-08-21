@@ -13,14 +13,18 @@ import {
   MarkerType,
   SmoothStepEdge,
   ConnectionLineType,
+  EdgeChange,
+  reconnectEdge,
+  Connection,
+  Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/base-node.tsx";
 
 type NodeActions = {
-  create: (data: any) => Promise<any>;
-  save: (id: string, data: any) => void;
-  delete: (id: string) => Promise<void>;
+  create: (type: "edge" | "node", data: any) => Promise<any>;
+  save: (type: "edge" | "node", id: string, data: any) => void;
+  delete: (type: "edge" | "node", id: string) => Promise<void>;
 };
 
 const nodeTypes = {
@@ -33,24 +37,27 @@ const edgesTypes = {
 
 function Flow({
   nodes: initialNodes,
+  edges: initialEdges,
   nodeActions,
-}: {
-  nodes: any[];
-  nodeActions: NodeActions;
-}) {
+}: AppProps) {
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
-  const [nodes, setNodes] = useState(() => initialNodes.map((n) => n.rawNode));
-  const [edges, setEdges] = useState([]);
+  const [nodes, setNodes] = useState(() => initialNodes.map((n) => n.raw));
+  const [edges, setEdges] = useState(() =>
+    initialEdges.map((e) => ({
+      ...e.raw,
+      markerEnd: { type: MarkerType.Arrow },
+    })),
+  );
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     for (const change of changes) {
       console.log("change", change);
 
       if (change.type === "position" && !change.dragging) {
-        nodeActions.save(change.id, { position: change.position });
+        nodeActions.save("node", change.id, { position: change.position });
       }
       if (change.type === "remove") {
-        nodeActions.delete(change.id);
+        nodeActions.delete("node", change.id);
       }
     }
     setNodes((nds) => {
@@ -58,34 +65,79 @@ function Flow({
     });
   }, []);
 
-  const onEdgesChange = useCallback(
-    (changes: any) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [],
-  );
+  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+    for (const change of changes) {
+      if (change.type === "remove") {
+        nodeActions.delete("edge", change.id);
+      }
+    }
+
+    setEdges((eds) => applyEdgeChanges(changes, eds));
+  }, []);
+
+  const getTmpEdgeId = (params: Connection) =>
+    `tmp_source-${params.source}_target-${params.target}`;
 
   const onConnect = useCallback(
-    (params: any) => {
+    async (params: Connection) => {
       console.log("onConnect", params);
 
-      params.markerEnd = {
-        type: MarkerType.Arrow,
+      const tmpEdgeId = getTmpEdgeId(params);
+      const markerEnd = { type: MarkerType.Arrow };
+      const tmpEdge: Edge = {
+        id: tmpEdgeId,
+        markerEnd,
+        ...params,
       };
 
-      setEdges((eds) => addEdge(params, eds));
+      setEdges((eds) => addEdge(tmpEdge, eds));
+
+      const newEdge = await nodeActions.create("edge", {
+        source: params.source,
+        target: params.target,
+        sourceHandle: params.sourceHandle,
+        targetHandle: params.targetHandle,
+      });
+
+      console.log("newEdge", newEdge);
+      setEdges((eds) =>
+        eds
+          .filter((e) => e.id !== tmpEdgeId)
+          .concat({
+            ...newEdge.raw,
+            markerEnd,
+          }),
+      );
     },
     [setEdges],
   );
 
+  const onReconnect = useCallback(
+    async (oldEdge: Edge, newConnection: Connection) => {
+      setEdges((els) =>
+        reconnectEdge(oldEdge, newConnection, els, { shouldReplaceId: false }),
+      );
+
+      nodeActions.save("edge", oldEdge.id, {
+        source: newConnection.source,
+        target: newConnection.target,
+        sourceHandle: newConnection.sourceHandle,
+        targetHandle: newConnection.targetHandle,
+      });
+    },
+    [],
+  );
+
   const addNode = useCallback(async () => {
     console.log("addNode", rfInstance);
-    const result = await nodeActions.create({
+    const result = await nodeActions.create("node", {
       data: { label: `Node ${nodes.length}` },
       position: {
         x: 0,
         y: 0,
       },
     });
-    setNodes((nds) => nds.concat(result.rawNode));
+    setNodes((nds) => nds.concat(result.raw));
   }, [nodes]);
 
   return (
@@ -96,6 +148,7 @@ function Flow({
       edges={edges}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      onReconnect={onReconnect}
       nodeTypes={nodeTypes}
       edgeTypes={edgesTypes}
       connectionLineType={ConnectionLineType.SmoothStep}
@@ -110,20 +163,23 @@ function Flow({
   );
 }
 
-function App({
-  nodes,
-  nodeActions,
-}: {
+interface AppProps {
   nodes: any[];
+  edges: any[];
   nodeActions: NodeActions;
-}) {
-  return <Flow nodes={nodes} nodeActions={nodeActions} />;
+}
+
+function App({ nodes, nodeActions, edges }: AppProps) {
+  return <Flow nodes={nodes} edges={edges} nodeActions={nodeActions} />;
 }
 
 export function initReact(
   root: HTMLElement,
   nodes: any[],
+  edges: any[],
   nodeActions: NodeActions,
 ) {
-  createRoot(root).render(<App nodes={nodes} nodeActions={nodeActions} />);
+  createRoot(root).render(
+    <App nodes={nodes} edges={edges} nodeActions={nodeActions} />,
+  );
 }
