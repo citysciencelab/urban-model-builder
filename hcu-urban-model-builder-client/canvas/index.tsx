@@ -51,8 +51,6 @@ function Flow({
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     for (const change of changes) {
-      console.log("change", change);
-
       if (change.type === "position" && !change.dragging) {
         nodeActions.save("node", change.id, { position: change.position });
       }
@@ -80,8 +78,6 @@ function Flow({
 
   const onConnect = useCallback(
     async (params: Connection) => {
-      console.log("onConnect", params);
-
       const tmpEdgeId = getTmpEdgeId(params);
       const markerEnd = { type: MarkerType.Arrow };
       const tmpEdge: Edge = {
@@ -99,7 +95,6 @@ function Flow({
         targetHandle: params.targetHandle,
       });
 
-      console.log("newEdge", newEdge);
       setEdges((eds) =>
         eds
           .filter((e) => e.id !== tmpEdgeId)
@@ -129,7 +124,6 @@ function Flow({
   );
 
   const addNode = useCallback(async () => {
-    console.log("addNode", rfInstance);
     const result = await nodeActions.create("node", {
       data: { label: `Node ${nodes.length}` },
       position: {
