@@ -1,2 +1,4 @@
 <div>Ember counter: {{this.counter}}</div>
-<div class="react-wrapper" {{did-insert this.didInsert}}></div>
+{{#if this.canInsert}}
+  <div class="react-wrapper" {{did-insert this.didInsert}}></div>
+{{/if}}

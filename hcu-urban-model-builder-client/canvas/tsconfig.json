@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./dist/",
-    "baseUrl": "../",
+    "baseUrl": ".",
     "sourceMap": true,
     "moduleResolution": "bundler",
     "noImplicitAny": true,
