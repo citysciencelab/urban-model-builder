@@ -1,18 +1,25 @@
 import type Owner from '@ember/owner';
 import Service from '@ember/service';
-import { feathers, type FeathersApplication } from '@feathersjs/feathers';
+import { type FeathersApplication } from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio-client';
 import io from 'socket.io-client';
+import {
+  createClient,
+  type ClientApplication,
+} from 'hcu-urban-model-builder-backend';
 
 export default class FeathersService extends Service {
-  app: FeathersApplication;
+  app: ClientApplication;
 
   constructor(owner?: Owner) {
     super(owner);
-    const socket = io('http://localhost:3030', { transports: ['websocket'] });
-    this.app = feathers();
+    const socket = socketio(
+      io('http://localhost:3030', { transports: ['websocket'] }),
+    );
 
-    this.app.configure(socketio(socket));
+    this.app = createClient(socket);
+
+    console.log(name);
   }
 }
 

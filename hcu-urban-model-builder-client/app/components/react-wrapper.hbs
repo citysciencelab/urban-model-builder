@@ -1,4 +1,12 @@
 <div>Ember counter: {{this.counter}}</div>
+{{#if this.selectedSingleItem}}
+  <Form @record={{this.selectedSingleItem}} />
+{{else if this.selectedMultipleItems}}
+  Selected Multiple Items...
+{{else}}
+  No item selected
+{{/if}}
+
 {{#if this.canInsert}}
   <div class="react-wrapper" {{did-insert this.didInsert}}></div>
 {{/if}}

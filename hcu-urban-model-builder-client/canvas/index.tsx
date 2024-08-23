@@ -19,16 +19,23 @@ import {
   Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { BaseNode } from "./lib/base-node.tsx";
+import { BaseNode } from "./lib/nodes/base-node.tsx";
+import { NodeType } from "hcu-urban-model-builder-backend";
 
 type NodeActions = {
   create: (type: "edge" | "node", data: any) => Promise<any>;
   save: (type: "edge" | "node", id: string, data: any) => void;
   delete: (type: "edge" | "node", id: string) => Promise<void>;
+  select: (type: "edge" | "node", id: string) => void;
+  unselect: (type: "edge" | "node", id: string) => void;
 };
 
+const getNodeTypeStringName = (type: NodeType) => NodeType[type].toLowerCase();
+
 const nodeTypes = {
-  base: BaseNode,
+  [getNodeTypeStringName(NodeType.Stock)]: BaseNode,
+  [getNodeTypeStringName(NodeType.Variable)]: BaseNode,
+  [getNodeTypeStringName(NodeType.Flow)]: BaseNode,
 };
 
 const edgesTypes = {
@@ -40,17 +47,31 @@ function Flow({
   edges: initialEdges,
   nodeActions,
 }: AppProps) {
+  console.log(initialEdges);
+
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const [nodes, setNodes] = useState(() => initialNodes.map((n) => n.raw));
   const [edges, setEdges] = useState(() =>
-    initialEdges.map((e) => ({
-      ...e.raw,
-      markerEnd: { type: MarkerType.Arrow },
-    })),
+    initialEdges.map((e) => {
+      console.log(e.raw);
+
+      return {
+        ...e.raw,
+        markerEnd: { type: MarkerType.Arrow },
+      };
+    }),
   );
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     for (const change of changes) {
+      if (change.type === "select") {
+        console.log(change);
+        if (change.selected) {
+          nodeActions.select("node", change.id);
+        } else {
+          nodeActions.unselect("node", change.id);
+        }
+      }
       if (change.type === "position" && !change.dragging) {
         nodeActions.save("node", change.id, { position: change.position });
       }
@@ -129,16 +150,20 @@ function Flow({
     [],
   );
 
-  const addNode = useCallback(async () => {
-    const result = await nodeActions.create("node", {
-      data: { label: `Node ${nodes.length}` },
-      position: {
-        x: 0,
-        y: 0,
-      },
-    });
-    setNodes((nds) => nds.concat(result.raw));
-  }, [nodes]);
+  const addNode = useCallback(
+    async (type: NodeType) => {
+      const result = await nodeActions.create("node", {
+        type: type,
+        data: { label: `${NodeType[type]} ${nodes.length}` },
+        position: {
+          x: 0,
+          y: 0,
+        },
+      });
+      setNodes((nds) => nds.concat(result.raw));
+    },
+    [nodes],
+  );
 
   return (
     <ReactFlow
@@ -156,7 +181,10 @@ function Flow({
       fitView
     >
       <Panel position="top-right">
-        <button onClick={addNode}>Add Node</button>
+        <button onClick={() => addNode(NodeType.Stock)}>Add Stock</button>
+        <button onClick={() => addNode(NodeType.Variable)}>Add Var</button>
+        <button onClick={() => addNode(NodeType.Flow)}>Add Flow</button>
+        <div id="some-wormhole"></div>
       </Panel>
       <Background />
       <Controls />

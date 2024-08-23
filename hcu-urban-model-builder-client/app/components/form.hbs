@@ -1,0 +1,19 @@
+{{#if (eq this.type "node")}}
+  <div>
+    {{#if (eq @record.type this.NodeType.Flow)}}
+      <label for="flow-rate">Rate</label>
+      <Textarea id="flow-rate" @value={{@record.rate}} />
+    {{/if}}
+    {{#if (eq @record.type this.NodeType.Variable)}}
+      <label for="variable-value">Value</label>
+      <Input id="variable-value" @value={{@record.value}} @type="number" />
+    {{/if}}
+    {{#if (eq @record.type this.NodeType.Stock)}}
+      <label for="stock-value">Value</label>
+      <Input id="stock-value" @value={{@record.value}} @type="number" />
+    {{/if}}
+    <button type="button" {{on "click" this.onSave}}>
+      Save
+    </button>
+  </div>
+{{/if}}

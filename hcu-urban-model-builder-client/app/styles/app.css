@@ -14,3 +14,19 @@ main {
   flex-grow: 1;
   height: 100%;
 }
+
+.react-flow__node.selected div {
+  border-color: red;
+}
+
+.react-flow__node-flow div {
+  background-color: #a3c4ff;
+}
+
+.react-flow__node-stock div {
+  background-color: cadetblue;
+}
+
+.react-flow__node-variable div {
+  background-color: coral;
+}

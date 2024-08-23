@@ -1,3 +1,4 @@
+import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import type Model from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
@@ -49,5 +50,49 @@ export default class ApplicationSerializer extends JSONSerializer {
     }
 
     return documentHash;
+  }
+
+  /**
+   * Copy of the original method from JSONSerializer
+   */
+  serializeBelongsTo(
+    snapshot: Snapshot,
+    json: Record<string, any>,
+    relationship: any,
+  ) {
+    const name = relationship.name;
+
+    if ((this as any)._canSerialize(name)) {
+      const belongsToId = snapshot.belongsTo(name, { id: true });
+
+      // if provided, use the mapping provided by `attrs` in
+      // the serializer
+      const schema = this.store.modelFor(snapshot.modelName);
+      let payloadKey = (this as any)._getMappedKey(name, schema);
+      if (payloadKey === name && this.keyForRelationship) {
+        payloadKey = this.keyForRelationship(name, 'belongsTo', 'serialize');
+      }
+
+      //Need to check whether the id is there for new&async records
+      if (!belongsToId) {
+        json[payloadKey] = null;
+      } else {
+        json[payloadKey] = Number(belongsToId);
+      }
+
+      if (relationship.options.polymorphic) {
+        (this as any).serializePolymorphicType(snapshot, json, relationship);
+      }
+    }
+  }
+
+  keyForRelationship(key: string, typeClass: string, method: string) {
+    if (
+      (method === 'serialize' || method === 'deserialize') &&
+      typeClass === 'belongsTo'
+    ) {
+      return `${key}Id`;
+    }
+    return key;
   }
 }

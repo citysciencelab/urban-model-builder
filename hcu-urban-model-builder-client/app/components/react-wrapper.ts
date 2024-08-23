@@ -25,6 +25,8 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
   @service store!: Store;
 
   @tracked counter = 0;
+  @tracked selected: (Node | Edge)[] = [];
+  @tracked inReactContainer: HTMLElement | null = null;
 
   get canInsert() {
     return !!this.args.nodes || !!this.args.edges;
@@ -35,13 +37,27 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
       save: this.save,
       create: this.create,
       delete: this.delete,
+      select: this.select,
+      unselect: this.unselect,
     };
+  }
+
+  get selectedSingleItem() {
+    if (this.selected.length === 1) {
+      return this.selected[0];
+    }
+    return null;
+  }
+
+  get selectedMultipleItems() {
+    if (this.selected.length > 1) {
+      return this.selected;
+    }
+    return null;
   }
 
   @action
   didInsert(element: HTMLElement) {
-    console.log('ReactWrapperComponent.didInsert', this.args.nodes);
-
     initReact(element, this.args.nodes, this.args.edges, this.nodeActions);
   }
 
@@ -57,7 +73,6 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
       console.log('createNode', key, rawData[key]);
 
       if (key in rawData) {
-        console.log(key, rawData[key]);
         data[key] = this.store.peekRecord<Node>('node', rawData[key]);
       }
     }
@@ -72,7 +87,6 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
       console.log('createNode', key, rawData[key]);
 
       if (key in rawData) {
-        console.log(key, rawData[key]);
         data[key] = this.store.peekRecord<Node>('node', rawData[key]);
       }
     }
@@ -88,5 +102,21 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
     }
     record.deleteRecord();
     await record.save();
+  }
+
+  @action
+  select(type: 'node' | 'edge', id: string) {
+    console.log('select', type, id);
+    const record = this.store.peekRecord<Node | Edge>(type, id);
+    if (!record) {
+      throw new Error(`Node with id ${id} not found`);
+    }
+    this.selected = [...this.selected, record];
+  }
+
+  @action
+  unselect(type: 'node' | 'edge', id: string) {
+    console.log('unselect', type, id);
+    this.selected = this.selected.filter((r) => r.id !== id);
   }
 }
