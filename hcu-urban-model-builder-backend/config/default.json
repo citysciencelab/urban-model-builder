@@ -12,6 +12,6 @@
   },
   "postgresql": {
     "client": "pg",
-    "connection": "postgres://postgres:@localhost:5432/hcu-urban-model-builder-backend"
+    "connection": "postgres://hcu_admin:123123123@localhost:5432/hcu_urban_model_builder"
   }
 }
