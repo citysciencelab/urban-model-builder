@@ -11,8 +11,8 @@ import type { EdgesService } from './edges.class'
 export const edgesSchema = Type.Object(
   {
     id: Type.Number(),
-    source: Type.String(),
-    target: Type.String(),
+    sourceId: Type.Number(),
+    targetId: Type.Number(),
     sourceHandle: Type.String(),
     targetHandle: Type.String(),
   },
@@ -25,7 +25,7 @@ export const edgesResolver = resolve<Edges, HookContext<EdgesService>>({})
 export const edgesExternalResolver = resolve<Edges, HookContext<EdgesService>>({})
 
 // Schema for creating new entries
-export const edgesDataSchema = Type.Pick(edgesSchema, ['source', 'target', 'sourceHandle', 'targetHandle'], {
+export const edgesDataSchema = Type.Pick(edgesSchema, ['sourceId', 'targetId', 'sourceHandle', 'targetHandle'], {
   $id: 'EdgesData'
 })
 export type EdgesData = Static<typeof edgesDataSchema>
@@ -41,7 +41,7 @@ export const edgesPatchValidator = getValidator(edgesPatchSchema, dataValidator)
 export const edgesPatchResolver = resolve<Edges, HookContext<EdgesService>>({})
 
 // Schema for allowed query properties
-export const edgesQueryProperties = Type.Pick(edgesSchema, ['id', 'source', 'target', 'sourceHandle', 'targetHandle'])
+export const edgesQueryProperties = Type.Pick(edgesSchema, ['id', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'])
 export const edgesQuerySchema = Type.Intersect(
   [
     querySyntax(edgesQueryProperties),

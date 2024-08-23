@@ -4,20 +4,27 @@ import type { TransportConnection, Application } from '@feathersjs/feathers'
 import authenticationClient from '@feathersjs/authentication-client'
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { simulateClient } from './services/simulate/simulate.shared'
+export type {
+  Simulate,
+  SimulateData,
+  SimulateQuery,
+  SimulatePatch
+} from './services/simulate/simulate.shared'
+
 import { edgesClient } from './services/edges/edges.shared'
 export type { Edges, EdgesData, EdgesQuery, EdgesPatch } from './services/edges/edges.shared'
 
 import { nodesClient } from './services/nodes/nodes.shared'
 export type { Nodes, NodesData, NodesQuery, NodesPatch } from './services/nodes/nodes.shared'
-
-import { nodesClient } from './services/nodes/nodes.shared'
-export type { Nodes, NodesData, NodesQuery, NodesPatch } from './services/nodes/nodes.shared'
+import { NodeType } from './services/nodes/nodes.shared'
+export { NodeType }
 
 export interface Configuration {
   connection: TransportConnection<ServiceTypes>
 }
 
-export interface ServiceTypes {}
+export interface ServiceTypes { }
 
 export type ClientApplication = Application<ServiceTypes, Configuration>
 
@@ -42,5 +49,6 @@ export const createClient = <Configuration = any,>(
   client.configure(nodesClient)
   client.configure(nodesClient)
   client.configure(edgesClient)
+  client.configure(simulateClient)
   return client
 }

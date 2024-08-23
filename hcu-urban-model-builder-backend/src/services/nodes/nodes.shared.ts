@@ -3,7 +3,13 @@ import type { Params } from '@feathersjs/feathers'
 import type { ClientApplication } from '../../client'
 import type { Nodes, NodesData, NodesPatch, NodesQuery, NodesService } from './nodes.class'
 
-export type { Nodes, NodesData, NodesPatch, NodesQuery }
+export { Nodes, NodesData, NodesPatch, NodesQuery }
+
+export enum NodeType {
+  Stock = 0,
+  Variable,
+  Flow
+}
 
 export type NodesClientService = Pick<NodesService<Params<NodesQuery>>, (typeof nodesMethods)[number]>
 
