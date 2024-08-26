@@ -13,6 +13,7 @@
   "engines": {
     "node": ">= 20.13.1"
   },
+  "type": "module",
   "feathers": {
     "language": "ts",
     "packager": "npm",
@@ -35,7 +36,7 @@
   ],
   "main": "lib/client",
   "scripts": {
-    "dev": "nodemon -x ts-node src/index.ts",
+    "dev": "nodemon -x node --import ./ts-node.register.mjs src/index.ts",
     "compile": "shx rm -rf lib/ && tsc",
     "start": "node lib/",
     "prettier": "npx prettier \"**/*.ts\" --write",
@@ -61,6 +62,8 @@
     "@feathersjs/typebox": "^5.0.29",
     "knex": "^3.1.0",
     "pg": "^8.12.0",
+    "simulation": "^5.0.0",
+    "simulation-viz-console": "^1.0.5",
     "winston": "^3.14.2"
   },
   "devDependencies": {

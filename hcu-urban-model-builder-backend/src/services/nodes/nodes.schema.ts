@@ -3,11 +3,11 @@ import { resolve } from '@feathersjs/schema'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import type { Static, TSchema } from '@feathersjs/typebox'
 
-import type { HookContext } from '../../declarations'
-import { dataValidator, queryValidator } from '../../validators'
-import type { NodesService } from './nodes.class'
-import { Nullable } from '../../utils/schema'
-import { NodeType } from './nodes.shared'
+import type { HookContext } from '../../declarations.js'
+import { dataValidator, queryValidator } from '../../validators.js'
+import type { NodesService } from './nodes.class.js'
+import { Nullable } from '../../utils/schema.js'
+import { NodeType } from './nodes.shared.js'
 
 // Main data model schema
 export const nodesSchema = Type.Object(

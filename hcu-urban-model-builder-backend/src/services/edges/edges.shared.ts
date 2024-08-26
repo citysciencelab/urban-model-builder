@@ -1,7 +1,7 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.shared.html
 import type { Params } from '@feathersjs/feathers'
-import type { ClientApplication } from '../../client'
-import type { Edges, EdgesData, EdgesPatch, EdgesQuery, EdgesService } from './edges.class'
+import type { ClientApplication } from '../../client.js'
+import type { Edges, EdgesData, EdgesPatch, EdgesQuery, EdgesService } from './edges.class.js'
 
 export type { Edges, EdgesData, EdgesPatch, EdgesQuery }
 
@@ -20,7 +20,7 @@ export const edgesClient = (client: ClientApplication) => {
 }
 
 // Add this service to the client service type index
-declare module '../../client' {
+declare module '../../client.js' {
   interface ServiceTypes {
     [edgesPath]: EdgesClientService
   }

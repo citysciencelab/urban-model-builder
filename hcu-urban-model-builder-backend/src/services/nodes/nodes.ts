@@ -11,14 +11,14 @@ import {
   nodesDataResolver,
   nodesPatchResolver,
   nodesQueryResolver
-} from './nodes.schema'
+} from './nodes.schema.js'
 
-import type { Application } from '../../declarations'
-import { NodesService, getOptions } from './nodes.class'
-import { nodesPath, nodesMethods } from './nodes.shared'
+import type { Application } from '../../declarations.js'
+import { NodesService, getOptions } from './nodes.class.js'
+import { nodesPath, nodesMethods } from './nodes.shared.js'
 
-export * from './nodes.class'
-export * from './nodes.schema'
+export * from './nodes.class.js'
+export * from './nodes.schema.js'
 
 // A configure function that registers the service and its hooks via `app.configure`
 export const nodes = (app: Application) => {
@@ -52,7 +52,7 @@ export const nodes = (app: Application) => {
 }
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../declarations.js' {
   interface ServiceTypes {
     [nodesPath]: NodesService
   }

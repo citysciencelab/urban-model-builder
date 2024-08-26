@@ -2,8 +2,8 @@
 import type { Params } from '@feathersjs/feathers'
 import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import type { Application } from '../../declarations'
-import type { Nodes, NodesData, NodesPatch, NodesQuery } from './nodes.schema'
+import type { Application } from '../../declarations.js'
+import type { Nodes, NodesData, NodesPatch, NodesQuery } from './nodes.schema.js'
 
 export type { Nodes, NodesData, NodesPatch, NodesQuery }
 

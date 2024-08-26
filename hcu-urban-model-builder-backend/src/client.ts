@@ -1,23 +1,26 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/client.html
 import { feathers } from '@feathersjs/feathers'
 import type { TransportConnection, Application } from '@feathersjs/feathers'
-import authenticationClient from '@feathersjs/authentication-client'
+import authenticationClientModule from '@feathersjs/authentication-client';
+// temporary workaround for https://github.com/feathersjs/feathers/issues/3343
+const authenticationClient =
+  authenticationClientModule as unknown as typeof authenticationClientModule.default;
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
-import { simulateClient } from './services/simulate/simulate.shared'
+import { simulateClient } from './services/simulate/simulate.shared.js'
 export type {
   Simulate,
   SimulateData,
   SimulateQuery,
   SimulatePatch
-} from './services/simulate/simulate.shared'
+} from './services/simulate/simulate.shared.js'
 
-import { edgesClient } from './services/edges/edges.shared'
-export type { Edges, EdgesData, EdgesQuery, EdgesPatch } from './services/edges/edges.shared'
+import { edgesClient } from './services/edges/edges.shared.js'
+export type { Edges, EdgesData, EdgesQuery, EdgesPatch } from './services/edges/edges.shared.js'
 
-import { nodesClient } from './services/nodes/nodes.shared'
-export type { Nodes, NodesData, NodesQuery, NodesPatch } from './services/nodes/nodes.shared'
-import { NodeType } from './services/nodes/nodes.shared'
+import { nodesClient } from './services/nodes/nodes.shared.js'
+export type { Nodes, NodesData, NodesQuery, NodesPatch } from './services/nodes/nodes.shared.js'
+import { NodeType } from './services/nodes/nodes.shared.js'
 export { NodeType }
 
 export interface Configuration {
@@ -49,6 +52,7 @@ export const createClient = <Configuration = any,>(
   client.configure(nodesClient)
   client.configure(nodesClient)
   client.configure(edgesClient)
+  client.configure(simulateClient)
   client.configure(simulateClient)
   return client
 }

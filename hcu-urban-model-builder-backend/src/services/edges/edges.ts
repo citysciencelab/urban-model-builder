@@ -11,14 +11,14 @@ import {
   edgesDataResolver,
   edgesPatchResolver,
   edgesQueryResolver
-} from './edges.schema'
+} from './edges.schema.js'
 
-import type { Application } from '../../declarations'
-import { EdgesService, getOptions } from './edges.class'
-import { edgesPath, edgesMethods } from './edges.shared'
+import type { Application } from '../../declarations.js'
+import { EdgesService, getOptions } from './edges.class.js'
+import { edgesPath, edgesMethods } from './edges.shared.js'
 
-export * from './edges.class'
-export * from './edges.schema'
+export * from './edges.class.js'
+export * from './edges.schema.js'
 
 // A configure function that registers the service and its hooks via `app.configure`
 export const edges = (app: Application) => {
@@ -52,7 +52,7 @@ export const edges = (app: Application) => {
 }
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../declarations.js' {
   interface ServiceTypes {
     [edgesPath]: EdgesService
   }

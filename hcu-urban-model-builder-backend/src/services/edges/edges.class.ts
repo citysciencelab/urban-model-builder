@@ -2,8 +2,8 @@
 import type { Params } from '@feathersjs/feathers'
 import { KnexAdapterOptions, KnexAdapterParams, KnexService } from '@feathersjs/knex'
 
-import type { Application } from '../../declarations'
-import type { Edges, EdgesData, EdgesPatch, EdgesQuery } from './edges.schema'
+import type { Application } from '../../declarations.js'
+import type { Edges, EdgesData, EdgesPatch, EdgesQuery } from './edges.schema.js'
 
 export type { Edges, EdgesData, EdgesPatch, EdgesQuery }
 

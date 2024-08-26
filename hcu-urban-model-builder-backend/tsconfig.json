@@ -1,21 +1,22 @@
 {
   "ts-node": {
-    "files": true
+    "files": true,
   },
   "compilerOptions": {
     "target": "es2020",
-    "module": "commonjs",
+    "module": "nodenext",
     "outDir": "./lib",
     "rootDir": "./src",
     "declaration": true,
     "strict": true,
     "esModuleInterop": true,
-    "sourceMap": true
+    "sourceMap": true,
   },
   "include": [
-    "src"
+    "src",
+    "types/**/*.d.ts"
   ],
   "exclude": [
     "test"
-  ]
+  ],
 }
