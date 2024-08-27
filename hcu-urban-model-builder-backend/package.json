@@ -36,15 +36,16 @@
   ],
   "main": "lib/client",
   "scripts": {
-    "dev": "nodemon -x node --import ./ts-node.register.mjs src/index.ts",
+    "dev": "nodemon --watch \"src/**\" --ext \"ts\"  -x node --import ./ts-node.register.mjs src/index.ts",
     "compile": "shx rm -rf lib/ && tsc",
     "start": "node lib/",
     "prettier": "npx prettier \"**/*.ts\" --write",
     "mocha": "cross-env NODE_ENV=test mocha test/ --require ts-node/register --recursive --extension .ts --exit",
     "test": "cross-env NODE_ENV=test npm run migrate && npm run mocha",
     "bundle:client": "npm run compile && npm pack --pack-destination ./public",
-    "migrate": "knex migrate:latest",
-    "migrate:make": "knex migrate:make"
+    "migrate": "npm run knex -- migrate:latest",
+    "migrate:make": "npm run knex -- migrate:make",
+    "knex": "node --import ./ts-node.register.mjs ./node_modules/.bin/knex"
   },
   "dependencies": {
     "@feathersjs/adapter-commons": "^5.0.29",
