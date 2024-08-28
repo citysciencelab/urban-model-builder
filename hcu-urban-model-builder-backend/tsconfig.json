@@ -1,6 +1,7 @@
 {
   "ts-node": {
     "files": true,
+    "esm": true,
   },
   "compilerOptions": {
     "target": "es2020",
