@@ -20,7 +20,9 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
-import { NodeType } from "hcu-urban-model-builder-backend";
+import { EdgeType, NodeType } from "hcu-urban-model-builder-backend";
+import { FlowEdge } from "./lib/edges/flow.tsx";
+import { FlowNode } from "./lib/nodes/flow-node.tsx";
 
 type NodeActions = {
   create: (type: "edge" | "node", data: any) => Promise<any>;
@@ -31,16 +33,20 @@ type NodeActions = {
 };
 
 const getNodeTypeStringName = (type: NodeType) => NodeType[type].toLowerCase();
+const getEdgeTypeStringName = (type: EdgeType) => EdgeType[type].toLowerCase();
 
 const nodeTypes = {
   [getNodeTypeStringName(NodeType.Stock)]: BaseNode,
   [getNodeTypeStringName(NodeType.Variable)]: BaseNode,
-  [getNodeTypeStringName(NodeType.Flow)]: BaseNode,
+  [getNodeTypeStringName(NodeType.Flow)]: FlowNode,
 };
 
 const edgesTypes = {
-  default: SmoothStepEdge,
+  [getEdgeTypeStringName(EdgeType.Link)]: SmoothStepEdge,
+  [getEdgeTypeStringName(EdgeType.Flow)]: FlowEdge,
 };
+
+console.log(edgesTypes);
 
 function Flow({
   nodes: initialNodes,
@@ -53,11 +59,10 @@ function Flow({
   const [nodes, setNodes] = useState(() => initialNodes.map((n) => n.raw));
   const [edges, setEdges] = useState(() =>
     initialEdges.map((e) => {
-      console.log(e.raw);
-
       return {
         ...e.raw,
         markerEnd: { type: MarkerType.Arrow },
+        // type: "flow",
       };
     }),
   );
@@ -107,7 +112,17 @@ function Flow({
     async (params: Connection) => {
       const tmpEdgeId = getTmpEdgeId(params);
       const markerEnd = { type: MarkerType.Arrow };
+
+      console.log("sourceHandle", params, params.targetHandle);
+
+      const type =
+        params.sourceHandle.startsWith("flow-") ||
+        params.targetHandle.startsWith("flow-")
+          ? EdgeType.Flow
+          : EdgeType.Link;
+
       const tmpEdge: Edge = {
+        type: getEdgeTypeStringName(type),
         id: tmpEdgeId,
         markerEnd,
         ...params,
@@ -116,6 +131,7 @@ function Flow({
       setEdges((eds) => addEdge(tmpEdge, eds));
 
       const newEdge = await nodeActions.create("edge", {
+        type: type,
         source: params.source,
         target: params.target,
         sourceHandle: params.sourceHandle,

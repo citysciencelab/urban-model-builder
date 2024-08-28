@@ -19,8 +19,9 @@ main {
   border-color: red;
 }
 
-.react-flow__node-flow div {
-  background-color: #a3c4ff;
+.react-flow__node-flow__label {
+  /* background-color: #a3c4ff; */
+  padding: 0 0.5rem;
 }
 
 .react-flow__node-stock div {
