@@ -1,9 +1,12 @@
 import Model, { attr, belongsTo } from '@ember-data/model';
 import { Type } from '@warp-drive/core-types/symbols';
 import type Node from './node';
+import { EdgeType } from 'hcu-urban-model-builder-backend';
 
 export default class Edge extends Model {
   [Type] = 'edge' as const;
+
+  @attr('number') declare type: EdgeType;
 
   @belongsTo('node', { async: true, inverse: 'sourceEdges' })
   declare source: Node;
@@ -18,10 +21,25 @@ export default class Edge extends Model {
   get raw() {
     return {
       id: this.id,
+      type: EdgeType[this.type].toLocaleLowerCase(),
       source: this.source.id,
       target: this.target.id,
       sourceHandle: this.sourceHandle,
       targetHandle: this.targetHandle,
+      reconnectable: this.reconnectable,
     };
+  }
+
+  get reconnectable() {
+    if (this.type === EdgeType.Link) {
+      return true;
+    }
+    if (this.type === EdgeType.Flow) {
+      if (this.sourceHandle.startsWith('flow-source')) {
+        return 'target';
+      } else if (this.targetHandle.startsWith('flow-target')) {
+        return 'source';
+      }
+    }
   }
 }
