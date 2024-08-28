@@ -6,11 +6,13 @@ import type { Static } from '@feathersjs/typebox'
 import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { EdgesService } from './edges.class.js'
+import { EdgeType } from './edges.shared.js'
 
 // Main data model schema
 export const edgesSchema = Type.Object(
   {
     id: Type.Number(),
+    type: Type.Enum(EdgeType),
     sourceId: Type.Number(),
     targetId: Type.Number(),
     sourceHandle: Type.String(),
@@ -25,7 +27,7 @@ export const edgesResolver = resolve<Edges, HookContext<EdgesService>>({})
 export const edgesExternalResolver = resolve<Edges, HookContext<EdgesService>>({})
 
 // Schema for creating new entries
-export const edgesDataSchema = Type.Pick(edgesSchema, ['sourceId', 'targetId', 'sourceHandle', 'targetHandle'], {
+export const edgesDataSchema = Type.Pick(edgesSchema, ['type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'], {
   $id: 'EdgesData'
 })
 export type EdgesData = Static<typeof edgesDataSchema>
@@ -41,7 +43,7 @@ export const edgesPatchValidator = getValidator(edgesPatchSchema, dataValidator)
 export const edgesPatchResolver = resolve<Edges, HookContext<EdgesService>>({})
 
 // Schema for allowed query properties
-export const edgesQueryProperties = Type.Pick(edgesSchema, ['id', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'])
+export const edgesQueryProperties = Type.Pick(edgesSchema, ['id', 'type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'])
 export const edgesQuerySchema = Type.Intersect(
   [
     querySyntax(edgesQueryProperties),

@@ -5,6 +5,8 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('edges', (table) => {
     table.increments('id')
 
+    table.integer('type')
+
     table.integer('sourceId')
     table.integer('targetId')
 

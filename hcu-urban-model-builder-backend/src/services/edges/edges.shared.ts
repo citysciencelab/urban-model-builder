@@ -5,6 +5,11 @@ import type { Edges, EdgesData, EdgesPatch, EdgesQuery, EdgesService } from './e
 
 export type { Edges, EdgesData, EdgesPatch, EdgesQuery }
 
+export enum EdgeType {
+  Link = 0,
+  Flow
+}
+
 export type EdgesClientService = Pick<EdgesService<Params<EdgesQuery>>, (typeof edgesMethods)[number]>
 
 export const edgesPath = 'edges'

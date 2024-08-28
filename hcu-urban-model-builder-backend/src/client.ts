@@ -15,12 +15,12 @@ export type {
   SimulatePatch
 } from './services/simulate/simulate.shared.js'
 
-import { edgesClient } from './services/edges/edges.shared.js'
+import { edgesClient, EdgeType } from './services/edges/edges.shared.js'
 export type { Edges, EdgesData, EdgesQuery, EdgesPatch } from './services/edges/edges.shared.js'
+export { EdgeType }
 
-import { nodesClient } from './services/nodes/nodes.shared.js'
+import { nodesClient, NodeType } from './services/nodes/nodes.shared.js'
 export type { Nodes, NodesData, NodesQuery, NodesPatch } from './services/nodes/nodes.shared.js'
-import { NodeType } from './services/nodes/nodes.shared.js'
 export { NodeType }
 
 export interface Configuration {
