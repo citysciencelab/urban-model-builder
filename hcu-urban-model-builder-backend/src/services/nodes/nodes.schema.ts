@@ -13,9 +13,10 @@ import { NodeType } from './nodes.shared.js'
 export const nodesSchema = Type.Object(
   {
     id: Type.Number(),
+    modelId: Type.Number(),
     type: Type.Enum(NodeType),
     data: Type.Object({
-      label: Type.String(),
+      label: Type.String()
     }),
     value: Nullable(Type.Number()),
     rate: Nullable(Type.String()),
@@ -33,9 +34,13 @@ export const nodesResolver = resolve<Nodes, HookContext<NodesService>>({})
 export const nodesExternalResolver = resolve<Nodes, HookContext<NodesService>>({})
 
 // Schema for creating new entries
-export const nodesDataSchema = Type.Pick(nodesSchema, ["type", 'position', 'data', 'value', 'rate'], {
-  $id: 'NodesData'
-})
+export const nodesDataSchema = Type.Pick(
+  nodesSchema,
+  ['modelId', 'type', 'position', 'data', 'value', 'rate'],
+  {
+    $id: 'NodesData'
+  }
+)
 export type NodesData = Static<typeof nodesDataSchema>
 export const nodesDataValidator = getValidator(nodesDataSchema, dataValidator)
 export const nodesDataResolver = resolve<Nodes, HookContext<NodesService>>({})
@@ -49,7 +54,15 @@ export const nodesPatchValidator = getValidator(nodesPatchSchema, dataValidator)
 export const nodesPatchResolver = resolve<Nodes, HookContext<NodesService>>({})
 
 // Schema for allowed query properties
-export const nodesQueryProperties = Type.Pick(nodesSchema, ['id', 'type', "position", 'data', 'value', 'rate'])
+export const nodesQueryProperties = Type.Pick(nodesSchema, [
+  'id',
+  'modelId',
+  'type',
+  'position',
+  'data',
+  'value',
+  'rate'
+])
 export const nodesQuerySchema = Type.Intersect(
   [
     querySyntax(nodesQueryProperties),

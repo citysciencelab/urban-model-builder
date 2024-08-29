@@ -1,11 +1,14 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/client.html
 import { feathers } from '@feathersjs/feathers'
 import type { TransportConnection, Application } from '@feathersjs/feathers'
-import authenticationClientModule from '@feathersjs/authentication-client';
+import authenticationClientModule from '@feathersjs/authentication-client'
 // temporary workaround for https://github.com/feathersjs/feathers/issues/3343
 const authenticationClient =
-  authenticationClientModule as unknown as typeof authenticationClientModule.default;
+  authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
+
+import { modelsClient } from './services/models/models.shared.js'
+export type { Models, ModelsData, ModelsQuery, ModelsPatch } from './services/models/models.shared.js'
 
 import { simulateClient } from './services/simulate/simulate.shared.js'
 export type {
@@ -27,7 +30,7 @@ export interface Configuration {
   connection: TransportConnection<ServiceTypes>
 }
 
-export interface ServiceTypes { }
+export interface ServiceTypes {}
 
 export type ClientApplication = Application<ServiceTypes, Configuration>
 
@@ -39,7 +42,7 @@ export type ClientApplication = Application<ServiceTypes, Configuration>
  * @see https://dove.feathersjs.com/api/client.html
  * @returns The Feathers client application
  */
-export const createClient = <Configuration = any,>(
+export const createClient = <Configuration = any>(
   connection: TransportConnection<ServiceTypes>,
   authenticationOptions: Partial<AuthenticationClientOptions> = {}
 ) => {
@@ -50,9 +53,8 @@ export const createClient = <Configuration = any,>(
   client.set('connection', connection)
 
   client.configure(nodesClient)
-  client.configure(nodesClient)
   client.configure(edgesClient)
   client.configure(simulateClient)
-  client.configure(simulateClient)
+  client.configure(modelsClient)
   return client
 }

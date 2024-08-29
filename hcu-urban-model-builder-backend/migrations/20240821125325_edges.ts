@@ -7,12 +7,14 @@ export async function up(knex: Knex): Promise<void> {
 
     table.integer('type')
 
+    table.integer('modelId')
     table.integer('sourceId')
     table.integer('targetId')
 
     table.string('sourceHandle')
     table.string('targetHandle')
 
+    table.foreign('modelId').references('id').inTable('models').onDelete('CASCADE')
     table.foreign('sourceId').references('id').inTable('nodes').onDelete('CASCADE')
     table.foreign('targetId').references('id').inTable('nodes').onDelete('CASCADE')
   })

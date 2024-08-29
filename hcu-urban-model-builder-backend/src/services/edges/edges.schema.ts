@@ -12,11 +12,12 @@ import { EdgeType } from './edges.shared.js'
 export const edgesSchema = Type.Object(
   {
     id: Type.Number(),
+    modelId: Type.Number(),
     type: Type.Enum(EdgeType),
     sourceId: Type.Number(),
     targetId: Type.Number(),
     sourceHandle: Type.String(),
-    targetHandle: Type.String(),
+    targetHandle: Type.String()
   },
   { $id: 'Edges', additionalProperties: false }
 )
@@ -27,9 +28,13 @@ export const edgesResolver = resolve<Edges, HookContext<EdgesService>>({})
 export const edgesExternalResolver = resolve<Edges, HookContext<EdgesService>>({})
 
 // Schema for creating new entries
-export const edgesDataSchema = Type.Pick(edgesSchema, ['type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'], {
-  $id: 'EdgesData'
-})
+export const edgesDataSchema = Type.Pick(
+  edgesSchema,
+  ['modelId', 'type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'],
+  {
+    $id: 'EdgesData'
+  }
+)
 export type EdgesData = Static<typeof edgesDataSchema>
 export const edgesDataValidator = getValidator(edgesDataSchema, dataValidator)
 export const edgesDataResolver = resolve<Edges, HookContext<EdgesService>>({})
@@ -43,7 +48,15 @@ export const edgesPatchValidator = getValidator(edgesPatchSchema, dataValidator)
 export const edgesPatchResolver = resolve<Edges, HookContext<EdgesService>>({})
 
 // Schema for allowed query properties
-export const edgesQueryProperties = Type.Pick(edgesSchema, ['id', 'type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'])
+export const edgesQueryProperties = Type.Pick(edgesSchema, [
+  'id',
+  'modelId',
+  'type',
+  'sourceId',
+  'targetId',
+  'sourceHandle',
+  'targetHandle'
+])
 export const edgesQuerySchema = Type.Intersect(
   [
     querySyntax(edgesQueryProperties),

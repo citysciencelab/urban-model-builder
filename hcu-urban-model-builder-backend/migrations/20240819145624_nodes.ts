@@ -11,6 +11,10 @@ export async function up(knex: Knex): Promise<void> {
     table.float('value')
     table.string('rate')
     table.string('text')
+
+    table.integer('modelId')
+
+    table.foreign('modelId').references('id').inTable('models').onDelete('CASCADE')
   })
 }
 
