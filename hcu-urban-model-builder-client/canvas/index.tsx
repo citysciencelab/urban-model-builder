@@ -56,7 +56,9 @@ function Flow({
   console.log(initialEdges);
 
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
-  const [nodes, setNodes] = useState(() => initialNodes.map((n) => n.raw));
+  const [nodes, setNodes] = useState(() =>
+    initialNodes.map((n) => ({ ...n.raw, data: { emberModel: n } })),
+  );
   const [edges, setEdges] = useState(() =>
     initialEdges.map((e) => {
       return {
@@ -170,13 +172,19 @@ function Flow({
     async (type: NodeType) => {
       const result = await nodeActions.create("node", {
         type: type,
-        data: { label: `${NodeType[type]} ${nodes.length}` },
+        name: `${NodeType[type]} ${nodes.length}`,
+        data: {},
         position: {
           x: 0,
           y: 0,
         },
       });
-      setNodes((nds) => nds.concat(result.raw));
+      setNodes((nds) =>
+        nds.concat({
+          ...result.raw,
+          data: { emberModel: result },
+        }),
+      );
     },
     [nodes],
   );

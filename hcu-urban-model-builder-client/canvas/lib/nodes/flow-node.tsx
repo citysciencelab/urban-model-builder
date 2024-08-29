@@ -1,14 +1,8 @@
-import {
-  Handle,
-  HandleType,
-  NodeProps,
-  Position,
-  useConnection,
-  useHandleConnections,
-} from "@xyflow/react";
+import { Handle, HandleType, NodeProps, Position } from "@xyflow/react";
+import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo } from "react";
 
-export const FlowNode = memo(({ id, data, isConnectable }: NodeProps) => {
+export const FlowNode = memo(({ data, isConnectable }: NodeProps) => {
   const positions = [
     Position.Top,
     Position.Bottom,
@@ -16,9 +10,10 @@ export const FlowNode = memo(({ id, data, isConnectable }: NodeProps) => {
     // Position.Right,
   ];
 
-  const connections = useConnection();
-
-  console.log("connections", connections);
+  const name = useModelPropState({
+    emberModel: data.emberModel as any,
+    propertyName: "name",
+  });
 
   return (
     <div>
@@ -47,7 +42,7 @@ export const FlowNode = memo(({ id, data, isConnectable }: NodeProps) => {
         style={{ background: "red" }}
         isConnectable={isConnectable}
       />
-      <div className="react-flow__node-flow__label">{data.label as string}</div>
+      <div className="react-flow__node-flow__label">{name}</div>
     </div>
   );
 });
