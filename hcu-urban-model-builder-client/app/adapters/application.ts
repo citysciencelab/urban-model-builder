@@ -1,13 +1,13 @@
 import Adapter from '@ember-data/adapter';
-import RESTAdapter from '@ember-data/adapter/rest';
 import type { AdapterPayload } from '@ember-data/legacy-compat/legacy-network-handler/minimum-adapter-interface';
 import type { Snapshot } from '@ember-data/legacy-compat/legacy-network-handler/snapshot';
-import type { SnapshotRecordArray } from '@ember-data/legacy-compat/legacy-network-handler/snapshot-record-array';
 import { pluralize } from '@ember-data/request-utils/string';
 import type { Store } from '@ember-data/store/-private/store-service';
 import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import { service } from '@ember/service';
 import { dasherize } from '@ember/string';
+import type { Params } from '@feathersjs/feathers';
+import type { LegacyHasManyField } from '@warp-drive/core-types/schema/fields';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
 
 export default class ApplicationAdapter extends Adapter {
@@ -25,7 +25,15 @@ export default class ApplicationAdapter extends Adapter {
   ): Promise<AdapterPayload> {
     return this.feathers.app
       .service(this.pathForType(type.modelName))
-      .find({ query });
+      .find({ query } as Params);
+  }
+
+  async findRecord(
+    store: Store,
+    type: ModelSchema,
+    id: string,
+  ): Promise<AdapterPayload> {
+    return this.feathers.app.service(this.pathForType(type.modelName)).get(id);
   }
 
   async createRecord(
@@ -34,6 +42,8 @@ export default class ApplicationAdapter extends Adapter {
     snapshot: Snapshot<any>,
   ): Promise<AdapterPayload> {
     const data = this.serialize(snapshot, {});
+
+    this.feathers.app.service('edges').find();
 
     return this.feathers.app
       .service(this.pathForType(type.modelName))
@@ -62,11 +72,24 @@ export default class ApplicationAdapter extends Adapter {
       .remove(snapshot.id);
   }
 
-  pathForType(modelName: string): string {
+  async findHasMany(
+    _store: Store,
+    _snapshot: Snapshot,
+    _url: string,
+    type: LegacyHasManyField,
+  ) {
+    return this.feathers.app.service(this.pathForType(type.type)).find({
+      query: {
+        [`${type.options.inverse}Id`]: _snapshot.id,
+      },
+    });
+  }
+
+  pathForType(modelName: string) {
     return modelName.split('/').reduce((accumulator, currentValue, index) => {
       const separator = index === 0 ? '' : '/';
       const camelized = dasherize(currentValue);
       return `${accumulator}${separator}${pluralize(camelized)}`;
-    }, '');
+    }, '') as any;
   }
 }

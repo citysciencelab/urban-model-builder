@@ -3,7 +3,12 @@ import type Model from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
+import { camelize } from '@ember/string';
 import type { Paginated } from '@feathersjs/feathers';
+import type {
+  SingleResourceDocument,
+  EmptyResourceDocument,
+} from '@warp-drive/core-types/spec/json-api-raw';
 
 export default class ApplicationSerializer extends JSONSerializer {
   normalizeResponse(
@@ -84,6 +89,33 @@ export default class ApplicationSerializer extends JSONSerializer {
         (this as any).serializePolymorphicType(snapshot, json, relationship);
       }
     }
+  }
+
+  normalize(
+    _typeClass: ModelSchema,
+    hash: Record<string, unknown>,
+  ): SingleResourceDocument | EmptyResourceDocument {
+    this.normalizeHasMany(_typeClass, hash);
+    return super.normalize(_typeClass, hash);
+  }
+
+  normalizeHasMany(primaryModelClass: any, hash: any) {
+    if (!('links' in hash)) {
+      hash.links = {};
+    }
+
+    for (const hasManyRelationshipName of primaryModelClass.relationshipNames
+      .hasMany) {
+      // if the hasMany relationship key is not included in the hash then skip because data is embedded
+      if (
+        !(hasManyRelationshipName in hash) &&
+        !(hasManyRelationshipName in hash.links)
+      ) {
+        hash.links[hasManyRelationshipName] = 'async-has-many';
+      }
+    }
+
+    return hash;
   }
 
   keyForRelationship(key: string, typeClass: string, method: string) {
