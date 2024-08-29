@@ -1,5 +1,7 @@
 {{#if (eq this.type "node")}}
   <div>
+    <label for="node-name">Name</label>
+    <Input id="node-name" @value={{@record.name}} @type="text" />
     {{#if (eq @record.type this.NodeType.Flow)}}
       <label for="flow-rate">Rate</label>
       <Textarea id="flow-rate" @value={{@record.rate}} />

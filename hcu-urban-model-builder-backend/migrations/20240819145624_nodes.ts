@@ -6,11 +6,11 @@ export async function up(knex: Knex): Promise<void> {
     table.increments('id')
 
     table.integer('type')
+    table.string('name')
     table.jsonb('data')
     table.jsonb('position')
     table.float('value')
     table.string('rate')
-    table.string('text')
 
     table.integer('modelId')
 

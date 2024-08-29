@@ -1,12 +1,12 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.class.html#custom-services
 import type { Id, NullableId, Params, ServiceInterface } from '@feathersjs/feathers'
 import { Model } from 'simulation'
-import { plot } from "simulation-viz-console";
+import { plot } from 'simulation-viz-console'
 
 import type { Application } from '../../declarations.js'
 import type { Simulate, SimulateData, SimulatePatch, SimulateQuery } from './simulate.schema.js'
-import { NodeType } from '../nodes/nodes.shared.js';
-import { EdgeType } from '../edges/edges.shared.js';
+import { NodeType } from '../nodes/nodes.shared.js'
+import { EdgeType } from '../edges/edges.shared.js'
 
 export type { Simulate, SimulateData, SimulatePatch, SimulateQuery }
 
@@ -14,12 +14,12 @@ export interface SimulateServiceOptions {
   app: Application
 }
 
-export interface SimulateParams extends Params<SimulateQuery> { }
+export interface SimulateParams extends Params<SimulateQuery> {}
 
 // This is a skeleton for a custom service class. Remove or add the methods you need here
 export class SimulateService<ServiceParams extends SimulateParams = SimulateParams>
-  implements ServiceInterface<Simulate, SimulateData, ServiceParams, SimulatePatch> {
-
+  implements ServiceInterface<Simulate, SimulateData, ServiceParams, SimulatePatch>
+{
   app: Application
 
   constructor(public options: SimulateServiceOptions) {
@@ -40,11 +40,10 @@ export class SimulateService<ServiceParams extends SimulateParams = SimulatePara
   async create(data: SimulateData, params?: ServiceParams): Promise<Simulate>
   async create(data: SimulateData[], params?: ServiceParams): Promise<Simulate[]>
   async create(data: SimulateData | SimulateData[], params?: ServiceParams): Promise<Simulate | Simulate[]> {
-
     const model = new Model({
-      timeUnits: "Years",
+      timeUnits: 'Years',
       timeStart: 0,
-      timeLength: 200,
+      timeLength: 200
     })
 
     const nodes = await this.app.service('nodes').find({
@@ -55,7 +54,7 @@ export class SimulateService<ServiceParams extends SimulateParams = SimulatePara
       }
     })
     type Cache = {
-      type: NodeType,
+      type: NodeType
       obj: any
     }
 
@@ -63,7 +62,7 @@ export class SimulateService<ServiceParams extends SimulateParams = SimulatePara
     for (const node of nodes.data) {
       if (node.type === NodeType.Stock) {
         const stock = model.Stock({
-          name: node.data.label,
+          name: node.name,
           initial: node.value
         })
         cache.set(node.id, {
@@ -72,7 +71,7 @@ export class SimulateService<ServiceParams extends SimulateParams = SimulatePara
         })
       } else if (node.type === NodeType.Variable) {
         const variable = model.Variable({
-          name: node.data.label,
+          name: node.name,
           value: node.value
         })
         cache.set(node.id, {
@@ -91,9 +90,9 @@ export class SimulateService<ServiceParams extends SimulateParams = SimulatePara
     })
 
     for (const node of flows.data) {
-
-
-      const { data: [targetEdge] } = await this.app.service('edges').find({
+      const {
+        data: [targetEdge]
+      } = await this.app.service('edges').find({
         query: {
           $select: ['targetId'],
           type: EdgeType.Flow,
@@ -103,7 +102,9 @@ export class SimulateService<ServiceParams extends SimulateParams = SimulatePara
 
       const target = cache.get(targetEdge?.targetId)?.obj || null
 
-      const { data: [sourceEge] } = await this.app.service('edges').find({
+      const {
+        data: [sourceEge]
+      } = await this.app.service('edges').find({
         query: {
           $select: ['sourceId'],
           type: EdgeType.Flow,
@@ -114,7 +115,7 @@ export class SimulateService<ServiceParams extends SimulateParams = SimulatePara
       const source = cache.get(sourceEge?.sourceId)?.obj || null
 
       const flow = model.Flow(source, target, {
-        name: node.data.label,
+        name: node.name,
         rate: node.rate
       })
 
@@ -145,7 +146,9 @@ export class SimulateService<ServiceParams extends SimulateParams = SimulatePara
 
     const resultData = model.simulate()
 
-    const stockObjs = Array.from(cache.values()).filter(({ type }) => type === NodeType.Stock || type === NodeType.Variable).map(({ obj }) => obj)
+    const stockObjs = Array.from(cache.values())
+      .filter(({ type }) => type === NodeType.Stock || type === NodeType.Variable)
+      .map(({ obj }) => obj)
 
     plot(data, stockObjs)
 

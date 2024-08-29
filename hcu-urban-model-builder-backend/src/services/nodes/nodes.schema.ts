@@ -15,9 +15,8 @@ export const nodesSchema = Type.Object(
     id: Type.Number(),
     modelId: Type.Number(),
     type: Type.Enum(NodeType),
-    data: Type.Object({
-      label: Type.String()
-    }),
+    name: Type.String(),
+    data: Type.Object({}),
     value: Nullable(Type.Number()),
     rate: Nullable(Type.String()),
     position: Type.Object({
@@ -36,7 +35,7 @@ export const nodesExternalResolver = resolve<Nodes, HookContext<NodesService>>({
 // Schema for creating new entries
 export const nodesDataSchema = Type.Pick(
   nodesSchema,
-  ['modelId', 'type', 'position', 'data', 'value', 'rate'],
+  ['modelId', 'type', 'name', 'position', 'data', 'value', 'rate'],
   {
     $id: 'NodesData'
   }
@@ -58,6 +57,7 @@ export const nodesQueryProperties = Type.Pick(nodesSchema, [
   'id',
   'modelId',
   'type',
+  'name',
   'position',
   'data',
   'value',
