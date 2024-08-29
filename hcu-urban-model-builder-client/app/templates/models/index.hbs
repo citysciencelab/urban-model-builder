@@ -1,0 +1,13 @@
+{{page-title "Index"}}
+<h2>Models</h2>
+{{#let this.model as |models|}}
+  <ul>
+    {{#each models as |model|}}
+      <li>
+        <LinkTo @route="models.show" @model={{model}}>
+          {{model.name}}
+        </LinkTo>
+      </li>
+    {{/each}}
+  </ul>
+{{/let}}

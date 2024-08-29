@@ -2,11 +2,15 @@ import Model, { attr, belongsTo } from '@ember-data/model';
 import { Type } from '@warp-drive/core-types/symbols';
 import type Node from './node';
 import { EdgeType } from 'hcu-urban-model-builder-backend';
+import type ModelModel from './model';
 
 export default class Edge extends Model {
   [Type] = 'edge' as const;
 
   @attr('number') declare type: EdgeType;
+
+  @belongsTo('model', { async: true, inverse: 'nodes' })
+  declare model: ModelModel;
 
   @belongsTo('node', { async: true, inverse: 'sourceEdges' })
   declare source: Node;

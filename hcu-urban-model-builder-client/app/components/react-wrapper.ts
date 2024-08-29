@@ -6,12 +6,12 @@ import type Node from 'hcu-urban-model-builder-client/models/node';
 import { service } from '@ember/service';
 import type Store from '@ember-data/store';
 import type Edge from 'hcu-urban-model-builder-client/models/edge';
+import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 
 export interface ReactWrapperSignature {
   // The arguments accepted by the component
   Args: {
-    nodes: Node[];
-    edges: Edge[];
+    model: ModelModel;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -29,7 +29,7 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
   @tracked inReactContainer: HTMLElement | null = null;
 
   get canInsert() {
-    return !!this.args.nodes || !!this.args.edges;
+    return !!this.args.model;
   }
 
   get nodeActions() {
@@ -57,8 +57,14 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
   }
 
   @action
-  didInsert(element: HTMLElement) {
-    initReact(element, this.args.nodes, this.args.edges, this.nodeActions);
+  async didInsert(element: HTMLElement) {
+    initReact(
+      element,
+      await this.args.model.nodes,
+      await this.args.model.edges,
+      this.nodeActions,
+    );
+
   }
 
   @action
@@ -90,6 +96,7 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
         data[key] = this.store.peekRecord<Node>('node', rawData[key]);
       }
     }
+    data.model = this.args.model;
 
     return this.store.createRecord<Node | Edge>(type, data).save();
   }

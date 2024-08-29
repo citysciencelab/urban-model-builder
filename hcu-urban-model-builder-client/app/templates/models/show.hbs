@@ -1,0 +1,10 @@
+{{page-title "Show"}}
+
+<main>
+  <LinkTo @route="models">Back</LinkTo>
+  <h2>
+    {{this.model.name}}
+  </h2>
+  <ReactWrapper @model={{this.model}} />
+</main>
+{{outlet}}
