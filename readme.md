@@ -21,3 +21,12 @@ Start the client:
 ```
 cd hcu-urban-model-builder-client && npm run start
 ```
+
+Create first model:
+```
+curl --location 'http://localhost:3030/models' \
+--header 'Content-Type: application/json' \
+--data '{
+    "name": "My first model"
+}'
+```
