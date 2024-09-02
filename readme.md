@@ -1,4 +1,6 @@
-# Getting started for Dev
+# HCU Urban Model Builder
+
+## Getting started for Dev
 
 Run the setup script:
 ```
