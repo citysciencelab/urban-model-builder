@@ -1,26 +1,43 @@
 {{#if (eq this.type "node")}}
-  <div class="sidebar__header">
-    <h3>
-      {{@record.name}}
-    </h3>
-  </div>
-  <div class="sidebar__content">
-    <label for="node-name">Name</label>
-    <Input id="node-name" @value={{@record.name}} @type="text" />
-    {{#if (eq @record.type this.NodeType.Flow)}}
-      <label for="flow-rate">Rate</label>
-      <Textarea id="flow-rate" @value={{@record.rate}} />
-    {{/if}}
-    {{#if (eq @record.type this.NodeType.Variable)}}
-      <label for="variable-value">Value</label>
-      <Input id="variable-value" @value={{@record.value}} @type="number" />
-    {{/if}}
-    {{#if (eq @record.type this.NodeType.Stock)}}
-      <label for="stock-value">Value</label>
-      <Input id="stock-value" @value={{@record.value}} @type="number" />
-    {{/if}}
-    <button type="button" {{on "click" this.onSave}}>
-      Save
-    </button>
+  <div class="sidebar">
+    <div class="sidebar__header">
+      <h3>
+        {{@record.name}}
+      </h3>
+    </div>
+    <div class="sidebar__content">
+      <BsForm @onSubmit={{this.onSave}} @model={{@record}} as |form|>
+        <form.element
+          @controlType="text"
+          @label="Name"
+          @placeholder="Name"
+          @property="name"
+        />
+
+        {{#if (eq @record.type this.NodeType.Flow)}}
+          <form.element
+            @controlType="textarea"
+            @label="Rate"
+            @property="rate"
+          />
+        {{/if}}
+        {{#if (eq @record.type this.NodeType.Variable)}}
+          <form.element
+            @controlType="number"
+            @label="Value"
+            @property="value"
+          />
+        {{/if}}
+        {{#if (eq @record.type this.NodeType.Stock)}}
+          <form.element
+            @controlType="number"
+            @label="Value"
+            @property="value"
+          />
+        {{/if}}
+
+        <form.submitButton>Save</form.submitButton>
+      </BsForm>
+    </div>
   </div>
 {{/if}}
