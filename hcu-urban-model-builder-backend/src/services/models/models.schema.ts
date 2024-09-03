@@ -50,3 +50,14 @@ export const modelsQuerySchema = Type.Intersect(
 export type ModelsQuery = Static<typeof modelsQuerySchema>
 export const modelsQueryValidator = getValidator(modelsQuerySchema, queryValidator)
 export const modelsQueryResolver = resolve<ModelsQuery, HookContext<ModelsService>>({})
+
+// Schema for custom method: simulate
+export const modelsSimulateSchema = Type.Object(
+  {
+    id: Type.Number()
+  },
+  { $id: 'ModelsSimulate', additionalProperties: false }
+)
+export type ModelsSimulate = Static<typeof modelsSimulateSchema>
+export const modelsSimulateValidator = getValidator(modelsSimulateSchema, queryValidator)
+export const modelsSimulateResolver = resolve<ModelsSimulate, HookContext<ModelsService>>({})

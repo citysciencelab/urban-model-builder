@@ -10,14 +10,6 @@ import type { AuthenticationClientOptions } from '@feathersjs/authentication-cli
 import { modelsClient } from './services/models/models.shared.js'
 export type { Models, ModelsData, ModelsQuery, ModelsPatch } from './services/models/models.shared.js'
 
-import { simulateClient } from './services/simulate/simulate.shared.js'
-export type {
-  Simulate,
-  SimulateData,
-  SimulateQuery,
-  SimulatePatch
-} from './services/simulate/simulate.shared.js'
-
 import { edgesClient, EdgeType } from './services/edges/edges.shared.js'
 export type { Edges, EdgesData, EdgesQuery, EdgesPatch } from './services/edges/edges.shared.js'
 export { EdgeType }
@@ -54,7 +46,6 @@ export const createClient = <Configuration = any>(
 
   client.configure(nodesClient)
   client.configure(edgesClient)
-  client.configure(simulateClient)
   client.configure(modelsClient)
   return client
 }

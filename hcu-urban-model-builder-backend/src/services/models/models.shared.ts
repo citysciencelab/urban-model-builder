@@ -9,7 +9,14 @@ export type ModelsClientService = Pick<ModelsService<Params<ModelsQuery>>, (type
 
 export const modelsPath = 'models'
 
-export const modelsMethods: Array<keyof ModelsService> = ['find', 'get', 'create', 'patch', 'remove']
+export const modelsMethods: Array<keyof ModelsService> = [
+  'find',
+  'get',
+  'create',
+  'patch',
+  'remove',
+  'simulate'
+]
 
 export const modelsClient = (client: ClientApplication) => {
   const connection = client.get('connection')

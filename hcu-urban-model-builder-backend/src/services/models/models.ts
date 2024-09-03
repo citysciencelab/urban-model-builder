@@ -10,7 +10,9 @@ import {
   modelsExternalResolver,
   modelsDataResolver,
   modelsPatchResolver,
-  modelsQueryResolver
+  modelsQueryResolver,
+  modelsSimulateValidator,
+  modelsSimulateResolver
 } from './models.schema.js'
 
 import type { Application } from '../../declarations.js'
@@ -40,7 +42,11 @@ export const models = (app: Application) => {
       get: [],
       create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver)],
       patch: [schemaHooks.validateData(modelsPatchValidator), schemaHooks.resolveData(modelsPatchResolver)],
-      remove: []
+      remove: [],
+      simulate: [
+        schemaHooks.validateData(modelsSimulateValidator),
+        schemaHooks.resolveData(modelsSimulateResolver)
+      ]
     },
     after: {
       all: []
