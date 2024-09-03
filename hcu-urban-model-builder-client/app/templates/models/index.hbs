@@ -1,13 +1,17 @@
 {{page-title "Index"}}
-<h2>Models</h2>
-{{#let this.model as |models|}}
-  <ul>
-    {{#each models as |model|}}
-      <li>
-        <LinkTo @route="models.show" @model={{model}}>
+
+<div class="container">
+  <h2>Models</h2>
+  <BsListGroup as |ListGroup|>
+    {{#let this.model as |models|}}
+      {{#each models as |model|}}
+        <ListGroup.item>
           {{model.name}}
-        </LinkTo>
-      </li>
-    {{/each}}
-  </ul>
-{{/let}}
+          <LinkTo @route="models.show" @model={{model}}>
+            <BsButton @type="primary" @size="sm">Show</BsButton>
+          </LinkTo>
+        </ListGroup.item>
+      {{/each}}
+    {{/let}}
+  </BsListGroup>
+</div>

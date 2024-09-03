@@ -78,3 +78,14 @@ main {
   align-items: flex-start;
   overflow-y: auto;
 }
+
+.nav-item__model-name {
+  display: flex;
+  align-items: center;
+  color: $white;
+  padding-left: get-spacer(3);
+
+  & > h3 {
+    margin: 0;
+  }
+}

@@ -1,10 +1,20 @@
 {{page-title "Show"}}
 
 <main>
-  <LinkTo @route="models">Back</LinkTo>
-  <h2>
-    {{this.model.name}}
-  </h2>
+  <BsNavbar @type="dark" @backgroundColor="primary" as |navbar|>
+    <navbar.content>
+      <navbar.nav as |nav|>
+        <nav.item>
+          <nav.link-to @route="models">Back</nav.link-to>
+        </nav.item>
+        <nav.item class="nav-item nav-item__model-name">
+          <h3>
+            {{this.model.name}}
+          </h3>
+        </nav.item>
+      </navbar.nav>
+    </navbar.content>
+  </BsNavbar>
   <ReactWrapper @model={{this.model}} />
 </main>
 {{outlet}}
