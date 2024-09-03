@@ -109,6 +109,7 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
 
   @action
   async delete(type: 'node' | 'edge', id: string) {
+    this.selected = this.selected.filter((r) => r.id !== id);
     const record = this.store.peekRecord<Node | Edge>(type, id);
     if (!record) {
       throw new Error(`Node with id ${id} not found`);
