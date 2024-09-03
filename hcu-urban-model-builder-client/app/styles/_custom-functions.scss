@@ -1,0 +1,11 @@
+@use "sass:math";
+
+/// Returns a spacer size as defined in $spacers, reading the array $spacers at position $index. Values from
+/// 0 to sizeof($spacers) can be passed, while 3 is usually the standard ($spacer: 1.5rem) and synced with the
+/// standard gutter size.
+/// @param {*} $index
+/// @author Tobias Braner
+
+@function get-spacer($index) {
+  @return map-get($spacers, $index);
+}
