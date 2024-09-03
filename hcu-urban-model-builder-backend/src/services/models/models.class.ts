@@ -12,7 +12,7 @@ import { EdgeType } from '../edges/edges.shared.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
-export interface ModelsParams extends KnexAdapterParams<ModelsQuery> {}
+export interface ModelsParams extends KnexAdapterParams<ModelsQuery> { }
 
 export interface ModelsServiceOptions extends KnexAdapterOptions {
   app: Application
@@ -25,11 +25,10 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   ModelsParams,
   ModelsPatch
 > {
-  protected app: Application
+  declare options: ModelsServiceOptions
 
-  constructor(public options: ModelsServiceOptions) {
-    super(options)
-    this.app = options.app
+  get app(): Application {
+    return this.options.app
   }
 
   async simulate(data: ModelsSimulate, params?: ServiceParams): Promise<Models> {
