@@ -1,4 +1,6 @@
-/* Ember supports plain CSS out of the box. More info: https://cli.emberjs.com/release/advanced-use/stylesheets/ */
+@import "node_modules/bootstrap/scss/bootstrap";
+@import "./custom-functions";
+
 body {
   margin: 0;
 }
@@ -12,6 +14,7 @@ main {
 
 .react-wrapper {
   flex-grow: 1;
+  position: relative;
   height: 100%;
 }
 

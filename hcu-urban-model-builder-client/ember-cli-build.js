@@ -9,9 +9,14 @@ module.exports = function (defaults) {
     babel: {
       plugins: [require.resolve('ember-auto-import/babel-plugin')],
     },
-    'ember-cli-babel': { enableTypeScriptTransform: true },
 
     // Add options here
+    'ember-cli-babel': { enableTypeScriptTransform: true },
+    'ember-bootstrap': {
+      bootstrapVersion: 5,
+      importBootstrapCSS: false,
+      insertEmberWormholeElementToDom: false,
+    },
   });
 
   let additionalFolder = new Funnel('canvas', {
