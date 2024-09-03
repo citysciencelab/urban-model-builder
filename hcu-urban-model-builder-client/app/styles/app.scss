@@ -34,3 +34,47 @@ main {
 .react-flow__node-variable div {
   background-color: coral;
 }
+
+.sidebar__container {
+  z-index: 1050;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: get-spacer(5);
+
+  .animated-container {
+    height: 100%;
+  }
+}
+
+.sidebar {
+  width: 400px;
+  height: 100%;
+  background-color: $white;
+  box-shadow: $box-shadow-lg;
+  border-color: $border-color;
+  border-width: $border-width;
+  border-style: $border-style;
+  border-radius: $border-radius;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__header {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  padding: get-spacer(3);
+  border-bottom: $border-width $border-style $border-color;
+}
+
+.sidebar__content {
+  flex-grow: 1;
+  padding: get-spacer(3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow-y: auto;
+}

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ReactFlow,
@@ -30,6 +30,7 @@ type NodeActions = {
   delete: (type: "edge" | "node", id: string) => Promise<void>;
   select: (type: "edge" | "node", id: string) => void;
   unselect: (type: "edge" | "node", id: string) => void;
+  onSidebarInserted: (element: HTMLElement) => void;
 };
 
 const getNodeTypeStringName = (type: NodeType) => NodeType[type].toLowerCase();
@@ -68,6 +69,8 @@ function Flow({
       };
     }),
   );
+
+  const sidebarContainerRef = useRef(null);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     for (const change of changes) {
@@ -189,6 +192,12 @@ function Flow({
     [nodes],
   );
 
+  useEffect(() => {
+    if (sidebarContainerRef.current) {
+      nodeActions.onSidebarInserted(sidebarContainerRef.current);
+    }
+  }, [sidebarContainerRef.current]);
+
   return (
     <ReactFlow
       onInit={setRfInstance}
@@ -204,14 +213,18 @@ function Flow({
       connectionLineType={ConnectionLineType.SmoothStep}
       fitView
     >
-      <Panel position="top-right">
+      <Panel position="bottom-center">
         <button onClick={() => addNode(NodeType.Stock)}>Add Stock</button>
         <button onClick={() => addNode(NodeType.Variable)}>Add Var</button>
         <button onClick={() => addNode(NodeType.Flow)}>Add Flow</button>
-        <div id="some-wormhole"></div>
       </Panel>
       <Background />
       <Controls />
+      <div
+        className="sidebar__container"
+        id="sidebar-container"
+        ref={sidebarContainerRef}
+      ></div>
     </ReactFlow>
   );
 }

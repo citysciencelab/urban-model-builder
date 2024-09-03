@@ -1,12 +1,23 @@
-<div>Ember counter: {{this.counter}}</div>
-{{#if this.selectedSingleItem}}
-  <Form @record={{this.selectedSingleItem}} />
-{{else if this.selectedMultipleItems}}
-  Selected Multiple Items...
-{{else}}
-  No item selected
+{{#if this.canInsert}}
+  <div class="react-wrapper" {{did-insert this.didInsert}}>
+  </div>
 {{/if}}
 
-{{#if this.canInsert}}
-  <div class="react-wrapper" {{did-insert this.didInsert}}></div>
+{{#if this.sidebarElement}}
+  {{#in-element this.sidebarElement}}
+    <AnimatedContainer>
+      {{#animated-if this.hasSelected use=this.transition}}
+
+        <div class="sidebar">
+          {{#if this.selectedSingleItem}}
+            <Form @record={{this.selectedSingleItem}} />
+          {{else if this.selectedMultipleItems}}
+            Selected Multiple Items...
+          {{else}}
+            No item selected
+          {{/if}}
+        </div>
+      {{/animated-if}}
+    </AnimatedContainer>
+  {{/in-element}}
 {{/if}}

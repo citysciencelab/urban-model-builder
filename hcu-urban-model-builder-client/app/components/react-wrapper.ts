@@ -7,6 +7,7 @@ import { service } from '@ember/service';
 import type Store from '@ember-data/store';
 import type Edge from 'hcu-urban-model-builder-client/models/edge';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
+import fade from 'ember-animated/transitions/fade';
 
 export interface ReactWrapperSignature {
   // The arguments accepted by the component
@@ -22,11 +23,12 @@ export interface ReactWrapperSignature {
 }
 
 export default class ReactWrapperComponent extends Component<ReactWrapperSignature> {
-  @service store!: Store;
+  readonly transition = fade;
 
-  @tracked counter = 0;
+  @service declare store: Store;
+
   @tracked selected: (Node | Edge)[] = [];
-  @tracked inReactContainer: HTMLElement | null = null;
+  @tracked sidebarElement: HTMLElement | null = null;
 
   get canInsert() {
     return !!this.args.model;
@@ -39,7 +41,12 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
       delete: this.delete,
       select: this.select,
       unselect: this.unselect,
+      onSidebarInserted: this.onSidebarInserted,
     };
+  }
+
+  get hasSelected() {
+    return this.selected.length > 0;
   }
 
   get selectedSingleItem() {
@@ -64,7 +71,6 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
       await this.args.model.edges,
       this.nodeActions,
     );
-
   }
 
   @action
@@ -125,5 +131,9 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
   unselect(type: 'node' | 'edge', id: string) {
     console.log('unselect', type, id);
     this.selected = this.selected.filter((r) => r.id !== id);
+  }
+
+  @action onSidebarInserted(element: HTMLElement) {
+    this.sidebarElement = element;
   }
 }

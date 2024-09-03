@@ -1,5 +1,10 @@
 {{#if (eq this.type "node")}}
-  <div>
+  <div class="sidebar__header">
+    <h3>
+      {{@record.name}}
+    </h3>
+  </div>
+  <div class="sidebar__content">
     <label for="node-name">Name</label>
     <Input id="node-name" @value={{@record.name}} @type="text" />
     {{#if (eq @record.type this.NodeType.Flow)}}
