@@ -22,6 +22,9 @@ export default class Edge extends Model {
 
   @attr('string') declare targetHandle: string;
 
+  @attr('date') declare createdAt: Date;
+  @attr('date') declare updatedAt: Date;
+
   get raw() {
     return {
       id: this.id,

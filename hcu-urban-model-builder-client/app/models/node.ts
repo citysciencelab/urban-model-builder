@@ -13,7 +13,7 @@ export default class Node extends Model {
 
   @attr('string') declare name: string;
 
-  @attr() declare data: { label: string };
+  @attr() declare data: { label?: string };
 
   @attr() declare position: { x: number; y: number };
 
@@ -29,6 +29,9 @@ export default class Node extends Model {
 
   @hasMany('edge', { async: true, inverse: 'target' })
   declare targetEdges: Edge[];
+
+  @attr('date') declare createdAt: Date;
+  @attr('date') declare updatedAt: Date;
 
   get raw() {
     return {
