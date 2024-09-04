@@ -10,6 +10,7 @@ import { logError } from './hooks/log-error.js'
 import { postgresql } from './postgresql.js'
 import { services } from './services/index.js'
 import { channels } from './channels.js'
+import { BadRequest, NotImplemented } from '@feathersjs/errors'
 
 const app: Application = koa(feathers())
 
@@ -41,7 +42,25 @@ app.hooks({
   around: {
     all: [logError]
   },
-  before: {},
+  before: {
+    create: [
+      (context) => {
+        delete context.data.createdAt
+        delete context.data.updatedAt
+      }
+    ],
+    patch: [
+      (context) => {
+        delete context.data.createdAt
+        delete context.data.updatedAt
+      }
+    ],
+    update: [
+      () => {
+        throw new BadRequest("Update is not supported. Use 'patch' instead.")
+      }
+    ]
+  },
   after: {},
   error: {}
 })
