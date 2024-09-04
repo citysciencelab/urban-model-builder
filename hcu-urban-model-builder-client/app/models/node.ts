@@ -42,10 +42,8 @@ export default class Node extends Model {
     };
   }
 
-  save(options?: Record<string, unknown>): Promise<this> {
-    const result = super.save(options) as Promise<this>;
+  emitSave() {
     this.listeners.forEach((listener) => listener(this));
-    return result;
   }
 
   onSave(callback: () => void) {
