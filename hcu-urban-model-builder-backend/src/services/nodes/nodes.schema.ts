@@ -16,9 +16,10 @@ export const nodesSchema = Type.Object(
     modelId: Type.Number(),
     type: Type.Enum(NodeType),
     name: Type.String(),
-    data: Type.Object({}),
-    value: Nullable(Type.Number()),
-    rate: Nullable(Type.String()),
+    data: Type.Object({
+      value: Type.Optional(Type.String()),
+      rate: Type.Optional(Type.String())
+    }),
     position: Type.Object({
       x: Type.Number(),
       y: Type.Number()
@@ -33,13 +34,9 @@ export const nodesResolver = resolve<Nodes, HookContext<NodesService>>({})
 export const nodesExternalResolver = resolve<Nodes, HookContext<NodesService>>({})
 
 // Schema for creating new entries
-export const nodesDataSchema = Type.Pick(
-  nodesSchema,
-  ['modelId', 'type', 'name', 'position', 'data', 'value', 'rate'],
-  {
-    $id: 'NodesData'
-  }
-)
+export const nodesDataSchema = Type.Pick(nodesSchema, ['modelId', 'type', 'name', 'position', 'data'], {
+  $id: 'NodesData'
+})
 export type NodesData = Static<typeof nodesDataSchema>
 export const nodesDataValidator = getValidator(nodesDataSchema, dataValidator)
 export const nodesDataResolver = resolve<Nodes, HookContext<NodesService>>({})
@@ -59,9 +56,7 @@ export const nodesQueryProperties = Type.Pick(nodesSchema, [
   'type',
   'name',
   'position',
-  'data',
-  'value',
-  'rate'
+  'data'
 ])
 export const nodesQuerySchema = Type.Intersect(
   [

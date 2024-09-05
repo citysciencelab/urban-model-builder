@@ -71,6 +71,8 @@ export default class FeathersService extends Service {
           modelInstance.emitSave();
         }
       }
+    } else {
+      this.storeEventEmitter.emit(modelName, 'updated', recordInStore);
     }
   }
 

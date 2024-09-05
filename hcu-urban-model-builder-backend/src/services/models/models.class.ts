@@ -67,13 +67,13 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       [NodeType.Stock]: (node: Nodes) => {
         return model.Stock({
           name: node.name,
-          initial: node.value
+          initial: node.data.value
         })
       },
       [NodeType.Variable]: (node: Nodes) => {
         return model.Variable({
           name: node.name,
-          value: node.value
+          value: node.data.value
         })
       },
       [NodeType.Flow]: async (node: Nodes) => {
@@ -105,7 +105,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
 
         return model.Flow(source, target, {
           name: node.name,
-          rate: node.rate
+          rate: node.data.rate
         })
       }
     }
