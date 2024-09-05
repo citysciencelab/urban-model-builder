@@ -1,19 +1,14 @@
 {{page-title "Show"}}
 
 <main>
-  <BsNavbar @type="dark" @backgroundColor="primary" as |navbar|>
-    <navbar.content>
-      <navbar.nav as |nav|>
-        <nav.item>
-          <nav.link-to @route="models">Back</nav.link-to>
-        </nav.item>
-        <nav.item class="nav-item nav-item__model-name">
-          <h3>
-            {{this.model.name}}
-          </h3>
-        </nav.item>
-      </navbar.nav>
-    </navbar.content>
+  <BsNavbar @type="light" @backgroundColor="secondary">
+    <LinkTo @route="models" class="navbar__back">Back</LinkTo>
+    <h3>
+      {{this.model.name}}
+    </h3>
+    <BsButton @type="primary" @onClick={{fn (mut this.showSimulateModal) true}}>
+      Simulate
+    </BsButton>
   </BsNavbar>
   <ReactWrapper @model={{this.model}} />
 </main>

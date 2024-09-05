@@ -85,15 +85,13 @@ main {
   overflow-y: auto;
 }
 
-.nav-item__model-name {
-  display: flex;
-  align-items: center;
+.navbar h3 {
   color: $white;
-  padding-left: get-spacer(3);
+  margin: 0;
+}
 
-  & > h3 {
-    margin: 0;
-  }
+.navbar__back {
+  color: $white;
 }
 
 .toolbar__container {
