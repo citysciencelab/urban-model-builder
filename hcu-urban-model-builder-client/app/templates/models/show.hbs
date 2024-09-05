@@ -11,5 +11,10 @@
     </BsButton>
   </BsNavbar>
   <ReactWrapper @model={{this.model}} />
+  <SimulateModal
+    @model={{this.model}}
+    @show={{this.showSimulateModal}}
+    @onHide={{fn (mut this.showSimulateModal) false}}
+  />
 </main>
 {{outlet}}
