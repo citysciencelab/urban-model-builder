@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, DragEvent } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ReactFlow,
@@ -31,6 +31,21 @@ type NodeActions = {
   select: (type: "edge" | "node", id: string) => void;
   unselect: (type: "edge" | "node", id: string) => void;
   onSidebarInserted: (element: HTMLElement) => void;
+  onToolbarInserted: (element: HTMLElement) => void;
+  setRfInstance: (instance: ReactFlowInstance) => void;
+  draggedNodeConfig: any;
+  storeEventEmitter: {
+    on: (
+      dataModelName: string,
+      event: "created" | "updated" | "deleted",
+      callback: (data: any) => void,
+    ) => void;
+    off: (
+      dataModelName: string,
+      event: "created" | "updated" | "deleted",
+      callback: (data: any) => void,
+    ) => void;
+  };
 };
 
 const getNodeTypeStringName = (type: NodeType) => NodeType[type].toLowerCase();
@@ -54,8 +69,6 @@ function Flow({
   edges: initialEdges,
   nodeActions,
 }: AppProps) {
-  console.log(initialEdges);
-
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const [nodes, setNodes] = useState(() =>
     initialNodes.map((n) => ({ ...n.raw, data: { emberModel: n } })),
@@ -65,17 +78,16 @@ function Flow({
       return {
         ...e.raw,
         markerEnd: { type: MarkerType.Arrow },
-        // type: "flow",
       };
     }),
   );
 
   const sidebarContainerRef = useRef(null);
+  const toolbarContainerRef = useRef(null);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     for (const change of changes) {
       if (change.type === "select") {
-        console.log(change);
         if (change.selected) {
           nodeActions.select("node", change.id);
         } else {
@@ -117,8 +129,6 @@ function Flow({
     async (params: Connection) => {
       const tmpEdgeId = getTmpEdgeId(params);
       const markerEnd = { type: MarkerType.Arrow };
-
-      console.log("sourceHandle", params, params.targetHandle);
 
       const type =
         params.sourceHandle.startsWith("flow-") ||
@@ -172,16 +182,7 @@ function Flow({
   );
 
   const addNode = useCallback(
-    async (type: NodeType) => {
-      const result = await nodeActions.create("node", {
-        type: type,
-        name: `${NodeType[type]} ${nodes.length}`,
-        data: {},
-        position: {
-          x: 0,
-          y: 0,
-        },
-      });
+    async (result: any) => {
       setNodes((nds) =>
         nds.concat({
           ...result.raw,
@@ -189,14 +190,59 @@ function Flow({
         }),
       );
     },
-    [nodes],
+    [rfInstance],
   );
+
+  const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    async (event: DragEvent<HTMLDivElement>) => {
+      console.log("onDrop", event);
+      event.preventDefault();
+
+      const type = nodeActions.draggedNodeConfig.value;
+      nodeActions.draggedNodeConfig = null;
+      await nodeActions.create("node", {
+        type: type,
+        name: `${NodeType[type]} ${nodes.length}`,
+        data: {},
+        position: rfInstance!.screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        }),
+      });
+    },
+    [rfInstance, nodes],
+  );
+
+  useEffect(() => {
+    nodeActions.storeEventEmitter.on("node", "created", addNode);
+
+    return () => {
+      nodeActions.storeEventEmitter.off("node", "created", addNode);
+    };
+  }, [addNode]);
+
+  useEffect(() => {
+    if (rfInstance) {
+      nodeActions.setRfInstance(rfInstance);
+    }
+  }, [rfInstance]);
 
   useEffect(() => {
     if (sidebarContainerRef.current) {
       nodeActions.onSidebarInserted(sidebarContainerRef.current);
     }
   }, [sidebarContainerRef.current]);
+
+  useEffect(() => {
+    if (toolbarContainerRef.current) {
+      nodeActions.onToolbarInserted(toolbarContainerRef.current);
+    }
+  });
 
   return (
     <ReactFlow
@@ -207,6 +253,8 @@ function Flow({
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
       onReconnect={onReconnect}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
       isValidConnection={isValidConnection}
       nodeTypes={nodeTypes}
       edgeTypes={edgesTypes}
@@ -214,9 +262,7 @@ function Flow({
       fitView
     >
       <Panel position="bottom-center">
-        <button onClick={() => addNode(NodeType.Stock)}>Add Stock</button>
-        <button onClick={() => addNode(NodeType.Variable)}>Add Var</button>
-        <button onClick={() => addNode(NodeType.Flow)}>Add Flow</button>
+        <div className="toolbar__container" ref={toolbarContainerRef}></div>
       </Panel>
       <Background />
       <Controls />

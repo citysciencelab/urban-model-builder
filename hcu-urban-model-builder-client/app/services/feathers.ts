@@ -76,7 +76,7 @@ export default class FeathersService extends Service {
 
   onRemoved(modelName: DataModelsNames, record: { id: number | string }) {
     const recordInStore: any = this.store.peekRecord(modelName, record.id);
-    if (recordInStore) {
+    if (recordInStore && !recordInStore.isDeleted) {
       recordInStore.unloadRecord();
       this.storeEventEmitter.emit(modelName, 'deleted', recordInStore);
     }

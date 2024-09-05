@@ -14,3 +14,9 @@
     </AnimatedContainer>
   {{/in-element}}
 {{/if}}
+
+{{#if this.emberReactConnector.toolbarElement}}
+  {{#in-element this.emberReactConnector.toolbarElement}}
+    <NodeToolbar @model={{@model}} />
+  {{/in-element}}
+{{/if}}

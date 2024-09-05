@@ -5,13 +5,24 @@ import { tracked } from '@glimmer/tracking';
 import type Edge from 'hcu-urban-model-builder-client/models/edge';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 import type Node from 'hcu-urban-model-builder-client/models/node';
+import type StoreEventEmitterService from './store-event-emitter';
+import type { ReactFlowInstance } from '@xyflow/react';
+import type { NodeType } from 'hcu-urban-model-builder-backend';
 
 export default class EmberReactConnectorService extends Service {
   @service declare store: Store;
+  @service declare storeEventEmitter: StoreEventEmitterService;
 
   @tracked selected: (Node | Edge)[] = [];
   @tracked currentModel: ModelModel | null = null;
   @tracked sidebarElement: HTMLElement | null = null;
+  @tracked toolbarElement: HTMLElement | null = null;
+  @tracked rfInstance: ReactFlowInstance | null = null;
+  @tracked draggedNodeConfig: {
+    label: string;
+    className: string;
+    value: NodeType;
+  } | null = null;
 
   @action
   async save(type: 'node' | 'edge', id: string, rawData: any) {
@@ -77,6 +88,16 @@ export default class EmberReactConnectorService extends Service {
   @action
   onSidebarInserted(element: HTMLElement) {
     this.sidebarElement = element;
+  }
+
+  @action
+  onToolbarInserted(element: HTMLElement) {
+    this.toolbarElement = element;
+  }
+
+  @action
+  setRfInstance(rfInstance: ReactFlowInstance) {
+    this.rfInstance = rfInstance;
   }
 }
 

@@ -1,6 +1,12 @@
 @import "node_modules/bootstrap/scss/bootstrap";
 @import "./custom-functions";
 
+$node-color-map: (
+  "flow": #a3c4ff,
+  "stock": cadetblue,
+  "variable": coral,
+);
+
 body {
   margin: 0;
 }
@@ -87,5 +93,24 @@ main {
 
   & > h3 {
     margin: 0;
+  }
+}
+
+.toolbar__container {
+  display: flex;
+  align-items: center;
+  gap: get-spacer(3);
+}
+
+.node-toolbar__node {
+  padding: get-spacer(2) get-spacer(3);
+  border-radius: $border-radius;
+  border: ($border-width * 2) $border-style $black;
+  cursor: grab;
+
+  @each $name, $color in $node-color-map {
+    &.--#{$name} {
+      background-color: $color;
+    }
   }
 }
