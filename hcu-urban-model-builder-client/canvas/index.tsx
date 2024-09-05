@@ -62,8 +62,6 @@ const edgesTypes = {
   [getEdgeTypeStringName(EdgeType.Flow)]: FlowEdge,
 };
 
-console.log(edgesTypes);
-
 function Flow({
   nodes: initialNodes,
   edges: initialEdges,
@@ -200,7 +198,6 @@ function Flow({
 
   const onDrop = useCallback(
     async (event: DragEvent<HTMLDivElement>) => {
-      console.log("onDrop", event);
       event.preventDefault();
 
       const type = nodeActions.draggedNodeConfig.value;

@@ -33,8 +33,6 @@ export default class EmberReactConnectorService extends Service {
 
     const data = { ...rawData };
     for (const key of ['source', 'target']) {
-      console.log('createNode', key, rawData[key]);
-
       if (key in rawData) {
         data[key] = this.store.peekRecord<Node>('node', rawData[key]);
       }
@@ -47,7 +45,6 @@ export default class EmberReactConnectorService extends Service {
   async create(type: 'node' | 'edge', rawData: any) {
     const data = { ...rawData };
     for (const key of ['source', 'target']) {
-      console.log('createNode', key, rawData[key]);
       if (key in rawData) {
         data[key] = this.store.peekRecord<Node>('node', rawData[key]);
       }
@@ -71,7 +68,6 @@ export default class EmberReactConnectorService extends Service {
 
   @action
   select(type: 'node' | 'edge', id: string) {
-    console.log('select', type, id);
     const record = this.store.peekRecord<Node | Edge>(type, id);
     if (!record) {
       throw new Error(`Node with id ${id} not found`);
@@ -81,7 +77,6 @@ export default class EmberReactConnectorService extends Service {
 
   @action
   unselect(type: 'node' | 'edge', id: string) {
-    console.log('unselect', type, id);
     this.selected = this.selected.filter((r) => r.id !== id);
   }
 
