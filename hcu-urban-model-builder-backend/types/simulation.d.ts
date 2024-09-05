@@ -20,7 +20,7 @@ declare module 'simulation' {
 
     simulate(): {
       timeUnits: string
-      _data: Record<string, any>[]
+      _data: Record<string, any>
       _nameIdMapping: Record<number, string>
     }
   }
