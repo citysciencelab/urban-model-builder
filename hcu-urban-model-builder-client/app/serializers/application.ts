@@ -1,9 +1,7 @@
 import type { Snapshot } from '@ember-data/legacy-compat/-private';
-import type Model from '@ember-data/model';
 import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
-import { camelize } from '@ember/string';
 import type { Paginated } from '@feathersjs/feathers';
 import type {
   SingleResourceDocument,
