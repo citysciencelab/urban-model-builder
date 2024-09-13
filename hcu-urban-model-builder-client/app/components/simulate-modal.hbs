@@ -1,0 +1,25 @@
+<BsModal
+  @open={{@show}}
+  @onShow={{this.onShow}}
+  @onHide={{@onHide}}
+  @size="lg"
+  as |modal|
+>
+  <modal.header>
+    <h4 class="modal-title">
+      Simulation Results for
+      <b>{{@model.name}}</b>
+    </h4>
+  </modal.header>
+  <modal.body>
+    {{#if this.simulateResult.isPending}}
+      <BsSpinner>Loading...</BsSpinner>
+    {{else if this.simulateResult.isResolved}}
+      <div
+        class="simulate-model__chart-container"
+        {{did-insert this.didInsertChartContainer}}
+      >
+      </div>
+    {{/if}}
+  </modal.body>
+</BsModal>

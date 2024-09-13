@@ -13,13 +13,9 @@ export default class Node extends Model {
 
   @attr('string') declare name: string;
 
-  @attr() declare data: { label?: string };
+  @attr() declare data: { value?: string; rate?: number };
 
   @attr() declare position: { x: number; y: number };
-
-  @attr('number') declare value: number;
-
-  @attr('string') declare rate: string;
 
   @belongsTo('model', { async: true, inverse: 'nodes' })
   declare model: ModelModel;

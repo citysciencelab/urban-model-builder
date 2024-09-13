@@ -1,20 +1,20 @@
 {{page-title "Show"}}
 
-<main>
-  <BsNavbar @type="dark" @backgroundColor="primary" as |navbar|>
-    <navbar.content>
-      <navbar.nav as |nav|>
-        <nav.item>
-          <nav.link-to @route="models">Back</nav.link-to>
-        </nav.item>
-        <nav.item class="nav-item nav-item__model-name">
-          <h3>
-            {{this.model.name}}
-          </h3>
-        </nav.item>
-      </navbar.nav>
-    </navbar.content>
-  </BsNavbar>
-  <ReactWrapper @model={{this.model}} />
-</main>
+<BreadcrumbsItem>
+  {{this.model.name}}
+</BreadcrumbsItem>
+
+{{#in-element this.navbar}}
+  <BsButton @type="primary" @size="sm" @onClick={{fn (mut this.showSimulateModal) true}}>
+    Simulate
+  </BsButton>
+{{/in-element}}
+
+<ReactWrapper @model={{this.model}} />
+<SimulateModal
+  @model={{this.model}}
+  @show={{this.showSimulateModal}}
+  @onHide={{fn (mut this.showSimulateModal) false}}
+/>
+
 {{outlet}}

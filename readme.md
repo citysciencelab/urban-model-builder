@@ -14,7 +14,7 @@ docker compose up
 
 Start the backend:
 ```
-cd hcu-urban-model-builder-backend && npm run dev
+cd hcu-urban-model-builder-backend && npm run migrate && npm run dev
 ```
 
 Start the client:

@@ -1,17 +1,69 @@
 {{page-title "Index"}}
 
-<div class="container">
-  <h2>Models</h2>
-  <BsListGroup as |ListGroup|>
-    {{#let this.model as |models|}}
-      {{#each models as |model|}}
-        <ListGroup.item>
-          {{model.name}}
-          <LinkTo @route="models.show" @model={{model}}>
-            <BsButton @type="primary" @size="sm">Show</BsButton>
-          </LinkTo>
-        </ListGroup.item>
-      {{/each}}
-    {{/let}}
-  </BsListGroup>
+<div class="container main-content">
+  
+  <div class="card">
+    {{!-- header --}}
+    <div class="card-header">
+      <h2 class="h5">List of all Models</h2>
+      <BsButton @type="primary" @size="sm" {{on 'click' this.startCreating}}>
+        <FaIcon @icon="plus" /> Add Model
+      </BsButton>
+    </div>
+    {{!-- list --}}
+    <BsListGroup class="list-group-flush" as |ListGroup|>
+      {{#let this.model as |models|}}
+        {{#each models as |model|}}
+          <ListGroup.item class="list-group-with-actions">
+            <LinkTo @route="models.show" @model={{model}}>
+            {{model.name}}
+            </LinkTo>
+            <div class="list-group-actions">
+              <a href="#" {{on 'click' (fn this.startEditing model)}}><FaIcon @icon="pencil"></FaIcon></a>
+              <a href="#" {{on 'click' (fn this.startDeleting model)}}><FaIcon @icon="trash"></FaIcon></a>
+            </div>
+          </ListGroup.item>
+        {{/each}}
+      {{/let}}
+    </BsListGroup>
+    {{!-- footer --}}
+    <div class="card-footer text-body-secondary">
+      {{this.model.length}} Models total
+    </div>
+  </div>
+  
 </div>
+
+{{!-- Modal / Form --}}
+<BsModal
+  @open={{this.isModalOpen}}
+  @onSubmit={{this.submitModel}}
+  @onHidden={{this.closeModal}}
+  as |modal|
+>
+  <modal.header>
+    <h4 class="modal-title">
+      {{#if (eq this.mode 'edit')}}
+        Edit {{this.changeset.name}}
+      {{else }}
+        Create new Model
+      {{/if}}
+    </h4>
+  </modal.header>
+  <modal.body>
+    <BsForm
+      @formLayout="vertical"
+      @model={{this.changeset}}
+      @onSubmit={{this.submitModel}}
+      as |form|
+    >
+      <form.element {{did-insert this.focusFirstInputElement}} @controlType="text" @label="Name" @property="name" as |el|>
+        <el.control placeholder="Name..."  required/>
+      </form.element>
+    </BsForm>
+  </modal.body>
+  <modal.footer>
+    <BsButton @onClick={{modal.close}}>Cancel</BsButton>
+    <BsButton @type="success" @onClick={{this.submitModel}}>Save</BsButton>
+  </modal.footer>
+</BsModal>
