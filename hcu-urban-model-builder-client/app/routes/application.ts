@@ -5,8 +5,11 @@ import { service } from '@ember/service';
 
 export default class ApplicationRoute extends Route {
   @service declare router: RouterService;
+  @service declare intl: any;
 
   beforeModel(transition: Transition) {
+    this.intl.setLocale(['de-de']);
+
     if (transition.to?.name === 'authenticated.index') {
       this.router.replaceWith('models');
     }

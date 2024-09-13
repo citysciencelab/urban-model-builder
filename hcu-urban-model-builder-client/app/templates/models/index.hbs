@@ -5,14 +5,14 @@
   <div class="card">
     {{!-- header --}}
     <div class="card-header">
-      <h2 class="h5">List of all Models</h2>
+      <h2 class="h5">{{t "routes.models.index.list_of_all_models"}}</h2>
       <BsButton @type="primary" @size="sm" {{on 'click' this.startCreating}}>
-        <FaIcon @icon="plus" /> Add Model
+        <FaIcon @icon="plus" /> {{t 'routes.models.index.add_model'}}
       </BsButton>
     </div>
     {{!-- list --}}
     <BsListGroup class="list-group-flush" as |ListGroup|>
-      {{#let this.model as |models|}}
+      {{#let this.persistedModels as |models|}}
         {{#each models as |model|}}
           <ListGroup.item class="list-group-with-actions">
             <LinkTo @route="models.show" @model={{model}}>
@@ -28,7 +28,7 @@
     </BsListGroup>
     {{!-- footer --}}
     <div class="card-footer text-body-secondary">
-      {{this.model.length}} Models total
+      {{this.persistedModels.length}} {{t 'routes.models.index.total'}}
     </div>
   </div>
   
@@ -38,17 +38,17 @@
 <BsModal
   @open={{this.isModalOpen}}
   @onSubmit={{this.submitModel}}
-  @onHidden={{this.closeModal}}
+  @onHide={{this.closeModal}}
   as |modal|
 >
   <modal.header>
-    <h4 class="modal-title">
+    <h5 class="modal-title">
       {{#if (eq this.mode 'edit')}}
-        Edit {{this.changeset.name}}
+        {{{t 'routes.models.index.edit_title' name=this.changeset.name}}}
       {{else }}
-        Create new Model
+        {{t 'routes.models.index.create_new_title'}}
       {{/if}}
-    </h4>
+    </h5>
   </modal.header>
   <modal.body>
     <BsForm
@@ -57,13 +57,13 @@
       @onSubmit={{this.submitModel}}
       as |form|
     >
-      <form.element {{did-insert this.focusFirstInputElement}} @controlType="text" @label="Name" @property="name" as |el|>
-        <el.control placeholder="Name..."  required/>
+      <form.element {{did-insert this.focusFirstInputElement}} @controlType="text" @label={{t 'models.model.attributes.name'}} @property="name" as |el|>
+        <el.control placeholder={{concat (t 'models.model.attributes.name') '…'}} required/>
       </form.element>
     </BsForm>
   </modal.body>
   <modal.footer>
-    <BsButton @onClick={{modal.close}}>Cancel</BsButton>
-    <BsButton @type="success" @onClick={{this.submitModel}}>Save</BsButton>
+    <BsButton @onClick={{this.closeModal}}>{{t 'actions.cancel'}}</BsButton>
+    <BsButton @type="success" @onClick={{this.submitModel}}>{{t 'actions.save'}}</BsButton>
   </modal.footer>
 </BsModal>

@@ -1,0 +1,24 @@
+general:
+  brand: Urban Model Builder
+  home: Start
+
+actions:
+  save: Speichern
+  cancel: Abbrechen
+  unsaved_changes: Sie haben ungespeicherte Änderungen. Wollen Sie die Seite wirklich verlassen?
+
+models:
+  model:
+    singular: Modell
+    plural: Modelle
+    attributes:
+      name: Name
+
+routes:
+  models:
+    index:
+      list_of_all_models: Liste aller Modelle
+      add_model: Modell erstellen
+      total: Modelle gesamt 
+      create_new_title: Neues Modell erstellen
+      edit_title: Modell <em>{name}</em> bearbeiten

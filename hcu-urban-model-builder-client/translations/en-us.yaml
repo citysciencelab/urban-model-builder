@@ -1,0 +1,24 @@
+general:
+  brand: Urban Model Builder
+  home: Home
+
+actions:
+  save: Save
+  cancel: Cancel
+  unsaved_changes: You have unsaved changes. Do you really want to leave the page?
+
+models:
+  model:
+    singular: Model
+    plural: Models
+    attributes:
+      name: Name
+
+routes:
+  models:
+    index:
+      list_of_all_models: List of all models
+      add_model: Create model
+      total: Total models
+      create_new_title: Create new model
+      edit_title: Edit model <em>{name}</em>

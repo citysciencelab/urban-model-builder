@@ -1,0 +1,5 @@
+{{#if (eq this.intl.primaryLocale 'de-de')}}
+  <li class="nav-item"><a href="javascript:void(0)" class="nav-link" {{on 'click' (fn this.changeLocaleTo 'en-us')}}>EN</a></li>
+{{else}}
+  <li class="nav-item"><a href="javascript:void(0)" class="nav-link" {{on 'click' (fn this.changeLocaleTo 'de-de')}}>DE</a></li>
+{{/if}}

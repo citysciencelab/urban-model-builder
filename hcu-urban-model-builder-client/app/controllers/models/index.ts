@@ -7,14 +7,20 @@ import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 import ModelValidations from '../../validations/model';
 import lookupValidator from 'ember-changeset-validations';
 import { Changeset, EmberChangeset } from 'ember-changeset';
+import IntlService from 'ember-intl/services/intl';
 
-export default class ModelsIndexController extends Controller {
+export default class ModelsIndexController extends Controller<ModelModel[]> {
   @service declare store: Store;
+  @service intl!: IntlService;
 
   Validation = ModelValidations;
   @tracked isModalOpen = false;
   @tracked changeset!: EmberChangeset;
   @tracked mode = '';
+
+  get persistedModels() {
+    return this.model.filter((item) => !item.isNew);
+  }
 
   @action
   async submitModel() {
@@ -33,6 +39,19 @@ export default class ModelsIndexController extends Controller {
   }
 
   @action closeModal() {
+    if (this.changeset.get('isDirty')) {
+      const yes = confirm(this.intl.t('actions.unsaved_changes'));
+      if (yes && this.changeset['isNew']) {
+        this.changeset.get('_content').deleteRecord();
+      } else if (yes) {
+        this.changeset.rollback();
+      } else {
+        return false;
+      }
+    } else if (!this.changeset.isDirty && this.changeset['isNew']) {
+      this.changeset.get('_content').deleteRecord();
+    }
+
     this.mode = '';
     this.isModalOpen = false;
   }
