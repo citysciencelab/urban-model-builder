@@ -11,7 +11,11 @@ export default class StoreService extends Store {
 
     const savedRecord = await super.saveRecord(...arguments);
 
-    this.storeEventEmitter.emit(record[Type], event, savedRecord);
+    this.storeEventEmitter.emit(
+      record.constructor.modelName,
+      event,
+      savedRecord,
+    );
 
     return savedRecord;
   }
