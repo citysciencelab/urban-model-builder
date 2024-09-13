@@ -13,5 +13,23 @@
   "postgresql": {
     "client": "pg",
     "connection": "postgres://hcu_admin:123123123@localhost:5432/hcu_urban_model_builder"
+  },
+  "authentication": {
+    "entity": "user",
+    "service": "users",
+    "secret": "N4bEHLnwqmJjf+0eH84Ux9MXvTqBqwtN",
+    "authStrategies": [
+      "local",
+      "oidc"
+    ],
+    "local": {
+      "usernameField": "email",
+      "passwordField": "password"
+    },
+    "oidc": {
+      "issuer": "http://localhost:8081/realms/hcu-model-builder",
+      "audience": ["account"],
+      "parseIssuer": false
+    }
   }
 }

@@ -18,6 +18,7 @@ import {
 import type { Application } from '../../declarations.js'
 import { ModelsService, getOptions } from './models.class.js'
 import { modelsPath, modelsMethods } from './models.shared.js'
+import { authenticate } from '@feathersjs/authentication'
 
 export * from './models.class.js'
 export * from './models.schema.js'
@@ -37,7 +38,11 @@ export const models = (app: Application) => {
       all: [schemaHooks.resolveExternal(modelsExternalResolver), schemaHooks.resolveResult(modelsResolver)]
     },
     before: {
-      all: [schemaHooks.validateQuery(modelsQueryValidator), schemaHooks.resolveQuery(modelsQueryResolver)],
+      all: [
+        authenticate('oidc'),
+        schemaHooks.validateQuery(modelsQueryValidator),
+        schemaHooks.resolveQuery(modelsQueryResolver)
+      ],
       find: [],
       get: [],
       create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver)],
