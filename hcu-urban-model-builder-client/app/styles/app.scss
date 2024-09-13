@@ -151,3 +151,15 @@ main {
   display: none;
   gap: get-spacer(2);
 }
+
+.list-group-meta {
+  color: $text-muted;
+  font-size: smaller;
+  > span:after {
+    content: "•";
+    margin: 0 get-spacer(1);
+  }
+  > span:last-child:after {
+    content: "";
+  }
+}

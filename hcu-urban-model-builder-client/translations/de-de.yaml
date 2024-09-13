@@ -1,6 +1,8 @@
 general:
   brand: Urban Model Builder
   home: Start
+  modified_at: Letztes Update am
+  created_at: Erstellt am
 
 actions:
   save: Speichern

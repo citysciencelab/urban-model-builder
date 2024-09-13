@@ -15,9 +15,19 @@
       {{#let this.persistedModels as |models|}}
         {{#each models as |model|}}
           <ListGroup.item class="list-group-with-actions">
+            <div class="list-group-body">
             <LinkTo @route="models.show" @model={{model}}>
             {{model.name}}
             </LinkTo>
+            <div class="list-group-meta">
+              <span title={{format-date model.updatedAt localeMatcher='lookup' format='dateTime'}}>
+                {{t 'general.modified_at'}} {{format-date model.updatedAt}}
+              </span>
+              <span title={{format-date model.createdAt localeMatcher='lookup' format='dateTime'}}>
+                {{t 'general.created_at'}} {{format-date model.createdAt}}
+              </span>
+            </div>
+            </div>
             <div class="list-group-actions">
               <a href="#" {{on 'click' (fn this.startEditing model)}}><FaIcon @icon="pencil"></FaIcon></a>
               <a href="#" {{on 'click' (fn this.startDeleting model)}}><FaIcon @icon="trash"></FaIcon></a>

@@ -12,6 +12,14 @@ export default {
       minute: 'numeric',
       second: 'numeric',
     },
+    dateTime: {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+    },
   },
   number: {
     compact: {
