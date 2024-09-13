@@ -4,47 +4,64 @@ import { tracked } from '@glimmer/tracking';
 import { inject as service } from '@ember/service';
 import type Store from '@ember-data/store';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
+import ModelValidations from '../../validations/model';
+import lookupValidator from 'ember-changeset-validations';
+import { Changeset, EmberChangeset } from 'ember-changeset';
 
 export default class ModelsIndexController extends Controller {
   @service declare store: Store;
 
-  @tracked editedModel: null | ModelModel = null;
-
-  @tracked
-  modelName = '';
-
-  @tracked
-  isModalOpen = false;
+  Validation = ModelValidations;
+  @tracked isModalOpen = false;
+  @tracked changeset!: EmberChangeset;
+  @tracked mode = '';
 
   @action
-  toggleModal() {
-    this.isModalOpen = !this.isModalOpen;
+  async submitModel() {
+    await this.changeset.validate();
+
+    if (this.changeset.isValid) {
+      await this.changeset.save();
+      this.closeModal();
+    } else {
+      console.error('Validation failed');
+    }
   }
 
-  @action
-  async createModel() {
-    if (this.editedModel) {
-      this.editedModel.name = this.modelName;
-      await this.editedModel.save();
-      this.editedModel = null;
-    } else {
-      const newModel = this.store.createRecord('model', {
-        name: this.modelName,
-      }) as ModelModel;
-      await newModel.save();
-    }
-
-    this.resetModal();
+  @action openModal() {
+    this.isModalOpen = true;
   }
 
   @action closeModal() {
+    this.mode = '';
     this.isModalOpen = false;
   }
 
+  @action startCreating() {
+    this.mode = 'create';
+    const modelModel = this.store.createRecord('model', {
+      name: '',
+    }) as ModelModel;
+
+    this.changeset = Changeset(
+      modelModel,
+      lookupValidator(this.Validation),
+      this.Validation,
+    );
+
+    this.openModal();
+  }
+
   @action
-  resetModal() {
-    this.modelName = '';
-    this.closeModal();
+  startEditing(modelModel: ModelModel) {
+    this.mode = 'edit';
+    this.changeset = Changeset(
+      modelModel,
+      lookupValidator(this.Validation),
+      this.Validation,
+    );
+
+    this.openModal();
   }
 
   @action
@@ -56,9 +73,13 @@ export default class ModelsIndexController extends Controller {
   }
 
   @action
-  startEditing(model: ModelModel) {
-    this.modelName = model.name;
-    this.editedModel = model;
-    this.toggleModal();
+  focusFirstInputElement(el: HTMLElement) {
+    if (!el) return;
+    setTimeout(() => {
+      const firstInputEl = el.querySelector('input');
+      if (firstInputEl) {
+        firstInputEl?.focus();
+      }
+    }, 50);
   }
 }

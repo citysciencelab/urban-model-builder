@@ -6,7 +6,7 @@
     {{!-- header --}}
     <div class="card-header">
       <h2 class="h5">List of all Models</h2>
-      <BsButton @type="primary" @size="sm" {{on 'click' this.toggleModal}}>
+      <BsButton @type="primary" @size="sm" {{on 'click' this.startCreating}}>
         <FaIcon @icon="plus" /> Add Model
       </BsButton>
     </div>
@@ -34,25 +34,36 @@
   
 </div>
 
+{{!-- Modal / Form --}}
 <BsModal
   @open={{this.isModalOpen}}
-  @onSubmit={{this.createModel}}
+  @onSubmit={{this.submitModel}}
   @onHidden={{this.closeModal}}
   as |modal|
 >
   <modal.header>
     <h4 class="modal-title">
-      Create new Model
+      {{#if (eq this.mode 'edit')}}
+        Edit {{this.changeset.name}}
+      {{else }}
+        Create new Model
+      {{/if}}
     </h4>
   </modal.header>
   <modal.body>
-    <label>
-      Name
-      <Input @type="text" @value={{this.modelName}} />
-    </label>
+    <BsForm
+      @formLayout="vertical"
+      @model={{this.changeset}}
+      @onSubmit={{this.submitModel}}
+      as |form|
+    >
+      <form.element {{did-insert this.focusFirstInputElement}} @controlType="text" @label="Name" @property="name" as |el|>
+        <el.control placeholder="Name..."  required/>
+      </form.element>
+    </BsForm>
   </modal.body>
   <modal.footer>
     <BsButton @onClick={{modal.close}}>Cancel</BsButton>
-    <BsButton @type="success" @onClick={{modal.submit}}>Save</BsButton>
+    <BsButton @type="success" @onClick={{this.submitModel}}>Save</BsButton>
   </modal.footer>
 </BsModal>
