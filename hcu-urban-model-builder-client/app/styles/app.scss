@@ -163,3 +163,9 @@ main {
     content: "";
   }
 }
+
+.card-header-actions {
+  display: flex;
+  gap: get-spacer(3);
+  align-items: center;
+}

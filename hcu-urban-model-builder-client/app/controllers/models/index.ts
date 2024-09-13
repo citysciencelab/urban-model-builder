@@ -17,9 +17,18 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
   @tracked isModalOpen = false;
   @tracked changeset!: EmberChangeset;
   @tracked mode = '';
+  @tracked sort_key = 'createdAt';
+  @tracked sort_direction: number = -1;
+
+  queryParams = ['sort_key', 'sort_direction'];
 
   get persistedModels() {
     return this.model.filter((item) => !item.isNew);
+  }
+
+  @action changeSort(key: string, direction: number) {
+    this.sort_key = key;
+    this.sort_direction = direction;
   }
 
   @action

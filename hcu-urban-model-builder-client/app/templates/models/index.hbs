@@ -6,10 +6,40 @@
     {{!-- header --}}
     <div class="card-header">
       <h2 class="h5">{{t "routes.models.index.list_of_all_models"}}</h2>
-      <BsButton @type="primary" @size="sm" {{on 'click' this.startCreating}}>
-        <FaIcon @icon="plus" /> {{t 'routes.models.index.add_model'}}
-      </BsButton>
+      <div class="card-header-actions">
+        <BsDropdown @tagName="span" as |dd|>
+          <dd.button @size="sm">
+            <FaIcon @icon="arrow-down-a-z" />
+            {{t (concat 'general.' this.sort_key '_' this.sort_direction)}}
+            <span class="caret"></span>
+          </dd.button>
+          <dd.menu as |menu|>
+            <menu.item>
+              {{#unless (and (eq this.sort_key 'createdAt') (eq this.sort_direction -1))}}
+                <a href="javascript:void()" class="dropdown-item" {{on 'click' (fn this.changeSort 'createdAt' -1)}}>
+                  {{t 'general.createdAt_-1'}}
+                </a>
+              {{/unless}}
+              {{#unless (and (eq this.sort_key 'createdAt') (eq this.sort_direction 1))}}
+                <a href="javascript:void()" class="dropdown-item" {{on 'click' (fn this.changeSort 'createdAt' 1)}}>
+                  {{t 'general.createdAt_1'}}
+                </a>
+              {{/unless}}
+              {{#unless (and (eq this.sort_key 'updatedAt') (eq this.sort_direction -1))}}
+                <a href="javascript:void()" class="dropdown-item" {{on 'click' (fn this.changeSort 'updatedAt' -1)}}>
+                  {{t 'general.updatedAt_-1'}}
+                </a>
+              {{/unless}}
+            </menu.item>
+          </dd.menu>
+        </BsDropdown>
+
+        <BsButton @type="primary" @size="sm" {{on 'click' this.startCreating}}>
+          <FaIcon @icon="plus" /> {{t 'routes.models.index.add_model'}}
+        </BsButton>
+      </div>
     </div>
+
     {{!-- list --}}
     <BsListGroup class="list-group-flush" as |ListGroup|>
       {{#let this.persistedModels as |models|}}

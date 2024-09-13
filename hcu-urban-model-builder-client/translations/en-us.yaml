@@ -3,6 +3,9 @@ general:
   home: Home
   modified_at: Last updated at
   created_at: Created at
+  createdAt_-1: Newest First
+  createdAt_1: Oldest First
+  updatedAt_-1: Last Modified First
 
 actions:
   save: Save

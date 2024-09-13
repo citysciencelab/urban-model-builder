@@ -3,6 +3,9 @@ general:
   home: Start
   modified_at: Letztes Update am
   created_at: Erstellt am
+  createdAt_-1: Neuestes zuerst
+  createdAt_1: Ältestes zuerst
+  updatedAt_-1: Zuletzt geändert zuerst
 
 actions:
   save: Speichern

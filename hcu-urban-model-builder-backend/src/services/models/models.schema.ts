@@ -11,7 +11,9 @@ import type { ModelsService } from './models.class.js'
 export const modelsSchema = Type.Object(
   {
     id: Type.Number(),
-    name: Type.String()
+    name: Type.String(),
+    createdAt: Type.String({ format: 'date-time' }),
+    updatedAt: Type.String({ format: 'date-time' }),
   },
   { $id: 'Models', additionalProperties: false }
 )
@@ -38,7 +40,7 @@ export const modelsPatchValidator = getValidator(modelsPatchSchema, dataValidato
 export const modelsPatchResolver = resolve<Models, HookContext<ModelsService>>({})
 
 // Schema for allowed query properties
-export const modelsQueryProperties = Type.Pick(modelsSchema, ['id', 'name'])
+export const modelsQueryProperties = Type.Pick(modelsSchema, ['id', 'name', 'createdAt', 'updatedAt'], )
 export const modelsQuerySchema = Type.Intersect(
   [
     querySyntax(modelsQueryProperties),
