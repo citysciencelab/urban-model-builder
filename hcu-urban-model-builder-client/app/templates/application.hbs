@@ -1,5 +1,41 @@
 {{page-title "HcuUrbanModelBuilderClient"}}
 
+<BsNavbar  @type="dark" @backgroundColor="dark" @fluid={{false}} id="navbar-main" as |navbar|>
+  <div class="navbar-header">
+    <navbar.toggle />
+    <LinkTo @route="application" class="navbar-brand">
+      Urban Model Builder
+    </LinkTo>
+  </div>
+  <navbar.content>
+    <navbar.nav as |nav|>
+      <nav.item>
+        <nav.linkTo @route="models.index">Models</nav.linkTo>
+      </nav.item>
+    </navbar.nav>
+  </navbar.content>
+  <span class="navbar-text">
+    <FaIcon @icon="user" />
+  </span>
+</BsNavbar>
+
+<BsNavbar @type="dark" @backgroundColor="secondary" @fluid={{false}} >
+  <BreadcrumbsContainer
+    @itemClass="breadcrumbs__item"
+    @linkClass="breadcrumbs__link"
+    class="breadcrumbs"
+  />
+  <div  id="navbar-secondary"></div>
+</BsNavbar>
+
+<BreadcrumbsItem as |linkClass|>
+  <LinkTo @route="application" class={{linkClass}}>
+    Home
+  </LinkTo>
+</BreadcrumbsItem>
+
 <div id="ember-bootstrap-wormhole"></div>
 
-{{outlet}}
+<main>
+  {{outlet}}
+</main>

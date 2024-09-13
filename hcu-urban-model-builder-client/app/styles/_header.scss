@@ -1,0 +1,34 @@
+.navbar h2 {
+  margin-bottom: 0;
+}
+
+.navbar.bg-secondary,
+.navbar.dark {
+  color: $white;
+  min-height: 47px;
+  a {
+    display: block;
+    color: $white;
+    opacity: 0.8;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.btn-primary {
+  --bs-btn-color: white;
+  --bs-btn-bg: #388adc;
+  --bs-btn-border-color: #388adc;
+  --bs-btn-hover-color: white;
+  --bs-btn-hover-bg: #569ce1;
+  --bs-btn-hover-border-color: #4c96e0;
+  --bs-btn-focus-shadow-rgb: 48, 117, 187;
+  --bs-btn-active-color: white;
+  --bs-btn-active-bg: #60a1e3;
+  --bs-btn-active-border-color: #4c96e0;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: white;
+  --bs-btn-disabled-bg: #388adc;
+  --bs-btn-disabled-border-color: #388adc;
+}

@@ -1,21 +1,31 @@
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/mixins";
+@import "./variables-overrides";
 @import "node_modules/bootstrap/scss/bootstrap";
 @import "./custom-functions";
+@import "./header";
+@import "./breadcrumbs";
 
 $node-color-map: (
   "flow": #a3c4ff,
   "stock": cadetblue,
-  "variable": coral,
+  "variable": coral
 );
 
 body {
   margin: 0;
+  text-underline-offset: 3px;
 }
 
 main {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  height: 100vh;
+  height: calc(100vh - 103px);
+}
+
+.main-content {
+  margin-top: get-spacer(3);
 }
 
 .react-wrapper {
@@ -111,4 +121,33 @@ main {
       background-color: $color;
     }
   }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    margin-bottom: 0;
+  }
+}
+
+.list-group-with-actions {
+  display: flex;
+  justify-content: space-between;
+  &:hover {
+    background-color: $body-tertiary-bg;
+  }
+  &:hover .list-group-actions {
+    display: flex;
+  }
+}
+
+.list-group-actions {
+  display: none;
+  gap: get-spacer(2);
 }

@@ -1,17 +1,58 @@
 {{page-title "Index"}}
 
-<div class="container">
-  <h2>Models</h2>
-  <BsListGroup as |ListGroup|>
-    {{#let this.model as |models|}}
-      {{#each models as |model|}}
-        <ListGroup.item>
-          {{model.name}}
-          <LinkTo @route="models.show" @model={{model}}>
-            <BsButton @type="primary" @size="sm">Show</BsButton>
-          </LinkTo>
-        </ListGroup.item>
-      {{/each}}
-    {{/let}}
-  </BsListGroup>
+<div class="container main-content">
+  
+  <div class="card">
+    {{!-- header --}}
+    <div class="card-header">
+      <h2 class="h5">List of all Models</h2>
+      <BsButton @type="primary" @size="sm" {{on 'click' this.toggleModal}}>
+        <FaIcon @icon="plus" /> Add Model
+      </BsButton>
+    </div>
+    {{!-- list --}}
+    <BsListGroup class="list-group-flush" as |ListGroup|>
+      {{#let this.model as |models|}}
+        {{#each models as |model|}}
+          <ListGroup.item class="list-group-with-actions">
+            <LinkTo @route="models.show" @model={{model}}>
+            {{model.name}}
+            </LinkTo>
+            <div class="list-group-actions">
+              <a href="#" {{on 'click' (fn this.startEditing model)}}><FaIcon @icon="pencil"></FaIcon></a>
+              <a href="#" {{on 'click' (fn this.startDeleting model)}}><FaIcon @icon="trash"></FaIcon></a>
+            </div>
+          </ListGroup.item>
+        {{/each}}
+      {{/let}}
+    </BsListGroup>
+    {{!-- footer --}}
+    <div class="card-footer text-body-secondary">
+      {{this.model.length}} Models total
+    </div>
+  </div>
+  
 </div>
+
+<BsModal
+  @open={{this.isModalOpen}}
+  @onSubmit={{this.createModel}}
+  @onHidden={{this.closeModal}}
+  as |modal|
+>
+  <modal.header>
+    <h4 class="modal-title">
+      Create new Model
+    </h4>
+  </modal.header>
+  <modal.body>
+    <label>
+      Name
+      <Input @type="text" @value={{this.modelName}} />
+    </label>
+  </modal.body>
+  <modal.footer>
+    <BsButton @onClick={{modal.close}}>Cancel</BsButton>
+    <BsButton @type="success" @onClick={{modal.submit}}>Save</BsButton>
+  </modal.footer>
+</BsModal>
