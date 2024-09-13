@@ -9,12 +9,10 @@ import {
 } from 'hcu-urban-model-builder-backend';
 import { camelize, dasherize } from '@ember/string';
 import { pluralize, singularize } from '@ember-data/request-utils/string';
-import { action } from '@ember/object';
 import { service } from '@ember/service';
 import type Store from '@ember-data/store';
 import type StoreEventEmitterService from './store-event-emitter';
-import type { DataModel, DataModelsNames } from './store-event-emitter';
-import model from '@ember-data/model';
+import type { DataModelsNames } from './store-event-emitter';
 
 export default class FeathersService extends Service {
   app: ClientApplication;
