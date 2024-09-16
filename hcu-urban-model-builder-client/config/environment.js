@@ -27,6 +27,8 @@ module.exports = function (environment) {
       authEndpoint: '/auth',
       tokenEndpoint: '/token',
       userinfoEndpoint: '/userinfo',
+      endSessionEndpoint: '/logout',
+      afterLogoutUri: 'http://localhost:4200',
       enablePkce: true,
     },
   };
