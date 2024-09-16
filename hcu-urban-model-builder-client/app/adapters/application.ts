@@ -11,7 +11,11 @@ import type FeathersService from 'hcu-urban-model-builder-client/services/feathe
 export default class ApplicationAdapter extends Adapter {
   host = 'http://localhost:3030';
   @service feathers!: FeathersService;
+  @service session!: any;
 
+  get headers() {
+    return { ...this.session.headers };
+  }
   async findAll(store: Store, type: ModelSchema): Promise<AdapterPayload> {
     return this.query(store, type, {});
   }

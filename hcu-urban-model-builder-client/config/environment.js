@@ -18,6 +18,17 @@ module.exports = function (environment) {
       // Here you can pass flags/options to your application instance
       // when it is created
     },
+    'ember-simple-auth': {
+      routeAfterAuthentication: 'authenticated',
+    },
+    'ember-simple-auth-oidc': {
+      host: 'http://localhost:8081/realms/hcu-model-builder/protocol/openid-connect',
+      clientId: 'hcu-model-builder-server',
+      authEndpoint: '/auth',
+      tokenEndpoint: '/token',
+      userinfoEndpoint: '/userinfo',
+      enablePkce: true,
+    },
   };
 
   if (environment === 'development') {

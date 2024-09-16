@@ -39,7 +39,7 @@ export type ClientApplication = Application<ServiceTypes, Configuration>
  */
 export const createClient = <Configuration = any>(
   connection: TransportConnection<ServiceTypes>,
-  authenticationOptions: Partial<AuthenticationClientOptions> = { jwtStrategy: 'oidc' }
+  authenticationOptions: Partial<AuthenticationClientOptions> = {}
 ) => {
   const client: ClientApplication = feathers()
 

@@ -21,6 +21,7 @@ export default class FeathersService extends Service {
 
   @service() declare store: Store;
   @service() declare storeEventEmitter: StoreEventEmitterService;
+  @service() declare session: any;
 
   constructor(owner?: Owner) {
     super(owner);
@@ -28,7 +29,27 @@ export default class FeathersService extends Service {
       io('http://localhost:3030', { transports: ['websocket'] }),
     );
 
-    this.app = createClient(socket);
+    this.app = createClient(socket, {
+      jwtStrategy: 'oidc',
+      storage: window.localStorage,
+    });
+
+    const jwt = this.session.data.authenticated.access_token;
+    this.app
+      .authenticate({
+        strategy: 'oidc',
+        accessToken: jwt,
+        updateEntity: true,
+      })
+      .then(() => {
+        // Update local storage for re-connection.
+        window.localStorage.setItem('feathers-jwt', jwt);
+        console.log('logged in');
+      })
+      .catch((e) => {
+        console.error('Authentication error', e);
+      });
+
     this.registerEventListeners();
   }
 

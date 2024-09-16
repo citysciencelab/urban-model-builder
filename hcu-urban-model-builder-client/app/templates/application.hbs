@@ -1,6 +1,11 @@
 {{page-title "HcuUrbanModelBuilderClient"}}
-
-<BsNavbar  @type="dark" @backgroundColor="dark" @fluid={{false}} id="navbar-main" as |navbar|>
+<BsNavbar
+  @type="dark"
+  @backgroundColor="dark"
+  @fluid={{false}}
+  id="navbar-main"
+  as |navbar|
+>
   <div class="navbar-header">
     <navbar.toggle />
     <LinkTo @route="application" class="navbar-brand">
@@ -15,17 +20,32 @@
     </navbar.nav>
   </navbar.content>
   <span class="navbar-text">
-    <FaIcon @icon="user" />
+    {{#if this.session.isAuthenticated}}
+      <FaIcon @icon="user" />
+      {{this.session.data.authenticated.userinfo.name}}
+      <button
+        class="btn btn-primary"
+        type="button"
+        {{on "click" this.invalidateSession}}
+      >Logout</button>
+    {{else}}
+      <LinkTo
+        @route="login"
+        class="btn btn-primary"
+        role="button"
+        aria-pressed="false"
+      >Login</LinkTo>
+    {{/if}}
   </span>
 </BsNavbar>
 
-<BsNavbar @type="dark" @backgroundColor="secondary" @fluid={{false}} >
+<BsNavbar @type="dark" @backgroundColor="secondary" @fluid={{false}}>
   <BreadcrumbsContainer
     @itemClass="breadcrumbs__item"
     @linkClass="breadcrumbs__link"
     class="breadcrumbs"
   />
-  <div  id="navbar-secondary"></div>
+  <div id="navbar-secondary"></div>
 </BsNavbar>
 
 <BreadcrumbsItem as |linkClass|>

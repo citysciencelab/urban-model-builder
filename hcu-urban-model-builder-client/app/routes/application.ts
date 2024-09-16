@@ -5,8 +5,10 @@ import { service } from '@ember/service';
 
 export default class ApplicationRoute extends Route {
   @service declare router: RouterService;
+  @service declare session: any;
 
-  beforeModel(transition: Transition) {
+  async beforeModel(transition: Transition) {
+    await this.session.setup();
     if (transition.to?.name === 'authenticated.index') {
       this.router.replaceWith('models');
     }
