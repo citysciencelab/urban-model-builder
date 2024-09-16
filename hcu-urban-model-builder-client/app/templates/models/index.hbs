@@ -7,6 +7,7 @@
     <div class="card-header">
       <h2 class="h5">{{t "routes.models.index.list_of_all_models"}}</h2>
       <div class="card-header-actions">
+        {{!-- sort --}}
         <BsDropdown @tagName="span" as |dd|>
           <dd.button @size="sm">
             <FaIcon @icon="arrow-down-a-z" />
@@ -33,7 +34,7 @@
             </menu.item>
           </dd.menu>
         </BsDropdown>
-
+        {{!-- create --}}
         <BsButton @type="primary" @size="sm" {{on 'click' this.startCreating}}>
           <FaIcon @icon="plus" /> {{t 'routes.models.index.add_model'}}
         </BsButton>
