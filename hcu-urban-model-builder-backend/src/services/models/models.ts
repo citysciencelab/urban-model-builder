@@ -20,6 +20,8 @@ import { ModelsService, getOptions } from './models.class.js'
 import { modelsPath, modelsMethods } from './models.shared.js'
 import { authenticate } from '@feathersjs/authentication'
 import customSoftDelete from '../../hooks/custom-soft-delete.js'
+import { setCreatedBy } from '../../hooks/set-created-by.js'
+import { filterCreatedBy } from '../../hooks/filter-created-by.js'
 
 export * from './models.class.js'
 export * from './models.schema.js'
@@ -44,9 +46,12 @@ export const models = (app: Application) => {
         schemaHooks.validateQuery(modelsQueryValidator),
         schemaHooks.resolveQuery(modelsQueryResolver)
       ],
-      find: [customSoftDelete()],
+      find: [
+        customSoftDelete(),
+        filterCreatedBy,
+      ],
       get: [customSoftDelete()],
-      create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver), customSoftDelete()],
+      create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver), customSoftDelete(), setCreatedBy],
       patch: [schemaHooks.validateData(modelsPatchValidator), schemaHooks.resolveData(modelsPatchResolver), customSoftDelete()],
       remove: [customSoftDelete()],
       simulate: [
