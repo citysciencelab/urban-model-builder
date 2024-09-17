@@ -696,8 +696,8 @@
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
         "",
-        "http://localhost:4201/login",
-        "http://localhost:4200/login"
+        "http://localhost:4201/authenticate",
+        "http://localhost:4200/authenticate"
       ],
       "webOrigins": [
         "http://localhost:4201",
