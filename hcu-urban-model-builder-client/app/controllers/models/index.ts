@@ -19,8 +19,10 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
   @tracked mode = '';
   @tracked sort_key = 'createdAt';
   @tracked sort_direction: number = -1;
+  @tracked page = 1;
+  @tracked limit = 10;
 
-  queryParams = ['sort_key', 'sort_direction'];
+  queryParams = ['sort_key', 'sort_direction', 'page', 'limit'];
 
   get persistedModels() {
     return this.model.filter((item) => !item.isNew);
@@ -109,5 +111,13 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
         firstInputEl?.focus();
       }
     }, 50);
+  }
+
+  @action onPageChanged(pageNum: number) {
+    this.page = pageNum;
+  }
+
+  @action onLimitChanged(limit: number) {
+    this.limit = limit;
   }
 }

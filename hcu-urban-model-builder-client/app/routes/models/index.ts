@@ -14,16 +14,32 @@ export default class ModelsIndexRoute extends Route {
       refreshModel: true,
       type: 'number' as const,
     },
+    limit: {
+      refreshModel: true,
+      type: 'number' as const,
+    },
+    page: {
+      refreshModel: true,
+      type: 'number' as const,
+    },
   };
 
-  async model(params: { sort_key: string; sort_direction: number }) {
+  async model(params: {
+    sort_key: string;
+    sort_direction: number;
+    page: number;
+    limit: number;
+  }) {
     (this.store as any).storeEventEmitter.on(
       'model',
       'created',
       this.onCreated,
     );
 
-    const query: any = {};
+    const query: any = {
+      $skip: (params.page - 1) * params.limit,
+      $limit: params.limit,
+    };
 
     if (params.sort_key) {
       query['$sort'] = {};

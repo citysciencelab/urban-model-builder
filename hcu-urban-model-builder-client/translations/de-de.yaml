@@ -7,6 +7,12 @@ general:
   createdAt_1: Ältestes zuerst
   updatedAt_-1: Zuletzt geändert zuerst
 
+pagination:
+  meta: Zeige {start} - {end} von {total}
+  limit: Pro Seite
+  prev: Zurück
+  next: Weiter
+
 actions:
   save: Speichern
   cancel: Abbrechen

@@ -1,0 +1,80 @@
+<div class="pagination__count">
+  {{t "pagination.meta" start=this.start end=this.end total=@total}}
+</div>
+
+{{! Pagination }}
+<nav class="pagination__nav" aria-label="Pagination">
+  {{! Prev }}
+  <ul class="pagination pagination-sm">
+    <li class="page-item {{if (eq this.prevPage @page) "disabled"}}">
+      <a
+        class="page-link"
+        href="javascript:void(0)"
+        aria-label="Previous"
+        {{on "click" (fn @onPageChanged this.prevPage)}}
+      >
+        <span aria-hidden="true">
+          &laquo;
+        </span>
+        <span class="sr-only">
+          {{t "pagination.prev"}}
+        </span>
+      </a>
+    </li>
+
+    {{! Pages }}
+    {{#each this.pages as |page|}}
+      {{#if (eq @page page)}}
+        <li class="page-item active">
+          <a class="page-link" href="javascript:void(0)">
+            {{page}}
+          </a>
+        </li>
+      {{else}}
+        <li class="page-item {{if (eq @page page) "active"}}">
+          <a
+            class="page-link"
+            href="javascript:void(0)"
+            {{on "click" (fn @onPageChanged page)}}
+          >
+            {{page}}
+          </a>
+        </li>
+      {{/if}}
+    {{/each}}
+
+    {{! Next }}
+    <li class="page-item {{if (eq this.nextPage @page) "disabled"}}">
+      <a
+        class="page-link"
+        href="javascript:void(0)"
+        aria-label="Next"
+        {{on "click" (fn @onPageChanged this.nextPage)}}
+      >
+        <span aria-hidden="true">
+          &raquo;
+        </span>
+        <span class="sr-only">
+          {{t "pagination.next"}}
+        </span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<div class="pagination__limit-select">
+  <label for="pagination-limit">
+    {{t "pagination.limit"}}
+  </label>
+  <BsButtonGroup
+    @value={{@limit}}
+    @type="radio"
+    @onChange={{@onLimitChanged}} as |bg|
+  >
+    {{#each this.limits as |limit|}}
+      <bg.button @type="tertiary" @size="sm" @value={{limit}}>
+        {{limit}}
+      </bg.button>
+    {{/each}}
+  </BsButtonGroup>
+</div>

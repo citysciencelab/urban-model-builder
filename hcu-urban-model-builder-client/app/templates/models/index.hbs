@@ -1,93 +1,147 @@
 {{page-title "Index"}}
 
 <div class="container main-content">
-  
   <div class="card">
-    {{!-- header --}}
+    {{! header }}
     <div class="card-header">
-      <h2 class="h5">{{t "routes.models.index.list_of_all_models"}}</h2>
+      <h2 class="h5">
+        {{t "routes.models.index.list_of_all_models"}}
+      </h2>
       <div class="card-header-actions">
-        {{!-- sort --}}
+        {{! sort }}
         <BsDropdown @tagName="span" as |dd|>
           <dd.button @size="sm">
             <FaIcon @icon="arrow-down-a-z" />
-            {{t (concat 'general.' this.sort_key '_' this.sort_direction)}}
+            {{t (concat "general." this.sort_key "_" this.sort_direction)}}
             <span class="caret"></span>
           </dd.button>
           <dd.menu as |menu|>
             <menu.item>
-              {{#unless (and (eq this.sort_key 'createdAt') (eq this.sort_direction -1))}}
-                <a href="javascript:void()" class="dropdown-item" {{on 'click' (fn this.changeSort 'createdAt' -1)}}>
-                  {{t 'general.createdAt_-1'}}
+              {{#if
+                (not
+                  (and
+                    (eq this.sort_key "createdAt") (eq this.sort_direction -1)
+                  )
+                )
+              }}
+                <a
+                  href="javascript:void()"
+                  class="dropdown-item"
+                  {{on "click" (fn this.changeSort "createdAt" -1)}}
+                >
+                  {{t "general.createdAt_-1"}}
                 </a>
-              {{/unless}}
-              {{#unless (and (eq this.sort_key 'createdAt') (eq this.sort_direction 1))}}
-                <a href="javascript:void()" class="dropdown-item" {{on 'click' (fn this.changeSort 'createdAt' 1)}}>
-                  {{t 'general.createdAt_1'}}
+              {{/if}}
+              {{#if
+                (not
+                  (and
+                    (eq this.sort_key "createdAt") (eq this.sort_direction 1)
+                  )
+                )
+              }}
+                <a
+                  href="javascript:void()"
+                  class="dropdown-item"
+                  {{on "click" (fn this.changeSort "createdAt" 1)}}
+                >
+                  {{t "general.createdAt_1"}}
                 </a>
-              {{/unless}}
-              {{#unless (and (eq this.sort_key 'updatedAt') (eq this.sort_direction -1))}}
-                <a href="javascript:void()" class="dropdown-item" {{on 'click' (fn this.changeSort 'updatedAt' -1)}}>
-                  {{t 'general.updatedAt_-1'}}
+              {{/if}}
+              {{#if
+                (not
+                  (and
+                    (eq this.sort_key "updatedAt") (eq this.sort_direction -1)
+                  )
+                )
+              }}
+                <a
+                  href="javascript:void()"
+                  class="dropdown-item"
+                  {{on "click" (fn this.changeSort "updatedAt" -1)}}
+                >
+                  {{t "general.updatedAt_-1"}}
                 </a>
-              {{/unless}}
+              {{/if}}
             </menu.item>
           </dd.menu>
         </BsDropdown>
-        {{!-- create --}}
-        <BsButton @type="primary" @size="sm" {{on 'click' this.startCreating}}>
-          <FaIcon @icon="plus" /> {{t 'routes.models.index.add_model'}}
+        {{! create }}
+        <BsButton @type="primary" @size="sm" {{on "click" this.startCreating}}>
+          <FaIcon @icon="plus" />
+          {{t "routes.models.index.add_model"}}
         </BsButton>
       </div>
     </div>
 
-    {{!-- list --}}
+    {{! list }}
     <BsListGroup class="list-group-flush" as |ListGroup|>
       {{#let this.persistedModels as |models|}}
         {{#each models as |model|}}
           <ListGroup.item class="list-group-with-actions">
             <div class="list-group-body">
-            <LinkTo @route="models.show" @model={{model}}>
-            {{model.name}}
-            </LinkTo>
-            <div class="list-group-meta">
-              <span title={{format-date model.updatedAt localeMatcher='lookup' format='dateTime'}}>
-                {{t 'general.modified_at'}} {{format-date model.updatedAt}}
-              </span>
-              <span title={{format-date model.createdAt localeMatcher='lookup' format='dateTime'}}>
-                {{t 'general.created_at'}} {{format-date model.createdAt}}
-              </span>
-            </div>
+              <LinkTo @route="models.show" @model={{model}}>
+                {{model.name}}
+              </LinkTo>
+              <div class="list-group-meta">
+                <span
+                  title={{
+                    format-date
+                    model.updatedAt
+                    localeMatcher="lookup"
+                    format="dateTime"
+                  }}
+                >
+                  {{t "general.modified_at"}} {{format-date model.updatedAt}}
+                </span>
+                <span
+                  title={{
+                    format-date
+                    model.createdAt
+                    localeMatcher="lookup"
+                    format="dateTime"
+                  }}
+                >
+                  {{t "general.created_at"}} {{format-date model.createdAt}}
+                </span>
+              </div>
             </div>
             <div class="list-group-actions">
-              <a href="#" {{on 'click' (fn this.startEditing model)}}><FaIcon @icon="pencil"></FaIcon></a>
-              <a href="#" {{on 'click' (fn this.startDeleting model)}}><FaIcon @icon="trash"></FaIcon></a>
+              <a href="#" {{on "click" (fn this.startEditing model)}}>
+                <FaIcon @icon="pencil" />
+              </a>
+              <a href="#" {{on "click" (fn this.startDeleting model)}}>
+                <FaIcon @icon="trash" />
+              </a>
             </div>
           </ListGroup.item>
         {{/each}}
       {{/let}}
     </BsListGroup>
-    {{!-- footer --}}
-    <div class="card-footer text-body-secondary">
-      {{this.persistedModels.length}} {{t 'routes.models.index.total'}}
+    {{! footer }}
+    <div class="card-footer model-index-footer text-body-secondary">
+      <Ui::Pagination
+        @limit={{this.limit}}
+        @total={{this.model.meta.total}}
+        @page={{this.page}}
+        @onPageChanged={{this.onPageChanged}}
+        @onLimitChanged={{this.onLimitChanged}}
+      />
     </div>
   </div>
-  
 </div>
 
-{{!-- Modal / Form --}}
+{{! Modal / Form }}
 <BsModal
   @open={{this.isModalOpen}}
   @onSubmit={{this.submitModel}}
-  @onHide={{this.closeModal}}
-  as |modal|
+  @onHide={{this.closeModal}} as |modal|
 >
   <modal.header>
     <h5 class="modal-title">
-      {{#if (eq this.mode 'edit')}}
-        {{{t 'routes.models.index.edit_title' name=this.changeset.name}}}
-      {{else }}
-        {{t 'routes.models.index.create_new_title'}}
+      {{#if (eq this.mode "edit")}}
+        {{{t "routes.models.index.edit_title" name=this.changeset.name}}}
+      {{else}}
+        {{t "routes.models.index.create_new_title"}}
       {{/if}}
     </h5>
   </modal.header>
@@ -95,16 +149,27 @@
     <BsForm
       @formLayout="vertical"
       @model={{this.changeset}}
-      @onSubmit={{this.submitModel}}
-      as |form|
+      @onSubmit={{this.submitModel}} as |form|
     >
-      <form.element {{did-insert this.focusFirstInputElement}} @controlType="text" @label={{t 'models.model.attributes.name'}} @property="name" as |el|>
-        <el.control placeholder={{concat (t 'models.model.attributes.name') '…'}} required/>
+      <form.element
+        @controlType="text"
+        @label={{t "models.model.attributes.name"}}
+        @property="name"
+        {{did-insert this.focusFirstInputElement}} as |el|
+      >
+        <el.control
+          placeholder={{concat (t "models.model.attributes.name") "…"}}
+          required
+        />
       </form.element>
     </BsForm>
   </modal.body>
   <modal.footer>
-    <BsButton @onClick={{this.closeModal}}>{{t 'actions.cancel'}}</BsButton>
-    <BsButton @type="success" @onClick={{this.submitModel}}>{{t 'actions.save'}}</BsButton>
+    <BsButton @onClick={{this.closeModal}}>
+      {{t "actions.cancel"}}
+    </BsButton>
+    <BsButton @type="success" @onClick={{this.submitModel}}>
+      {{t "actions.save"}}
+    </BsButton>
   </modal.footer>
 </BsModal>

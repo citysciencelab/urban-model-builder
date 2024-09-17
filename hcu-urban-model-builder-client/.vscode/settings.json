@@ -1,7 +1,7 @@
 {
   "peacock.color": "#45b4f8",
   "[handlebars]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "mfeckies.handlebars-formatter"
   },
   "[glimmer-js]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
