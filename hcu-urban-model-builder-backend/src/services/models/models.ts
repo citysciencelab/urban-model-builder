@@ -22,6 +22,8 @@ import { authenticate } from '@feathersjs/authentication'
 import customSoftDelete from '../../hooks/custom-soft-delete.js'
 import { setCreatedBy } from '../../hooks/set-created-by.js'
 import { filterCreatedBy } from '../../hooks/filter-created-by.js'
+import { ensureCreatedBy } from '../../hooks/ensure-created-by.js'
+import { iff, isProvider } from 'feathers-hooks-common'
 
 export * from './models.class.js'
 export * from './models.schema.js'
@@ -50,10 +52,26 @@ export const models = (app: Application) => {
         customSoftDelete(),
         filterCreatedBy,
       ],
-      get: [customSoftDelete()],
-      create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver), customSoftDelete(), setCreatedBy],
-      patch: [schemaHooks.validateData(modelsPatchValidator), schemaHooks.resolveData(modelsPatchResolver), customSoftDelete()],
-      remove: [customSoftDelete()],
+      get: [
+        customSoftDelete(),
+        filterCreatedBy
+      ],
+      create: [
+        schemaHooks.validateData(modelsDataValidator), 
+        schemaHooks.resolveData(modelsDataResolver), 
+        customSoftDelete(), 
+        setCreatedBy
+      ],
+      patch: [
+        schemaHooks.validateData(modelsPatchValidator), 
+        schemaHooks.resolveData(modelsPatchResolver), 
+        iff(isProvider('external'), ensureCreatedBy),
+        customSoftDelete(),
+      ],
+      remove: [
+        iff(isProvider('external'), ensureCreatedBy),
+        customSoftDelete(),
+      ],
       simulate: [
         schemaHooks.validateData(modelsSimulateValidator),
         schemaHooks.resolveData(modelsSimulateResolver)

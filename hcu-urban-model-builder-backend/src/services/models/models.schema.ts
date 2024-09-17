@@ -43,7 +43,7 @@ export const modelsPatchValidator = getValidator(modelsPatchSchema, dataValidato
 export const modelsPatchResolver = resolve<Models, HookContext<ModelsService>>({})
 
 // Schema for allowed query properties
-export const modelsQueryProperties = Type.Pick(modelsSchema, ['id', 'name', 'createdAt', 'updatedAt', 'createdBy'], )
+export const modelsQueryProperties = Type.Pick(modelsSchema, ['id', 'name', 'createdAt', 'deletedAt', 'updatedAt', 'createdBy'], )
 export const modelsQuerySchema = Type.Intersect(
   [
     querySyntax(modelsQueryProperties, {
