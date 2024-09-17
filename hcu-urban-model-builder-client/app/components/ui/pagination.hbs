@@ -1,5 +1,9 @@
 <div class="pagination__count">
-  {{t "pagination.meta" start=this.start end=this.end total=@total}}
+  {{#if (eq @model.length 0)}}
+    -
+  {{else}}
+    {{t "pagination.meta" start=this.start end=this.end total=@total}}
+  {{/if}}
 </div>
 
 {{! Pagination }}

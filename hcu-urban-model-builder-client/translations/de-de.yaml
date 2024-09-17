@@ -33,3 +33,4 @@ routes:
       total: Modelle gesamt 
       create_new_title: Neues Modell erstellen
       edit_title: Modell <em>{name}</em> bearbeiten
+      no_models_found: Keine Modelle gefunden

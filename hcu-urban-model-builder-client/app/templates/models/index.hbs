@@ -8,9 +8,46 @@
         {{t "routes.models.index.list_of_all_models"}}
       </h2>
       <div class="card-header-actions">
+        {{! search }}
+        <BsDropdown
+          @onShow={{this.onShowSearch}}
+          @closeOnMenuClick={{false}} as |dd|
+        >
+          <dd.button
+            @size="sm"
+            @type={{if this.hasSearchQuery "primary" "tertiary"}}
+          >
+            {{#if this.hasSearchQuery}}
+              <a
+                class="model-clear-search"
+                href="javascript:void()"
+                {{on "click" (fn this.clearSearch dd)}}
+              >
+                <FaIcon @icon="remove" />
+              </a>
+              <div class="model-search-preview">
+                {{this.q}}
+              </div>
+            {{else}}
+              <FaIcon @icon="search" />
+            {{/if}}
+          </dd.button>
+          <dd.menu>
+            <div class="model-search">
+              <Input
+                @value={{this._q}}
+                id="model-search-input"
+                {{on "change" this.onSearchChange}}
+              />
+              <BsButton @size="sm" @type="primary">
+                <FaIcon @icon="search" />
+              </BsButton>
+            </div>
+          </dd.menu>
+        </BsDropdown>
         {{! sort }}
         <BsDropdown @tagName="span" as |dd|>
-          <dd.button @size="sm">
+          <dd.button @size="sm" @type="tertiary">
             <FaIcon @icon="arrow-down-a-z" />
             {{t (concat "general." this.sort_key "_" this.sort_direction)}}
             <span class="caret"></span>
@@ -114,12 +151,19 @@
               </a>
             </div>
           </ListGroup.item>
+        {{else}}
+          <ListGroup.item>
+            <div class="list-group-body">
+              {{t "routes.models.index.no_models_found"}}
+            </div>
+          </ListGroup.item>
         {{/each}}
       {{/let}}
     </BsListGroup>
     {{! footer }}
     <div class="card-footer model-index-footer text-body-secondary">
       <Ui::Pagination
+        @model={{this.persistedModels}}
         @limit={{this.limit}}
         @total={{this.model.meta.total}}
         @page={{this.page}}

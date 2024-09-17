@@ -22,6 +22,9 @@ export default class ModelsIndexRoute extends Route {
       refreshModel: true,
       type: 'number' as const,
     },
+    q: {
+      refreshModel: true,
+    },
   };
 
   async model(params: {
@@ -29,6 +32,7 @@ export default class ModelsIndexRoute extends Route {
     sort_direction: number;
     page: number;
     limit: number;
+    q: string;
   }) {
     (this.store as any).storeEventEmitter.on(
       'model',
@@ -44,6 +48,12 @@ export default class ModelsIndexRoute extends Route {
     if (params.sort_key) {
       query['$sort'] = {};
       query['$sort'][params.sort_key] = params.sort_direction;
+    }
+
+    if (params.q && params.q !== '') {
+      query['name'] = {
+        $ilike: `%${params.q}%`,
+      };
     }
 
     return this.store.query('model', query);

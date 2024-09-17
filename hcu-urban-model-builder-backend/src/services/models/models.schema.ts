@@ -45,7 +45,11 @@ export const modelsPatchResolver = resolve<Models, HookContext<ModelsService>>({
 export const modelsQueryProperties = Type.Pick(modelsSchema, ['id', 'name', 'createdAt', 'updatedAt'], )
 export const modelsQuerySchema = Type.Intersect(
   [
-    querySyntax(modelsQueryProperties),
+    querySyntax(modelsQueryProperties, {
+      name: {
+        $ilike: Type.String()
+      }
+    }),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],

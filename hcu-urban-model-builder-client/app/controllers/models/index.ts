@@ -1,3 +1,4 @@
+import { next } from '@ember/runloop';
 import Controller from '@ember/controller';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
@@ -8,6 +9,7 @@ import ModelValidations from '../../validations/model';
 import lookupValidator from 'ember-changeset-validations';
 import { Changeset, EmberChangeset } from 'ember-changeset';
 import IntlService from 'ember-intl/services/intl';
+import { isEmpty } from '@ember/utils';
 
 export default class ModelsIndexController extends Controller<ModelModel[]> {
   @service declare store: Store;
@@ -21,11 +23,17 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
   @tracked sort_direction: number = -1;
   @tracked page = 1;
   @tracked limit = 10;
+  @tracked q = '';
+  @tracked _q = '';
 
-  queryParams = ['sort_key', 'sort_direction', 'page', 'limit'];
+  queryParams = ['sort_key', 'sort_direction', 'page', 'limit', 'q'];
 
   get persistedModels() {
     return this.model.filter((item) => !item.isNew);
+  }
+
+  get hasSearchQuery() {
+    return !isEmpty(this.q);
   }
 
   @action
@@ -121,5 +129,24 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
   @action onLimitChanged(limit: number) {
     this.limit = limit;
     this.page = 1;
+  }
+
+  @action onSearchChange() {
+    this.q = this._q;
+  }
+
+  @action onShowSearch() {
+    this._q = this.q;
+    next(() => {
+      (
+        document.getElementById('model-search-input') as HTMLInputElement
+      )?.select();
+    });
+  }
+
+  @action clearSearch(dd: any) {
+    dd.closeDropdown();
+    this._q = '';
+    this.onSearchChange();
   }
 }

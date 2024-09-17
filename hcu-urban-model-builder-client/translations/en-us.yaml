@@ -33,3 +33,4 @@ routes:
       total: Total models
       create_new_title: Create new model
       edit_title: Edit model <em>{name}</em>
+      no_models_found: No models found
