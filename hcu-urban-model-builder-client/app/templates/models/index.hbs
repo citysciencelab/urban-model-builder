@@ -27,7 +27,7 @@
                 <a
                   href="javascript:void()"
                   class="dropdown-item"
-                  {{on "click" (fn this.changeSort "createdAt" -1)}}
+                  {{on "click" (fn this.onSortChange "createdAt" -1)}}
                 >
                   {{t "general.createdAt_-1"}}
                 </a>
@@ -42,7 +42,7 @@
                 <a
                   href="javascript:void()"
                   class="dropdown-item"
-                  {{on "click" (fn this.changeSort "createdAt" 1)}}
+                  {{on "click" (fn this.onSortChange "createdAt" 1)}}
                 >
                   {{t "general.createdAt_1"}}
                 </a>
@@ -57,7 +57,7 @@
                 <a
                   href="javascript:void()"
                   class="dropdown-item"
-                  {{on "click" (fn this.changeSort "updatedAt" -1)}}
+                  {{on "click" (fn this.onSortChange "updatedAt" -1)}}
                 >
                   {{t "general.updatedAt_-1"}}
                 </a>

@@ -8,7 +8,7 @@ general:
   updatedAt_-1: Last Modified First
 
 pagination:
-  meta: Show {start} - {end} of {total}
+  meta: Showing {start} - {end} of {total}
   limit: Per Page
   prev: Back
   next: Next

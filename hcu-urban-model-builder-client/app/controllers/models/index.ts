@@ -28,11 +28,6 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
     return this.model.filter((item) => !item.isNew);
   }
 
-  @action changeSort(key: string, direction: number) {
-    this.sort_key = key;
-    this.sort_direction = direction;
-  }
-
   @action
   async submitModel() {
     await this.changeset.validate();
@@ -113,11 +108,18 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
     }, 50);
   }
 
+  @action onSortChange(key: string, direction: number) {
+    this.page = 1;
+    this.sort_key = key;
+    this.sort_direction = direction;
+  }
+
   @action onPageChanged(pageNum: number) {
     this.page = pageNum;
   }
 
   @action onLimitChanged(limit: number) {
     this.limit = limit;
+    this.page = 1;
   }
 }
