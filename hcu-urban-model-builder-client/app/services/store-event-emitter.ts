@@ -1,11 +1,12 @@
 import { action } from '@ember/object';
 import Service from '@ember/service';
 import type { Type } from '@warp-drive/core-types/symbols';
+import type User from 'hcu-urban-model-builder-client/models/user';
 import type Edge from 'hcu-urban-model-builder-client/models/edge';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 
-type DataModels = Node | Edge | ModelModel;
+type DataModels = Node | Edge | ModelModel | User;
 
 export type DataModelsNames = DataModels[typeof Type];
 
@@ -25,6 +26,7 @@ export default class StoreEventEmitterService extends Service {
     node: new Map(),
     edge: new Map(),
     model: new Map(),
+    user: new Map(),
   };
 
   @action
