@@ -6,6 +6,7 @@ import type { Static } from '@feathersjs/typebox'
 import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { ModelsService } from './models.class.js'
+import { Nullable } from '../../utils/schema.js'
 
 // Main data model schema
 export const modelsSchema = Type.Object(
@@ -14,6 +15,7 @@ export const modelsSchema = Type.Object(
     name: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' }),
+    deletedAt: Nullable(Type.String({ format: 'date-time' }))
   },
   { $id: 'Models', additionalProperties: false }
 )

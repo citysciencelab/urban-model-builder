@@ -18,6 +18,7 @@ import {
 import type { Application } from '../../declarations.js'
 import { ModelsService, getOptions } from './models.class.js'
 import { modelsPath, modelsMethods } from './models.shared.js'
+import customSoftDelete from '../../hooks/custom-soft-delete.js'
 
 export * from './models.class.js'
 export * from './models.schema.js'
@@ -38,11 +39,11 @@ export const models = (app: Application) => {
     },
     before: {
       all: [schemaHooks.validateQuery(modelsQueryValidator), schemaHooks.resolveQuery(modelsQueryResolver)],
-      find: [],
-      get: [],
-      create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver)],
-      patch: [schemaHooks.validateData(modelsPatchValidator), schemaHooks.resolveData(modelsPatchResolver)],
-      remove: [],
+      find: [customSoftDelete()],
+      get: [customSoftDelete()],
+      create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver),customSoftDelete()],
+      patch: [schemaHooks.validateData(modelsPatchValidator), schemaHooks.resolveData(modelsPatchResolver), customSoftDelete()],
+      remove: [customSoftDelete()],
       simulate: [
         schemaHooks.validateData(modelsSimulateValidator),
         schemaHooks.resolveData(modelsSimulateResolver)
