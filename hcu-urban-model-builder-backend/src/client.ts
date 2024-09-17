@@ -7,6 +7,9 @@ const authenticationClient =
   authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { userClient } from './services/users/users.shared.js'
+export type { User, UserData, UserQuery, UserPatch } from './services/users/users.shared.js'
+
 import { modelsClient } from './services/models/models.shared.js'
 export type { Models, ModelsData, ModelsQuery, ModelsPatch } from './services/models/models.shared.js'
 
@@ -47,5 +50,6 @@ export const createClient = <Configuration = any>(
   client.configure(nodesClient)
   client.configure(edgesClient)
   client.configure(modelsClient)
+  client.configure(userClient)
   return client
 }

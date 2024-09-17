@@ -18,6 +18,7 @@ import {
 import type { Application } from '../../declarations.js'
 import { ModelsService, getOptions } from './models.class.js'
 import { modelsPath, modelsMethods } from './models.shared.js'
+import { authenticate } from '@feathersjs/authentication'
 import customSoftDelete from '../../hooks/custom-soft-delete.js'
 
 export * from './models.class.js'
@@ -38,10 +39,14 @@ export const models = (app: Application) => {
       all: [schemaHooks.resolveExternal(modelsExternalResolver), schemaHooks.resolveResult(modelsResolver)]
     },
     before: {
-      all: [schemaHooks.validateQuery(modelsQueryValidator), schemaHooks.resolveQuery(modelsQueryResolver)],
+      all: [
+        authenticate('oidc'),
+        schemaHooks.validateQuery(modelsQueryValidator),
+        schemaHooks.resolveQuery(modelsQueryResolver)
+      ],
       find: [customSoftDelete()],
       get: [customSoftDelete()],
-      create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver),customSoftDelete()],
+      create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver), customSoftDelete()],
       patch: [schemaHooks.validateData(modelsPatchValidator), schemaHooks.resolveData(modelsPatchResolver), customSoftDelete()],
       remove: [customSoftDelete()],
       simulate: [

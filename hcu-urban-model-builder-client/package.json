@@ -88,6 +88,8 @@
     "ember-page-title": "^8.2.3",
     "ember-qunit": "^8.1.0",
     "ember-resolver": "^11.0.1",
+    "ember-simple-auth": "^6.1.0",
+    "ember-simple-auth-oidc": "^7.0.1",
     "ember-source": "~5.10.0",
     "ember-template-lint": "^5.13.0",
     "ember-truth-helpers": "^4.0.3",
@@ -117,6 +119,7 @@
     "edition": "octane"
   },
   "dependencies": {
+    "@feathersjs/authentication-client": "^5.0.30",
     "@feathersjs/feathers": "^5.0.29",
     "@feathersjs/socketio-client": "^5.0.29",
     "@xyflow/react": "^12.0.4",

@@ -5,9 +5,11 @@ import { service } from '@ember/service';
 
 export default class ApplicationRoute extends Route {
   @service declare router: RouterService;
+  @service declare session: any;
   @service declare intl: any;
 
-  beforeModel(transition: Transition) {
+  async beforeModel(transition: Transition) {
+    await this.session.setup();
     this.intl.setLocale(['de-de']);
 
     if (transition.to?.name === 'authenticated.index') {

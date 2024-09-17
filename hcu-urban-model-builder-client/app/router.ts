@@ -7,6 +7,7 @@ export default class Router extends EmberRouter {
 }
 
 Router.map(function () {
+  this.route('authenticate');
   this.route('authenticated', { path: '/' }, function () {
     this.route('models', { resetNamespace: true }, function () {
       this.route('show', { path: '/:id' });

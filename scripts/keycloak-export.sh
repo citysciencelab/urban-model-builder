@@ -1,0 +1,2 @@
+#!/bin/sh
+docker run --rm --name keycloak_exporter --env-file ./config/.env -v ./data/keycloak-export/:/tmp/keycloak-export --network=hcu-urban-model-builder-client-prototype_default -e KC_DB=postgres -e KC_DB_URL=jdbc:postgresql://postgres/keycloak quay.io/keycloak/keycloak:25.0.4 export --realm hcu-model-builder --dir /tmp/keycloak-export --users realm_file
