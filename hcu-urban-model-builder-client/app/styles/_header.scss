@@ -2,6 +2,10 @@
   margin-bottom: 0;
 }
 
+.navbar-nav {
+  align-items: center;
+}
+
 .navbar.bg-secondary,
 .navbar.dark {
   color: $white;

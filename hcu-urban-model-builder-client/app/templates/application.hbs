@@ -23,21 +23,28 @@
   </navbar.content>
   <ul class="nav navbar-nav">
     <LangSwitch />
-    <li class="navbar-text">
+    {{#if this.session.isAuthenticated}}
+      <li class="nav-item navbar-text">
+        <span class="nav-link">
+          <FaIcon @icon="user" />
+          {{this.session.data.authenticated.userinfo.name}}
+        </span>
+      </li>
+    {{/if}}
+    <li class="nav-item">
       {{#if this.session.isAuthenticated}}
-        <FaIcon @icon="user" />
-        {{this.session.data.authenticated.userinfo.name}}
         <button
-          class="btn btn-primary"
+          class="nav-link"
           type="button"
           {{on "click" this.invalidateSession}}
         >
+          <FaIcon @icon="power-off" />
           Logout
         </button>
       {{else}}
         <LinkTo
           @route="authenticate"
-          class="btn btn-primary"
+          class="nav-link"
           role="button"
           aria-pressed="false"
         >
