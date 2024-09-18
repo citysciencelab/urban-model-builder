@@ -17,6 +17,10 @@ export default class Node extends Model {
 
   @attr() declare position: { x: number; y: number };
 
+  @attr('number') declare height: number;
+
+  @attr('number') declare width: number;
+
   @belongsTo('model', { async: true, inverse: 'nodes' })
   declare model: ModelModel;
 
@@ -25,6 +29,9 @@ export default class Node extends Model {
 
   @hasMany('edge', { async: true, inverse: 'target' })
   declare targetEdges: Edge[];
+
+  @belongsTo('node', { async: true, inverse: null })
+  declare parent: Node;
 
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;
@@ -35,6 +42,9 @@ export default class Node extends Model {
       type: NodeType[this.type].toLocaleLowerCase(),
       data: this.data,
       position: this.position,
+      parentId: this.parent?.id,
+      height: this.height,
+      width: this.width,
     };
   }
 

@@ -41,6 +41,17 @@ main {
   background-color: coral;
 }
 
+.react-flow__node-folder,
+.react-flow__node-agent {
+  border: var(--xy-node-border-default);
+  border-radius: var(--xy-node-border-radius-default);
+  background-color: rgba($color: #574f7e, $alpha: 0.2);
+  &.intersect {
+    // add outer shine
+    box-shadow: 0px 0px 15px 9px rgba($color: #574f7e, $alpha: 0.2);
+  }
+}
+
 .sidebar__container {
   z-index: 1050;
   position: absolute;
