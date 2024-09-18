@@ -6,6 +6,7 @@ import type { Static } from '@feathersjs/typebox'
 import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { ModelsService } from './models.class.js'
+import { time } from 'console'
 
 // Main data model schema
 export const modelsSchema = Type.Object(
@@ -54,7 +55,10 @@ export const modelsQueryResolver = resolve<ModelsQuery, HookContext<ModelsServic
 // Schema for custom method: simulate
 export const modelsSimulateSchema = Type.Object(
   {
-    id: Type.Number()
+    id: Type.Number(),
+    timeUnits: Type.String(),
+    timeStart: Type.Number(),
+    timeLength: Type.Number()
   },
   { $id: 'ModelsSimulate', additionalProperties: false }
 )

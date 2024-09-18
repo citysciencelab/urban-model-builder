@@ -7,7 +7,8 @@ export type { Edges, EdgesData, EdgesPatch, EdgesQuery }
 
 export enum EdgeType {
   Link = 0,
-  Flow
+  Flow,
+  Transition
 }
 
 export type EdgesClientService = Pick<EdgesService<Params<EdgesQuery>>, (typeof edgesMethods)[number]>

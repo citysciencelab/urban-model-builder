@@ -2,14 +2,15 @@
 import type { Params } from '@feathersjs/feathers'
 import { KnexService } from '@feathersjs/knex'
 import type { KnexAdapterParams, KnexAdapterOptions } from '@feathersjs/knex'
-import { Model, SimulationPrimitive } from 'simulation'
+import { Model } from 'simulation'
 import { plot } from 'simulation-viz-console'
+import type { Action, Primitive, State, Stock, Transition, Population } from 'simulation/blocks'
 
 import type { Application } from '../../declarations.js'
 import type { Models, ModelsData, ModelsPatch, ModelsQuery, ModelsSimulate } from './models.schema.js'
 import { Nodes, NodeType } from '../nodes/nodes.shared.js'
 import { EdgeType } from '../edges/edges.shared.js'
-import { time } from 'console'
+import { SimulateAdapter } from './simulate/adapter.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
@@ -33,10 +34,15 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async simulate(data: ModelsSimulate, params?: ServiceParams) {
+    return new SimulateAdapter(this.app).simulate(data) as any
+  }
+
+  async _simulate(data: ModelsSimulate, params?: ServiceParams) {
     const model = new Model({
       timeUnits: 'Years',
       timeStart: 0,
-      timeLength: 200
+      timeLength: 200,
+      algorithm: 'Euler'
     })
 
     const nodes = await this.app.service('nodes').find({
@@ -49,13 +55,13 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     })
     type NodeIdMap = {
       type: NodeType
-      obj: SimulationPrimitive
+      obj: Primitive
     }
 
     const nodeIdMap = new Map<number, NodeIdMap>()
-    const simulationObjIdMap = new Map<number, number>()
+    const simulationObjIdMap = new Map<string, number>()
 
-    const pushAddToMap = (node: Nodes, simulationObj: { id: number }) => {
+    const pushAddToMap = (node: Nodes, simulationObj: Primitive) => {
       simulationObjIdMap.set(simulationObj.id, node.id)
       nodeIdMap.set(node.id, {
         type: node.type,
@@ -88,7 +94,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
           }
         })
 
-        const target = nodeIdMap.get(targetEdge?.targetId)?.obj || null
+        const target = (nodeIdMap.get(targetEdge?.targetId)?.obj as Stock) || null
 
         const {
           data: [sourceEge]
@@ -101,11 +107,44 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
           }
         })
 
-        const source = nodeIdMap.get(sourceEge?.sourceId)?.obj || null
+        const source = (nodeIdMap.get(sourceEge?.sourceId)?.obj as Stock) || null
 
         return model.Flow(source, target, {
           name: node.name,
           rate: node.data.rate
+        })
+      },
+      [NodeType.Converter]: (node: Nodes) => {
+        return model.Converter({
+          name: node.name
+        })
+      },
+      [NodeType.State]: (node: Nodes) => {
+        return model.State({
+          name: node.name
+        })
+      },
+      [NodeType.Transition]: (node: Nodes) => {
+        return {} as Transition
+      },
+      [NodeType.Action]: (node: Nodes) => {
+        return model.Action({
+          name: node.name
+        })
+      },
+      [NodeType.Population]: (node: Nodes) => {
+        return model.Population({
+          name: node.name
+        })
+      },
+      [NodeType.Agent]: (node: Nodes) => {
+        return model.Agent({
+          name: node.name
+        })
+      },
+      [NodeType.Folder]: (node: Nodes) => {
+        return model.Folder({
+          name: node.name
         })
       }
     }
@@ -162,7 +201,8 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     return {
       timeUnits: resultData.timeUnits,
       _data: resultData._data,
-      primitiveIdMap: Object.fromEntries(simulationObjIdMap)
+      primitiveIdMap: Object.fromEntries(simulationObjIdMap),
+      _nameIdMapping: resultData._nameIdMapping
     }
   }
 }
