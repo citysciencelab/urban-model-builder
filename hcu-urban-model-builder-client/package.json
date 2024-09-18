@@ -110,7 +110,7 @@
   "dependencies": {
     "@feathersjs/feathers": "^5.0.29",
     "@feathersjs/socketio-client": "^5.0.29",
-    "@xyflow/react": "^12.0.4",
+    "@xyflow/react": "^12.3.0",
     "echarts": "^5.5.1",
     "hcu-urban-model-builder-backend": "file:../hcu-urban-model-builder-backend/public/hcu-urban-model-builder-backend-0.0.0.tgz",
     "hcu-urban-model-builder-react-canvas": "file:canvas",
