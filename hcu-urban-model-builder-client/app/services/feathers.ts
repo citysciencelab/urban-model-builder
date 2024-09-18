@@ -48,8 +48,6 @@ export default class FeathersService extends Service {
       if (modelInstance) {
         this.storeEventEmitter.emit(modelName, 'created', modelInstance);
       }
-    } else {
-      this.storeEventEmitter.emit(modelName, 'created', recordInStore);
     }
   }
 
@@ -65,12 +63,7 @@ export default class FeathersService extends Service {
       const modelInstance: any = this.pushRecordIntoStore(modelName, record);
       if (modelInstance) {
         this.storeEventEmitter.emit(modelName, 'updated', modelInstance);
-        if ('emitSave' in modelInstance) {
-          modelInstance.emitSave();
-        }
       }
-    } else {
-      this.storeEventEmitter.emit(modelName, 'updated', recordInStore);
     }
   }
 

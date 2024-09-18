@@ -38,6 +38,9 @@ export default class StoreEventEmitterService extends Service {
         callback(model);
       });
     }
+    if ('emitSave' in model) {
+      model.emitSave();
+    }
   }
 
   @action
