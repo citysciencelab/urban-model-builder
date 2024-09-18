@@ -3,7 +3,6 @@ import { Application } from '../../../declarations.js'
 import { Nodes, NodeType } from '../../nodes/nodes.shared.js'
 import { Agent, Container, Flow, Population, Primitive, State, Stock, Transition } from 'simulation/blocks'
 import { EdgeType } from '../../edges/edges.shared.js'
-import { plot } from 'simulation-viz-console'
 
 const createSimulationObj = {
   [NodeType.Stock]: (model: Model, node: Nodes) => {
@@ -83,12 +82,14 @@ const createSimulationObj = {
 export class SimulateAdapter {
   constructor(private app: Application) {}
 
-  async simulate(data: { id: number; timeUnits: string; timeStart: number; timeLength: number }) {
+  async simulate(data: { id: number }) {
+    const modelInDB = await this.app.service('models').get(data.id)
+
     const model = new Model({
-      timeUnits: data.timeUnits as any,
-      timeStart: data.timeStart,
-      timeLength: data.timeLength,
-      algorithm: 'Euler'
+      timeUnits: modelInDB.timeUnits,
+      timeStart: modelInDB.timeStart,
+      timeLength: modelInDB.timeLength,
+      algorithm: modelInDB.algorithm || undefined
     })
 
     const nodes = await this.app.service('nodes').find({
@@ -190,8 +191,8 @@ export class SimulateAdapter {
 
     const result = model.simulate()
 
-    const res = result.series(lastPopulation!)![0].current
-    console.log('--->', res)
+    // const res = result.series(lastPopulation!)![0].current
+    // console.log('--->', res)
 
     const primitiveIdMap: Record<string, number> = {}
     for (const [nodeId, primitive] of nodeIdPrimitiveMap.entries()) {

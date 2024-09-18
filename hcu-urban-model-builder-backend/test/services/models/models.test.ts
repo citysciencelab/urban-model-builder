@@ -19,9 +19,13 @@ describe('models service', () => {
   })
 
   describe('simulate', () => {
-    it('tbd', async () => {
+    it.only('tbd -- 1', async () => {
+      console.log('before model creation')
       const model = await app.service('models').create({
-        name: 'test'
+        name: 'test',
+        timeUnits: 'Years',
+        timeStart: 0,
+        timeLength: 200
       })
 
       const baseNodeData = {
@@ -154,9 +158,8 @@ describe('models service', () => {
         })
       )
 
-      const actual = await app
-        .service('models')
-        .simulate({ id: model.id, timeUnits: 'Years', timeStart: 0, timeLength: 200 })
+      const actual = await app.service('models').simulate({ id: model.id })
+      console.log('after model simulation')
 
       console.log(actual)
 
@@ -210,9 +213,14 @@ describe('models service', () => {
       }
     })
 
-    it.only('tbd', async () => {
-      const model = await app.service('models').create({
-        name: 'test'
+    it('tbd', async () => {
+      console.log('start')
+
+      const model = await app.service('models')._create({
+        name: 'test',
+        timeUnits: 'Years',
+        timeStart: 0,
+        timeLength: 50
       })
 
       const baseNodeData = {
@@ -407,9 +415,7 @@ probInfect <-  min(1, infectors.Map(1/(distance(x, Self))^.75))
         })
       )
 
-      const actual = await app
-        .service('models')
-        .simulate({ id: model.id, timeUnits: 'Years', timeStart: 0, timeLength: 50 })
+      const actual = await app.service('models').simulate({ id: model.id })
       assert.ok(actual?._data?.data)
 
       const actualData = actual._data.data?.map((d: any) => {

@@ -1,18 +1,14 @@
 // // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import type { Static, TSchema } from '@feathersjs/typebox'
+import type { Static } from '@feathersjs/typebox'
 import { NetworkType, PlacementType, StockTypeType, TriggerType } from 'simulation/types'
 
 import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { NodesService } from './nodes.class.js'
-import { Nullable } from '../../utils/schema.js'
+import { Literals, Nullable } from '../../utils/schema.js'
 import { NodeType } from './nodes.shared.js'
-
-function Literals<T extends string>(...values: T[]) {
-  return Type.Union(values.map((l) => Type.Literal(l)))
-}
 
 export const variableNodeSchema = Type.Object({
   value: Type.Optional(Type.String())
