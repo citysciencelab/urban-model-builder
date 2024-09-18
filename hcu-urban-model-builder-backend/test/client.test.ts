@@ -1,10 +1,11 @@
 import assert from 'assert'
 import axios from 'axios'
 import type { Server } from 'http'
-import { app } from '../src/app'
-import { createClient } from '../src/client'
+import { app } from '../src/app.js'
+import { createClient } from '../src/client.js'
 
-import rest from '@feathersjs/rest-client'
+import restModule from '@feathersjs/rest-client'
+const rest = restModule as unknown as any
 
 const port = app.get('port')
 const appUrl = `http://${app.get('host')}:${port}`
