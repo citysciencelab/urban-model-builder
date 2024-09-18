@@ -1,0 +1,24 @@
+.breadcrumbs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: get-spacer(3);
+
+  li:after {
+    padding-left: get-spacer(3);
+    content: ">";
+  }
+  li:last-child:after {
+    content: initial;
+  }
+
+  li:last-child a.active {
+    text-decoration: none;
+    pointer-events: none;
+  }
+}
+
+.breadcrumbs__item {
+  display: flex;
+}

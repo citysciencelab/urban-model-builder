@@ -17,6 +17,9 @@ module.exports = function (defaults) {
       importBootstrapCSS: false,
       insertEmberWormholeElementToDom: false,
     },
+    'ember-fetch': {
+      nativePromise: true,
+    },
   });
 
   let additionalFolder = new Funnel('canvas', {

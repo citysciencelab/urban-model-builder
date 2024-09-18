@@ -1,3 +1,4 @@
+import { user } from './users/users.js'
 import { models } from './models/models.js'
 import { edges } from './edges/edges.js'
 import { nodes } from './nodes/nodes.js'
@@ -5,6 +6,7 @@ import { nodes } from './nodes/nodes.js'
 import type { Application } from '../declarations.js'
 
 export const services = (app: Application) => {
+  app.configure(user)
   app.configure(models)
   app.configure(edges)
   app.configure(nodes)

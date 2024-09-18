@@ -6,13 +6,17 @@ import type { Static } from '@feathersjs/typebox'
 import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { ModelsService } from './models.class.js'
-import { time } from 'console'
+import { Nullable } from '../../utils/schema.js'
 
 // Main data model schema
 export const modelsSchema = Type.Object(
   {
     id: Type.Number(),
-    name: Type.String()
+    name: Type.String(),
+    createdBy: Type.Optional(Type.Number()),
+    createdAt: Type.String({ format: 'date-time' }),
+    updatedAt: Type.String({ format: 'date-time' }),
+    deletedAt: Nullable(Type.String({ format: 'date-time' }))
   },
   { $id: 'Models', additionalProperties: false }
 )
@@ -23,7 +27,7 @@ export const modelsResolver = resolve<Models, HookContext<ModelsService>>({})
 export const modelsExternalResolver = resolve<Models, HookContext<ModelsService>>({})
 
 // Schema for creating new entries
-export const modelsDataSchema = Type.Pick(modelsSchema, ['name'], {
+export const modelsDataSchema = Type.Pick(modelsSchema, ['name', 'createdBy'], {
   $id: 'ModelsData'
 })
 export type ModelsData = Static<typeof modelsDataSchema>
@@ -39,10 +43,21 @@ export const modelsPatchValidator = getValidator(modelsPatchSchema, dataValidato
 export const modelsPatchResolver = resolve<Models, HookContext<ModelsService>>({})
 
 // Schema for allowed query properties
-export const modelsQueryProperties = Type.Pick(modelsSchema, ['id', 'name'])
+export const modelsQueryProperties = Type.Pick(modelsSchema, [
+  'id',
+  'name',
+  'createdAt',
+  'deletedAt',
+  'updatedAt',
+  'createdBy'
+])
 export const modelsQuerySchema = Type.Intersect(
   [
-    querySyntax(modelsQueryProperties),
+    querySyntax(modelsQueryProperties, {
+      name: {
+        $ilike: Type.String()
+      }
+    }),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],

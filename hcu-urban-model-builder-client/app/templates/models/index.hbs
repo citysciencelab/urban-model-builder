@@ -1,17 +1,219 @@
 {{page-title "Index"}}
 
-<div class="container">
-  <h2>Models</h2>
-  <BsListGroup as |ListGroup|>
-    {{#let this.model as |models|}}
-      {{#each models as |model|}}
-        <ListGroup.item>
-          {{model.name}}
-          <LinkTo @route="models.show" @model={{model}}>
-            <BsButton @type="primary" @size="sm">Show</BsButton>
-          </LinkTo>
-        </ListGroup.item>
-      {{/each}}
-    {{/let}}
-  </BsListGroup>
+<div class="container main-content">
+  <div class="card">
+    {{! header }}
+    <div class="card-header">
+      <h2 class="h5">
+        {{t "routes.models.index.list_of_all_models"}}
+      </h2>
+      <div class="card-header-actions">
+        {{! search }}
+        <BsDropdown
+          @onShow={{this.onShowSearch}}
+          @closeOnMenuClick={{false}} as |dd|
+        >
+          <dd.button
+            @size="sm"
+            @type={{if this.hasSearchQuery "primary" "tertiary"}}
+          >
+            {{#if this.hasSearchQuery}}
+              <a
+                class="model-clear-search"
+                href="javascript:void()"
+                {{on "click" (fn this.clearSearch dd)}}
+              >
+                <FaIcon @icon="remove" />
+              </a>
+              <div class="model-search-preview">
+                {{this.q}}
+              </div>
+            {{else}}
+              <FaIcon @icon="search" />
+            {{/if}}
+          </dd.button>
+          <dd.menu>
+            <div class="model-search">
+              <Input
+                @value={{this._q}}
+                id="model-search-input"
+                {{on "change" this.onSearchChange}}
+              />
+              <BsButton @size="sm" @type="primary">
+                <FaIcon @icon="search" />
+              </BsButton>
+            </div>
+          </dd.menu>
+        </BsDropdown>
+        {{! sort }}
+        <BsDropdown @tagName="span" as |dd|>
+          <dd.button @size="sm" @type="tertiary">
+            <FaIcon @icon="arrow-down-a-z" />
+            {{t (concat "general." this.sort_key "_" this.sort_direction)}}
+            <span class="caret"></span>
+          </dd.button>
+          <dd.menu as |menu|>
+            <menu.item>
+              {{#if
+                (not
+                  (and
+                    (eq this.sort_key "createdAt") (eq this.sort_direction -1)
+                  )
+                )
+              }}
+                <a
+                  href="javascript:void()"
+                  class="dropdown-item"
+                  {{on "click" (fn this.onSortChange "createdAt" -1)}}
+                >
+                  {{t "general.createdAt_-1"}}
+                </a>
+              {{/if}}
+              {{#if
+                (not
+                  (and
+                    (eq this.sort_key "createdAt") (eq this.sort_direction 1)
+                  )
+                )
+              }}
+                <a
+                  href="javascript:void()"
+                  class="dropdown-item"
+                  {{on "click" (fn this.onSortChange "createdAt" 1)}}
+                >
+                  {{t "general.createdAt_1"}}
+                </a>
+              {{/if}}
+              {{#if
+                (not
+                  (and
+                    (eq this.sort_key "updatedAt") (eq this.sort_direction -1)
+                  )
+                )
+              }}
+                <a
+                  href="javascript:void()"
+                  class="dropdown-item"
+                  {{on "click" (fn this.onSortChange "updatedAt" -1)}}
+                >
+                  {{t "general.updatedAt_-1"}}
+                </a>
+              {{/if}}
+            </menu.item>
+          </dd.menu>
+        </BsDropdown>
+        {{! create }}
+        <BsButton @type="primary" @size="sm" {{on "click" this.startCreating}}>
+          <FaIcon @icon="plus" />
+          {{t "routes.models.index.add_model"}}
+        </BsButton>
+      </div>
+    </div>
+
+    {{! list }}
+    <BsListGroup class="list-group-flush" as |ListGroup|>
+      {{#let this.persistedModels as |models|}}
+        {{#each models as |model|}}
+          <ListGroup.item class="list-group-with-actions">
+            <div class="list-group-body">
+              <LinkTo @route="models.show" @model={{model}}>
+                {{model.name}}
+              </LinkTo>
+              <div class="list-group-meta">
+                <span
+                  title={{
+                    format-date
+                    model.updatedAt
+                    localeMatcher="lookup"
+                    format="dateTime"
+                  }}
+                >
+                  {{t "general.modified_at"}} {{format-date model.updatedAt}}
+                </span>
+                <span
+                  title={{
+                    format-date
+                    model.createdAt
+                    localeMatcher="lookup"
+                    format="dateTime"
+                  }}
+                >
+                  {{t "general.created_at"}} {{format-date model.createdAt}}
+                </span>
+              </div>
+            </div>
+            <div class="list-group-actions">
+              <a href="#" {{on "click" (fn this.startEditing model)}}>
+                <FaIcon @icon="pencil" />
+              </a>
+              <a href="#" {{on "click" (fn this.startDeleting model)}}>
+                <FaIcon @icon="trash" />
+              </a>
+            </div>
+          </ListGroup.item>
+        {{else}}
+          <ListGroup.item>
+            <div class="list-group-body">
+              {{t "routes.models.index.no_models_found"}}
+            </div>
+          </ListGroup.item>
+        {{/each}}
+      {{/let}}
+    </BsListGroup>
+    {{! footer }}
+    <div class="card-footer model-index-footer text-body-secondary">
+      <Ui::Pagination
+        @model={{this.persistedModels}}
+        @limit={{this.limit}}
+        @total={{this.model.meta.total}}
+        @page={{this.page}}
+        @onPageChanged={{this.onPageChanged}}
+        @onLimitChanged={{this.onLimitChanged}}
+      />
+    </div>
+  </div>
 </div>
+
+{{! Modal / Form }}
+<BsModal
+  @open={{this.isModalOpen}}
+  @onSubmit={{this.submitModel}}
+  @onHide={{this.closeModal}} as |modal|
+>
+  <modal.header>
+    <h5 class="modal-title">
+      {{#if (eq this.mode "edit")}}
+        {{{t "routes.models.index.edit_title" name=this.changeset.name}}}
+      {{else}}
+        {{t "routes.models.index.create_new_title"}}
+      {{/if}}
+    </h5>
+  </modal.header>
+  <modal.body>
+    <BsForm
+      @formLayout="vertical"
+      @model={{this.changeset}}
+      @onSubmit={{this.submitModel}} as |form|
+    >
+      <form.element
+        @controlType="text"
+        @label={{t "models.model.attributes.name"}}
+        @property="name"
+        {{did-insert this.focusFirstInputElement}} as |el|
+      >
+        <el.control
+          placeholder={{concat (t "models.model.attributes.name") "…"}}
+          required
+        />
+      </form.element>
+    </BsForm>
+  </modal.body>
+  <modal.footer>
+    <BsButton @onClick={{this.closeModal}}>
+      {{t "actions.cancel"}}
+    </BsButton>
+    <BsButton @type="success" @onClick={{this.submitModel}}>
+      {{t "actions.save"}}
+    </BsButton>
+  </modal.footer>
+</BsModal>

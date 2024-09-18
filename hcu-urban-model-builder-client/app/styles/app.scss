@@ -1,21 +1,31 @@
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/mixins";
+@import "./variables-overrides";
 @import "node_modules/bootstrap/scss/bootstrap";
 @import "./custom-functions";
+@import "./header";
+@import "./breadcrumbs";
 
 $node-color-map: (
   "flow": #a3c4ff,
   "stock": cadetblue,
-  "variable": coral,
+  "variable": coral
 );
 
 body {
   margin: 0;
+  text-underline-offset: 3px;
 }
 
 main {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  height: 100vh;
+  height: calc(100vh - 103px);
+}
+
+.main-content {
+  margin-top: get-spacer(3);
 }
 
 .react-wrapper {
@@ -121,5 +131,104 @@ main {
     &.--#{$name} {
       background-color: $color;
     }
+  }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    margin-bottom: 0;
+  }
+}
+
+.list-group-with-actions {
+  display: flex;
+  justify-content: space-between;
+  &:hover {
+    background-color: $body-tertiary-bg;
+  }
+  &:hover .list-group-actions {
+    display: flex;
+  }
+}
+
+.list-group-actions {
+  display: none;
+  gap: get-spacer(2);
+}
+
+.list-group-meta {
+  color: $text-muted;
+  font-size: smaller;
+  > span:after {
+    content: "•";
+    margin: 0 get-spacer(1);
+  }
+  > span:last-child:after {
+    content: "";
+  }
+}
+
+.card-header-actions {
+  display: flex;
+  gap: get-spacer(3);
+  align-items: center;
+}
+
+.model-index-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pagination {
+  margin-bottom: 0;
+}
+
+.pagination__limit-select {
+  display: flex;
+  gap: get-spacer(2);
+  align-items: center;
+}
+
+.pagination__count {
+  font-size: $font-size-sm;
+}
+
+.pagination__limit-select label {
+  font-size: $font-size-sm;
+}
+
+.model-search {
+  padding: 0 get-spacer(2);
+  display: flex;
+  input {
+    border-right: none;
+  }
+}
+
+.model-search-preview {
+  display: inline-block;
+  vertical-align: bottom;
+  max-width: 5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 0 get-spacer(2) 0 get-spacer(1);
+}
+
+.model-clear-search {
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+  width: 21px;
+  &:hover {
+    color: $primary;
+    background-color: $white;
   }
 }

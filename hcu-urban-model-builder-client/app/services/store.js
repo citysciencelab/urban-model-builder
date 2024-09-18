@@ -1,7 +1,6 @@
 // eslint-disable-next-line ember/use-ember-data-rfc-395-imports
 import Store from 'ember-data/store';
 import { service } from '@ember/service';
-import { Type } from '@warp-drive/core-types/symbols';
 
 export default class StoreService extends Store {
   @service storeEventEmitter;
@@ -11,7 +10,11 @@ export default class StoreService extends Store {
 
     const savedRecord = await super.saveRecord(...arguments);
 
-    this.storeEventEmitter.emit(record[Type], event, savedRecord);
+    this.storeEventEmitter.emit(
+      record.constructor.modelName,
+      event,
+      savedRecord,
+    );
 
     return savedRecord;
   }

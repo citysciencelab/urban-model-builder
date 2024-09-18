@@ -18,6 +18,12 @@ import {
 import type { Application } from '../../declarations.js'
 import { ModelsService, getOptions } from './models.class.js'
 import { modelsPath, modelsMethods } from './models.shared.js'
+import { authenticate } from '@feathersjs/authentication'
+import customSoftDelete from '../../hooks/custom-soft-delete.js'
+import { setCreatedBy } from '../../hooks/set-created-by.js'
+import { filterCreatedBy } from '../../hooks/filter-created-by.js'
+import { ensureCreatedBy } from '../../hooks/ensure-created-by.js'
+import { iff, isProvider } from 'feathers-hooks-common'
 
 export * from './models.class.js'
 export * from './models.schema.js'
@@ -37,12 +43,35 @@ export const models = (app: Application) => {
       all: [schemaHooks.resolveExternal(modelsExternalResolver), schemaHooks.resolveResult(modelsResolver)]
     },
     before: {
-      all: [schemaHooks.validateQuery(modelsQueryValidator), schemaHooks.resolveQuery(modelsQueryResolver)],
-      find: [],
-      get: [],
-      create: [schemaHooks.validateData(modelsDataValidator), schemaHooks.resolveData(modelsDataResolver)],
-      patch: [schemaHooks.validateData(modelsPatchValidator), schemaHooks.resolveData(modelsPatchResolver)],
-      remove: [],
+      all: [
+        authenticate('oidc'),
+        schemaHooks.validateQuery(modelsQueryValidator),
+        schemaHooks.resolveQuery(modelsQueryResolver)
+      ],
+      find: [
+        customSoftDelete(),
+        filterCreatedBy,
+      ],
+      get: [
+        customSoftDelete(),
+        filterCreatedBy
+      ],
+      create: [
+        schemaHooks.validateData(modelsDataValidator), 
+        schemaHooks.resolveData(modelsDataResolver), 
+        customSoftDelete(), 
+        setCreatedBy
+      ],
+      patch: [
+        schemaHooks.validateData(modelsPatchValidator), 
+        schemaHooks.resolveData(modelsPatchResolver), 
+        iff(isProvider('external'), ensureCreatedBy),
+        customSoftDelete(),
+      ],
+      remove: [
+        iff(isProvider('external'), ensureCreatedBy),
+        customSoftDelete(),
+      ],
       simulate: [
         schemaHooks.validateData(modelsSimulateValidator),
         schemaHooks.resolveData(modelsSimulateResolver)

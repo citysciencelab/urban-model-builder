@@ -1,0 +1,36 @@
+general:
+  brand: Urban Model Builder
+  home: Start
+  modified_at: Letztes Update am
+  created_at: Erstellt am
+  createdAt_-1: Neuestes zuerst
+  createdAt_1: Ältestes zuerst
+  updatedAt_-1: Zuletzt geändert zuerst
+
+pagination:
+  meta: Zeige {start} - {end} von {total}
+  limit: Pro Seite
+  prev: Zurück
+  next: Weiter
+
+actions:
+  save: Speichern
+  cancel: Abbrechen
+  unsaved_changes: Sie haben ungespeicherte Änderungen. Wollen Sie die Seite wirklich verlassen?
+
+models:
+  model:
+    singular: Modell
+    plural: Modelle
+    attributes:
+      name: Name
+
+routes:
+  models:
+    index:
+      list_of_all_models: Liste aller Modelle
+      add_model: Modell erstellen
+      total: Modelle gesamt 
+      create_new_title: Neues Modell erstellen
+      edit_title: Modell <em>{name}</em> bearbeiten
+      no_models_found: Keine Modelle gefunden
