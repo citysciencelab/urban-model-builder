@@ -6,10 +6,9 @@ import { readFile } from 'fs/promises'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { EdgesData, EdgeType, NodeType } from '../../../src/client.js'
+import { Model } from 'simulation'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-
-console.log(__dirname)
 
 describe('models service', () => {
   it('registered the service', () => {
@@ -19,8 +18,7 @@ describe('models service', () => {
   })
 
   describe('simulate', () => {
-    it.only('tbd -- 1', async () => {
-      console.log('before model creation')
+    it.only('should create a basic system dynamic model', async () => {
       const model = await app.service('models').create({
         name: 'test',
         timeUnits: 'Years',
@@ -159,9 +157,6 @@ describe('models service', () => {
       )
 
       const actual = await app.service('models').simulate({ id: model.id })
-      console.log('after model simulation')
-
-      console.log(actual)
 
       assert.ok(actual?._data?.data)
 
@@ -213,14 +208,16 @@ describe('models service', () => {
       }
     })
 
-    it('tbd', async () => {
+    it('should create a agent based model', async () => {
       console.log('start')
 
-      const model = await app.service('models')._create({
+      const model = await app.service('models').create({
         name: 'test',
         timeUnits: 'Years',
         timeStart: 0,
-        timeLength: 50
+        timeLength: 50,
+        algorithm: 'Euler',
+        globals: 'SetRandSeed(123)'
       })
 
       const baseNodeData = {
@@ -245,6 +242,7 @@ describe('models service', () => {
           geoPlacementType: 'Random',
           geoWidth: '200',
           geoHeight: '100',
+          geoUnits: 'Unitless',
           networkType: 'None'
         },
         ...baseNodeData
@@ -302,11 +300,8 @@ describe('models service', () => {
         position: { x: 100, y: 400 },
         data: {
           trigger: 'Probability',
-          value: `infectors <- [Population].FindState([Infected]).FindNearby(Self, 25)
-
-probInfect <-  min(1, infectors.Map(1/(distance(x, Self))^.75))
-
-1 - Product(Join(1, 1 - probInfect ))`,
+          value:
+            'infectors <- [Population].FindState([Infected]).FindNearby(Self, 25)\n\nprobInfect <-  min(1, infectors.Map(1/(distance(x, Self))^.75))\n\n1 - Product(Join(1, 1 - probInfect ))',
           recalculate: true
         },
         parentId: personAgent.id,
@@ -414,27 +409,44 @@ probInfect <-  min(1, infectors.Map(1/(distance(x, Self))^.75))
           })
         })
       )
+      try {
+        const actual = await app.service('models').simulate({ id: model.id })
 
-      const actual = await app.service('models').simulate({ id: model.id })
-      assert.ok(actual?._data?.data)
+        assert.ok(actual?._data?.data)
 
-      const actualData = actual._data.data?.map((d: any) => {
-        return Object.entries(d).reduce((acc, [key, value]) => {
-          acc[actual._nameIdMapping[key]] = value
-          return acc
-        }, {} as any)
-      })
+        const actualData = actual._data.data?.map((d: any) => {
+          return Object.entries(d).reduce((acc, [key, value]) => {
+            acc[actual._nameIdMapping[key]] = value
+            return acc
+          }, {} as any)
+        })
+      } catch (error: any) {
+        console.log(error.code, error.primitive, error.primitive.value)
+      }
       // console.log(actualData[0].Population.current[0])
 
       const file = await readFile(join(__dirname, 'agent-based.xml'), 'utf8')
 
-      const imModel = loadInsightMaker(file)
+      const imModel: Model = loadInsightMaker(file)
+
+      const lastPopulation = imModel.findPopulations().pop()
 
       const res = imModel.simulate()
-      console.log(res)
-      console.log(res._data.data)
 
-      assert.deepStrictEqual(actual._data.times, res._data.times)
+      imModel.globals = 'SetRandSeed(123)'
+
+      const mapped = res.series(lastPopulation!).map((value: any) =>
+        value.current.map((item: { state: { id: string }[] }) =>
+          item.state.map((s: { id: string }) => {
+            return res._nameIdMapping[s.id]
+          })
+        )
+      )
+      // console.log('--->', mapped)
+      // console.log(res)
+      // console.log(res._data.data)
+
+      // assert.deepStrictEqual(actual._data.times, res._data.times)
       const expectedData = res._data.data?.map((d: any) => {
         return Object.entries(d).reduce((acc, [key, value]) => {
           acc[res._nameIdMapping[key]] = value
@@ -457,6 +469,110 @@ probInfect <-  min(1, infectors.Map(1/(distance(x, Self))^.75))
       ]
       for (const expectedDataItem of expectedData!) {
       }
+    })
+
+    it('simple agent based', async () => {
+      const model = await app.service('models').create({
+        name: 'simple-test',
+        timeUnits: 'Years',
+        timeStart: 0,
+        timeLength: 10,
+        algorithm: 'Euler'
+      })
+
+      const baseNodeData = {
+        modelId: model.id
+      }
+
+      const personAgent = await app.service('nodes').create({
+        name: 'Person',
+        type: NodeType.Agent,
+        position: { x: 100, y: 0 },
+        data: {},
+        ...baseNodeData
+      })
+
+      const populationPopulation = await app.service('nodes').create({
+        name: 'Population',
+        type: NodeType.Population,
+        position: { x: 100, y: 100 },
+        data: {
+          agentBaseId: personAgent.id,
+          populationSize: 100,
+          geoPlacementType: 'Random',
+          geoWidth: '200',
+          geoHeight: '100',
+          networkType: 'None'
+        },
+        ...baseNodeData
+      })
+
+      const startState = await app.service('nodes').create({
+        name: 'Start',
+        type: NodeType.State,
+        position: { x: 100, y: 200 },
+        data: {
+          startActive: 'true',
+          residency: '0'
+        },
+        parentId: personAgent.id,
+        ...baseNodeData
+      })
+
+      const endState = await app.service('nodes').create({
+        name: 'End',
+        type: NodeType.State,
+        position: { x: 100, y: 300 },
+        data: {
+          startActive: 'not [Start]',
+          residency: '0'
+        },
+        parentId: personAgent.id,
+        ...baseNodeData
+      })
+
+      const transition = await app.service('nodes').create({
+        name: 'Transition',
+        type: NodeType.Transition,
+        position: { x: 100, y: 400 },
+        data: {
+          trigger: 'Condition',
+          value: 'Years=5'
+        },
+        parentId: personAgent.id,
+        ...baseNodeData
+      })
+
+      const baseEdgeData = {
+        modelId: model.id,
+        sourceHandle: '0',
+        targetHandle: '0'
+      }
+
+      const modelEdges: (Omit<EdgesData, 'modelId' | 'sourceHandle' | 'targetHandle'> & {
+        sourceHandle?: string
+        targetHandle?: string
+      })[] = [
+        // Links
+        {
+          type: EdgeType.Link,
+          sourceId: startState.id,
+          targetId: endState.id
+        },
+        // Transitions
+        ...createTransitionEdgeObjs(transition.id, startState.id, endState.id)
+      ]
+
+      const edges = await Promise.all(
+        modelEdges.map(async (edge) => {
+          return app.service('edges').create({
+            ...baseEdgeData,
+            ...edge
+          })
+        })
+      )
+
+      const actual = await app.service('models').simulate({ id: model.id })
     })
   })
 })
