@@ -1,8 +1,17 @@
 import { Model } from 'simulation'
-import { Application } from '../../../declarations.js'
-import { Nodes, NodeType } from '../../nodes/nodes.shared.js'
+import { Application } from '../declarations.js'
+import { Nodes, NodeType } from '../services/nodes/nodes.shared.js'
 import { Agent, Container, Flow, Population, Primitive, State, Stock, Transition } from 'simulation/blocks'
-import { EdgeType } from '../../edges/edges.shared.js'
+import { EdgeType } from '../services/edges/edges.shared.js'
+
+type PopulationNodeResult = {
+  current: {
+    location: [number, number]
+    state: {
+      id: string
+    }[]
+  }[]
+}[]
 
 const createSimulationObj = {
   [NodeType.Stock]: (model: Model, node: Nodes) => {
@@ -79,7 +88,7 @@ const createSimulationObj = {
   }
 }
 
-export class SimulateAdapter {
+export class SimulationAdapter {
   constructor(private app: Application) {}
 
   async simulate(data: { id: number }) {
@@ -102,11 +111,13 @@ export class SimulateAdapter {
     })
 
     const nodeIdPrimitiveMap = new Map<number, Primitive>()
+    const primitiveIdTypeMap = new Map<string, NodeType>()
 
     for (const node of nodes.data) {
       const type = node.type
       const simulationPrimitive = await createSimulationObj[type](model, node)
       nodeIdPrimitiveMap.set(node.id, simulationPrimitive)
+      primitiveIdTypeMap.set(simulationPrimitive.id, type)
     }
 
     const nodesWithParent = await this.app.service('nodes').find({
@@ -137,11 +148,9 @@ export class SimulateAdapter {
       }
     })
 
-    let lastPopulation: Population | undefined
-
     for (const population of allPopulations.data) {
       const populationPrimitive = nodeIdPrimitiveMap.get(population.id) as Population
-      lastPopulation = populationPrimitive
+
       if (population.data?.agentBaseId) {
         const relatedAgent = nodeIdPrimitiveMap.get(population.data.agentBaseId) as Agent
         populationPrimitive.agentBase = relatedAgent
@@ -194,13 +203,39 @@ export class SimulateAdapter {
 
     const result = model.simulate()
 
-    // const res = result.series(lastPopulation!)![0].current
-    // console.log('--->', res)
-
     const primitiveIdMap: Record<string, number> = {}
     for (const [nodeId, primitive] of nodeIdPrimitiveMap.entries()) {
       primitiveIdMap[primitive.id] = nodeId
     }
+
+    const resultData = {
+      nodes: {} as Record<number, { series: number[] | PopulationNodeResult }>
+    }
+    for (const [nodeId, primitive] of nodeIdPrimitiveMap) {
+      if (primitive.id in result._data.children!) {
+        const primitiveResult = result.series(primitive)
+
+        let series: number[] | PopulationNodeResult = []
+        if (NodeType.Population === primitiveIdTypeMap.get(primitive.id)) {
+          series = primitiveResult.map((value: any) =>
+            value.current.map((item: { state: { id: string }[]; location: { items: [number, number] } }) => ({
+              location: item.location.items,
+              state: item.state.map((s: { id: string }) => primitiveIdMap[s.id])
+            }))
+          )
+        } else {
+          series = primitiveResult
+        }
+
+        resultData.nodes[nodeId] = {
+          series
+        }
+      } else {
+        console.debug('No result for primitive with id:', primitive.id)
+      }
+    }
+
+    console.log(resultData)
 
     return { ...result, primitiveIdMap }
   }

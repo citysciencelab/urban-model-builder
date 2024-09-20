@@ -10,7 +10,7 @@ import type { Application } from '../../declarations.js'
 import type { Models, ModelsData, ModelsPatch, ModelsQuery, ModelsSimulate } from './models.schema.js'
 import { Nodes, NodeType } from '../nodes/nodes.shared.js'
 import { EdgeType } from '../edges/edges.shared.js'
-import { SimulateAdapter } from './simulate/adapter.js'
+import { SimulationAdapter } from '../../simulation-adapter/simulation-adapter.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
@@ -34,7 +34,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async simulate(data: ModelsSimulate, params?: ServiceParams) {
-    return new SimulateAdapter(this.app).simulate(data) as any
+    return new SimulationAdapter(this.app).simulate(data) as any
   }
 }
 
