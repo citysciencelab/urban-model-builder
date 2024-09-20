@@ -177,13 +177,13 @@ export class SimulateAdapter {
         }
       } else if (edge.type === EdgeType.Transition) {
         if (edge.sourceHandle.startsWith('transition')) {
-          const sourcePrimitive = nodeIdPrimitiveMap.get(edge.sourceId) as State
-          const transition = nodeIdPrimitiveMap.get(edge.targetId) as Transition
+          const sourcePrimitive = nodeIdPrimitiveMap.get(edge.targetId) as State
+          const transition = nodeIdPrimitiveMap.get(edge.sourceId) as Transition
 
           transition.end = sourcePrimitive
         } else if (edge.targetHandle.startsWith('transition')) {
-          const targetPrimitive = nodeIdPrimitiveMap.get(edge.targetId) as State
-          const transition = nodeIdPrimitiveMap.get(edge.sourceId) as Transition
+          const targetPrimitive = nodeIdPrimitiveMap.get(edge.sourceId) as State
+          const transition = nodeIdPrimitiveMap.get(edge.targetId) as Transition
 
           transition.start = targetPrimitive
         } else {
