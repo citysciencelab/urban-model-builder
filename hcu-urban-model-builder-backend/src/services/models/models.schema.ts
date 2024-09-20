@@ -7,7 +7,6 @@ import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { ModelsService } from './models.class.js'
 import { Literals, Nullable } from '../../utils/schema.js'
-import { time } from 'console'
 import { AlgorithmType } from 'simulation'
 
 // Main data model schema
@@ -18,7 +17,9 @@ export const modelsSchema = Type.Object(
     timeUnits: Type.Optional(Literals('Seconds', 'Minutes', 'Hours', 'Days', 'Weeks', 'Months', 'Years')),
     timeStart: Type.Optional(Type.Number()),
     timeLength: Type.Optional(Type.Number()),
+    timeStep: Type.Optional(Type.Number()),
     algorithm: Type.Optional(Literals<AlgorithmType>('Euler', 'RK4')),
+    globals: Type.Optional(Type.String()),
     createdBy: Type.Optional(Type.Number()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' }),
@@ -35,7 +36,7 @@ export const modelsExternalResolver = resolve<Models, HookContext<ModelsService>
 // Schema for creating new entries
 export const modelsDataSchema = Type.Pick(
   modelsSchema,
-  ['name', 'timeUnits', 'timeStart', 'timeLength', 'algorithm', 'createdBy'],
+  ['name', 'timeUnits', 'timeStart', 'timeLength', 'algorithm', 'globals', 'createdBy'],
   {
     $id: 'ModelsData'
   }
@@ -60,6 +61,7 @@ export const modelsQueryProperties = Type.Pick(modelsSchema, [
   'timeStart',
   'timeLength',
   'algorithm',
+  'globals',
   'createdAt',
   'deletedAt',
   'updatedAt',

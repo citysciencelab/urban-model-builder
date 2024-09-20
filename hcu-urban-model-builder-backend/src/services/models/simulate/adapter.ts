@@ -88,9 +88,12 @@ export class SimulateAdapter {
     const model = new Model({
       timeUnits: modelInDB.timeUnits,
       timeStart: modelInDB.timeStart,
+      timeStep: modelInDB.timeStep || 1,
       timeLength: modelInDB.timeLength,
-      algorithm: modelInDB.algorithm || undefined
+      algorithm: modelInDB.algorithm
     })
+
+    model.globals = modelInDB.globals || ''
 
     const nodes = await this.app.service('nodes').find({
       query: {
