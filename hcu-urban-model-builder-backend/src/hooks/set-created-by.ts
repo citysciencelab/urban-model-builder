@@ -1,25 +1,31 @@
-import { BadRequest } from '@feathersjs/errors';
+import { BadRequest } from '@feathersjs/errors'
 import type { HookContext } from '../declarations.js'
-import { ensureUserId } from '../utils/ensure-user-id.js';
-import { checkContext, getItems, replaceItems } from 'feathers-hooks-common';
+import { ensureUserId } from '../utils/ensure-user-id.js'
+import { checkContext, getItems, replaceItems } from 'feathers-hooks-common'
+import { isServerCall } from '../utils/is-server-call.js'
 
 export const setCreatedBy = async (context: HookContext) => {
+  checkContext(context, 'before', null)
 
-  checkContext(context, 'before', null);
-  
-  const userId = ensureUserId(context);
+  if (isServerCall(context.params)) {
+    return context
+  }
 
-  const items = getItems(context);
+  const userId = ensureUserId(context)
+
+  const items = getItems(context)
 
   if (Array.isArray(items)) {
-    items.map((item) => { item.createdBy = userId });
+    items.map((item) => {
+      item.createdBy = userId
+    })
   } else if (items) {
     items.createdBy = userId
   } else {
-    throw BadRequest;
+    throw new BadRequest()
   }
 
-  replaceItems(context, items);
+  replaceItems(context, items)
 
   return context
 }
