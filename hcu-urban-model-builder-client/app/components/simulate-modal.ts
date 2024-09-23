@@ -54,20 +54,16 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       width: 'auto',
     });
 
-    const data = this.simulateResult.value._data;
-    const primitiveIdMap = this.simulateResult.value.primitiveIdMap;
+    const data = this.simulateResult.value;
 
     const series = [];
-    for (const [key, value] of Object.entries(data['children'])) {
-      const node = await this.store.findRecord<Node>(
-        'node',
-        primitiveIdMap[key]!.toString(),
-      );
+    for (const [nodeId, value] of Object.entries(data.nodes)) {
+      const node = await this.store.findRecord<Node>('node', nodeId);
 
       if (node.type !== NodeType.Flow) {
         series.push({
           name: node.name,
-          data: (value as any).results,
+          data: value.series,
           type: 'line',
         });
       }
@@ -76,7 +72,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     chart.setOption({
       legend: {},
       xAxis: {
-        data: data['times'],
+        data: data.times,
       },
       yAxis: {},
       tooltip: {
