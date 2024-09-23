@@ -3,6 +3,7 @@ import { Application } from '../declarations.js'
 import { Nodes, NodeType } from '../services/nodes/nodes.shared.js'
 import { Agent, Container, Flow, Population, Primitive, State, Stock, Transition } from 'simulation/blocks'
 import { EdgeType } from '../services/edges/edges.shared.js'
+import { primitiveFactory } from './primitive-factory.js'
 
 type PopulationNodeResult = {
   current: {
@@ -13,86 +14,14 @@ type PopulationNodeResult = {
   }[]
 }[]
 
-const createSimulationObj = {
-  [NodeType.Stock]: (model: Model, node: Nodes) => {
-    return model.Stock({
-      name: node.name,
-      initial: node.data.value
-    })
-  },
-  [NodeType.Variable]: (model: Model, node: Nodes) => {
-    return model.Variable({
-      name: node.name,
-      value: node.data.value
-    })
-  },
-  [NodeType.Flow]: async (model: Model, node: Nodes) => {
-    return model.Flow(null, null, {
-      name: node.name,
-      rate: node.data.rate
-    })
-  },
-  [NodeType.Converter]: (model: Model, node: Nodes) => {
-    return model.Converter({
-      name: node.name
-    })
-  },
-  [NodeType.State]: (model: Model, node: Nodes) => {
-    return model.State({
-      name: node.name,
-      residency: node.data.residency,
-      startActive: node.data.startActive
-    })
-  },
-  [NodeType.Transition]: (model: Model, node: Nodes) => {
-    return model.Transition(null, null, {
-      name: node.name,
-      value: node.data.value,
-      recalculate: node.data.recalculate,
-      repeat: node.data.repeat,
-      trigger: node.data.trigger
-    })
-  },
-  [NodeType.Action]: (model: Model, node: Nodes) => {
-    return model.Action({
-      name: node.name,
-      value: node.data.value,
-      recalculate: node.data.recalculate,
-      repeat: node.data.repeat,
-      trigger: node.data.trigger
-    })
-  },
-  [NodeType.Population]: (model: Model, node: Nodes) => {
-    return model.Population({
-      name: node.name,
-      geoHeight: node.data.geoHeight,
-      geoPlacementFunction: node.data.geoPlacementFunction,
-      geoPlacementType: node.data.geoPlacementType,
-      geoUnits: node.data.geoUnits,
-      geoWidth: node.data.geoWidth,
-      geoWrapAround: node.data.geoWrapAround,
-      networkFunction: node.data.networkFunction,
-      networkType: node.data.networkType,
-      populationSize: node.data.populationSize
-    })
-  },
-  [NodeType.Agent]: (model: Model, node: Nodes) => {
-    return model.Agent({
-      name: node.name
-    })
-  },
-  [NodeType.Folder]: (model: Model, node: Nodes) => {
-    return model.Folder({
-      name: node.name
-    })
-  }
-}
-
 export class SimulationAdapter {
-  constructor(private app: Application) {}
+  constructor(
+    private app: Application,
+    private modelId: number
+  ) {}
 
-  async simulate(data: { id: number }) {
-    const modelInDB = await this.app.service('models').get(data.id)
+  async simulate() {
+    const modelInDB = await this.app.service('models').get(this.modelId)
 
     const model = new Model({
       timeUnits: modelInDB.timeUnits,
@@ -106,7 +35,7 @@ export class SimulationAdapter {
 
     const nodes = await this.app.service('nodes').find({
       query: {
-        modelId: data.id
+        modelId: this.modelId
       }
     })
 
@@ -115,14 +44,14 @@ export class SimulationAdapter {
 
     for (const node of nodes.data) {
       const type = node.type
-      const simulationPrimitive = await createSimulationObj[type](model, node)
+      const simulationPrimitive = await primitiveFactory(model, node)
       nodeIdPrimitiveMap.set(node.id, simulationPrimitive)
-      primitiveIdTypeMap.set(simulationPrimitive.id, type)
+      primitiveIdTypeMap.set(simulationPrimitive.id, node.type)
     }
 
     const nodesWithParent = await this.app.service('nodes').find({
       query: {
-        modelId: data.id,
+        modelId: this.modelId,
         parentId: {
           $ne: null
         }
@@ -143,7 +72,7 @@ export class SimulationAdapter {
 
     const allPopulations = await this.app.service('nodes').find({
       query: {
-        modelId: data.id,
+        modelId: this.modelId,
         type: NodeType.Population
       }
     })
@@ -159,7 +88,7 @@ export class SimulationAdapter {
 
     const edges = await this.app.service('edges').find({
       query: {
-        modelId: data.id
+        modelId: this.modelId
       }
     })
 
