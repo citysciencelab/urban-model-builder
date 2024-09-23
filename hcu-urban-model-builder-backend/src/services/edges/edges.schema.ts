@@ -12,7 +12,7 @@ import { EdgeType } from './edges.shared.js'
 export const edgesSchema = Type.Object(
   {
     id: Type.Number(),
-    modelId: Type.Number(),
+    modelsVersionsId: Type.Number(),
     type: Type.Enum(EdgeType),
     sourceId: Type.Number(),
     targetId: Type.Number(),
@@ -30,7 +30,7 @@ export const edgesExternalResolver = resolve<Edges, HookContext<EdgesService>>({
 // Schema for creating new entries
 export const edgesDataSchema = Type.Pick(
   edgesSchema,
-  ['modelId', 'type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'],
+  ['modelsVersionsId', 'type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'],
   {
     $id: 'EdgesData'
   }
@@ -50,7 +50,7 @@ export const edgesPatchResolver = resolve<Edges, HookContext<EdgesService>>({})
 // Schema for allowed query properties
 export const edgesQueryProperties = Type.Pick(edgesSchema, [
   'id',
-  'modelId',
+  'modelsVersionsId',
   'type',
   'sourceId',
   'targetId',

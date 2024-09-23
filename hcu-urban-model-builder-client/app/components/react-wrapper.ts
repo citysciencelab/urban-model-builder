@@ -2,14 +2,14 @@ import { initReact } from 'hcu-urban-model-builder-react-canvas/index.tsx';
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { service } from '@ember/service';
-import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 import fade from 'ember-animated/transitions/fade';
 import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
+import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 
 export interface ReactWrapperSignature {
   // The arguments accepted by the component
   Args: {
-    model: ModelModel;
+    model: ModelsVersion;
   };
   // Any blocks yielded by the component
   Blocks: {

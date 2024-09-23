@@ -116,8 +116,11 @@
         {{#each models as |model|}}
           <ListGroup.item class="list-group-with-actions">
             <div class="list-group-body">
-              <LinkTo @route="models.show" @model={{model}}>
-                {{model.name}}
+              <LinkTo
+                @route="models.versions.show"
+                @models={{array model.id model.latestDraftVersion}}
+              >
+                {{model.internalName}}
               </LinkTo>
               <div class="list-group-meta">
                 <span

@@ -19,7 +19,7 @@ export class SimulationAdapter {
 
   constructor(
     private app: Application,
-    private modelId: number
+    private modelVersionId: number
   ) {}
 
   public async simulate() {
@@ -39,7 +39,7 @@ export class SimulationAdapter {
   }
 
   private async createSimulationModel() {
-    const modelInDB = await this.app.service('models').get(this.modelId)
+    const modelInDB = await this.app.service('models-versions').get(this.modelVersionId)
 
     const model = new Model({
       timeUnits: modelInDB.timeUnits,
@@ -57,7 +57,7 @@ export class SimulationAdapter {
   private async createModelPrimitives(model: Model) {
     const nodes = await this.app.service('nodes').find({
       query: {
-        modelId: this.modelId
+        modelsVersionsId: this.modelVersionId
       }
     })
 
@@ -72,7 +72,7 @@ export class SimulationAdapter {
   private async assignPrimitiveParents() {
     const nodesWithParent = await this.app.service('nodes').find({
       query: {
-        modelId: this.modelId,
+        modelsVersionsId: this.modelVersionId,
         parentId: {
           $ne: null
         }
@@ -95,7 +95,7 @@ export class SimulationAdapter {
   private async assignAgentToPopulation() {
     const allPopulations = await this.app.service('nodes').find({
       query: {
-        modelId: this.modelId,
+        modelsVersionsId: this.modelVersionId,
         type: NodeType.Population
       }
     })
@@ -113,7 +113,7 @@ export class SimulationAdapter {
   private async createModelRelationsByEdges(model: Model) {
     const edges = await this.app.service('edges').find({
       query: {
-        modelId: this.modelId
+        modelsVersionsId: this.modelVersionId
       }
     })
 

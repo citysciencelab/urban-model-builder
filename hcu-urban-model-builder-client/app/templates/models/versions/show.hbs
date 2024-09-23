@@ -1,16 +1,23 @@
 {{page-title "Show"}}
 
 <BreadcrumbsItem>
-  {{this.model.name}}
+  v{{this.model.majorVersion}}.{{this.model.minorVersion}}.{{
+    this.model.draftVersion
+  }}
 </BreadcrumbsItem>
 
 {{#in-element this.navbar}}
-  <BsButton @type="primary" @size="sm" @onClick={{fn (mut this.showSimulateModal) true}}>
+  <BsButton
+    @type="primary"
+    @size="sm"
+    @onClick={{fn (mut this.showSimulateModal) true}}
+  >
     Simulate
   </BsButton>
 {{/in-element}}
 
 <ReactWrapper @model={{this.model}} />
+
 <SimulateModal
   @model={{this.model}}
   @show={{this.showSimulateModal}}

@@ -10,7 +10,9 @@ Router.map(function () {
   this.route('authenticate');
   this.route('authenticated', { path: '/' }, function () {
     this.route('models', { resetNamespace: true }, function () {
-      this.route('show', { path: '/:id' });
+      this.route('versions', { path: '/:id' }, function () {
+        this.route('show', { path: '/version/:version_id' });
+      });
     });
   });
 });

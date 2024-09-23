@@ -46,7 +46,8 @@
     "bundle:client": "npm run compile && npm pack --pack-destination ./public",
     "migrate": "npm run knex -- migrate:latest",
     "migrate:make": "npm run knex -- migrate:make",
-    "knex": "node --import ./ts-node.register.mjs ./node_modules/.bin/knex"
+    "migrate:revert": "npm run knex migrate:down",
+    "knex": "node --enable-source-maps  --import ./ts-node.register.mjs ./node_modules/.bin/knex"
   },
   "dependencies": {
     "@feathersjs/adapter-commons": "^5.0.29",

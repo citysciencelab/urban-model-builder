@@ -5,7 +5,7 @@ import { service } from '@ember/service';
 export default class ModelsShowRoute extends Route {
   @service declare store: Store;
 
-  model(params: { id: string }) {
-    return this.store.findRecord('model', params.id);
+  model(params: { version_id: string }) {
+    return this.store.findRecord('models-version', params.version_id);
   }
 }

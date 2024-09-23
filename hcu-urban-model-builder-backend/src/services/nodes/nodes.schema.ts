@@ -65,7 +65,7 @@ export const populationNodeSchema = Type.Object({
 export const nodesSchema = Type.Object(
   {
     id: Type.Number(),
-    modelId: Type.Number(),
+    modelsVersionsId: Type.Number(),
     type: Type.Enum(NodeType),
     name: Type.String(),
     data: Type.Intersect([
@@ -96,7 +96,7 @@ export const nodesExternalResolver = resolve<Nodes, HookContext<NodesService>>({
 // Schema for creating new entries
 export const nodesDataSchema = Type.Pick(
   nodesSchema,
-  ['modelId', 'type', 'name', 'position', 'data', 'height', 'width', 'parentId'],
+  ['modelsVersionsId', 'type', 'name', 'position', 'data', 'height', 'width', 'parentId'],
   {
     $id: 'NodesData'
   }
@@ -116,7 +116,7 @@ export const nodesPatchResolver = resolve<Nodes, HookContext<NodesService>>({})
 // Schema for allowed query properties
 export const nodesQueryProperties = Type.Pick(nodesSchema, [
   'id',
-  'modelId',
+  'modelsVersionsId',
   'type',
   'name',
   'position',

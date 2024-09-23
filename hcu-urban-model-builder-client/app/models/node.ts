@@ -2,7 +2,7 @@ import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { Type } from '@warp-drive/core-types/symbols';
 import type Edge from './edge';
 import { NodeType } from 'hcu-urban-model-builder-backend';
-import type ModelModel from './model';
+import type ModelsVersion from './models-version';
 
 export default class Node extends Model {
   [Type] = 'node' as const;
@@ -21,8 +21,8 @@ export default class Node extends Model {
 
   @attr('number') declare width: number;
 
-  @belongsTo('model', { async: true, inverse: 'nodes' })
-  declare model: ModelModel;
+  @belongsTo('modelsVersion', { async: true, inverse: 'nodes' })
+  declare modelsVersions: ModelsVersion;
 
   @hasMany('edge', { async: true, inverse: 'source' })
   declare sourceEdges: Edge[];
