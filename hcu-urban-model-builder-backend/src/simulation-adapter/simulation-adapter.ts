@@ -6,13 +6,11 @@ import { EdgeType } from '../services/edges/edges.shared.js'
 import { primitiveFactory } from './primitive-factory.js'
 
 type PopulationNodeResult = {
-  current: {
-    location: [number, number]
-    state: {
-      id: string
-    }[]
+  location: [number, number]
+  state: {
+    id: string
   }[]
-}[]
+}[][]
 
 export class SimulationAdapter {
   constructor(
@@ -130,7 +128,7 @@ export class SimulationAdapter {
       }
     }
 
-    const result = model.simulate()
+    const simulationResult = model.simulate()
 
     const primitiveIdMap: Record<string, number> = {}
     for (const [nodeId, primitive] of nodeIdPrimitiveMap.entries()) {
@@ -138,11 +136,12 @@ export class SimulationAdapter {
     }
 
     const resultData = {
-      nodes: {} as Record<number, { series: number[] | PopulationNodeResult }>
+      nodes: {} as Record<number, { series: number[] | PopulationNodeResult }>,
+      times: simulationResult.times()
     }
     for (const [nodeId, primitive] of nodeIdPrimitiveMap) {
-      if (primitive.id in result._data.children!) {
-        const primitiveResult = result.series(primitive)
+      if (primitive.id in simulationResult._data.children!) {
+        const primitiveResult = simulationResult.series(primitive)
 
         let series: number[] | PopulationNodeResult = []
         if (NodeType.Population === primitiveIdTypeMap.get(primitive.id)) {
@@ -164,8 +163,6 @@ export class SimulationAdapter {
       }
     }
 
-    console.log(resultData)
-
-    return { ...result, primitiveIdMap }
+    return resultData
   }
 }

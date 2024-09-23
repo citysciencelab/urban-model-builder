@@ -47,7 +47,8 @@ const simulationFactoryMap = {
       value: node.data.value,
       recalculate: node.data.recalculate,
       repeat: node.data.repeat,
-      trigger: node.data.trigger
+      trigger: node.data.trigger,
+      action: node.data.action
     })
   },
   [NodeType.Population]: (model: Model, node: Nodes) => {

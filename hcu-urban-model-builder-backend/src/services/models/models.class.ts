@@ -34,7 +34,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async simulate(data: ModelsSimulate, params?: ServiceParams) {
-    return new SimulationAdapter(this.app, data.id).simulate() as any
+    return new SimulationAdapter(this.app, data.id).simulate()
   }
 }
 
