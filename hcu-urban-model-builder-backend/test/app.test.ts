@@ -2,7 +2,7 @@
 import assert from 'assert'
 import axios from 'axios'
 import type { Server } from 'http'
-import { app } from '../src/app'
+import { app } from '../src/app.js'
 
 const port = app.get('port')
 const appUrl = `http://${app.get('host')}:${port}`

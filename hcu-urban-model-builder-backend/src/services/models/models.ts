@@ -48,30 +48,21 @@ export const models = (app: Application) => {
         schemaHooks.validateQuery(modelsQueryValidator),
         schemaHooks.resolveQuery(modelsQueryResolver)
       ],
-      find: [
-        customSoftDelete(),
-        filterCreatedBy,
-      ],
-      get: [
-        customSoftDelete(),
-        filterCreatedBy
-      ],
+      find: [customSoftDelete(), filterCreatedBy],
+      get: [customSoftDelete(), filterCreatedBy],
       create: [
-        schemaHooks.validateData(modelsDataValidator), 
-        schemaHooks.resolveData(modelsDataResolver), 
-        customSoftDelete(), 
+        schemaHooks.validateData(modelsDataValidator),
+        schemaHooks.resolveData(modelsDataResolver),
+        customSoftDelete(),
         setCreatedBy
       ],
       patch: [
-        schemaHooks.validateData(modelsPatchValidator), 
-        schemaHooks.resolveData(modelsPatchResolver), 
+        schemaHooks.validateData(modelsPatchValidator),
+        schemaHooks.resolveData(modelsPatchResolver),
         iff(isProvider('external'), ensureCreatedBy),
-        customSoftDelete(),
+        customSoftDelete()
       ],
-      remove: [
-        iff(isProvider('external'), ensureCreatedBy),
-        customSoftDelete(),
-      ],
+      remove: [iff(isProvider('external'), ensureCreatedBy), customSoftDelete()],
       simulate: [
         schemaHooks.validateData(modelsSimulateValidator),
         schemaHooks.resolveData(modelsSimulateResolver)

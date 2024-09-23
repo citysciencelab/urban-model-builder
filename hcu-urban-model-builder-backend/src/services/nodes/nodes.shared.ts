@@ -8,7 +8,14 @@ export { Nodes, NodesData, NodesPatch, NodesQuery }
 export enum NodeType {
   Stock = 0,
   Variable,
-  Flow
+  Flow,
+  Converter,
+  State,
+  Transition,
+  Action,
+  Population,
+  Agent,
+  Folder
 }
 
 export type NodesClientService = Pick<NodesService<Params<NodesQuery>>, (typeof nodesMethods)[number]>

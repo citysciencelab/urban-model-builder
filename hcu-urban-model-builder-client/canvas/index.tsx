@@ -17,12 +17,14 @@ import {
   reconnectEdge,
   Connection,
   Edge,
+  Node,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
 import { EdgeType, NodeType } from "hcu-urban-model-builder-backend";
 import { FlowEdge } from "./lib/edges/flow.tsx";
 import { FlowNode } from "./lib/nodes/flow-node.tsx";
+import { FolderNode } from "./lib/nodes/folder-node.tsx";
 
 type NodeActions = {
   create: (type: "edge" | "node", data: any) => Promise<any>;
@@ -55,6 +57,8 @@ const nodeTypes = {
   [getNodeTypeStringName(NodeType.Stock)]: BaseNode,
   [getNodeTypeStringName(NodeType.Variable)]: BaseNode,
   [getNodeTypeStringName(NodeType.Flow)]: FlowNode,
+  [getNodeTypeStringName(NodeType.Folder)]: FolderNode,
+  [getNodeTypeStringName(NodeType.Agent)]: FolderNode,
 };
 
 const edgesTypes = {
@@ -68,9 +72,27 @@ function Flow({
   nodeActions,
 }: AppProps) {
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
+
   const [nodes, setNodes] = useState(() =>
-    initialNodes.map((n) => ({ ...n.raw, data: { emberModel: n } })),
+    [...initialNodes]
+      ?.sort((a, b) => {
+        const parentIdA = a.raw.parentId;
+        const parentIdB = b.raw.parentId;
+        if (parentIdA === parentIdB) {
+          return 0;
+        }
+        if (parentIdA === null) {
+          return -1;
+        }
+        if (parentIdB === null) {
+          return 1;
+        }
+
+        return parentIdA - parentIdB;
+      })
+      .map((n) => ({ ...n.raw, data: { emberModel: n } })),
   );
+
   const [edges, setEdges] = useState(() =>
     initialEdges.map((e) => {
       return {
@@ -83,26 +105,47 @@ function Flow({
   const sidebarContainerRef = useRef(null);
   const toolbarContainerRef = useRef(null);
 
-  const onNodesChange = useCallback((changes: NodeChange[]) => {
-    for (const change of changes) {
-      if (change.type === "select") {
-        if (change.selected) {
-          nodeActions.select("node", change.id);
-        } else {
-          nodeActions.unselect("node", change.id);
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      for (const change of changes) {
+        console.log("change", change);
+
+        if (change.type === "select") {
+          if (change.selected) {
+            nodeActions.select("node", change.id);
+          } else {
+            nodeActions.unselect("node", change.id);
+          }
+        }
+        if (change.type === "position" && !change.dragging) {
+          nodeActions.save("node", change.id, {
+            position: change.position,
+          });
+        }
+        if (change.type === "dimensions" && change.resizing === false) {
+          const node = rfInstance.getNode(change.id);
+          nodeActions.save("node", change.id, {
+            height: node.height,
+            width: node.width,
+          });
+        }
+        if (change.type === "replace") {
+          console.log("replace", change);
+          nodeActions.save("node", change.id, {
+            position: change.item.position,
+            parent: change.item.parentId,
+          });
+        }
+        if (change.type === "remove") {
+          nodeActions.delete("node", change.id);
         }
       }
-      if (change.type === "position" && !change.dragging) {
-        nodeActions.save("node", change.id, { position: change.position });
-      }
-      if (change.type === "remove") {
-        nodeActions.delete("node", change.id);
-      }
-    }
-    setNodes((nds) => {
-      return applyNodeChanges(changes, nds);
-    });
-  }, []);
+      setNodes((nds) => {
+        return applyNodeChanges(changes, nds);
+      });
+    },
+    [rfInstance],
+  );
 
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
     for (const change of changes) {
@@ -241,6 +284,69 @@ function Flow({
     }
   });
 
+  const onNodeDrag = useCallback(
+    (_e: any, node: Node) => {
+      console.log("dragging");
+      const intersections = rfInstance
+        .getIntersectingNodes(node)
+        .map((n) => n.id);
+
+      setNodes((ns) =>
+        ns.map((n) => ({
+          ...n,
+          className: intersections.includes(n.id) ? "intersect" : "",
+        })),
+      );
+    },
+    [rfInstance],
+  );
+
+  const onNodeDragStop = useCallback(
+    (_e: DragEvent<HTMLDivElement>, node: Node) => {
+      setNodes((ns) => ns.map((n) => ({ ...n, className: "" })));
+
+      const agentOrFolderNodes = rfInstance
+        .getNodes()
+        .filter(
+          (n) =>
+            n.type === getNodeTypeStringName(NodeType.Agent) ||
+            n.type === getNodeTypeStringName(NodeType.Folder),
+        );
+      const [intersection] = rfInstance.getIntersectingNodes(
+        node,
+        true,
+        agentOrFolderNodes,
+      );
+
+      if (intersection && intersection.id !== node.parentId) {
+        const parentPosition = intersection.position;
+        console.log("parentNodeOrigin", intersection, parentPosition);
+        const positionInParent = {
+          x: node.position.x - parentPosition.x,
+          y: node.position.y - parentPosition.y,
+        };
+
+        console.log("intersection", intersection, node.position);
+        rfInstance.updateNode(node.id, {
+          parentId: intersection ? intersection.id : null,
+          position: positionInParent,
+        });
+      } else if (!intersection && node.parentId) {
+        const oldParent = rfInstance.getNode(node.parentId);
+        const positionOnCanvas = {
+          x: oldParent.position.x + node.position.x,
+          y: oldParent.position.y + node.position.y,
+        };
+
+        rfInstance.updateNode(node.id, {
+          parentId: null,
+          position: positionOnCanvas,
+        });
+      }
+    },
+    [rfInstance],
+  );
+
   return (
     <ReactFlow
       onInit={setRfInstance}
@@ -250,6 +356,8 @@ function Flow({
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
       onReconnect={onReconnect}
+      onNodeDrag={onNodeDrag}
+      onNodeDragStop={onNodeDragStop}
       onDrop={onDrop}
       onDragOver={onDragOver}
       isValidConnection={isValidConnection}

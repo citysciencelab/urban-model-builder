@@ -6,13 +6,20 @@ import type { Static } from '@feathersjs/typebox'
 import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { ModelsService } from './models.class.js'
-import { Nullable } from '../../utils/schema.js'
+import { Literals, Nullable } from '../../utils/schema.js'
+import { AlgorithmType } from 'simulation'
 
 // Main data model schema
 export const modelsSchema = Type.Object(
   {
     id: Type.Number(),
     name: Type.String(),
+    timeUnits: Type.Optional(Literals('Seconds', 'Minutes', 'Hours', 'Days', 'Weeks', 'Months', 'Years')),
+    timeStart: Type.Optional(Type.Number()),
+    timeLength: Type.Optional(Type.Number()),
+    timeStep: Type.Optional(Type.Number()),
+    algorithm: Type.Optional(Literals<AlgorithmType>('Euler', 'RK4')),
+    globals: Type.Optional(Type.String()),
     createdBy: Type.Optional(Type.Number()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' }),
@@ -27,9 +34,13 @@ export const modelsResolver = resolve<Models, HookContext<ModelsService>>({})
 export const modelsExternalResolver = resolve<Models, HookContext<ModelsService>>({})
 
 // Schema for creating new entries
-export const modelsDataSchema = Type.Pick(modelsSchema, ['name', 'createdBy'], {
-  $id: 'ModelsData'
-})
+export const modelsDataSchema = Type.Pick(
+  modelsSchema,
+  ['name', 'timeUnits', 'timeStart', 'timeLength', 'algorithm', 'globals', 'createdBy'],
+  {
+    $id: 'ModelsData'
+  }
+)
 export type ModelsData = Static<typeof modelsDataSchema>
 export const modelsDataValidator = getValidator(modelsDataSchema, dataValidator)
 export const modelsDataResolver = resolve<Models, HookContext<ModelsService>>({})
@@ -43,7 +54,19 @@ export const modelsPatchValidator = getValidator(modelsPatchSchema, dataValidato
 export const modelsPatchResolver = resolve<Models, HookContext<ModelsService>>({})
 
 // Schema for allowed query properties
-export const modelsQueryProperties = Type.Pick(modelsSchema, ['id', 'name', 'createdAt', 'deletedAt', 'updatedAt', 'createdBy'], )
+export const modelsQueryProperties = Type.Pick(modelsSchema, [
+  'id',
+  'name',
+  'timeUnits',
+  'timeStart',
+  'timeLength',
+  'algorithm',
+  'globals',
+  'createdAt',
+  'deletedAt',
+  'updatedAt',
+  'createdBy'
+])
 export const modelsQuerySchema = Type.Intersect(
   [
     querySyntax(modelsQueryProperties, {
