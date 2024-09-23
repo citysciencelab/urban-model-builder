@@ -18,7 +18,15 @@ describe('models service', () => {
   })
 
   describe('simulate', () => {
-    it.only('should create a basic system dynamic model', async () => {
+    beforeEach(async () => {
+      await app.get('postgresqlClient').table('models').del()
+    })
+
+    after(async () => {
+      await app.get('postgresqlClient').table('models').del()
+    })
+
+    it('should create a basic system dynamic model', async () => {
       const model = await app.service('models').create({
         name: 'test',
         timeUnits: 'Years',
@@ -101,51 +109,51 @@ describe('models service', () => {
         sourceHandle?: string
         targetHandle?: string
       })[] = [
-        {
-          sourceId: childrenPerWomanVar.id,
-          targetId: birthsFlow.id,
-          type: EdgeType.Link
-        },
-        {
-          sourceId: population19PlusStock.id,
-          targetId: birthsFlow.id,
-          type: EdgeType.Link
-        },
-        {
-          sourceId: population0_18Stock.id,
-          targetId: totalPopulationVar.id,
-          type: EdgeType.Link
-        },
-        {
-          sourceId: population19PlusStock.id,
-          targetId: totalPopulationVar.id,
-          type: EdgeType.Link
-        },
-        {
-          sourceId: birthsFlow.id,
-          targetId: population0_18Stock.id,
-          sourceHandle: 'flow-source',
-          type: EdgeType.Flow
-        },
-        {
-          sourceId: population0_18Stock.id,
-          targetId: agingFlow.id,
-          targetHandle: 'flow-target',
-          type: EdgeType.Flow
-        },
-        {
-          sourceId: agingFlow.id,
-          targetId: population19PlusStock.id,
-          sourceHandle: 'flow-source',
-          type: EdgeType.Flow
-        },
-        {
-          sourceId: population19PlusStock.id,
-          targetId: deathsFlow.id,
-          targetHandle: 'flow-target',
-          type: EdgeType.Flow
-        }
-      ]
+          {
+            sourceId: childrenPerWomanVar.id,
+            targetId: birthsFlow.id,
+            type: EdgeType.Link
+          },
+          {
+            sourceId: population19PlusStock.id,
+            targetId: birthsFlow.id,
+            type: EdgeType.Link
+          },
+          {
+            sourceId: population0_18Stock.id,
+            targetId: totalPopulationVar.id,
+            type: EdgeType.Link
+          },
+          {
+            sourceId: population19PlusStock.id,
+            targetId: totalPopulationVar.id,
+            type: EdgeType.Link
+          },
+          {
+            sourceId: birthsFlow.id,
+            targetId: population0_18Stock.id,
+            sourceHandle: 'flow-source',
+            type: EdgeType.Flow
+          },
+          {
+            sourceId: population0_18Stock.id,
+            targetId: agingFlow.id,
+            targetHandle: 'flow-target',
+            type: EdgeType.Flow
+          },
+          {
+            sourceId: agingFlow.id,
+            targetId: population19PlusStock.id,
+            sourceHandle: 'flow-source',
+            type: EdgeType.Flow
+          },
+          {
+            sourceId: population19PlusStock.id,
+            targetId: deathsFlow.id,
+            targetHandle: 'flow-target',
+            type: EdgeType.Flow
+          }
+        ]
 
       const edges = await Promise.all(
         modelEdges.map(async (edge) => {
@@ -156,16 +164,15 @@ describe('models service', () => {
         })
       )
 
+      const nodes = await app.service('nodes').find()
+      const nodeNameToIdMap = new Map<string, number>()
+      for (const node of nodes.data) {
+        nodeNameToIdMap.set(node.name, node.id)
+      }
+
       const actual = await app.service('models').simulate({ id: model.id })
 
-      assert.ok(actual?._data?.data)
-
-      const actualData = actual._data.data?.map((d: any) => {
-        return Object.entries(d).reduce((acc, [key, value]) => {
-          acc[actual._nameIdMapping[key]] = value
-          return acc
-        }, {} as any)
-      })
+      assert.ok(actual.nodes)
 
       const file = await readFile(join(__dirname, 'sd-model.xml'), 'utf8')
 
@@ -178,22 +185,25 @@ describe('models service', () => {
         }, {} as any)
       })
 
-      assert.deepStrictEqual(actual._data.times, res._data.times)
+      assert.deepStrictEqual(actual.times, res._data.times)
 
       let i = 0
       const allNodeNames = ['Births', 'Deaths', 'Population 0-18', 'Population 19 plus', 'Total Population']
+      const actualNodeData = actual.nodes
       for (const expectedDataItem of expectedData!) {
-        const actualDataItem = actualData![i]
         for (const nodeName of allNodeNames) {
-          assert.ok(nodeName in actualDataItem)
           const expectedValue = expectedDataItem[nodeName]
-          const actualValue = actualDataItem[nodeName]
+          const nodeId = nodeNameToIdMap.get(nodeName)
+          assert.ok(nodeId)
+          assert.ok(nodeId in actualNodeData, `Node ${nodeName} not found in actual data`)
+          const actualValue = actualNodeData[nodeId].series[i]
 
           assert.ok(!isNaN(expectedValue))
+          assert.ok(typeof actualValue === 'number')
           assert.ok(!isNaN(actualValue))
 
-          const expectedValueAsInt = parseInt(expectedValue)
-          const actualValueAsInt = parseInt(actualValue)
+          const expectedValueAsInt = Math.round(expectedValue)
+          const actualValueAsInt = Math.round(actualValue)
           assert.strictEqual(expectedValueAsInt, actualValueAsInt)
 
           const diff = Math.abs(expectedValue - actualValue)
@@ -209,8 +219,6 @@ describe('models service', () => {
     })
 
     it('should create a agent based model', async () => {
-      console.log('start')
-
       const model = await app.service('models').create({
         name: 'test',
         timeUnits: 'Years',
@@ -243,7 +251,9 @@ describe('models service', () => {
           geoWidth: '200',
           geoHeight: '100',
           geoUnits: 'Unitless',
-          networkType: 'None'
+          networkType: 'None',
+          geoPlacementFunction: '<<index([Self])*10,index([Self])*20>>',
+          networkFunction: 'randBoolean(0.06)'
         },
         ...baseNodeData
       })
@@ -352,7 +362,9 @@ describe('models service', () => {
         data: {
           action: 'Self.moveTowards([Population].FindState([Infected]).FindNearest(Self), -0.5)',
           trigger: 'Condition',
-          value: '[Susceptible] and [Population].FindState([Infected]).Count() > 0'
+          value: '[Susceptible] and [Population].FindState([Infected]).Count() > 0',
+          recalculate: true,
+          repeat: true
         },
         parentId: personAgent.id,
         ...baseNodeData
@@ -368,38 +380,38 @@ describe('models service', () => {
         sourceHandle?: string
         targetHandle?: string
       })[] = [
-        // Links
-        {
-          type: EdgeType.Link,
-          sourceId: populationPopulation.id,
-          targetId: percentInfectedVariable.id
-        },
-        {
-          type: EdgeType.Link,
-          sourceId: populationPopulation.id,
-          targetId: flightAction.id
-        },
-        {
-          type: EdgeType.Link,
-          sourceId: populationPopulation.id,
-          targetId: transmitTransition.id
-        },
-        {
-          type: EdgeType.Link,
-          sourceId: susceptibleState.id,
-          targetId: flightAction.id
-        },
-        {
-          type: EdgeType.Link,
-          sourceId: susceptibleState.id,
-          targetId: infectedState.id
-        },
-        // Transitions
-        ...createTransitionEdgeObjs(transmitTransition.id, susceptibleState.id, infectedState.id),
-        ...createTransitionEdgeObjs(exogenousTransition.id, susceptibleState.id, infectedState.id),
-        ...createTransitionEdgeObjs(recoveryTransition.id, infectedState.id, recoveredState.id),
-        ...createTransitionEdgeObjs(immunityLossTransition.id, recoveredState.id, susceptibleState.id)
-      ]
+          // Links
+          {
+            type: EdgeType.Link,
+            sourceId: populationPopulation.id,
+            targetId: percentInfectedVariable.id
+          },
+          {
+            type: EdgeType.Link,
+            sourceId: populationPopulation.id,
+            targetId: flightAction.id
+          },
+          {
+            type: EdgeType.Link,
+            sourceId: populationPopulation.id,
+            targetId: transmitTransition.id
+          },
+          {
+            type: EdgeType.Link,
+            sourceId: susceptibleState.id,
+            targetId: flightAction.id
+          },
+          {
+            type: EdgeType.Link,
+            sourceId: susceptibleState.id,
+            targetId: infectedState.id
+          },
+          // Transitions
+          ...createTransitionEdgeObjs(transmitTransition.id, susceptibleState.id, infectedState.id),
+          ...createTransitionEdgeObjs(exogenousTransition.id, susceptibleState.id, infectedState.id),
+          ...createTransitionEdgeObjs(recoveryTransition.id, infectedState.id, recoveredState.id),
+          ...createTransitionEdgeObjs(immunityLossTransition.id, recoveredState.id, susceptibleState.id)
+        ]
 
       const edges = await Promise.all(
         modelEdges.map(async (edge) => {
@@ -409,44 +421,22 @@ describe('models service', () => {
           })
         })
       )
-      try {
-        const actual = await app.service('models').simulate({ id: model.id })
 
-        assert.ok(actual?._data?.data)
-
-        const actualData = actual._data.data?.map((d: any) => {
-          return Object.entries(d).reduce((acc, [key, value]) => {
-            acc[actual._nameIdMapping[key]] = value
-            return acc
-          }, {} as any)
-        })
-      } catch (error: any) {
-        console.log(error.code, error.primitive, error.primitive.value)
+      const nodes = await app.service('nodes').find()
+      const nodeNameToIdMap = new Map<string, number>()
+      for (const node of nodes.data) {
+        nodeNameToIdMap.set(node.name, node.id)
       }
-      // console.log(actualData[0].Population.current[0])
+
+      const actual = await app.service('models').simulate({ id: model.id })
 
       const file = await readFile(join(__dirname, 'agent-based.xml'), 'utf8')
 
       const imModel: Model = loadInsightMaker(file)
-
-      const lastPopulation = imModel.findPopulations().pop()
+      imModel.globals = 'SetRandSeed(123)'
 
       const res = imModel.simulate()
 
-      imModel.globals = 'SetRandSeed(123)'
-
-      const mapped = res.series(lastPopulation!).map((value: any) =>
-        value.current.map((item: { state: { id: string }[] }) =>
-          item.state.map((s: { id: string }) => {
-            return res._nameIdMapping[s.id]
-          })
-        )
-      )
-      // console.log('--->', mapped)
-      // console.log(res)
-      // console.log(res._data.data)
-
-      // assert.deepStrictEqual(actual._data.times, res._data.times)
       const expectedData = res._data.data?.map((d: any) => {
         return Object.entries(d).reduce((acc, [key, value]) => {
           acc[res._nameIdMapping[key]] = value
@@ -454,20 +444,69 @@ describe('models service', () => {
         }, {} as any)
       })
 
+      assert.deepStrictEqual(actual.times, res._data.times)
+
       let i = 0
-      const allNodeNames = [
-        'Percent Infected',
-        'Susceptible',
-        'Infected',
-        'Recovered',
-        'Transmit',
-        'Exogenous',
-        'Recovery',
-        'Immunity Loss',
-        'Flight',
-        'Population'
-      ]
+      const allNodeNames = ['Percent Infected', 'Population']
+      const actualNodeData = actual.nodes
+      assert.strictEqual(Object.keys(actualNodeData).length, allNodeNames.length)
       for (const expectedDataItem of expectedData!) {
+        for (const nodeName of allNodeNames) {
+          const expectedValue = expectedDataItem[nodeName]
+          const nodeId = nodeNameToIdMap.get(nodeName)
+          assert.ok(nodeId)
+          assert.ok(nodeId in actualNodeData, `Node ${nodeName} not found in actual data`)
+          const actualValue = actualNodeData[nodeId].series[i]
+
+          if (typeof expectedValue === 'number') {
+            assert.ok(!isNaN(expectedValue))
+            assert.ok(typeof actualValue === 'number')
+            assert.ok(!isNaN(actualValue))
+
+            const expectedValueAsInt = Math.round(expectedValue)
+            const actualValueAsInt = Math.round(actualValue)
+            assert.strictEqual(expectedValueAsInt, actualValueAsInt)
+
+            const diff = Math.abs(expectedValue - actualValue)
+
+            assert.ok(
+              diff <= 10e-10,
+              `Expected ${i} item ${nodeName} to be ${expectedValue} but got ${actualValue}. Diff: ${diff}`
+            )
+          } else {
+            assert.ok(expectedValue.current)
+            assert.ok(actualValue)
+            assert.ok(typeof actualValue === 'object')
+            assert.ok(Array.isArray(expectedValue.current))
+
+            assert.ok(Array.isArray(actualValue))
+            let locationIndex = 0
+            for (const expectedPosition of expectedValue.current) {
+              const expectedLocation = expectedPosition.location.items
+              const actualLocation: [number, number] = actualValue[locationIndex].location
+              assert.strictEqual(expectedLocation.length, 2)
+              assert.strictEqual(actualLocation.length, 2)
+
+              const [expectedX, expectedY] = expectedLocation
+              const [actualX, actualY] = actualLocation
+
+              assert.strictEqual(
+                expectedX,
+                actualX,
+                `Expected ${expectedX} but got ${actualX}. ${i}_${locationIndex}`
+              )
+              assert.strictEqual(
+                expectedY,
+                actualY,
+                `Expected ${expectedY} but got ${actualY}. ${i}_${locationIndex}`
+              )
+
+              locationIndex++
+            }
+          }
+        }
+
+        i++
       }
     })
 
@@ -553,15 +592,15 @@ describe('models service', () => {
         sourceHandle?: string
         targetHandle?: string
       })[] = [
-        // Links
-        {
-          type: EdgeType.Link,
-          sourceId: startState.id,
-          targetId: endState.id
-        },
-        // Transitions
-        ...createTransitionEdgeObjs(transition.id, startState.id, endState.id)
-      ]
+          // Links
+          {
+            type: EdgeType.Link,
+            sourceId: startState.id,
+            targetId: endState.id
+          },
+          // Transitions
+          ...createTransitionEdgeObjs(transition.id, startState.id, endState.id)
+        ]
 
       const edges = await Promise.all(
         modelEdges.map(async (edge) => {
