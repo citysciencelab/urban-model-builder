@@ -10,7 +10,7 @@ import { Model } from 'simulation'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-describe('models service', () => {
+describe.only('models service', () => {
   it('registered the service', () => {
     const service = app.service('models')
 
@@ -109,51 +109,51 @@ describe('models service', () => {
         sourceHandle?: string
         targetHandle?: string
       })[] = [
-          {
-            sourceId: childrenPerWomanVar.id,
-            targetId: birthsFlow.id,
-            type: EdgeType.Link
-          },
-          {
-            sourceId: population19PlusStock.id,
-            targetId: birthsFlow.id,
-            type: EdgeType.Link
-          },
-          {
-            sourceId: population0_18Stock.id,
-            targetId: totalPopulationVar.id,
-            type: EdgeType.Link
-          },
-          {
-            sourceId: population19PlusStock.id,
-            targetId: totalPopulationVar.id,
-            type: EdgeType.Link
-          },
-          {
-            sourceId: birthsFlow.id,
-            targetId: population0_18Stock.id,
-            sourceHandle: 'flow-source',
-            type: EdgeType.Flow
-          },
-          {
-            sourceId: population0_18Stock.id,
-            targetId: agingFlow.id,
-            targetHandle: 'flow-target',
-            type: EdgeType.Flow
-          },
-          {
-            sourceId: agingFlow.id,
-            targetId: population19PlusStock.id,
-            sourceHandle: 'flow-source',
-            type: EdgeType.Flow
-          },
-          {
-            sourceId: population19PlusStock.id,
-            targetId: deathsFlow.id,
-            targetHandle: 'flow-target',
-            type: EdgeType.Flow
-          }
-        ]
+        {
+          sourceId: childrenPerWomanVar.id,
+          targetId: birthsFlow.id,
+          type: EdgeType.Link
+        },
+        {
+          sourceId: population19PlusStock.id,
+          targetId: birthsFlow.id,
+          type: EdgeType.Link
+        },
+        {
+          sourceId: population0_18Stock.id,
+          targetId: totalPopulationVar.id,
+          type: EdgeType.Link
+        },
+        {
+          sourceId: population19PlusStock.id,
+          targetId: totalPopulationVar.id,
+          type: EdgeType.Link
+        },
+        {
+          sourceId: birthsFlow.id,
+          targetId: population0_18Stock.id,
+          sourceHandle: 'flow-source',
+          type: EdgeType.Flow
+        },
+        {
+          sourceId: population0_18Stock.id,
+          targetId: agingFlow.id,
+          targetHandle: 'flow-target',
+          type: EdgeType.Flow
+        },
+        {
+          sourceId: agingFlow.id,
+          targetId: population19PlusStock.id,
+          sourceHandle: 'flow-source',
+          type: EdgeType.Flow
+        },
+        {
+          sourceId: population19PlusStock.id,
+          targetId: deathsFlow.id,
+          targetHandle: 'flow-target',
+          type: EdgeType.Flow
+        }
+      ]
 
       const edges = await Promise.all(
         modelEdges.map(async (edge) => {
@@ -380,38 +380,38 @@ describe('models service', () => {
         sourceHandle?: string
         targetHandle?: string
       })[] = [
-          // Links
-          {
-            type: EdgeType.Link,
-            sourceId: populationPopulation.id,
-            targetId: percentInfectedVariable.id
-          },
-          {
-            type: EdgeType.Link,
-            sourceId: populationPopulation.id,
-            targetId: flightAction.id
-          },
-          {
-            type: EdgeType.Link,
-            sourceId: populationPopulation.id,
-            targetId: transmitTransition.id
-          },
-          {
-            type: EdgeType.Link,
-            sourceId: susceptibleState.id,
-            targetId: flightAction.id
-          },
-          {
-            type: EdgeType.Link,
-            sourceId: susceptibleState.id,
-            targetId: infectedState.id
-          },
-          // Transitions
-          ...createTransitionEdgeObjs(transmitTransition.id, susceptibleState.id, infectedState.id),
-          ...createTransitionEdgeObjs(exogenousTransition.id, susceptibleState.id, infectedState.id),
-          ...createTransitionEdgeObjs(recoveryTransition.id, infectedState.id, recoveredState.id),
-          ...createTransitionEdgeObjs(immunityLossTransition.id, recoveredState.id, susceptibleState.id)
-        ]
+        // Links
+        {
+          type: EdgeType.Link,
+          sourceId: populationPopulation.id,
+          targetId: percentInfectedVariable.id
+        },
+        {
+          type: EdgeType.Link,
+          sourceId: populationPopulation.id,
+          targetId: flightAction.id
+        },
+        {
+          type: EdgeType.Link,
+          sourceId: populationPopulation.id,
+          targetId: transmitTransition.id
+        },
+        {
+          type: EdgeType.Link,
+          sourceId: susceptibleState.id,
+          targetId: flightAction.id
+        },
+        {
+          type: EdgeType.Link,
+          sourceId: susceptibleState.id,
+          targetId: infectedState.id
+        },
+        // Transitions
+        ...createTransitionEdgeObjs(transmitTransition.id, susceptibleState.id, infectedState.id),
+        ...createTransitionEdgeObjs(exogenousTransition.id, susceptibleState.id, infectedState.id),
+        ...createTransitionEdgeObjs(recoveryTransition.id, infectedState.id, recoveredState.id),
+        ...createTransitionEdgeObjs(immunityLossTransition.id, recoveredState.id, susceptibleState.id)
+      ]
 
       const edges = await Promise.all(
         modelEdges.map(async (edge) => {
@@ -424,8 +424,10 @@ describe('models service', () => {
 
       const nodes = await app.service('nodes').find()
       const nodeNameToIdMap = new Map<string, number>()
+      const nodeIdToNameMap = new Map<number, string>()
       for (const node of nodes.data) {
         nodeNameToIdMap.set(node.name, node.id)
+        nodeIdToNameMap.set(node.id, node.name)
       }
 
       const actual = await app.service('models').simulate({ id: model.id })
@@ -443,6 +445,8 @@ describe('models service', () => {
           return acc
         }, {} as any)
       })
+
+      const imModelNameIdMapping = res._nameIdMapping
 
       assert.deepStrictEqual(actual.times, res._data.times)
 
@@ -500,6 +504,14 @@ describe('models service', () => {
                 actualY,
                 `Expected ${expectedY} but got ${actualY}. ${i}_${locationIndex}`
               )
+
+              const expectedStates = expectedPosition.state.map(
+                (s: { id: string }) => imModelNameIdMapping[s.id]
+              )
+              const actualStates = actualValue[locationIndex].state.map((s: number) =>
+                nodeIdToNameMap.get(s)
+              ) as string[]
+              assert.deepStrictEqual(expectedStates, actualStates)
 
               locationIndex++
             }
@@ -592,15 +604,15 @@ describe('models service', () => {
         sourceHandle?: string
         targetHandle?: string
       })[] = [
-          // Links
-          {
-            type: EdgeType.Link,
-            sourceId: startState.id,
-            targetId: endState.id
-          },
-          // Transitions
-          ...createTransitionEdgeObjs(transition.id, startState.id, endState.id)
-        ]
+        // Links
+        {
+          type: EdgeType.Link,
+          sourceId: startState.id,
+          targetId: endState.id
+        },
+        // Transitions
+        ...createTransitionEdgeObjs(transition.id, startState.id, endState.id)
+      ]
 
       const edges = await Promise.all(
         modelEdges.map(async (edge) => {
