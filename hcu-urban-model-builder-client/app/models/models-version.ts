@@ -14,7 +14,7 @@ export default class ModelsVersion extends Model {
   @attr('string') declare internalName: string;
   @attr('number') declare minorVersion: number;
   @attr('number') declare majorVersion: number;
-  @attr('number') declare draftVersion: number;
+
 
   @belongsTo('model', { async: true, inverse: 'latestDraftVersion' })
   declare model: number;

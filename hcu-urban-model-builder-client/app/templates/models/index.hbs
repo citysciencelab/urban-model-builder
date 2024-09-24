@@ -123,6 +123,11 @@
                 {{model.internalName}}
               </LinkTo>
               <div class="list-group-meta">
+                <span>
+                  v{{model.currentMajorVersion}}.{{
+                    model.currentMinorVersion
+                  }}.{{model.currentDraftVersion}}
+                </span>
                 <span
                   title={{
                     format-date

@@ -50,7 +50,7 @@ export default class EmberReactConnectorService extends Service {
       }
     }
 
-    data.model = this.currentModel;
+    data.modelsVersions = this.currentModel;
 
     return this.store.createRecord<Node | Edge>(type, data).save();
   }

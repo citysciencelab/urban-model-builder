@@ -6,6 +6,10 @@ export default class ModelModel extends Model {
 
   @attr('string') declare internalName: string;
 
+  @attr('number') declare currentMajorVersion: number;
+  @attr('number') declare currentMinorVersion: number;
+  @attr('number') declare currentDraftVersion: number;
+
   @belongsTo('modelsVersion', { async: true, inverse: 'model' })
   declare latestDraftVersion: number;
 

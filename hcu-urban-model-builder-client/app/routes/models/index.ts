@@ -51,7 +51,7 @@ export default class ModelsIndexRoute extends Route {
     }
 
     if (params.q && params.q !== '') {
-      query['name'] = {
+      query['internalName'] = {
         $ilike: `%${params.q}%`,
       };
     }
