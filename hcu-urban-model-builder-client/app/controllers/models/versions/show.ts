@@ -22,7 +22,12 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
       .service('models')
       .newDraft({ id: Number(currentModel.id) });
 
-    this.router.transitionTo('models.versions.show', newDraftModelVersion);
+    await this.router.transitionTo(
+      'models.versions.show',
+      newDraftModelVersion,
+    );
+
+    window.location.reload();
   }
 
   @action onStartPublish() {
