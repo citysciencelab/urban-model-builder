@@ -1,7 +1,7 @@
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { Type } from '@warp-drive/core-types/symbols';
 import type Edge from './edge';
-import { NodeType } from 'hcu-urban-model-builder-backend';
+import { NodeType, type Nodes } from 'hcu-urban-model-builder-backend';
 import type ModelModel from './model';
 
 export default class Node extends Model {
@@ -13,7 +13,7 @@ export default class Node extends Model {
 
   @attr('string') declare name: string;
 
-  @attr() declare data: { value?: string; rate?: number };
+  @attr() declare data: Nodes['data'];
 
   @attr() declare position: { x: number; y: number };
 
