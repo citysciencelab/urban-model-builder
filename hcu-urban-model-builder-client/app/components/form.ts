@@ -28,8 +28,7 @@ export default class FormComponent extends Component<FormSignature> {
   get nodeFormFieldsComponent() {
     try {
       const fileName = dasherize(NodeType[this.args.record.type]!);
-      const moduleName = `./node-form-fields/${fileName}`;
-      const module = importSync(moduleName) as any;
+      const module = importSync(`./node-form-fields/${fileName}`) as any;
 
       return ensureSafeComponent(module.default, this);
     } catch (e) {
