@@ -138,7 +138,7 @@ export class SimulationAdapter {
       times: simulationResult.times()
     }
     for (const [nodeId, primitive] of this.nodeIdPrimitiveMap) {
-      if (primitive.id in simulationResult._data.children!) {
+      if (primitive.id in (simulationResult._data.children || {})) {
         const primitiveResult = simulationResult.series(primitive)
 
         let series: number[] | PopulationNodeResult = []
