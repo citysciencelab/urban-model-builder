@@ -8,6 +8,7 @@ import type Node from 'hcu-urban-model-builder-client/models/node';
 import type StoreEventEmitterService from './store-event-emitter';
 import type { ReactFlowInstance } from '@xyflow/react';
 import type { NodeType } from 'hcu-urban-model-builder-backend';
+import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
 export default class EmberReactConnectorService extends Service {
   @service declare store: Store;
@@ -32,6 +33,25 @@ export default class EmberReactConnectorService extends Service {
     }
 
     const data = { ...rawData };
+
+    record.eachRelationship((key: string, schema: LegacyRelationshipSchema) => {
+      if (schema.kind === 'belongsTo') {
+        const keyWithId = `${key}Id`;
+        if (keyWithId in rawData) {
+          const value = rawData[keyWithId];
+          if (value) {
+            console.log('value', value);
+            console.log('schema', schema);
+
+            data[key] = this.store.peekRecord(schema.type, value);
+          } else if (value === null) {
+            data[key] = null;
+          }
+          delete data[keyWithId];
+        }
+      }
+    });
+
     for (const key of ['source', 'target']) {
       if (key in rawData) {
         data[key] = this.store.peekRecord<Node>('node', rawData[key]);
