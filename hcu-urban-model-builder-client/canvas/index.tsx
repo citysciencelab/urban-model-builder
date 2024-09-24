@@ -23,8 +23,8 @@ import {
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
 import { EdgeType, NodeType } from "hcu-urban-model-builder-backend";
-import { FlowEdge } from "./lib/edges/flow.tsx";
-import { FlowNode } from "./lib/nodes/flow-node.tsx";
+import { FlowTransitionEdge } from "./lib/edges/flow-tranistion.tsx";
+import { ArrowNode } from "./lib/nodes/arrow-node.tsx";
 import { FolderNode } from "./lib/nodes/folder-node.tsx";
 import {
   getNodePositionInsideParent,
@@ -56,22 +56,25 @@ type NodeActions = {
   };
 };
 
-const getNodeTypeStringName = (type: NodeType) => NodeType[type].toLowerCase();
+const getNodeTypeStringName = <T extends NodeType>(type: T) =>
+  NodeType[type].toLowerCase() as keyof T;
 const getEdgeTypeStringName = (type: EdgeType) => EdgeType[type].toLowerCase();
 
-// TODO: use enum instead of string
+// TODO: use enum instead of string if not possible solve if more dynamically
 const nodeTypes = {
   [getNodeTypeStringName(NodeType.Stock)]: BaseNode,
   [getNodeTypeStringName(NodeType.Variable)]: BaseNode,
   [getNodeTypeStringName(NodeType.State)]: BaseNode,
-  [getNodeTypeStringName(NodeType.Flow)]: FlowNode,
+  [getNodeTypeStringName(NodeType.Flow)]: ArrowNode,
+  [getNodeTypeStringName(NodeType.Transition)]: ArrowNode,
   [getNodeTypeStringName(NodeType.Folder)]: FolderNode,
   [getNodeTypeStringName(NodeType.Agent)]: FolderNode,
-};
+} as const;
 
 const edgesTypes = {
   [getEdgeTypeStringName(EdgeType.Link)]: SmoothStepEdge,
-  [getEdgeTypeStringName(EdgeType.Flow)]: FlowEdge,
+  [getEdgeTypeStringName(EdgeType.Flow)]: FlowTransitionEdge,
+  [getEdgeTypeStringName(EdgeType.Transition)]: FlowTransitionEdge,
 };
 
 function Flow({
@@ -153,16 +156,28 @@ function Flow({
   const getTmpEdgeId = (params: Connection) =>
     `tmp_source-${params.source}_target-${params.target}`;
 
+  const getEdgeTypeByConnection = useCallback((connection: Connection) => {
+    if (
+      connection.sourceHandle.startsWith("flow-") ||
+      connection.targetHandle.startsWith("flow-")
+    ) {
+      return EdgeType.Flow;
+    }
+    if (
+      connection.targetHandle.startsWith("transition-") ||
+      connection.sourceHandle.startsWith("transition-")
+    ) {
+      return EdgeType.Transition;
+    }
+    return EdgeType.Link;
+  }, []);
+
   const onConnect = useCallback(
     async (params: Connection) => {
       const tmpEdgeId = getTmpEdgeId(params);
       const markerEnd = { type: MarkerType.Arrow };
 
-      const type =
-        params.sourceHandle.startsWith("flow-") ||
-        params.targetHandle.startsWith("flow-")
-          ? EdgeType.Flow
-          : EdgeType.Link;
+      const type = getEdgeTypeByConnection(params);
 
       const tmpEdge: Edge = {
         type: getEdgeTypeStringName(type),

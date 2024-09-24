@@ -12,7 +12,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 
-export function FlowEdge({
+export function FlowTransitionEdge({
   id,
   sourceX,
   sourceY,
@@ -20,9 +20,9 @@ export function FlowEdge({
   targetY,
   sourcePosition,
   targetPosition,
-  style = { stroke: "#a3c4ff", strokeWidth: "3px" },
   markerEnd,
-}: EdgeProps) {
+  type,
+}: EdgeProps & { type: string }) {
   const [edgePath] = getSmoothStepPath({
     sourceX,
     sourceY,
@@ -31,6 +31,11 @@ export function FlowEdge({
     targetY,
     targetPosition,
   });
+
+  const style =
+    type === "flow"
+      ? { stroke: "#a3c4ff", strokeWidth: "3px" }
+      : { stroke: "#111111", strokeWidth: "3px" };
 
   return (
     <>
