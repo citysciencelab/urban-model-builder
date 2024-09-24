@@ -9,7 +9,7 @@
 $node-color-map: (
   "flow": #a3c4ff,
   "stock": cadetblue,
-  "variable": coral,
+  "variable": coral
 );
 
 body {
@@ -26,6 +26,7 @@ main {
 
 .main-content {
   margin-top: get-spacer(3);
+  display: grid;
 }
 
 .react-wrapper {
@@ -230,5 +231,16 @@ main {
   &:hover {
     color: $primary;
     background-color: $white;
+  }
+}
+
+.card--login {
+  @include make-col(6);
+  align-self: center;
+  justify-self: center;
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: get-spacer(3);
   }
 }

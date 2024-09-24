@@ -9,6 +9,8 @@ declare const config: {
   locationType: 'history' | 'hash' | 'none';
   rootURL: string;
   APP: Record<string, unknown>;
+  'ember-simple-auth-oidc': Record<string, unknown>;
+  'ember-simple-auth': Record<string, unknown>;
 };
 
 export default config;

@@ -13,4 +13,5 @@ Router.map(function () {
       this.route('show', { path: '/:id' });
     });
   });
+  this.route('login');
 });
