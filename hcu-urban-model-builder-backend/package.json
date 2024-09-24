@@ -36,8 +36,8 @@
   ],
   "main": "lib/client",
   "scripts": {
-    "dev": "nodemon --watch \"src/**\" --ext \"ts\"  -x node --import ./ts-node.register.mjs src/index.ts",
-    "debug": "nodemon --watch \"src/**\" --ext \"ts\"  -x node --inspect --import ./ts-node.register.mjs src/index.ts",
+    "dev": "nodemon --watch \"src/**\" --ext \"ts\"  -x node --enable-source-maps  --import ./ts-node.register.mjs src/index.ts",
+    "debug": "nodemon --watch \"src/**\" --ext \"ts\"  -x node --inspect --enable-source-maps --import ./ts-node.register.mjs src/index.ts",
     "compile": "shx rm -rf lib/ && tsc",
     "start": "node lib/",
     "prettier": "npx prettier \"**/*.ts\" --write",

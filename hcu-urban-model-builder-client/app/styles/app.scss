@@ -9,7 +9,7 @@
 $node-color-map: (
   "flow": #a3c4ff,
   "stock": cadetblue,
-  "variable": coral,
+  "variable": coral
 );
 
 body {
@@ -231,4 +231,14 @@ main {
     color: $primary;
     background-color: $white;
   }
+}
+
+#navbar-secondary {
+  display: flex;
+  align-items: center;
+  gap: get-spacer(4);
+}
+
+a.dropdown-toggle {
+  text-decoration: none;
 }

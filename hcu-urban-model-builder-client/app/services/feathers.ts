@@ -112,8 +112,7 @@ export default class FeathersService extends Service {
   getModelNameByServiceName(serviceName: string) {
     return serviceName.split('/').reduce((accumulator, currentValue, index) => {
       const separator = index === 0 ? '' : '/';
-      const camelized = camelize(currentValue);
-      return `${accumulator}${separator}${singularize(camelized)}`;
+      return `${accumulator}${separator}${singularize(currentValue)}`;
     }, '') as DataModelsNames;
   }
 }

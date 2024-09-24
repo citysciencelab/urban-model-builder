@@ -83,5 +83,16 @@ export const modelsSimulateSchema = Type.Object(
   { $id: 'ModelsSimulate', additionalProperties: false }
 )
 export type ModelsSimulate = Static<typeof modelsSimulateSchema>
-export const modelsSimulateValidator = getValidator(modelsSimulateSchema, queryValidator)
+export const modelsSimulateValidator = getValidator(modelsSimulateSchema, dataValidator)
 export const modelsSimulateResolver = resolve<ModelsSimulate, HookContext<ModelsService>>({})
+
+// Schema for custom method: newDraft
+export const modelsNewDraftSchema = Type.Object(
+  {
+    id: Type.Number()
+  },
+  { $id: 'ModelsNewDraft', additionalProperties: false }
+)
+export type ModelsNewDraft = Static<typeof modelsNewDraftSchema>
+export const modelsNewDraftSimulateValidator = getValidator(modelsNewDraftSchema, dataValidator)
+export const modelsNewDraftSimulateResolver = resolve<ModelsNewDraft, HookContext<ModelsService>>({})

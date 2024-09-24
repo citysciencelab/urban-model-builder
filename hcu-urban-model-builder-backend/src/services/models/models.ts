@@ -12,7 +12,9 @@ import {
   modelsPatchResolver,
   modelsQueryResolver,
   modelsSimulateValidator,
-  modelsSimulateResolver
+  modelsSimulateResolver,
+  modelsNewDraftSimulateValidator,
+  modelsNewDraftSimulateResolver
 } from './models.schema.js'
 
 import type { Application } from '../../declarations.js'
@@ -24,6 +26,8 @@ import { setCreatedBy } from '../../hooks/set-created-by.js'
 import { filterCreatedBy } from '../../hooks/filter-created-by.js'
 import { ensureCreatedBy } from '../../hooks/ensure-created-by.js'
 import { iff, isProvider } from 'feathers-hooks-common'
+import { initModelDefaults } from './hooks/init-model-defaults.js'
+import { initModelVersion } from './hooks/init-model-version.js'
 
 export * from './models.class.js'
 export * from './models.schema.js'
@@ -54,7 +58,8 @@ export const models = (app: Application) => {
         schemaHooks.validateData(modelsDataValidator),
         schemaHooks.resolveData(modelsDataResolver),
         customSoftDelete(),
-        setCreatedBy
+        setCreatedBy,
+        initModelDefaults
       ],
       patch: [
         schemaHooks.validateData(modelsPatchValidator),
@@ -66,10 +71,15 @@ export const models = (app: Application) => {
       simulate: [
         schemaHooks.validateData(modelsSimulateValidator),
         schemaHooks.resolveData(modelsSimulateResolver)
+      ],
+      newDraft: [
+        schemaHooks.validateData(modelsNewDraftSimulateValidator),
+        schemaHooks.resolveData(modelsNewDraftSimulateResolver)
       ]
     },
     after: {
-      all: []
+      all: [],
+      create: [initModelVersion]
     },
     error: {
       all: []

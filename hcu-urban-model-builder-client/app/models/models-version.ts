@@ -7,6 +7,7 @@ import Model, {
 import type Edge from './edge';
 import type Node from './node';
 import { Type } from '@warp-drive/core-types/symbols';
+import type ModelModel from './model';
 
 export default class ModelsVersion extends Model {
   declare [Type]: 'models-version';
@@ -14,10 +15,10 @@ export default class ModelsVersion extends Model {
   @attr('string') declare internalName: string;
   @attr('number') declare minorVersion: number;
   @attr('number') declare majorVersion: number;
-
+  @attr('number') declare draftVersion: number;
 
   @belongsTo('model', { async: true, inverse: 'latestDraftVersion' })
-  declare model: number;
+  declare model: ModelModel;
 
   @hasMany('nodes', { async: true, inverse: 'modelsVersions' })
   declare nodes: AsyncHasMany<Node[]>;

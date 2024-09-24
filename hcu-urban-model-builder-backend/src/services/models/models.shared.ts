@@ -15,7 +15,10 @@ export const modelsMethods: Array<keyof ModelsService> = [
   'create',
   'patch',
   'remove',
-  'simulate'
+  'simulate',
+  'newDraft',
+  'newMinor',
+  'newMajor'
 ]
 
 export const modelsClient = (client: ClientApplication) => {

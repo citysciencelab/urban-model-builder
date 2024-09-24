@@ -17,6 +17,7 @@ import {
 import type { Application } from '../../declarations.js'
 import { ModelsVersionsService, getOptions } from './models-versions.class.js'
 import { modelsVersionsPath, modelsVersionsMethods } from './models-versions.shared.js'
+import { setCreatedBy } from '../../hooks/set-created-by.js'
 
 export * from './models-versions.class.js'
 export * from './models-versions.schema.js'
@@ -48,7 +49,8 @@ export const modelsVersions = (app: Application) => {
       get: [],
       create: [
         schemaHooks.validateData(modelsVersionsDataValidator),
-        schemaHooks.resolveData(modelsVersionsDataResolver)
+        schemaHooks.resolveData(modelsVersionsDataResolver),
+        setCreatedBy
       ],
       patch: [
         schemaHooks.validateData(modelsVersionsPatchValidator),

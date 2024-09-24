@@ -18,15 +18,15 @@ export const modelsVersionsSchema = Type.Object(
     majorVersion: Type.Number(),
     minorVersion: Type.Number(),
     draftVersion: Type.Number(),
-    notes: Type.String(),
-    timeUnits: Type.Optional(Literals('Seconds', 'Minutes', 'Hours', 'Days', 'Weeks', 'Months', 'Years')),
-    timeStart: Type.Optional(Type.Number()),
-    timeLength: Type.Optional(Type.Number()),
-    timeStep: Type.Optional(Type.Number()),
-    algorithm: Type.Optional(Literals<AlgorithmType>('Euler', 'RK4')),
-    globals: Type.Optional(Type.String()),
-    createdBy: Type.Optional(Type.Number()),
-    publishedBy: Type.Optional(Type.Number()),
+    notes: Nullable(Type.String()),
+    timeUnits: Nullable(Literals('Seconds', 'Minutes', 'Hours', 'Days', 'Weeks', 'Months', 'Years')),
+    timeStart: Nullable(Type.Number()),
+    timeLength: Nullable(Type.Number()),
+    timeStep: Nullable(Type.Number()),
+    algorithm: Nullable(Literals<AlgorithmType>('Euler', 'RK4')),
+    globals: Nullable(Type.String()),
+    createdBy: Nullable(Type.Number()),
+    publishedBy: Nullable(Type.Number()),
     publishedAt: Type.String({ format: 'date-time' }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' }),
@@ -43,7 +43,19 @@ export const modelsVersionsExternalResolver = resolve<ModelsVersions, HookContex
 // Schema for creating new entries
 export const modelsVersionsDataSchema = Type.Pick(
   modelsVersionsSchema,
-  ['notes', 'timeUnits', 'timeStart', 'timeLength', 'algorithm', 'globals'],
+  [
+    'modelId',
+    'parentId',
+    'majorVersion',
+    'minorVersion',
+    'draftVersion',
+    'notes',
+    'timeUnits',
+    'timeStart',
+    'timeLength',
+    'algorithm',
+    'globals'
+  ],
   {
     $id: 'ModelsVersionsData'
   }

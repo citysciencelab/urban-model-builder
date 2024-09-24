@@ -6,13 +6,20 @@ export default class ModelModel extends Model {
 
   @attr('string') declare internalName: string;
 
-  @attr('number') declare currentMajorVersion: number;
-  @attr('number') declare currentMinorVersion: number;
-  @attr('number') declare currentDraftVersion: number;
+  @attr('number', { readOnly: true })
+  declare currentMajorVersion: number;
+  @attr('number', { readOnly: true })
+  declare currentMinorVersion: number;
+  @attr('number', { readOnly: true })
+  declare currentDraftVersion: number;
 
-  @belongsTo('modelsVersion', { async: true, inverse: 'model' })
+  @belongsTo('modelsVersion', {
+    async: true,
+    readOnly: true,
+    inverse: 'model',
+  })
   declare latestDraftVersion: number;
 
-  @attr('date') declare createdAt: Date;
-  @attr('date') declare updatedAt: Date;
+  @attr('date', { readOnly: true }) declare createdAt: Date;
+  @attr('date', { readOnly: true }) declare updatedAt: Date;
 }

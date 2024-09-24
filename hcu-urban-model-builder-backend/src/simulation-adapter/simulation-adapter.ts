@@ -42,11 +42,11 @@ export class SimulationAdapter {
     const modelInDB = await this.app.service('models-versions').get(this.modelVersionId)
 
     const model = new Model({
-      timeUnits: modelInDB.timeUnits,
-      timeStart: modelInDB.timeStart,
+      timeUnits: modelInDB.timeUnits || undefined,
+      timeStart: modelInDB.timeStart || undefined,
       timeStep: modelInDB.timeStep || 1,
-      timeLength: modelInDB.timeLength,
-      algorithm: modelInDB.algorithm
+      timeLength: modelInDB.timeLength || undefined,
+      algorithm: modelInDB.algorithm || undefined
     })
 
     model.globals = modelInDB.globals || ''

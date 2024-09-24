@@ -17,6 +17,10 @@
     &:hover {
       opacity: 1;
     }
+
+    &.dropdown-item {
+      color: $dark;
+    }
   }
 }
 

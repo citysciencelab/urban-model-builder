@@ -7,6 +7,7 @@
 </BreadcrumbsItem>
 
 {{#in-element this.navbar}}
+  {{! Button: Simulate }}
   <BsButton
     @type="primary"
     @size="sm"
@@ -14,6 +15,40 @@
   >
     Simulate
   </BsButton>
+  {{! Dropdown: More Actions }}
+  <BsDropdown @tagName="span" as |dd|>
+    <dd.toggle>
+      <FaIcon @icon="ellipsis-v" />
+    </dd.toggle>
+    <dd.menu @align="right" as |menu|>
+      {{! Action: New Draft }}
+      <menu.item>
+        <a
+          href="javascript:void(0)"
+          class="dropdown-item"
+          {{on "click" this.onCreateNewDraftVersion}}
+        >
+          <FaIcon @icon="pencil" @fixedWidth={{true}} />
+          New Draft
+        </a>
+      </menu.item>
+      <menu.divider />
+      {{! Action: Publish -> Dialog }}
+      <menu.item>
+        <a
+          href="javascript:void(0)"
+          class="dropdown-item"
+          {{on "click" this.onStartPublish}}
+        >
+          <FaIcon @icon="upload" @fixedWidth={{true}} />
+          Publish
+        </a>
+      </menu.item>
+    </dd.menu>
+  </BsDropdown>
+  {{! Button: Create Draft Version }}
+  {{! Button: Publish Minor Change }}
+  {{! Button: Publish Major Change }}
 {{/in-element}}
 
 <ReactWrapper @model={{this.model}} />

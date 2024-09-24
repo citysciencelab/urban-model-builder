@@ -65,6 +65,10 @@ export default class ApplicationSerializer extends JSONSerializer {
   ) {
     const name = relationship.name;
 
+    if (relationship.options.readOnly) {
+      return;
+    }
+
     if ((this as any)._canSerialize(name)) {
       const belongsToId = snapshot.belongsTo(name, { id: true });
 
@@ -87,6 +91,22 @@ export default class ApplicationSerializer extends JSONSerializer {
         (this as any).serializePolymorphicType(snapshot, json, relationship);
       }
     }
+  }
+
+  // serialize(snapshot: Snapshot, options: any) {
+  //   debugger
+  // }
+
+  serializeAttribute(
+    snapshot: Snapshot,
+    json: Record<string, any>,
+    key: string,
+    attribute: any,
+  ) {
+    if (attribute.options.readOnly) {
+      return;
+    }
+    super.serializeAttribute(snapshot, json, key, attribute);
   }
 
   normalize(

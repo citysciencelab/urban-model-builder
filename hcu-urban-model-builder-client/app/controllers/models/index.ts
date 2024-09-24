@@ -73,7 +73,7 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
   @action startCreating() {
     this.mode = 'create';
     const modelModel = this.store.createRecord('model', {
-      name: '',
+      internalName: '',
     }) as ModelModel;
 
     this.changeset = Changeset(
