@@ -175,8 +175,8 @@ function Flow({
 
       const newEdge = await nodeActions.create("edge", {
         type: type,
-        source: params.source,
-        target: params.target,
+        sourceId: params.source,
+        targetId: params.target,
         sourceHandle: params.sourceHandle,
         targetHandle: params.targetHandle,
       });
@@ -199,9 +199,9 @@ function Flow({
         reconnectEdge(oldEdge, newConnection, els, { shouldReplaceId: false }),
       );
 
-      nodeActions.save("edge", oldEdge.id, {
-        source: newConnection.source,
-        target: newConnection.target,
+      await nodeActions.save("edge", oldEdge.id, {
+        sourceId: newConnection.source,
+        targetId: newConnection.target,
         sourceHandle: newConnection.sourceHandle,
         targetHandle: newConnection.targetHandle,
       });
