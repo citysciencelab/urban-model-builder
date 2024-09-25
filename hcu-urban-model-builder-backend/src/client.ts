@@ -53,3 +53,5 @@ export const createClient = <Configuration = any>(
   client.configure(userClient)
   return client
 }
+
+export { SimulationAdapter } from './shared/simulation-adapter/simulation-adapter.js'

@@ -1,26 +1,31 @@
 import { Model } from 'simulation'
-import { Application } from '../declarations.js'
-import { Nodes, NodeType } from '../services/nodes/nodes.shared.js'
+import { NodeType } from '../../services/nodes/nodes.shared.js'
 import { Agent, Container, Flow, Population, Primitive, State, Stock, Transition } from 'simulation/blocks'
-import { Edges, EdgeType } from '../services/edges/edges.shared.js'
+import { Edges, EdgeType } from '../../services/edges/edges.shared.js'
 import { primitiveFactory } from './primitive-factory.js'
-import { logger } from '../logger.js'
 import { Results } from 'simulation/Results'
+import { Logger } from 'winston'
+import { ClientApplication } from '../../client.js'
+import { Application } from '../../declarations.js'
 
 type PopulationNodeResult = {
   location: [number, number]
   state: number[]
 }[][]
 
-export class SimulationAdapter {
+export class SimulationAdapter<T extends ClientApplication | Application> {
+  private app: ClientApplication
   private nodeIdPrimitiveMap = new Map<number, Primitive>()
   private primitiveIdNodeIdMap: Map<string, number> = new Map()
   private primitiveIdTypeMap = new Map<string, NodeType>()
 
   constructor(
-    private app: Application,
-    private modelId: number
-  ) {}
+    app: T,
+    private modelId: number,
+    private logger: Logger | typeof console = console
+  ) {
+    this.app = app as ClientApplication
+  }
 
   public async simulate() {
     const model = await this.createSimulationModel()
@@ -157,7 +162,7 @@ export class SimulationAdapter {
           series
         }
       } else {
-        logger.debug('No result for primitive with id:', primitive.id)
+        this.logger.debug('No result for primitive with id:', primitive.id)
       }
     }
 

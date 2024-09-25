@@ -2,19 +2,15 @@
 import type { Params } from '@feathersjs/feathers'
 import { KnexService } from '@feathersjs/knex'
 import type { KnexAdapterParams, KnexAdapterOptions } from '@feathersjs/knex'
-import { Model } from 'simulation'
-import { plot } from 'simulation-viz-console'
-import type { Action, Primitive, State, Stock, Transition, Population } from 'simulation/blocks'
 
 import type { Application } from '../../declarations.js'
 import type { Models, ModelsData, ModelsPatch, ModelsQuery, ModelsSimulate } from './models.schema.js'
-import { Nodes, NodeType } from '../nodes/nodes.shared.js'
-import { EdgeType } from '../edges/edges.shared.js'
-import { SimulationAdapter } from '../../simulation-adapter/simulation-adapter.js'
+import { SimulationAdapter } from '../../shared/simulation-adapter/simulation-adapter.js'
+import { logger } from '../../logger.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
-export interface ModelsParams extends KnexAdapterParams<ModelsQuery> {}
+export interface ModelsParams extends KnexAdapterParams<ModelsQuery> { }
 
 export interface ModelsServiceOptions extends KnexAdapterOptions {
   app: Application
@@ -34,7 +30,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async simulate(data: ModelsSimulate, params?: ServiceParams) {
-    return new SimulationAdapter(this.app, data.id).simulate()
+    return new SimulationAdapter(this.app, data.id, logger).simulate()
   }
 }
 

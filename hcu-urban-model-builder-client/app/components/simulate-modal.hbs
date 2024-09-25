@@ -2,18 +2,29 @@
   @open={{@show}}
   @onShow={{this.onShow}}
   @onHide={{@onHide}}
-  @size="lg"
-  as |modal|
+  @size="lg" as |modal|
 >
   <modal.header>
     <h4 class="modal-title">
       Simulation Results for
-      <b>{{@model.name}}</b>
+      <b>
+        {{@model.name}}
+      </b>
     </h4>
   </modal.header>
   <modal.body>
+    <BsForm as |form|>
+      <form.element
+        @controlType="switch"
+        @label="Is Client Side Calculation"
+        @value={{this.isClientSideCalculation}}
+        @onChange={{this.toggleClientSideCalculation}}
+      />
+    </BsForm>
     {{#if this.simulateResult.isPending}}
-      <BsSpinner>Loading...</BsSpinner>
+      <BsSpinner>
+        Loading...
+      </BsSpinner>
     {{else if this.simulateResult.isResolved}}
       <div
         class="simulate-model__chart-container"

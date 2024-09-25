@@ -8,7 +8,7 @@ import { TrackedAsyncData } from 'ember-async-data';
 import * as echarts from 'echarts';
 import type Store from '@ember-data/store';
 import type Node from 'hcu-urban-model-builder-client/models/node';
-import { NodeType } from 'hcu-urban-model-builder-backend';
+import { NodeType, SimulationAdapter } from 'hcu-urban-model-builder-backend';
 import type { ModelsService } from 'hcu-urban-model-builder-backend/lib/services/models/models.class';
 
 export interface SimulateModalSignature {
@@ -30,17 +30,38 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @service declare feathers: FeathersService;
   @service declare store: Store;
 
+  @tracked isClientSideCalculation = true;
+
   @tracked simulateResult?: TrackedAsyncData<
     Awaited<ReturnType<ModelsService['simulate']>>
   >;
 
   @action
   async onShow() {
-    this.simulateResult = new TrackedAsyncData(
-      this.feathers.app
-        .service('models')
-        .simulate({ id: Number(this.args.model.id!) }),
-    );
+    this.simulate();
+  }
+
+  @action
+  toggleClientSideCalculation(value: boolean) {
+    this.isClientSideCalculation = value;
+    this.simulate();
+  }
+
+  @action simulate() {
+    if (this.isClientSideCalculation) {
+      this.simulateResult = new TrackedAsyncData(
+        new SimulationAdapter(
+          this.feathers.app,
+          Number(this.args.model.id),
+        ).simulate(),
+      );
+    } else {
+      this.simulateResult = new TrackedAsyncData(
+        this.feathers.app
+          .service('models')
+          .simulate({ id: Number(this.args.model.id!) }),
+      );
+    }
   }
 
   @action
