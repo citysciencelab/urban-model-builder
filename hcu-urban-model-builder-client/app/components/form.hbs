@@ -15,7 +15,7 @@
         />
 
         {{#if this.nodeFormFieldsComponent}}
-          <this.nodeFormFieldsComponent @form={{form}} />
+          <this.nodeFormFieldsComponent @form={{form}} @node={{@record}} />
         {{/if}}
 
         <form.submitButton>

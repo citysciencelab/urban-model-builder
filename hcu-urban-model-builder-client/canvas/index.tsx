@@ -69,6 +69,7 @@ const nodeTypes = {
   [getNodeTypeStringName(NodeType.Transition)]: ArrowNode,
   [getNodeTypeStringName(NodeType.Folder)]: FolderNode,
   [getNodeTypeStringName(NodeType.Agent)]: FolderNode,
+  [getNodeTypeStringName(NodeType.Population)]: BaseNode,
 } as const;
 
 const edgesTypes = {
