@@ -5,6 +5,7 @@
 @import "./custom-functions";
 @import "./header";
 @import "./breadcrumbs";
+@import "ember-basic-dropdown";
 
 $node-color-map: (
   "flow": #a3c4ff,
@@ -241,4 +242,8 @@ main {
 
 a.dropdown-toggle {
   text-decoration: none;
+}
+
+.list-group-meta .dropdown {
+  display: inline-block;
 }

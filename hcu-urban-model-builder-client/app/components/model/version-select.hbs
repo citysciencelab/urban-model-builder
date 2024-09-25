@@ -1,0 +1,25 @@
+{{#if @model.hasVersion}}
+  <BsDropdown @tagName="span" as |dd|>
+    <dd.toggle>
+      {{#if @currentVersion}}
+        {{@currentVersion.versionString}}
+      {{else}}
+        {{@model.versionString}}
+      {{/if}}
+    </dd.toggle>
+    <dd.menu as |menu|>
+      {{#each @model.modelsVersions as |modelVersion|}}
+        <menu.item>
+          <menu.linkTo
+            @route="models.versions.show"
+            @models={{array @model.id modelVersion}}
+          >
+            {{modelVersion.versionString}}
+          </menu.linkTo>
+        </menu.item>
+      {{/each}}
+    </dd.menu>
+  </BsDropdown>
+{{else}}
+  {{@model.versionString}}
+{{/if}}

@@ -122,12 +122,13 @@
               >
                 {{model.internalName}}
               </LinkTo>
+              {{! Meta }}
               <div class="list-group-meta">
+                {{! Meta: Version }}
                 <span>
-                  v{{model.currentMajorVersion}}.{{
-                    model.currentMinorVersion
-                  }}.{{model.currentDraftVersion}}
+                  <Model::VersionSelect @model={{model}} />
                 </span>
+                {{! Meta: Updated at }}
                 <span
                   title={{
                     format-date
@@ -138,6 +139,7 @@
                 >
                   {{t "general.modified_at"}} {{format-date model.updatedAt}}
                 </span>
+                {{! Meta: Created at }}
                 <span
                   title={{
                     format-date

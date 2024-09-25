@@ -1,9 +1,10 @@
 {{page-title "Show"}}
 
 <BreadcrumbsItem>
-  v{{this.model.majorVersion}}.{{this.model.minorVersion}}.{{
-    this.model.draftVersion
-  }}
+  <Model::VersionSelect
+    @model={{this.model.model}}
+    @currentVersion={{this.model}}
+  />
 </BreadcrumbsItem>
 
 {{#in-element this.navbar}}

@@ -1,6 +1,9 @@
 {{#if this.canInsert}}
-  <div class="react-wrapper" {{did-insert this.didInsert}}>
-  </div>
+  <div
+    class="react-wrapper"
+    {{did-insert this.didInsert}}
+    {{did-update this.didInsert @model}}
+  ></div>
 {{/if}}
 
 {{#if this.emberReactConnector.sidebarElement}}

@@ -75,12 +75,14 @@ export const modelsVersionsPatchResolver = resolve<ModelsVersions, HookContext<M
 // Schema for allowed query properties
 export const modelsVersionsQueryProperties = Type.Pick(modelsVersionsSchema, [
   'id',
+  'modelId',
   'notes',
   'timeUnits',
   'timeStart',
   'timeLength',
   'algorithm',
-  'globals'
+  'globals',
+  'createdAt'
 ])
 export const modelsVersionsQuerySchema = Type.Intersect(
   [

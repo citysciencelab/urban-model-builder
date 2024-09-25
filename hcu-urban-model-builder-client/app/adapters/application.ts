@@ -6,6 +6,7 @@ import type { ModelSchema } from '@ember-data/store/-types/q/ds-model';
 import { service } from '@ember/service';
 import type { Params } from '@feathersjs/feathers';
 import type { LegacyHasManyField } from '@warp-drive/core-types/schema/fields';
+import type { AdapterHasManyQuery } from 'global';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
 
 export default class ApplicationAdapter extends Adapter {
@@ -80,14 +81,24 @@ export default class ApplicationAdapter extends Adapter {
     _store: Store,
     _snapshot: Snapshot,
     _url: string,
-    type: LegacyHasManyField,
+    type: LegacyHasManyField & {
+      options: { sortField?: string; sortDirection?: 1 | -1 };
+    },
   ) {
+    const query: AdapterHasManyQuery = {
+      [`${type.options.inverse}Id`]: _snapshot.id!,
+    };
+
+    if (type.options.sortField) {
+      const sortDirection = type.options.sortDirection || 1;
+      query.$sort = {
+        [type.options.sortField]: sortDirection,
+      };
+    }
     return this.feathers.app
       .service(this.feathers.getServiceNameByModelName(type.type))
       .find({
-        query: {
-          [`${type.options.inverse}Id`]: _snapshot.id,
-        },
+        query,
       });
   }
 }

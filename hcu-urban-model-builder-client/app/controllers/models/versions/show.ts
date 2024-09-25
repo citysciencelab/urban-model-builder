@@ -22,12 +22,15 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
       .service('models')
       .newDraft({ id: Number(currentModel.id) });
 
-    await this.router.transitionTo(
-      'models.versions.show',
+    const newDraftModelVersionModel = this.feathers.pushRecordIntoStore(
+      'models-version',
       newDraftModelVersion,
     );
 
-    window.location.reload();
+    await this.router.transitionTo(
+      'models.versions.show',
+      newDraftModelVersionModel,
+    );
   }
 
   @action onStartPublish() {
