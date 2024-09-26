@@ -189,14 +189,23 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     const data = this.simulateResult!.value!;
     const datasets = [];
     for (const [nodeId, value] of Object.entries(data.nodes)) {
-      const node = await this.store.findRecord<Node>('node', nodeId);
+      const populationNode = await this.store.findRecord<Node>('node', nodeId);
 
-      if (node?.type === NodeType.Population) {
+      const allStates = await this.store.query<Node>('node', {
+        parentId: Number(populationNode.data.agentBaseId),
+        type: NodeType.State,
+      });
+
+      if (populationNode?.type === NodeType.Population) {
         const last = value.series[this.time];
         if (Array.isArray(last)) {
-          const populationData: { id: string; value: [number, number] }[] = [];
-          const stateLocationsMap = new Map<Node, typeof populationData>();
-          console.log(last[0]?.location);
+          const populationData: {
+            id: string;
+            value: [number, number] | null;
+          }[] = [];
+          const stateLocationsMap = new Map<Node, typeof populationData>(
+            allStates.map((s) => [s, []]),
+          );
 
           for (const stateLocation of last) {
             const location = {
@@ -205,27 +214,26 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
             };
 
             populationData.push(location);
-            for (const stateId of stateLocation.state) {
-              const node = this.store.peekRecord<Node>('node', stateId);
-
-              if (node) {
-                if (!stateLocationsMap.has(node)) {
-                  stateLocationsMap.set(node, [location]);
-                }
-                stateLocationsMap.get(node)!.push(location);
+            for (const states of allStates) {
+              if (stateLocation.state.includes(Number(states.id!))) {
+                stateLocationsMap.get(states)!.push(location);
+              } else {
+                stateLocationsMap
+                  .get(states)!
+                  .push({ id: stateLocation.id, value: null });
               }
             }
           }
 
           datasets.push({
             type: 'scatter',
-            label: node.name,
+            label: populationNode.name,
             data: populationData,
           });
-          for (const [node, locations] of stateLocationsMap.entries()) {
+          for (const [stateNodes, locations] of stateLocationsMap.entries()) {
             datasets.push({
               type: 'scatter',
-              label: node.name,
+              label: stateNodes.name,
               data: locations,
             });
           }
