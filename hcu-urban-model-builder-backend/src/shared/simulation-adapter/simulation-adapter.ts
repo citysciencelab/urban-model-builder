@@ -9,6 +9,7 @@ import { ClientApplication } from '../../client.js'
 import { Application } from '../../declarations.js'
 
 type PopulationNodeResult = {
+  id: string
   location: [number, number]
   state: number[]
 }[][]
@@ -149,10 +150,13 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
         let series: number[] | PopulationNodeResult = []
         if (NodeType.Population === this.primitiveIdTypeMap.get(primitive.id)) {
           series = primitiveResult.map((value: any) =>
-            value.current.map((item: { state: { id: string }[]; location: { items: [number, number] } }) => ({
-              location: item.location.items,
-              state: item.state.map((s: { id: string }) => this.primitiveIdNodeIdMap.get(s.id))
-            }))
+            value.current.map(
+              (item: { id: string; state: { id: string }[]; location: { items: [number, number] } }) => ({
+                id: item.id,
+                location: item.location.items,
+                state: item.state.map((s: { id: string }) => this.primitiveIdNodeIdMap.get(s.id))
+              })
+            )
           )
         } else {
           series = primitiveResult
