@@ -1,0 +1,22 @@
+<@form.element
+  @controlType="textarea"
+  @label="Action"
+  @property="data.action"
+/>
+
+<@form.element
+  @controlType="radio"
+  @label="Trigger"
+  @property="data.trigger"
+  @options={{this.triggerTypeOptions}}
+/>
+
+<@form.element @controlType="textarea" @label="Value" @property="data.value" />
+
+<@form.element
+  @controlType="switch"
+  @label="Recalculate"
+  @property="data.recalculate"
+/>
+
+<@form.element @controlType="switch" @label="Repeat" @property="data.repeat" />

@@ -70,6 +70,7 @@ const nodeTypes = {
   [getNodeTypeStringName(NodeType.Folder)]: FolderNode,
   [getNodeTypeStringName(NodeType.Agent)]: FolderNode,
   [getNodeTypeStringName(NodeType.Population)]: BaseNode,
+  [getNodeTypeStringName(NodeType.Action)]: BaseNode,
 } as const;
 
 const edgesTypes = {
