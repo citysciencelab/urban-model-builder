@@ -53,6 +53,11 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     [TabName.ScatterPlot]: this.renderScatterPlotChart,
   };
 
+  tabNameToDatasetFunction = {
+    [TabName.TimeSeries]: this.getTimeSeriesDataset,
+    [TabName.ScatterPlot]: this.getScatterPlotDataset,
+  };
+
   @action
   async onShow() {
     this.simulate();
@@ -72,7 +77,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @action
   async switchTab(tabName: TabName) {
     this.activeTab = tabName;
-    this.chart!.clear();
+    this.chart?.clear();
 
     await this.renderChart();
   }
@@ -117,7 +122,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     if (this.chart) {
       console.log('setting time', value);
 
-      const dataset = await this.getScatterPlotDataset();
+      const dataset = await this.tabNameToDatasetFunction[this.activeTab]?.();
       this.chart.setOption({
         series: dataset,
       });
@@ -126,34 +131,18 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   @action
   async renderTimeSeriesChart() {
-    if (!this.simulateResult?.value) {
-      return;
-    }
-    const data = this.simulateResult.value;
-
-    const series = [];
-    for (const [nodeId, value] of Object.entries(data.nodes)) {
-      const node = await this.store.findRecord<Node>('node', nodeId);
-
-      if (node.type !== NodeType.Flow && node.type !== NodeType.Population) {
-        series.push({
-          type: 'line',
-          name: node.name,
-          data: value.series.slice(0, this.time) as number[],
-        });
-      }
-    }
+    const datasets = await this.getTimeSeriesDataset();
 
     this.chart!.setOption({
       legend: {},
       xAxis: {
-        data: data.times,
+        data: this.simulateResult!.value!.times,
       },
       yAxis: {},
       tooltip: {
         trigger: 'axis',
       },
-      series,
+      series: datasets,
     });
   }
 
@@ -172,6 +161,30 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     });
   }
 
+  @action
+  async getTimeSeriesDataset() {
+    if (!this.simulateResult?.value) {
+      return;
+    }
+    const data = this.simulateResult.value;
+
+    const series = [];
+    for (const [nodeId, value] of Object.entries(data.nodes)) {
+      const node = await this.store.findRecord<Node>('node', nodeId);
+
+      if (node.type !== NodeType.Flow && node.type !== NodeType.Population) {
+        series.push({
+          type: 'line',
+          name: node.name,
+          data: value.series.slice(0, this.time) as number[],
+        });
+      }
+    }
+
+    return series;
+  }
+
+  @action
   async getScatterPlotDataset() {
     const data = this.simulateResult!.value!;
     const datasets = [];

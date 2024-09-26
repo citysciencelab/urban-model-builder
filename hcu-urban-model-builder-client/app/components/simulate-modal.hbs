@@ -47,8 +47,10 @@
             @controlType="number"
             @label="Time"
             @value={{this.time}}
-            @onChange={{this.setTime}}
-          />
+            @onChange={{this.setTime}} as |el|
+          >
+            <el.control min={{0}} max={{@model.timeLength}} />
+          </form.element>
         {{/if}}
       {{/if}}
     </BsForm>
