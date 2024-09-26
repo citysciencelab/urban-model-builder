@@ -20,17 +20,37 @@
         @value={{this.isClientSideCalculation}}
         @onChange={{this.toggleClientSideCalculation}}
       />
+      {{#if this.simulateResult.isPending}}
+        <BsSpinner>
+          Loading...
+        </BsSpinner>
+      {{else if this.simulateResult.isResolved}}
+        <BsNav @type="tabs" as |nav|>
+          {{#each this.tabNames as |tabName|}}
+            <nav.item>
+              <a
+                href="javascript:void(0)"
+                class="nav-link {{if (this.isTabActive tabName) "active"}}"
+                {{on "click" (fn this.switchTab tabName)}}
+              >
+                {{titleize tabName}}
+              </a>
+            </nav.item>
+          {{/each}}
+        </BsNav>
+        <canvas
+          class="simulate-model__chart-container"
+          {{did-insert this.didInsertChartContainer}}
+        ></canvas>
+        {{#if this.chart}}
+          <form.element
+            @controlType="number"
+            @label="Time"
+            @value={{this.time}}
+            @onChange={{this.setTime}}
+          />
+        {{/if}}
+      {{/if}}
     </BsForm>
-    {{#if this.simulateResult.isPending}}
-      <BsSpinner>
-        Loading...
-      </BsSpinner>
-    {{else if this.simulateResult.isResolved}}
-      <div
-        class="simulate-model__chart-container"
-        {{did-insert this.didInsertChartContainer}}
-      >
-      </div>
-    {{/if}}
   </modal.body>
 </BsModal>
