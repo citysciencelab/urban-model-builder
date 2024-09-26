@@ -9,8 +9,7 @@ import type Store from '@ember-data/store';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import { NodeType, SimulationAdapter } from 'hcu-urban-model-builder-backend';
 import type { ModelsService } from 'hcu-urban-model-builder-backend/lib/services/models/models.class';
-import Chart from 'chart.js/auto';
-import { assert } from '@ember/debug';
+import * as echarts from 'echarts';
 
 export interface SimulateModalSignature {
   // The arguments accepted by the component
@@ -42,8 +41,8 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   @tracked time = 0;
 
-  @tracked chartContainer?: HTMLCanvasElement;
-  @tracked chart?: Chart;
+  @tracked chartContainer?: HTMLElement;
+  @tracked chart?: echarts.ECharts;
 
   @tracked simulateResult?: TrackedAsyncData<
     Awaited<ReturnType<ModelsService['simulate']>>
@@ -73,7 +72,8 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @action
   async switchTab(tabName: TabName) {
     this.activeTab = tabName;
-    this.chart?.destroy();
+    this.chart!.clear();
+
     await this.renderChart();
   }
 
@@ -97,8 +97,10 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @action
   async didInsertChartContainer(element: any) {
     this.chartContainer = element;
-    this.chart?.destroy();
-
+    this.chart = echarts.init(this.chartContainer, null, {
+      height: 400,
+      width: 'auto',
+    });
     await this.renderChart();
   }
 
@@ -115,8 +117,10 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     if (this.chart) {
       console.log('setting time', value);
 
-      this.chart.data.datasets = await this.getScatterPlotDataset();
-      this.chart.update();
+      const dataset = await this.getScatterPlotDataset();
+      this.chart.setOption({
+        series: dataset,
+      });
     }
   }
 
@@ -127,47 +131,44 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     }
     const data = this.simulateResult.value;
 
-    const datasets = [];
+    const series = [];
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
 
       if (node.type !== NodeType.Flow && node.type !== NodeType.Population) {
-        datasets.push({
-          label: node.name,
+        series.push({
+          type: 'line',
+          name: node.name,
           data: value.series.slice(0, this.time) as number[],
         });
       }
     }
 
-    const chartData = {
-      labels: data.times,
-      datasets: datasets,
-    };
-
-    console.log(datasets);
-
-    this.chart = new Chart(this.chartContainer as any, {
-      type: 'line',
-      data: chartData,
-      options: {
-        responsive: true,
+    this.chart!.setOption({
+      legend: {},
+      xAxis: {
+        data: data.times,
       },
+      yAxis: {},
+      tooltip: {
+        trigger: 'axis',
+      },
+      series,
     });
   }
 
   @action
   async renderScatterPlotChart() {
     const datasets = await this.getScatterPlotDataset();
-    this.chart = new Chart(this.chartContainer as any, {
-      type: 'scatter',
-      data: {
-        datasets,
+
+    this.chart!.setOption({
+      legend: {},
+      xAxis: {},
+      yAxis: {},
+      tooltip: {
+        trigger: 'axis',
       },
-      options: {
-        animation: {
-          duration: 0,
-        },
-      },
+      series: datasets,
     });
   }
 
@@ -180,14 +181,14 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       if (node?.type === NodeType.Population) {
         const last = value.series[this.time];
         if (Array.isArray(last)) {
-          const populationData: { x: number; y: number }[] = [];
-          const stateLocationsMap = new Map<Node, { x: number; y: number }[]>();
+          const populationData: { id: string; value: [number, number] }[] = [];
+          const stateLocationsMap = new Map<Node, typeof populationData>();
           console.log(last[0]?.location);
 
           for (const stateLocation of last) {
             const location = {
-              x: stateLocation.location[0],
-              y: stateLocation.location[1],
+              id: stateLocation.id,
+              value: stateLocation.location,
             };
 
             populationData.push(location);
@@ -203,16 +204,18 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
             }
           }
 
+          datasets.push({
+            type: 'scatter',
+            label: node.name,
+            data: populationData,
+          });
           for (const [node, locations] of stateLocationsMap.entries()) {
             datasets.push({
+              type: 'scatter',
               label: node.name,
               data: locations,
             });
           }
-          datasets.push({
-            label: node.name,
-            data: populationData,
-          });
         }
       }
     }

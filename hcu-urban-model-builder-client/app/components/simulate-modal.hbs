@@ -38,10 +38,10 @@
             </nav.item>
           {{/each}}
         </BsNav>
-        <canvas
+        <div
           class="simulate-model__chart-container"
           {{did-insert this.didInsertChartContainer}}
-        ></canvas>
+        ></div>
         {{#if this.chart}}
           <form.element
             @controlType="number"
