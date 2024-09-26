@@ -151,10 +151,14 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
         if (NodeType.Population === this.primitiveIdTypeMap.get(primitive.id)) {
           series = primitiveResult.map((value: any) =>
             value.current.map(
-              (item: { instanceId: string; state: { id: string }[]; location: { items: [number, number] } }) => ({
+              (item: {
+                instanceId: string
+                state: { id: string }[]
+                location: { items: [number, number] }
+              }) => ({
                 id: item.instanceId,
                 location: item.location.items,
-                state: item.state.map((s: { id: string }) => this.primitiveIdNodeIdMap.get(s.id))
+                state: item.state?.map((s: { id: string }) => this.primitiveIdNodeIdMap.get(s.id)) || []
               })
             )
           )
