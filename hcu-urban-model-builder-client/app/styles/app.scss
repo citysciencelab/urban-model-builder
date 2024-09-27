@@ -220,6 +220,15 @@ main {
     border-right: none;
   }
 }
+.search-button {
+  display: flex;
+  align-items: center;
+  gap: get-spacer(2);
+}
+
+.search-button.dropdown-toggle::after {
+  margin-left: 0;
+}
 
 .model-search-preview {
   display: inline-block;
@@ -233,8 +242,13 @@ main {
 .model-clear-search {
   color: white;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 21px;
+  height: 21px;
+  border: 1px solid $white;
+  border-radius: 11px;
   &:hover {
     color: $primary;
     background-color: $white;
@@ -279,4 +293,12 @@ a.dropdown-toggle {
   font-family: "Courier New", Courier, monospace;
   font-size: 80%;
   font-weight: bold;
+}
+
+.model-clear-search svg {
+  position: relative;
+}
+
+.dropdown-toggle::after {
+  vertical-align: 0.2em;
 }

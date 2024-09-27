@@ -24,7 +24,7 @@ export const modelsSchema = Type.Object(
     forkedFromVersionId: Nullable(Type.Number()),
     createdBy: Type.Optional(Type.Number()),
     createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' }),
+    updatedAt: Nullable(Type.String({ format: 'date-time' })),
     deletedAt: Nullable(Type.String({ format: 'date-time' }))
   },
   { $id: 'Models', additionalProperties: false }
@@ -38,7 +38,7 @@ export const modelsExternalResolver = resolve<Models, HookContext<ModelsService>
 // Schema for creating new entries
 export const modelsDataSchema = Type.Pick(
   modelsSchema,
-  ['internalName', 'globalUuid', 'forkedFromVersionId', 'createdBy'],
+  ['internalName', 'globalUuid', 'forkedFromVersionId', 'createdBy', 'updatedAt'],
   {
     $id: 'ModelsData'
   }

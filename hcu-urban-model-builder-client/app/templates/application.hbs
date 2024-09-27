@@ -8,7 +8,7 @@
 >
   <div class="navbar-header">
     <navbar.toggle />
-    <LinkTo @route="application" class="navbar-brand">
+    <LinkTo @route="models.index" class="navbar-brand">
       {{t "general.brand"}}
     </LinkTo>
   </div>
@@ -65,9 +65,7 @@
 </BsNavbar>
 
 <BreadcrumbsItem as |linkClass|>
-  <LinkTo @route="application" class={{linkClass}}>
-    {{t "general.home"}}
-  </LinkTo>
+  {{t "general.home"}}
 </BreadcrumbsItem>
 
 <div id="ember-bootstrap-wormhole"></div>

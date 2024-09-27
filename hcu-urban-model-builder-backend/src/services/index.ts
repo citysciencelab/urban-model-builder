@@ -5,6 +5,7 @@ import { edges } from './edges/edges.js'
 import { nodes } from './nodes/nodes.js'
 // For more information about this file see https://dove.feathersjs.com/guides/cli/application.html#configure-functions
 import type { Application } from '../declarations.js'
+import { touchParent } from '../utils/touch-parent.js'
 
 export const services = (app: Application) => {
   app.configure(modelsVersions)
@@ -13,4 +14,10 @@ export const services = (app: Application) => {
   app.configure(edges)
   app.configure(nodes)
   // All services will be registered here
+
+  if (process.env.NODE_ENV !== 'test') {
+    touchParent(app, 'models-versions', 'models', 'modelId')
+    touchParent(app, 'nodes', 'models-versions', 'modelsVersionsId')
+    touchParent(app, 'edges', 'models-versions', 'modelsVersionsId')
+  }
 }

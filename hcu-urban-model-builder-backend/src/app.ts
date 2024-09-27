@@ -12,6 +12,7 @@ import { authentication } from './authentication.js'
 import { services } from './services/index.js'
 import { channels } from './channels.js'
 import { BadRequest, NotImplemented } from '@feathersjs/errors'
+import { discard, iff, isProvider } from 'feathers-hooks-common'
 
 const app: Application = koa(feathers())
 
@@ -53,8 +54,10 @@ app.hooks({
     ],
     patch: [
       (context) => {
-        delete context.data.createdAt
-        delete context.data.updatedAt
+        if (!context.params.isTouch) {
+          delete context.data.createdAt
+          delete context.data.updatedAt
+        }
       }
     ],
     update: [

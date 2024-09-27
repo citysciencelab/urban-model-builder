@@ -16,6 +16,7 @@ import {
 import type { Application } from '../../declarations.js'
 import { EdgesService, getOptions } from './edges.class.js'
 import { edgesPath, edgesMethods } from './edges.shared.js'
+import { touchParent } from '../../utils/touch-parent.js'
 
 export * from './edges.class.js'
 export * from './edges.schema.js'
@@ -29,6 +30,7 @@ export const edges = (app: Application) => {
     // You can add additional custom events to be sent to clients here
     events: []
   })
+
   // Initialize hooks
   app.service(edgesPath).hooks({
     around: {

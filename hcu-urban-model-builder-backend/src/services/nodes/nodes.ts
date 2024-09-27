@@ -16,6 +16,8 @@ import {
 import type { Application } from '../../declarations.js'
 import { NodesService, getOptions } from './nodes.class.js'
 import { nodesPath, nodesMethods } from './nodes.shared.js'
+import { touchParent } from '../../utils/touch-parent.js'
+import { ServiceAddons } from '@feathersjs/feathers'
 
 export * from './nodes.class.js'
 export * from './nodes.schema.js'
@@ -29,6 +31,7 @@ export const nodes = (app: Application) => {
     // You can add additional custom events to be sent to clients here
     events: []
   })
+
   // Initialize hooks
   app.service(nodesPath).hooks({
     around: {

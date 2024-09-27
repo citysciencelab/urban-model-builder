@@ -19,7 +19,7 @@ module.exports = function (environment) {
       // when it is created
     },
     'ember-simple-auth': {
-      routeAfterAuthentication: 'authenticated.index',
+      routeAfterAuthentication: 'models.index',
     },
     'ember-simple-auth-oidc': {
       host: 'http://localhost:8081/realms/hcu-model-builder/protocol/openid-connect',

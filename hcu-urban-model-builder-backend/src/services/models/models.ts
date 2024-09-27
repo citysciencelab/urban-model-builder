@@ -33,6 +33,9 @@ import { ensureCreatedBy } from '../../hooks/ensure-created-by.js'
 import { iff, isProvider } from 'feathers-hooks-common'
 import { initModelDefaults } from './hooks/init-model-defaults.js'
 import { initModelVersion } from './hooks/init-model-version.js'
+import { ServiceAddons } from '@feathersjs/feathers'
+import { EventEmitter } from 'stream'
+import { touchParent } from '../../utils/touch-parent.js'
 
 export * from './models.class.js'
 export * from './models.schema.js'
@@ -46,6 +49,7 @@ export const models = (app: Application) => {
     // You can add additional custom events to be sent to clients here
     events: []
   })
+
   // Initialize hooks
   app.service(modelsPath).hooks({
     around: {

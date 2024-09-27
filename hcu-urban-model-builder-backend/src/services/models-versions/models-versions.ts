@@ -18,6 +18,7 @@ import type { Application } from '../../declarations.js'
 import { ModelsVersionsService, getOptions } from './models-versions.class.js'
 import { modelsVersionsPath, modelsVersionsMethods } from './models-versions.shared.js'
 import { setCreatedBy } from '../../hooks/set-created-by.js'
+import { touchParent } from '../../utils/touch-parent.js'
 
 export * from './models-versions.class.js'
 export * from './models-versions.schema.js'
@@ -31,6 +32,12 @@ export const modelsVersions = (app: Application) => {
     // You can add additional custom events to be sent to clients here
     events: []
   })
+
+  // const service = app.service(modelsVersionsPath)
+  // if (process.env.NODE_ENV !== 'test') {
+  //   touchParent(app, service, 'models', 'modelId')
+  // }
+
   // Initialize hooks
   app.service(modelsVersionsPath).hooks({
     around: {

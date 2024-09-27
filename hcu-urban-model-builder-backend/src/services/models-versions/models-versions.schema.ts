@@ -29,7 +29,7 @@ export const modelsVersionsSchema = Type.Object(
     publishedBy: Nullable(Type.Number()),
     publishedAt: Type.String({ format: 'date-time' }),
     createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' }),
+    updatedAt: Nullable(Type.String({ format: 'date-time' })),
     deletedAt: Nullable(Type.String({ format: 'date-time' }))
   },
   { $id: 'ModelsVersions', additionalProperties: false }
@@ -47,6 +47,7 @@ export const modelsVersionsDataSchema = Type.Pick(
     'modelId',
     'parentId',
     'createdBy',
+    'updatedAt',
     'majorVersion',
     'minorVersion',
     'draftVersion',

@@ -55,6 +55,7 @@
     "@glint/environment-ember-loose": "^1.4.0",
     "@glint/template": "^1.4.0",
     "@tsconfig/ember": "^3.0.8",
+    "@types/luxon": "^3.4.2",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
@@ -127,6 +128,7 @@
     "echarts": "^5.5.1",
     "hcu-urban-model-builder-backend": "file:../hcu-urban-model-builder-backend/public/hcu-urban-model-builder-backend-0.0.0.tgz",
     "hcu-urban-model-builder-react-canvas": "file:canvas",
+    "luxon": "^3.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "socket.io-client": "^4.7.5"
