@@ -46,6 +46,7 @@ export const modelsVersionsDataSchema = Type.Pick(
   [
     'modelId',
     'parentId',
+    'createdBy',
     'majorVersion',
     'minorVersion',
     'draftVersion',

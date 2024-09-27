@@ -7,3 +7,12 @@ export type AdapterHasManyQuery = {
     [key: string]: 1 | -1; // Für sortField und sortDirection: asc = 1, desc = -1
   };
 };
+
+export interface FormModelPublish {
+  notes: string;
+  versionType: string;
+}
+
+export interface FormModelClone {
+  internalName: string;
+}

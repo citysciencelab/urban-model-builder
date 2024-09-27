@@ -17,8 +17,9 @@ export const modelsMethods: Array<keyof ModelsService> = [
   'remove',
   'simulate',
   'newDraft',
-  'newMinor',
-  'newMajor'
+  'publishMinor',
+  'publishMajor',
+  'cloneVersion'
 ]
 
 export const modelsClient = (client: ClientApplication) => {

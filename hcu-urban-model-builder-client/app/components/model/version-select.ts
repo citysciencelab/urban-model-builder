@@ -14,4 +14,4 @@ export interface ModelVersionSelectSignature {
   Element: null;
 }
 
-export default class ModelVersionSelectComponent extends Component<ModelVersionSelectSignature> { }
+export default class ModelVersionSelectComponent extends Component<ModelVersionSelectSignature> {}

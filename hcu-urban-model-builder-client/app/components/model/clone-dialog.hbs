@@ -1,0 +1,36 @@
+<BsModal
+  @open={{@open}}
+  @onSubmit={{this.onSubmit}}
+  @onHide={{this.onHide}}
+  {{did-insert this.prepare}} as |modal|
+>
+  <modal.header>
+    <h5 class="modal-title">
+      Clone Model
+    </h5>
+  </modal.header>
+  <modal.body>
+    <p>
+      This will create a new model based on the current models version.
+    </p>
+    <BsForm
+      @formLayout="vertical"
+      @model={{this.changeset}}
+      @onSubmit={{this.onSubmit}} as |form|
+    >
+      <form.element
+        @controlType="text"
+        @label="Internal Name"
+        @property="internalName"
+      />
+    </BsForm>
+  </modal.body>
+  <modal.footer>
+    <BsButton @onClick={{this.onHide}}>
+      Cancel
+    </BsButton>
+    <BsButton @type="success" @onClick={{this.onSubmit}}>
+      Clone
+    </BsButton>
+  </modal.footer>
+</BsModal>

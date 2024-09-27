@@ -13,5 +13,7 @@ export const filterCreatedBy = async (context: HookContext) => {
 
   const userId = ensureUserId(context)
 
-  _.set(context, 'params.query.createdBy', userId)
+  // _.set(context, 'params.query.createdBy', userId)
+
+  _.set(context, 'params.query.$or', [{ createdBy: userId }, { latestPublishedVersionId: { $ne: null } }])
 }

@@ -9,7 +9,7 @@ export const initModelVersion = async (context: HookContext) => {
       modelId: context.result.id,
       majorVersion: 0,
       minorVersion: 0,
-      draftVersion: 0
+      draftVersion: 1
     },
     { user: context.params.user }
   )

@@ -2,24 +2,22 @@
 import type { Params } from '@feathersjs/feathers'
 import { KnexService } from '@feathersjs/knex'
 import type { KnexAdapterParams, KnexAdapterOptions } from '@feathersjs/knex'
-import { Model } from 'simulation'
-import { plot } from 'simulation-viz-console'
-import type { Action, Primitive, State, Stock, Transition, Population } from 'simulation/blocks'
 
 import type { Application } from '../../declarations.js'
-import type {
-  Models,
-  ModelsData,
-  ModelsNewDraft,
-  ModelsPatch,
-  ModelsQuery,
-  ModelsSimulate
+import {
+  modelsSchema,
+  type Models,
+  type ModelsCloneVersion,
+  type ModelsData,
+  type ModelsNewDraft,
+  type ModelsPatch,
+  type ModelsPublish,
+  type ModelsQuery,
+  type ModelsSimulate
 } from './models.schema.js'
-import { Nodes, NodeType } from '../nodes/nodes.shared.js'
-import { EdgeType } from '../edges/edges.shared.js'
 import { SimulationAdapter } from '../../simulation-adapter/simulation-adapter.js'
 import _ from 'lodash'
-import { ModelsVersionsData, modelsVersionsDataSchema } from '../models-versions/models-versions.schema.js'
+import { ModelsVersions, modelsVersionsDataSchema } from '../models-versions/models-versions.schema.js'
 import { nodesDataSchema } from '../nodes/nodes.schema.js'
 import { edgesDataSchema } from '../edges/edges.schema.js'
 
@@ -49,31 +47,131 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async newDraft(data: ModelsNewDraft, params?: ServiceParams) {
-    // patch the models currentDraftVersion, increment it by 1
-    const currentModel = await this.app.service('models').get(data.id)
+    const modelId = data.id
 
-    const newDraftVersionNumber = currentModel.currentDraftVersion + 1
+    const currentModel = await this.app.service('models').get(modelId)
 
-    if (!currentModel.latestDraftVersionId) {
+    const latestVersion = currentModel.latestPublishedVersionId
+      ? currentModel.latestPublishedVersionId
+      : currentModel.latestDraftVersionId
+
+    if (!latestVersion) {
       throw new Error('No draft version found')
     }
 
-    const currentModelVersion = await this.app
-      .service('models-versions')
-      .get(currentModel.latestDraftVersionId)
+    const currentModelVersion = await this.app.service('models-versions').get(latestVersion)
 
+    const newDraftModelVersion = await this.cloneModelVersion(
+      currentModelVersion,
+      currentModelVersion.id,
+      currentModel.currentMajorVersion,
+      currentModel.currentMinorVersion,
+      currentModel.currentDraftVersion + 1,
+      params
+    )
+
+    return newDraftModelVersion
+  }
+
+  async publishMinor(data: ModelsPublish, params?: ServiceParams) {
+    const currentModel = await this.app.service('models').get(data.id)
+
+    const newMinor = currentModel.currentMinorVersion + 1
+    const newDraft = 0
+
+    await this.app.service('models').patch(data.id, {
+      currentMinorVersion: newMinor,
+      currentDraftVersion: newDraft,
+      latestPublishedVersionId: currentModel.latestDraftVersionId,
+      latestDraftVersionId: null
+    })
+
+    await this.app.service('models-versions').patch(currentModel.latestDraftVersionId!, {
+      notes: data.notes,
+      minorVersion: newMinor,
+      draftVersion: newDraft,
+      publishedAt: new Date().toISOString(),
+      publishedBy: params?.user?.id
+    })
+
+    return {}
+  }
+
+  async publishMajor(data: ModelsPublish, params?: ServiceParams) {
+    const currentModel = await this.app.service('models').get(data.id)
+
+    const newMajor = currentModel.currentMajorVersion + 1
+    const newMinor = 0
+    const newDraft = 0
+
+    await this.app.service('models').patch(data.id, {
+      currentMajorVersion: newMajor,
+      currentMinorVersion: newMinor,
+      currentDraftVersion: newDraft,
+      latestPublishedVersionId: currentModel.latestDraftVersionId
+      // TODO: decide if latestDraftVersionId becomes null
+    })
+
+    await this.app.service('models-versions').patch(currentModel.latestDraftVersionId!, {
+      notes: data.notes,
+      majorVersion: newMajor,
+      minorVersion: newMinor,
+      draftVersion: newDraft,
+      publishedAt: new Date().toISOString(),
+      publishedBy: params?.user?.id
+    })
+
+    return {}
+  }
+
+  async cloneVersion(data: ModelsCloneVersion, params?: ServiceParams) {
+    const modelVersionId = data.id
+
+    const currentModelVersion = await this.app.service('models-versions').get(modelVersionId)
+
+    const modelId = currentModelVersion.modelId
+
+    const currentModel = await this.app.service('models').get(modelId)
+
+    const newModel = await this.app.service('models').create({
+      internalName: data.internalName,
+      // TODO: description is missing (ui -> backend)
+      globalUuid: currentModel.globalUuid,
+      forkedFromVersionId: modelVersionId,
+      createdBy: params?.user?.id
+    })
+
+    currentModelVersion.modelId = newModel.id
+    const newModelVersion = await this.cloneModelVersion(currentModelVersion, null, 0, 0, 1, params)
+
+    return newModelVersion
+  }
+
+  private async cloneModelVersion(
+    currentModelVersion: ModelsVersions,
+    parentId: number | null,
+    major: number,
+    minor: number,
+    draft: number,
+    params: ServiceParams | undefined
+  ) {
     const createObjectData = _.pick(currentModelVersion, Object.keys(modelsVersionsDataSchema.properties))
 
     // TODO: ensure createdBy is set on a hook using params
     const newDraftModelVersion = await this.app.service('models-versions').create({
       ...createObjectData,
-      parentId: currentModelVersion.id,
-      draftVersion: newDraftVersionNumber
+      parentId: parentId,
+      draftVersion: draft,
+      majorVersion: major,
+      minorVersion: minor,
+      createdBy: params?.user?.id
     })
 
-    await this.app.service('models').patch(data.id, {
+    await this.app.service('models').patch(currentModelVersion.modelId, {
       latestDraftVersionId: newDraftModelVersion.id,
-      currentDraftVersion: newDraftVersionNumber
+      currentDraftVersion: draft,
+      currentMinorVersion: minor,
+      currentMajorVersion: major
     })
 
     const nodes = await this.app.service('nodes').find({
@@ -122,9 +220,6 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
 
     return newDraftModelVersion
   }
-
-  async newMinor() {}
-  async newMajor() {}
 }
 
 export const getOptions = (app: Application): ModelsServiceOptions => {

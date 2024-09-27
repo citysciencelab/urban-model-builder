@@ -11,6 +11,9 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
   @service declare feathers: FeathersService;
   @service declare router: RouterService;
 
+  @tracked showPublishModal = false;
+  @tracked showCloneModal = false;
+
   get navbar() {
     return document.querySelector('#navbar-secondary');
   }
@@ -34,6 +37,18 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
   }
 
   @action onStartPublish() {
-    console.log('Starting publish');
+    this.showPublishModal = true;
+  }
+
+  @action hidePublishingDialog() {
+    this.showPublishModal = false;
+  }
+
+  @action onStartClone() {
+    this.showCloneModal = true;
+  }
+
+  @action hideCloneDialog() {
+    this.showCloneModal = false;
   }
 }

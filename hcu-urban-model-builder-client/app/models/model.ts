@@ -2,13 +2,19 @@ import Model, {
   attr,
   belongsTo,
   hasMany,
+  type AsyncBelongsTo,
   type AsyncHasMany,
 } from '@ember-data/model';
 import { Type } from '@warp-drive/core-types/symbols';
 import type ModelsVersion from './models-version';
+import type { FormModelClone, FormModelPublish } from 'global';
+import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
+import { inject as service } from '@ember/service';
 
 export default class ModelModel extends Model {
   declare [Type]: 'model';
+
+  @service declare feathers: FeathersService;
 
   @attr('string') declare internalName: string;
 
@@ -32,7 +38,14 @@ export default class ModelModel extends Model {
     readOnly: true,
     inverse: null,
   })
-  declare latestDraftVersion: number;
+  declare latestDraftVersion: AsyncBelongsTo<ModelsVersion>;
+
+  @belongsTo('modelsVersion', {
+    async: true,
+    readOnly: true,
+    inverse: null,
+  })
+  declare latestPublishedVersion: AsyncBelongsTo<ModelsVersion>;
 
   @attr('date', { readOnly: true }) declare createdAt: Date;
   @attr('date', { readOnly: true }) declare updatedAt: Date;
@@ -51,5 +64,29 @@ export default class ModelModel extends Model {
     } else {
       return 'draft';
     }
+  }
+
+  // TODO: version currently unused - remove or use
+  async publishMinor(version: ModelsVersion, formModel: FormModelPublish) {
+    await this.feathers.app
+      .service('models')
+      .publishMinor({ id: Number(this.id), notes: formModel.notes });
+  }
+
+  // TODO: version currently unused - remove or use
+  async publishMajor(version: ModelsVersion, formModel: FormModelPublish) {
+    await this.feathers.app
+      .service('models')
+      .publishMajor({ id: Number(this.id), notes: formModel.notes });
+  }
+
+  async cloneVersion(
+    version: ModelsVersion,
+    formModel: FormModelClone,
+  ): Promise<ModelsVersion | null> {
+    return await this.feathers.app.service('models').cloneVersion({
+      id: Number(version.id),
+      internalName: formModel.internalName,
+    });
   }
 }

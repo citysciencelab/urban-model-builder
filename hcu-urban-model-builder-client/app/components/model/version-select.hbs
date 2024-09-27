@@ -1,6 +1,6 @@
 {{#if @model.hasVersion}}
   <BsDropdown @tagName="span" as |dd|>
-    <dd.toggle>
+    <dd.toggle class="badge rounded-pill text-bg-primary text-white">
       {{#if @currentVersion}}
         {{@currentVersion.versionString}}
       {{else}}
@@ -9,12 +9,27 @@
     </dd.toggle>
     <dd.menu as |menu|>
       {{#each @model.modelsVersions as |modelVersion|}}
-        <menu.item>
+        <menu.item class="d-flex">
           <menu.linkTo
             @route="models.versions.show"
             @models={{array @model.id modelVersion}}
           >
-            {{modelVersion.versionString}}
+            <div class="version-string">
+              {{modelVersion.versionString}}
+            </div>
+            {{#if modelVersion.isPublished}}
+              <span
+                class="badge rounded-pill badge-success text-bg-success text-light"
+              >
+                Published
+              </span>
+            {{else}}
+              <span
+                class="badge rounded-pill badge-success text-bg-secondary text-light"
+              >
+                Draft
+              </span>
+            {{/if}}
           </menu.linkTo>
         </menu.item>
       {{/each}}

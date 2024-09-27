@@ -116,42 +116,74 @@
         {{#each models as |model|}}
           <ListGroup.item class="list-group-with-actions">
             <div class="list-group-body">
-              <LinkTo
-                @route="models.versions.show"
-                @models={{array model.id model.latestDraftVersion}}
-              >
-                {{model.internalName}}
-              </LinkTo>
+              <div class="list-group-body-content">
+                {{! Model name }}
+                <LinkTo
+                  @route="models.versions.show"
+                  @models={{
+                    array
+                    model.id
+                    (if
+                      model.latestDraftVersion
+                      model.latestDraftVersion
+                      model.latestPublishedVersion
+                    )
+                  }}
+                >
+                  {{model.internalName}}
+                </LinkTo>
+              </div>
               {{! Meta }}
               <div class="list-group-meta">
                 {{! Meta: Version }}
-                <span>
-                  <Model::VersionSelect @model={{model}} />
+                <Model::VersionSelect @model={{model}} />
+                {{! Published / Draft }}
+                {{#if model.latestDraftVersion}}
+                  <span
+                    class="badge rounded-pill badge-success text-bg-secondary text-light"
+                  >
+                    Draft
+                  </span>
+                {{else}}
+                  <span
+                    class="badge rounded-pill badge-success text-bg-secondary text-light"
+                  >
+                    Published
+                  </span>
+                {{/if}}
+                {{! Meta: Created at }}
+                <span
+                  title={{
+                    concat
+                    (t "general.created_at")
+                    ": "
+                    (format-date
+                      model.createdAt localeMatcher="lookup" format="dateTime"
+                    )
+                  }}
+                >
+                  <FaIcon
+                    @icon="calendar-plus"
+                    @fixedWidth={{true}}
+                  />{{format-date model.createdAt}}
                 </span>
                 {{! Meta: Updated at }}
                 <span
                   title={{
-                    format-date
-                    model.updatedAt
-                    localeMatcher="lookup"
-                    format="dateTime"
+                    concat
+                    (t "general.updated_at")
+                    ": "
+                    (format-date
+                      model.updatedAt localeMatcher="lookup" format="dateTime"
+                    )
                   }}
                 >
-                  {{t "general.modified_at"}} {{format-date model.updatedAt}}
-                </span>
-                {{! Meta: Created at }}
-                <span
-                  title={{
-                    format-date
-                    model.createdAt
-                    localeMatcher="lookup"
-                    format="dateTime"
-                  }}
-                >
-                  {{t "general.created_at"}} {{format-date model.createdAt}}
+                  <FaIcon @icon="calendar-check" @fixedWidth={{true}} />
+                  {{format-date model.updatedAt}}
                 </span>
               </div>
             </div>
+            {{! Actions }}
             <div class="list-group-actions">
               <a href="#" {{on "click" (fn this.startEditing model)}}>
                 <FaIcon @icon="pencil" />

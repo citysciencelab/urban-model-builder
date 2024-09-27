@@ -15,12 +15,13 @@ export const modelsSchema = Type.Object(
     internalName: Type.String(),
     publicName: Type.String(),
     description: Type.Optional(Type.String()),
-    latestPublishedVersionId: Type.Optional(Type.Number()),
-    latestDraftVersionId: Type.Optional(Type.Number()),
+    latestPublishedVersionId: Nullable(Type.Number()),
+    latestDraftVersionId: Nullable(Type.Number()),
     currentMinorVersion: Type.Number(),
     currentMajorVersion: Type.Number(),
     currentDraftVersion: Type.Number(),
-    globalUuid: Type.String(),
+    globalUuid: Nullable(Type.String()),
+    forkedFromVersionId: Nullable(Type.Number()),
     createdBy: Type.Optional(Type.Number()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' }),
@@ -35,9 +36,13 @@ export const modelsResolver = resolve<Models, HookContext<ModelsService>>({})
 export const modelsExternalResolver = resolve<Models, HookContext<ModelsService>>({})
 
 // Schema for creating new entries
-export const modelsDataSchema = Type.Pick(modelsSchema, ['internalName', 'createdBy'], {
-  $id: 'ModelsData'
-})
+export const modelsDataSchema = Type.Pick(
+  modelsSchema,
+  ['internalName', 'globalUuid', 'forkedFromVersionId', 'createdBy'],
+  {
+    $id: 'ModelsData'
+  }
+)
 export type ModelsData = Static<typeof modelsDataSchema>
 export const modelsDataValidator = getValidator(modelsDataSchema, dataValidator)
 export const modelsDataResolver = resolve<Models, HookContext<ModelsService>>({})
@@ -54,6 +59,8 @@ export const modelsPatchResolver = resolve<Models, HookContext<ModelsService>>({
 export const modelsQueryProperties = Type.Pick(modelsSchema, [
   'id',
   'internalName',
+  'globalUuid',
+  'forkedFromVersionId',
   'createdAt',
   'deletedAt',
   'updatedAt',
@@ -96,3 +103,28 @@ export const modelsNewDraftSchema = Type.Object(
 export type ModelsNewDraft = Static<typeof modelsNewDraftSchema>
 export const modelsNewDraftSimulateValidator = getValidator(modelsNewDraftSchema, dataValidator)
 export const modelsNewDraftSimulateResolver = resolve<ModelsNewDraft, HookContext<ModelsService>>({})
+
+// Schema for custom method: publishMinor
+// Schema for custom method: publishMinor
+export const modelsPublishSchema = Type.Object(
+  {
+    id: Type.Number(),
+    notes: Type.String()
+  },
+  { $id: 'ModelsPublish', additionalProperties: false }
+)
+export type ModelsPublish = Static<typeof modelsPublishSchema>
+export const modelsPublishValidator = getValidator(modelsPublishSchema, dataValidator)
+export const modelsPublishResolver = resolve<ModelsPublish, HookContext<ModelsService>>({})
+
+// Schema for custom method: cloneVersion
+export const modelsCloneVersionSchema = Type.Object(
+  {
+    id: Type.Number(),
+    internalName: Type.String()
+  },
+  { $id: 'ModelsCloneVersion', additionalProperties: false }
+)
+export type ModelsCloneVersion = Static<typeof modelsCloneVersionSchema>
+export const modelsCloneVersionValidator = getValidator(modelsCloneVersionSchema, dataValidator)
+export const modelsCloneVersionResolver = resolve<ModelsCloneVersion, HookContext<ModelsService>>({})

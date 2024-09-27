@@ -14,7 +14,12 @@ import {
   modelsSimulateValidator,
   modelsSimulateResolver,
   modelsNewDraftSimulateValidator,
-  modelsNewDraftSimulateResolver
+  modelsNewDraftSimulateResolver,
+  modelsPublishValidator,
+  modelsPublishResolver,
+  modelsCloneVersionSchema,
+  modelsCloneVersionResolver,
+  modelsCloneVersionValidator
 } from './models.schema.js'
 
 import type { Application } from '../../declarations.js'
@@ -59,7 +64,7 @@ export const models = (app: Application) => {
         schemaHooks.resolveData(modelsDataResolver),
         customSoftDelete(),
         setCreatedBy,
-        initModelDefaults
+        iff(isProvider('external'), initModelDefaults)
       ],
       patch: [
         schemaHooks.validateData(modelsPatchValidator),
@@ -75,11 +80,19 @@ export const models = (app: Application) => {
       newDraft: [
         schemaHooks.validateData(modelsNewDraftSimulateValidator),
         schemaHooks.resolveData(modelsNewDraftSimulateResolver)
+      ],
+      publishMinor: [
+        schemaHooks.validateData(modelsPublishValidator),
+        schemaHooks.resolveData(modelsPublishResolver)
+      ],
+      cloneVersion: [
+        schemaHooks.validateData(modelsCloneVersionValidator),
+        schemaHooks.resolveData(modelsCloneVersionResolver)
       ]
     },
     after: {
       all: [],
-      create: [initModelVersion]
+      create: [iff(isProvider('external'), initModelVersion)]
     },
     error: {
       all: []
