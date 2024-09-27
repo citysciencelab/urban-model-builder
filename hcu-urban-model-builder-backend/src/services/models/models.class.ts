@@ -70,6 +70,10 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       params
     )
 
+    await this.app.service('models-versions').patch(currentModelVersion.id, {
+      isLatest: false
+    })
+
     return newDraftModelVersion
   }
 
@@ -164,7 +168,8 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       draftVersion: draft,
       majorVersion: major,
       minorVersion: minor,
-      createdBy: params?.user?.id
+      createdBy: params?.user?.id,
+      isLatest: true
     })
 
     await this.app.service('models').patch(currentModelVersion.modelId, {

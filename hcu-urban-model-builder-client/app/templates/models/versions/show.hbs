@@ -1,131 +1,127 @@
 {{page-title "Show"}}
 
-{{#if this.model.asyncIsLatestVersion.isResolved}}
-  {{#let this.model.asyncIsLatestVersion.value as |isLatestVersion|}}
-    <BreadcrumbsItem>
-      <Model::VersionSelect
-        @model={{this.model.model}}
-        @currentVersion={{this.model}}
-      />
-      {{! Notes }}
-      {{#if this.model.notes}}
-        &nbsp;
-        <span class="badge rounded-pill badge-success text-bg-light">
-          <FaIcon @icon="info-circle" @fixedWidth={{false}} />
-          <BsPopover
-            @placement="bottom"
-            title="Popover on left"
-            @triggerEvents="hover"
-          >
-            {{this.model.notes}}
-          </BsPopover>
-        </span>
-      {{/if}}
-      {{! Badge: Public }}
-      {{#if this.model.isPublished}}
-        &nbsp;
-        <span class="badge rounded-pill badge-success text-bg-light">
-          Public
-        </span>
-      {{/if}}
-      {{! Badget: Latest }}
-      {{#if isLatestVersion}}
-        &nbsp;
-        <span class="badge rounded-pill badge-success text-bg-light">
-          Latest
-        </span>
-      {{/if}}
-      {{! Badge: Edit Mode / View Mode }}
-      {{#if (and isLatestVersion (not this.model.isPublished))}}
-        &nbsp;
-        <span class="badge rounded-pill badge-warning text-bg-light">
-          Edit Mode
-        </span>
-      {{else}}
-        &nbsp;
-        <span class="badge rounded-pill badge-warning text-bg-light">
-          View Mode
-        </span>
-      {{/if}}
-    </BreadcrumbsItem>
-
-    {{#in-element this.navbar}}
-      {{! Button: Simulate }}
-      <BsButton
-        @type="primary"
-        @size="sm"
-        @onClick={{fn (mut this.showSimulateModal) true}}
+<BreadcrumbsItem>
+  <Model::VersionSelect
+    @model={{this.model.model}}
+    @currentVersion={{this.model}}
+  />
+  {{! Notes }}
+  {{#if this.model.notes}}
+    &nbsp;
+    <span class="badge rounded-pill badge-success text-bg-light">
+      <FaIcon @icon="info-circle" @fixedWidth={{false}} />
+      <BsPopover
+        @placement="bottom"
+        title="Popover on left"
+        @triggerEvents="hover"
       >
-        Simulate
-      </BsButton>
-      {{! Dropdown: More Actions }}
-      <BsDropdown @tagName="span" as |dd|>
-        <dd.toggle>
-          <FaIcon @icon="ellipsis-v" />
-        </dd.toggle>
-        <dd.menu @align="right" as |menu|>
-          {{! Action: New Draft }}
-          <menu.item>
-            <a
-              href="javascript:void(0)"
-              class="dropdown-item {{if isLatestVersion "" "disabled"}}"
-              {{on "click" this.onCreateNewDraftVersion}}
-            >
-              <FaIcon @icon="pencil" @fixedWidth={{true}} />
-              New Draft
-            </a>
-          </menu.item>
-          {{! Action: Publish -> Dialog }}
-          <menu.item>
-            <a
-              href="javascript:void(0)"
-              class="dropdown-item {{
-                if
-                (and isLatestVersion (not this.model.isPublished))
-                ""
-                "disabled"
-              }}"
-              {{on "click" this.onStartPublish}}
-            >
-              <FaIcon @icon="upload" @fixedWidth={{true}} />
-              Publish
-            </a>
-          </menu.item>
-          {{! Action: Clone -> Dialog }}
-          <menu.item>
-            <a
-              href="javascript:void(0)"
-              class="dropdown-item"
-              {{on "click" this.onStartClone}}
-            >
-              <FaIcon @icon="copy" @fixedWidth={{true}} />
-              Clone
-            </a>
-          </menu.item>
-        </dd.menu>
-      </BsDropdown>
-    {{/in-element}}
+        {{this.model.notes}}
+      </BsPopover>
+    </span>
+  {{/if}}
+  {{! Badge: Public }}
+  {{#if this.model.isPublished}}
+    &nbsp;
+    <span class="badge rounded-pill badge-success text-bg-light">
+      Public
+    </span>
+  {{/if}}
+  {{! Badget: Latest }}
+  {{#if this.model.isLatest}}
+    &nbsp;
+    <span class="badge rounded-pill badge-success text-bg-light">
+      Latest
+    </span>
+  {{/if}}
+  {{! Badge: Edit Mode / View Mode }}
+  {{#if (and this.model.isLatest (not this.model.isPublished))}}
+    &nbsp;
+    <span class="badge rounded-pill badge-warning text-bg-light">
+      Edit Mode
+    </span>
+  {{else}}
+    &nbsp;
+    <span class="badge rounded-pill badge-warning text-bg-light">
+      View Mode
+    </span>
+  {{/if}}
+</BreadcrumbsItem>
 
-    <ReactWrapper @model={{this.model}} />
+{{#in-element this.navbar}}
+  {{! Button: Simulate }}
+  <BsButton
+    @type="primary"
+    @size="sm"
+    @onClick={{fn (mut this.showSimulateModal) true}}
+  >
+    Simulate
+  </BsButton>
+  {{! Dropdown: More Actions }}
+  <BsDropdown @tagName="span" as |dd|>
+    <dd.toggle>
+      <FaIcon @icon="ellipsis-v" />
+    </dd.toggle>
+    <dd.menu @align="right" as |menu|>
+      {{! Action: New Draft }}
+      <menu.item>
+        <a
+          href="javascript:void(0)"
+          class="dropdown-item {{if this.model.isLatest "" "disabled"}}"
+          {{on "click" this.onCreateNewDraftVersion}}
+        >
+          <FaIcon @icon="pencil" @fixedWidth={{true}} />
+          New Draft
+        </a>
+      </menu.item>
+      {{! Action: Publish -> Dialog }}
+      <menu.item>
+        <a
+          href="javascript:void(0)"
+          class="dropdown-item {{
+            if
+            (and this.model.isLatest (not this.model.isPublished))
+            ""
+            "disabled"
+          }}"
+          {{on "click" this.onStartPublish}}
+        >
+          <FaIcon @icon="upload" @fixedWidth={{true}} />
+          Publish
+        </a>
+      </menu.item>
+      {{! Action: Clone -> Dialog }}
+      <menu.item>
+        <a
+          href="javascript:void(0)"
+          class="dropdown-item"
+          {{on "click" this.onStartClone}}
+        >
+          <FaIcon @icon="copy" @fixedWidth={{true}} />
+          Clone
+        </a>
+      </menu.item>
+    </dd.menu>
+  </BsDropdown>
+{{/in-element}}
 
-    <SimulateModal
-      @model={{this.model}}
-      @show={{this.showSimulateModal}}
-      @onHide={{fn (mut this.showSimulateModal) false}}
-    />
+<ReactWrapper @model={{this.model}} />
 
-    <Model::PublishDialog
-      @open={{this.showPublishModal}}
-      @model={{this.model}}
-      @onClose={{this.hidePublishingDialog}}
-    />
+<SimulateModal
+  @model={{this.model}}
+  @show={{this.showSimulateModal}}
+  @onHide={{fn (mut this.showSimulateModal) false}}
+/>
 
-    <Model::CloneDialog
-      @open={{this.showCloneModal}}
-      @model={{this.model}}
-      @onClose={{this.hideCloneDialog}}
-    />
+<Model::PublishDialog
+  @open={{this.showPublishModal}}
+  @model={{this.model}}
+  @onClose={{this.hidePublishingDialog}}
+/>
 
-    {{outlet}}
-  {{/let}}
-{{/if}}
+<Model::CloneDialog
+  @open={{this.showCloneModal}}
+  @model={{this.model}}
+  @onClose={{this.hideCloneDialog}}
+/>
+
+{{outlet}}

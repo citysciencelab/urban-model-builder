@@ -55,6 +55,9 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
       await this.args.model.nodes,
       await this.args.model.edges,
       this.emberReactConnector,
+      {
+        disabled: !this.args.model.canEdit,
+      },
     );
   }
 }

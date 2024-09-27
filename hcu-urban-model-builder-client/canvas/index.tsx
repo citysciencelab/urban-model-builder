@@ -50,6 +50,10 @@ type NodeActions = {
   };
 };
 
+type FlowOptions = {
+  disabled?: boolean;
+};
+
 const getNodeTypeStringName = (type: NodeType) => NodeType[type].toLowerCase();
 const getEdgeTypeStringName = (type: EdgeType) => EdgeType[type].toLowerCase();
 
@@ -70,6 +74,7 @@ function Flow({
   nodes: initialNodes,
   edges: initialEdges,
   nodeActions,
+  flowOptions,
 }: AppProps) {
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
 
@@ -364,6 +369,11 @@ function Flow({
       nodeTypes={nodeTypes}
       edgeTypes={edgesTypes}
       connectionLineType={ConnectionLineType.SmoothStep}
+      edgesFocusable={!flowOptions.disabled}
+      nodesDraggable={!flowOptions.disabled}
+      nodesConnectable={!flowOptions.disabled}
+      nodesFocusable={!flowOptions.disabled}
+      panOnDrag={!flowOptions.disabled}
       fitView
     >
       <Panel position="bottom-center">
@@ -384,10 +394,18 @@ interface AppProps {
   nodes: any[];
   edges: any[];
   nodeActions: NodeActions;
+  flowOptions: FlowOptions;
 }
 
-function App({ nodes, nodeActions, edges }: AppProps) {
-  return <Flow nodes={nodes} edges={edges} nodeActions={nodeActions} />;
+function App({ nodes, nodeActions, edges, flowOptions }: AppProps) {
+  return (
+    <Flow
+      nodes={nodes}
+      edges={edges}
+      nodeActions={nodeActions}
+      flowOptions={flowOptions}
+    />
+  );
 }
 
 export function initReact(
@@ -395,8 +413,14 @@ export function initReact(
   nodes: any[],
   edges: any[],
   nodeActions: NodeActions,
+  flowOptions: FlowOptions,
 ) {
   createRoot(root).render(
-    <App nodes={nodes} edges={edges} nodeActions={nodeActions} />,
+    <App
+      nodes={nodes}
+      edges={edges}
+      nodeActions={nodeActions}
+      flowOptions={flowOptions}
+    />,
   );
 }

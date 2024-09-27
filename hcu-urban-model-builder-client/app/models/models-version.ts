@@ -21,6 +21,7 @@ export default class ModelsVersion extends Model {
   @attr('number') declare majorVersion: number;
   @attr('number') declare draftVersion: number;
   @attr('string') declare notes: string;
+  @attr('boolean') declare isLatest: boolean;
 
   @belongsTo('model', { async: true, inverse: 'modelsVersion' })
   declare model: AsyncBelongsTo<ModelModel>;
@@ -49,13 +50,12 @@ export default class ModelsVersion extends Model {
     }
   }
 
-  @cached
-  get asyncIsLatestVersion() {
-    return new TrackedAsyncData(this._fetchIsLatestVersion());
-  }
-
   get isPublished() {
     return !!this.publishedAt;
+  }
+
+  get canEdit() {
+    return !this.isPublished && this.isLatest;
   }
 
   async _fetchIsLatestVersion() {
