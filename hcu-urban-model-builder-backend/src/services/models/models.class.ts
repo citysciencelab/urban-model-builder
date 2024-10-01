@@ -52,9 +52,9 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
 
     const currentModel = await this.app.service('models').get(modelId)
 
-    const latestVersion = currentModel.latestPublishedVersionId
-      ? currentModel.latestPublishedVersionId
-      : currentModel.latestDraftVersionId
+    const latestVersion = currentModel.latestDraftVersionId
+      ? currentModel.latestDraftVersionId
+      : currentModel.latestPublishedVersionId
 
     if (!latestVersion) {
       throw new Error('No draft version found')
