@@ -28,14 +28,21 @@ describe.only('models service', () => {
 
     it('should create a basic system dynamic model', async () => {
       const model = await app.service('models').create({
-        name: 'test',
+        internalName: 'Basic SD Model'
+      })
+
+      const modelVersion = await app.service('models-versions').create({
+        modelId: model.id,
+        draftVersion: 1,
+        minorVersion: 0,
+        majorVersion: 0,
         timeUnits: 'Years',
         timeStart: 0,
         timeLength: 200
       })
 
       const baseNodeData = {
-        modelId: model.id,
+        modelsVersionsId: modelVersion.id,
         height: null,
         width: null,
         parentId: null
@@ -100,12 +107,12 @@ describe.only('models service', () => {
       })
 
       const baseEdgeData = {
-        modelId: model.id,
+        modelsVersionsId: modelVersion.id,
         sourceHandle: '0',
         targetHandle: '0'
       }
 
-      const modelEdges: (Omit<EdgesData, 'modelId' | 'sourceHandle' | 'targetHandle'> & {
+      const modelEdges: (Omit<EdgesData, 'modelsVersionsId' | 'sourceHandle' | 'targetHandle'> & {
         sourceHandle?: string
         targetHandle?: string
       })[] = [
@@ -170,7 +177,7 @@ describe.only('models service', () => {
         nodeNameToIdMap.set(node.name, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: model.id })
+      const actual = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -220,7 +227,14 @@ describe.only('models service', () => {
 
     it('should create a agent based model', async () => {
       const model = await app.service('models').create({
-        name: 'test',
+        internalName: 'Agent Based Model'
+      })
+
+      const modelVersion = await app.service('models-versions').create({
+        modelId: model.id,
+        draftVersion: 1,
+        minorVersion: 0,
+        majorVersion: 0,
         timeUnits: 'Years',
         timeStart: 0,
         timeLength: 50,
@@ -229,7 +243,7 @@ describe.only('models service', () => {
       })
 
       const baseNodeData = {
-        modelId: model.id
+        modelsVersionsId: modelVersion.id
       }
 
       const personAgent = await app.service('nodes').create({
@@ -370,12 +384,12 @@ describe.only('models service', () => {
       })
 
       const baseEdgeData = {
-        modelId: model.id,
+        modelsVersionsId: modelVersion.id,
         sourceHandle: '0',
         targetHandle: '0'
       }
 
-      const modelEdges: (Omit<EdgesData, 'modelId' | 'sourceHandle' | 'targetHandle'> & {
+      const modelEdges: (Omit<EdgesData, 'modelsVersionsId' | 'sourceHandle' | 'targetHandle'> & {
         sourceHandle?: string
         targetHandle?: string
       })[] = [
@@ -435,7 +449,7 @@ describe.only('models service', () => {
         nodeIdToNameMap.set(node.id, node.name)
       }
 
-      const actual = await app.service('models').simulate({ id: model.id })
+      const actual = await app.service('models').simulate({ id: modelVersion.id })
 
       const file = await readFile(join(__dirname, 'agent-based.xml'), 'utf8')
 
@@ -458,7 +472,7 @@ describe.only('models service', () => {
       let i = 0
       const allNodeNames = ['Percent Infected', 'Population']
       const actualNodeData = actual.nodes
-      assert.strictEqual(Object.keys(actualNodeData).length, allNodeNames.length)
+      assert.strictEqual(Object.keys(actualNodeData as any).length, allNodeNames.length)
       for (const expectedDataItem of expectedData!) {
         for (const nodeName of allNodeNames) {
           const expectedValue = expectedDataItem[nodeName]
@@ -535,7 +549,14 @@ describe.only('models service', () => {
 
     it('simple agent based', async () => {
       const model = await app.service('models').create({
-        name: 'simple-test',
+        internalName: 'Simple Agent Based Model'
+      })
+
+      const modelVersion = await app.service('models-versions').create({
+        modelId: model.id,
+        draftVersion: 1,
+        minorVersion: 0,
+        majorVersion: 0,
         timeUnits: 'Years',
         timeStart: 0,
         timeLength: 10,
@@ -543,7 +564,7 @@ describe.only('models service', () => {
       })
 
       const baseNodeData = {
-        modelId: model.id
+        modelsVersionsId: modelVersion.id
       }
 
       const personAgent = await app.service('nodes').create({
@@ -605,12 +626,12 @@ describe.only('models service', () => {
       })
 
       const baseEdgeData = {
-        modelId: model.id,
+        modelsVersionsId: modelVersion.id,
         sourceHandle: '0',
         targetHandle: '0'
       }
 
-      const modelEdges: (Omit<EdgesData, 'modelId' | 'sourceHandle' | 'targetHandle'> & {
+      const modelEdges: (Omit<EdgesData, 'modelsVersionsId' | 'sourceHandle' | 'targetHandle'> & {
         sourceHandle?: string
         targetHandle?: string
       })[] = [
@@ -639,7 +660,7 @@ describe.only('models service', () => {
         })
       )
 
-      const actual = await app.service('models').simulate({ id: model.id })
+      const actual = await app.service('models').simulate({ id: modelVersion.id })
     })
   })
 })
