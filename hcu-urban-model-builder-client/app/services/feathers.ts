@@ -13,6 +13,7 @@ import { service } from '@ember/service';
 import type Store from '@ember-data/store';
 import type StoreEventEmitterService from './store-event-emitter';
 import type { DataModelsNames } from './store-event-emitter';
+import type { HookContext } from '@feathersjs/feathers';
 
 export default class FeathersService extends Service {
   app: ClientApplication;
@@ -42,11 +43,32 @@ export default class FeathersService extends Service {
       .then(() => {
         // Update local storage for re-connection.
         window.localStorage.setItem('feathers-jwt', jwt);
-        console.log('logged in');
       })
       .catch((e) => {
         console.error('Authentication error', e);
       });
+
+    this.app.hooks({
+      error: {
+        all: [
+          (context: HookContext) => {
+            console.error('Error in hook', context.error);
+          },
+        ],
+      },
+      before: {
+        all: [
+          async (context: HookContext) => {
+            await this.session.refreshAuthentication.perform();
+            window.localStorage.setItem(
+              'feathers-jwt',
+              this.session.data.authenticated.access_token,
+            );
+            return context;
+          },
+        ],
+      },
+    });
 
     this.registerEventListeners();
   }

@@ -3,6 +3,7 @@ import { Type } from '@warp-drive/core-types/symbols';
 import type Node from './node';
 import { EdgeType } from 'hcu-urban-model-builder-backend';
 import type ModelsVersion from './models-version';
+import { dasherize } from '@ember/string';
 
 export default class Edge extends Model {
   [Type] = 'edge' as const;
@@ -28,7 +29,7 @@ export default class Edge extends Model {
   get raw() {
     return {
       id: this.id,
-      type: EdgeType[this.type].toLocaleLowerCase(),
+      type: dasherize(EdgeType[this.type]),
       source: this.source.id,
       target: this.target.id,
       sourceHandle: this.sourceHandle,

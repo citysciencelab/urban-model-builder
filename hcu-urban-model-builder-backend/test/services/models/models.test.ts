@@ -245,7 +245,6 @@ describe.only('models service', () => {
         type: NodeType.Population,
         position: { x: 100, y: 100 },
         data: {
-          agentBaseId: personAgent.id,
           populationSize: 100,
           geoPlacementType: 'Random',
           geoWidth: '200',
@@ -410,7 +409,13 @@ describe.only('models service', () => {
         ...createTransitionEdgeObjs(transmitTransition.id, susceptibleState.id, infectedState.id),
         ...createTransitionEdgeObjs(exogenousTransition.id, susceptibleState.id, infectedState.id),
         ...createTransitionEdgeObjs(recoveryTransition.id, infectedState.id, recoveredState.id),
-        ...createTransitionEdgeObjs(immunityLossTransition.id, recoveredState.id, susceptibleState.id)
+        ...createTransitionEdgeObjs(immunityLossTransition.id, recoveredState.id, susceptibleState.id),
+        // Agent Populations
+        {
+          type: EdgeType.AgentPopulation,
+          sourceId: personAgent.id,
+          targetId: populationPopulation.id
+        }
       ]
 
       const edges = await Promise.all(
@@ -486,6 +491,12 @@ describe.only('models service', () => {
             assert.ok(Array.isArray(actualValue))
             let locationIndex = 0
             for (const expectedPosition of expectedValue.current) {
+              const expectedId = expectedPosition.instanceId
+              assert.ok(expectedId)
+
+              const actualId: string = actualValue[locationIndex].id
+              assert.strictEqual(expectedId, actualId)
+
               const expectedLocation = expectedPosition.location.items
               const actualLocation: [number, number] = actualValue[locationIndex].location
               assert.strictEqual(expectedLocation.length, 2)
@@ -548,7 +559,6 @@ describe.only('models service', () => {
         type: NodeType.Population,
         position: { x: 100, y: 100 },
         data: {
-          agentBaseId: personAgent.id,
           populationSize: 100,
           geoPlacementType: 'Random',
           geoWidth: '200',
@@ -611,7 +621,13 @@ describe.only('models service', () => {
           targetId: endState.id
         },
         // Transitions
-        ...createTransitionEdgeObjs(transition.id, startState.id, endState.id)
+        ...createTransitionEdgeObjs(transition.id, startState.id, endState.id),
+        // Agent Populations
+        {
+          type: EdgeType.AgentPopulation,
+          sourceId: personAgent.id,
+          targetId: populationPopulation.id
+        }
       ]
 
       const edges = await Promise.all(

@@ -1,5 +1,5 @@
 import { Model } from 'simulation'
-import { Nodes, NodeType } from '../client.js'
+import { Nodes, NodeType } from '../../client.js'
 
 const simulationFactoryMap = {
   [NodeType.Stock]: (model: Model, node: Nodes) => {

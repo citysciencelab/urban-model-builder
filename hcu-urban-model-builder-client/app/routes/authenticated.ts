@@ -8,6 +8,6 @@ export default class ProtectedRoute extends Route {
   @service declare router: EmberRouter;
 
   async beforeModel(transition: Transition) {
-    await this.session.requireAuthentication(transition, 'authenticate');
+    await this.session.requireAuthentication(transition, 'login');
   }
 }

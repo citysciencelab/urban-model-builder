@@ -15,7 +15,8 @@ import {
   type ModelsQuery,
   type ModelsSimulate
 } from './models.schema.js'
-import { SimulationAdapter } from '../../simulation-adapter/simulation-adapter.js'
+import { SimulationAdapter } from '../../shared/simulation-adapter/simulation-adapter.js'
+import { logger } from '../../logger.js'
 import _ from 'lodash'
 import { ModelsVersions, modelsVersionsDataSchema } from '../models-versions/models-versions.schema.js'
 import { nodesDataSchema } from '../nodes/nodes.schema.js'
@@ -43,7 +44,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async simulate(data: ModelsSimulate, params?: ServiceParams) {
-    return new SimulationAdapter(this.app, data.id).simulate()
+    return new SimulationAdapter(this.app, data.id, logger).simulate()
   }
 
   async newDraft(data: ModelsNewDraft, params?: ServiceParams) {

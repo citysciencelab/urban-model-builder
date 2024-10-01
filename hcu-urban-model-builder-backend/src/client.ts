@@ -62,3 +62,5 @@ export const createClient = <Configuration = any>(
   client.configure(modelsVersionsClient)
   return client
 }
+
+export { SimulationAdapter } from './shared/simulation-adapter/simulation-adapter.js'

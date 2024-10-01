@@ -12,6 +12,7 @@
       {{t "general.brand"}}
     </LinkTo>
   </div>
+  {{#if this.session.isAuthenticated}}
   <navbar.content>
     <navbar.nav as |nav|>
       <nav.item>
@@ -21,6 +22,7 @@
       </nav.item>
     </navbar.nav>
   </navbar.content>
+  {{/if}}
   <ul class="nav navbar-nav">
     <LangSwitch />
     {{#if this.session.isAuthenticated}}
@@ -30,9 +32,7 @@
           {{this.session.data.authenticated.userinfo.name}}
         </span>
       </li>
-    {{/if}}
     <li class="nav-item">
-      {{#if this.session.isAuthenticated}}
         <button
           class="nav-link"
           type="button"
@@ -41,20 +41,12 @@
           <FaIcon @icon="power-off" />
           Logout
         </button>
-      {{else}}
-        <LinkTo
-          @route="authenticate"
-          class="nav-link"
-          role="button"
-          aria-pressed="false"
-        >
-          Login
-        </LinkTo>
+        </li>
       {{/if}}
-    </li>
   </ul>
 </BsNavbar>
 
+{{#if this.session.isAuthenticated}}
 <BsNavbar @type="dark" @backgroundColor="secondary" @fluid={{false}}>
   <BreadcrumbsContainer
     @itemClass="breadcrumbs__item"
@@ -63,11 +55,10 @@
   />
   <div id="navbar-secondary"></div>
 </BsNavbar>
-
 <BreadcrumbsItem as |linkClass|>
   {{t "general.home"}}
 </BreadcrumbsItem>
-
+{{/if}}
 <div id="ember-bootstrap-wormhole"></div>
 <BasicDropdownWormhole />
 

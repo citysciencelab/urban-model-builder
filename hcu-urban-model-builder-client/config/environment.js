@@ -30,6 +30,7 @@ module.exports = function (environment) {
       endSessionEndpoint: '/logout',
       afterLogoutUri: 'http://localhost:4200',
       enablePkce: true,
+      registrationEndpoint: 'registrations',
     },
   };
 

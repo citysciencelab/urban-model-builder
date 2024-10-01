@@ -14,29 +14,13 @@
           @property="name"
         />
 
-        {{#if (eq @record.type this.NodeType.Flow)}}
-          <form.element
-            @controlType="textarea"
-            @label="Rate"
-            @property="data.rate"
-          />
-        {{/if}}
-        {{#if (eq @record.type this.NodeType.Variable)}}
-          <form.element
-            @controlType="text"
-            @label="Value"
-            @property="data.value"
-          />
-        {{/if}}
-        {{#if (eq @record.type this.NodeType.Stock)}}
-          <form.element
-            @controlType="text"
-            @label="Value"
-            @property="data.value"
-          />
+        {{#if this.nodeFormFieldsComponent}}
+          <this.nodeFormFieldsComponent @form={{form}} @node={{@record}} />
         {{/if}}
 
-        <form.submitButton>Save</form.submitButton>
+        <form.submitButton>
+          Save
+        </form.submitButton>
       </BsForm>
     </div>
   </div>

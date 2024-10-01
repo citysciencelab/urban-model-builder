@@ -47,7 +47,6 @@ export const transitionNodeSchema = Type.Object({
 })
 
 export const populationNodeSchema = Type.Object({
-  agentBaseId: Type.Optional(Type.Number()),
   populationSize: Type.Optional(Type.Number()),
   geoUnits: Type.Optional(Type.String()),
   geoWidth: Type.Optional(Type.String()),
