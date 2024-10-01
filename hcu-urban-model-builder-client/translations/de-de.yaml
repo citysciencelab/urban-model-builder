@@ -16,7 +16,12 @@ pagination:
 actions:
   save: Speichern
   cancel: Abbrechen
+  clone: Klonen
   unsaved_changes: Sie haben ungespeicherte Änderungen. Wollen Sie die Seite wirklich verlassen?
+  register: Registrieren
+  login: Einloggen
+  logout: Abmelden
+  loading: Lädt…
 
 models:
   model:
@@ -24,6 +29,14 @@ models:
     plural: Modelle
     attributes:
       name: Name
+    states:
+      published: Veröffentlicht
+      draft: Entwurf
+  models_version:
+    attributes:
+      notes: Notizen
+      versionType: Versionstyp
+      timeLength: Zeitraum
 
 routes:
   models:
@@ -34,3 +47,14 @@ routes:
       create_new_title: Neues Modell erstellen
       edit_title: Modell <em>{name}</em> bearbeiten
       no_models_found: Keine Modelle gefunden
+
+components:
+  clone_dialog:
+    title: Modell klonen
+    intro: Hier erstellen Sie ein neues Modell auf der Grundlage der aktuellen Modellversion.
+  publish_dialog:
+    title: Modell veröffentlichen
+    intro: Ein veröffentlichtes Modell ist für alle Benutzer sichtbar, die Version kann dann nicht mehr veröffentlicht werden.
+  simulate_modal:
+    title: Simulationsergebnisse für
+    is_client_side: Clientseitige Berechnung?

@@ -6,12 +6,12 @@
 >
   <modal.header>
     <h5 class="modal-title">
-      Clone Model
+      {{t "components.clone_dialog.title"}}
     </h5>
   </modal.header>
   <modal.body>
     <p>
-      This will create a new model based on the current models version.
+      {{t "components.clone_dialog.intro"}}
     </p>
     <BsForm
       @formLayout="vertical"
@@ -20,17 +20,17 @@
     >
       <form.element
         @controlType="text"
-        @label="Internal Name"
+        @label={{t "models.model.attributes.name"}}
         @property="internalName"
       />
     </BsForm>
   </modal.body>
   <modal.footer>
     <BsButton @onClick={{this.onHide}}>
-      Cancel
+      {{t "actions.cancel"}}
     </BsButton>
     <BsButton @type="success" @onClick={{this.onSubmit}}>
-      Clone
+      {{t "actions.clone"}}
     </BsButton>
   </modal.footer>
 </BsModal>

@@ -16,7 +16,12 @@ pagination:
 actions:
   save: Save
   cancel: Cancel
+  clone: Clone
   unsaved_changes: You have unsaved changes. Do you really want to leave the page?
+  register: Register
+  login: Login
+  logout: Logout
+  loading: Loading…
 
 models:
   model:
@@ -24,6 +29,14 @@ models:
     plural: Models
     attributes:
       name: Name
+    states:
+      published: Published
+      draft: Draft
+  models_version:
+    attributes:
+      notes: Notes
+      versionType: Version type
+      timeLength: Time period
 
 routes:
   models:
@@ -34,3 +47,14 @@ routes:
       create_new_title: Create new model
       edit_title: Edit model <em>{name}</em>
       no_models_found: No models found
+
+components:
+  clone_dialog:
+    title: Model cloning
+    intro: Here you create a new model based on the current model version.
+  publish_dialog:
+    title: Publish model
+    intro: A published model is visible to all users, the version can then no longer be published.
+  simulate_modal:
+    title: Simulation Results for
+    is_client_side: Is client side calculation?

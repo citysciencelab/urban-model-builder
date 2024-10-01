@@ -1,20 +1,29 @@
 {{page-title "Login"}}
 <div class="container main-content">
-<div class="card card--login">
+  <div class="card card--login">
     <div class="card-header">
       <h2 class="h5">
-        Login
+        {{t "actions.login"}}
       </h2>
     </div>
     <div class="card-body">
-        <LinkTo
-          @route="authenticate"
-          class="btn btn-primary"
-          aria-pressed="false"
-        >
-          <span>Login</span><FaIcon @icon="right-to-bracket"/>
-        </LinkTo>
-          <a class="btn btn-secondary" role="button" href="{{this.registrationUrl}}">Register</a>
+      <LinkTo
+        @route="authenticate"
+        class="btn btn-primary"
+        aria-pressed="false"
+      >
+        <span>
+          {{t "actions.login"}}
+        </span>
+        <FaIcon @icon="right-to-bracket" />
+      </LinkTo>
+      <a
+        class="btn btn-secondary"
+        role="button"
+        href="{{this.registrationUrl}}"
+      >
+        {{t "actions.register"}}
+      </a>
     </div>
   </div>
 </div>

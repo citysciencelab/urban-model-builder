@@ -6,10 +6,13 @@
 >
   <modal.header>
     <h5 class="modal-title">
-      Publish
+      {{t "components.publish_dialog.title"}}
     </h5>
   </modal.header>
   <modal.body>
+    <p>
+      {{t "components.publish_dialog.intro"}}
+    </p>
     <BsForm
       @formLayout="vertical"
       @model={{this.changeset}}
@@ -17,11 +20,15 @@
     >
       <form.element
         @controlType="radio"
-        @label="Version Type"
+        @label={{t "models.models_version.attributes.versionType"}}
         @property="versionType"
         @options={{this.versionTypes}}
       />
-      <form.element @controlType="textarea" @label="Notes" @property="notes" />
+      <form.element
+        @controlType="textarea"
+        @label={{t "models.models_version.attributes.notes"}}
+        @property="notes"
+      />
     </BsForm>
   </modal.body>
   <modal.footer>
