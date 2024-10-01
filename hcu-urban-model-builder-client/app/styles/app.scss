@@ -1,3 +1,4 @@
+@use "sass:map";
 @import "node_modules/bootstrap/scss/functions";
 @import "node_modules/bootstrap/scss/mixins";
 @import "./variables-overrides";
@@ -9,8 +10,26 @@
 $node-color-map: (
   "flow": #a3c4ff,
   "stock": cadetblue,
-  "variable": coral
+  "variable": coral,
+  "population": #974a5d,
+  "state": #52d48a,
+  "action": #f5a623,
+  "converter": #84f5ff,
+  "agent":
+    rgba(
+      $color: #574f7e,
+      $alpha: 0.2,
+    ),
+  "folder": #8f8d8d71,
 );
+
+$edge-color-map: (
+  "flow": map.get($node-color-map, "flow"),
+  "transition": #030303,
+  "agent-population": #aba3d2,
+);
+
+@import "./react-canvas";
 
 body {
   margin: 0;
@@ -33,34 +52,6 @@ main {
   flex-grow: 1;
   position: relative;
   height: 100%;
-}
-
-.react-flow__node.selected div {
-  border-color: red;
-}
-
-.react-flow__node-flow__label {
-  /* background-color: #a3c4ff; */
-  padding: 0 0.5rem;
-}
-
-.react-flow__node-stock div {
-  background-color: cadetblue;
-}
-
-.react-flow__node-variable div {
-  background-color: coral;
-}
-
-.react-flow__node-folder,
-.react-flow__node-agent {
-  border: var(--xy-node-border-default);
-  border-radius: var(--xy-node-border-radius-default);
-  background-color: rgba($color: #574f7e, $alpha: 0.2);
-  &.intersect {
-    // add outer shine
-    box-shadow: 0px 0px 15px 9px rgba($color: #574f7e, $alpha: 0.2);
-  }
 }
 
 .sidebar__container {

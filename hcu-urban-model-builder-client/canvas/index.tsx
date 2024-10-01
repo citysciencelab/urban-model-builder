@@ -18,17 +18,28 @@ import {
   Connection,
   Edge,
   Node,
+  ReactFlowProvider,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
-import { EdgeType, NodeType } from "hcu-urban-model-builder-backend";
-import { FlowEdge } from "./lib/edges/flow.tsx";
-import { FlowNode } from "./lib/nodes/flow-node.tsx";
+import { NodeType } from "hcu-urban-model-builder-backend";
+import { FlowTransitionEdge } from "./lib/edges/flow-tranistion.tsx";
+import { ArrowNode } from "./lib/nodes/arrow-node.tsx";
 import { FolderNode } from "./lib/nodes/folder-node.tsx";
+import {
+  getNodePositionInsideParent,
+  sortNodeModels,
+  sortNodes,
+} from "./lib/utils/grouping.ts";
+import {
+  reactFlowEdgeToEdgeType,
+  ReactFlowEdgeType,
+  ReactFlowNodeType,
+} from "./lib/declarations.ts";
 
 type NodeActions = {
   create: (type: "edge" | "node", data: any) => Promise<any>;
-  save: (type: "edge" | "node", id: string, data: any) => void;
+  save: (type: "edge" | "node", id: string, data: any) => Promise<any>;
   delete: (type: "edge" | "node", id: string) => Promise<void>;
   select: (type: "edge" | "node", id: string) => void;
   unselect: (type: "edge" | "node", id: string) => void;
@@ -50,20 +61,24 @@ type NodeActions = {
   };
 };
 
-const getNodeTypeStringName = (type: NodeType) => NodeType[type].toLowerCase();
-const getEdgeTypeStringName = (type: EdgeType) => EdgeType[type].toLowerCase();
-
+// TODO: use enum instead of string if not possible solve if more dynamically
 const nodeTypes = {
-  [getNodeTypeStringName(NodeType.Stock)]: BaseNode,
-  [getNodeTypeStringName(NodeType.Variable)]: BaseNode,
-  [getNodeTypeStringName(NodeType.Flow)]: FlowNode,
-  [getNodeTypeStringName(NodeType.Folder)]: FolderNode,
-  [getNodeTypeStringName(NodeType.Agent)]: FolderNode,
-};
+  [ReactFlowNodeType.Stock]: BaseNode,
+  [ReactFlowNodeType.Variable]: BaseNode,
+  [ReactFlowNodeType.State]: BaseNode,
+  [ReactFlowNodeType.Flow]: ArrowNode,
+  [ReactFlowNodeType.Transition]: ArrowNode,
+  [ReactFlowNodeType.Folder]: FolderNode,
+  [ReactFlowNodeType.Agent]: FolderNode,
+  [ReactFlowNodeType.Population]: BaseNode,
+  [ReactFlowNodeType.Action]: BaseNode,
+} as const;
 
 const edgesTypes = {
-  [getEdgeTypeStringName(EdgeType.Link)]: SmoothStepEdge,
-  [getEdgeTypeStringName(EdgeType.Flow)]: FlowEdge,
+  [ReactFlowEdgeType.Link]: SmoothStepEdge,
+  [ReactFlowEdgeType.Flow]: FlowTransitionEdge,
+  [ReactFlowEdgeType.Transition]: FlowTransitionEdge,
+  [ReactFlowEdgeType.AgentPopulation]: SmoothStepEdge,
 };
 
 function Flow({
@@ -75,21 +90,7 @@ function Flow({
 
   const [nodes, setNodes] = useState(() =>
     [...initialNodes]
-      ?.sort((a, b) => {
-        const parentIdA = a.raw.parentId;
-        const parentIdB = b.raw.parentId;
-        if (parentIdA === parentIdB) {
-          return 0;
-        }
-        if (parentIdA === null) {
-          return -1;
-        }
-        if (parentIdB === null) {
-          return 1;
-        }
-
-        return parentIdA - parentIdB;
-      })
+      ?.sort(sortNodeModels)
       .map((n) => ({ ...n.raw, data: { emberModel: n } })),
   );
 
@@ -129,13 +130,6 @@ function Flow({
             width: node.width,
           });
         }
-        if (change.type === "replace") {
-          console.log("replace", change);
-          nodeActions.save("node", change.id, {
-            position: change.item.position,
-            parent: change.item.parentId,
-          });
-        }
         if (change.type === "remove") {
           nodeActions.delete("node", change.id);
         }
@@ -166,19 +160,35 @@ function Flow({
   const getTmpEdgeId = (params: Connection) =>
     `tmp_source-${params.source}_target-${params.target}`;
 
+  const getEdgeTypeByConnection = useCallback((connection: Connection) => {
+    if (
+      connection.sourceHandle.startsWith("flow-") ||
+      connection.targetHandle.startsWith("flow-")
+    ) {
+      return ReactFlowEdgeType.Flow;
+    }
+    if (
+      connection.targetHandle.startsWith("transition-") ||
+      connection.sourceHandle.startsWith("transition-")
+    ) {
+      return ReactFlowEdgeType.Transition;
+    }
+    if (connection.sourceHandle.startsWith("agent-")) {
+      return ReactFlowEdgeType.AgentPopulation;
+    }
+
+    return ReactFlowEdgeType.Link;
+  }, []);
+
   const onConnect = useCallback(
     async (params: Connection) => {
       const tmpEdgeId = getTmpEdgeId(params);
       const markerEnd = { type: MarkerType.Arrow };
 
-      const type =
-        params.sourceHandle.startsWith("flow-") ||
-        params.targetHandle.startsWith("flow-")
-          ? EdgeType.Flow
-          : EdgeType.Link;
+      const type = getEdgeTypeByConnection(params);
 
       const tmpEdge: Edge = {
-        type: getEdgeTypeStringName(type),
+        type: type,
         id: tmpEdgeId,
         markerEnd,
         ...params,
@@ -187,9 +197,9 @@ function Flow({
       setEdges((eds) => addEdge(tmpEdge, eds));
 
       const newEdge = await nodeActions.create("edge", {
-        type: type,
-        source: params.source,
-        target: params.target,
+        type: reactFlowEdgeToEdgeType(type),
+        sourceId: params.source,
+        targetId: params.target,
         sourceHandle: params.sourceHandle,
         targetHandle: params.targetHandle,
       });
@@ -212,9 +222,9 @@ function Flow({
         reconnectEdge(oldEdge, newConnection, els, { shouldReplaceId: false }),
       );
 
-      nodeActions.save("edge", oldEdge.id, {
-        source: newConnection.source,
-        target: newConnection.target,
+      await nodeActions.save("edge", oldEdge.id, {
+        sourceId: newConnection.source,
+        targetId: newConnection.target,
         sourceHandle: newConnection.sourceHandle,
         targetHandle: newConnection.targetHandle,
       });
@@ -302,15 +312,13 @@ function Flow({
   );
 
   const onNodeDragStop = useCallback(
-    (_e: DragEvent<HTMLDivElement>, node: Node) => {
-      setNodes((ns) => ns.map((n) => ({ ...n, className: "" })));
-
+    async (_e: DragEvent<HTMLDivElement>, node: Node) => {
       const agentOrFolderNodes = rfInstance
         .getNodes()
         .filter(
           (n) =>
-            n.type === getNodeTypeStringName(NodeType.Agent) ||
-            n.type === getNodeTypeStringName(NodeType.Folder),
+            n.type === ReactFlowNodeType.Agent ||
+            n.type === ReactFlowNodeType.Folder,
         );
       const [intersection] = rfInstance.getIntersectingNodes(
         node,
@@ -318,19 +326,17 @@ function Flow({
         agentOrFolderNodes,
       );
 
+      let nodeChangeData = null;
       if (intersection && intersection.id !== node.parentId) {
-        const parentPosition = intersection.position;
-        console.log("parentNodeOrigin", intersection, parentPosition);
-        const positionInParent = {
-          x: node.position.x - parentPosition.x,
-          y: node.position.y - parentPosition.y,
-        };
+        const positionInParent = getNodePositionInsideParent(
+          node,
+          intersection,
+        );
 
-        console.log("intersection", intersection, node.position);
-        rfInstance.updateNode(node.id, {
-          parentId: intersection ? intersection.id : null,
+        nodeChangeData = {
+          parentId: intersection.id,
           position: positionInParent,
-        });
+        };
       } else if (!intersection && node.parentId) {
         const oldParent = rfInstance.getNode(node.parentId);
         const positionOnCanvas = {
@@ -338,10 +344,29 @@ function Flow({
           y: oldParent.position.y + node.position.y,
         };
 
-        rfInstance.updateNode(node.id, {
+        nodeChangeData = {
           parentId: null,
           position: positionOnCanvas,
-        });
+        };
+      }
+
+      if (nodeChangeData) {
+        console.log("nodeChangeData", nodeChangeData);
+
+        setNodes((ns) =>
+          ns
+            .map((n) => {
+              if (n.id === node.id) {
+                return { ...n, ...nodeChangeData };
+              }
+              return { ...n, className: "" };
+            })
+            .sort(sortNodes),
+        );
+
+        await nodeActions.save("node", node.id, nodeChangeData);
+      } else {
+        setNodes((ns) => ns.map((n) => ({ ...n, className: "" })));
       }
     },
     [rfInstance],
@@ -355,6 +380,9 @@ function Flow({
       edges={edges}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      defaultEdgeOptions={{
+        zIndex: 10,
+      }}
       onReconnect={onReconnect}
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}
@@ -387,7 +415,11 @@ interface AppProps {
 }
 
 function App({ nodes, nodeActions, edges }: AppProps) {
-  return <Flow nodes={nodes} edges={edges} nodeActions={nodeActions} />;
+  return (
+    <ReactFlowProvider>
+      <Flow nodes={nodes} edges={edges} nodeActions={nodeActions} />;
+    </ReactFlowProvider>
+  );
 }
 
 export function initReact(

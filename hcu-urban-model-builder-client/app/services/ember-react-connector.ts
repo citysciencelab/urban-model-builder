@@ -8,6 +8,8 @@ import type Node from 'hcu-urban-model-builder-client/models/node';
 import type StoreEventEmitterService from './store-event-emitter';
 import type { ReactFlowInstance } from '@xyflow/react';
 import type { NodeType } from 'hcu-urban-model-builder-backend';
+import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
+import type Model from '@ember-data/model';
 
 export default class EmberReactConnectorService extends Service {
   @service declare store: Store;
@@ -31,28 +33,16 @@ export default class EmberReactConnectorService extends Service {
       throw new Error(`Node with id ${id} not found`);
     }
 
-    const data = { ...rawData };
-    for (const key of ['source', 'target']) {
-      if (key in rawData) {
-        data[key] = this.store.peekRecord<Node>('node', rawData[key]);
-      }
-    }
-    Object.assign(record, data);
-    await record.save();
+    return this.saveRecord(record, rawData);
   }
 
   @action
   async create(type: 'node' | 'edge', rawData: any) {
-    const data = { ...rawData };
-    for (const key of ['source', 'target']) {
-      if (key in rawData) {
-        data[key] = this.store.peekRecord<Node>('node', rawData[key]);
-      }
-    }
+    const record = this.store.createRecord<Node | Edge>(type, {});
 
-    data.model = this.currentModel;
+    record.model = this.currentModel!;
 
-    return this.store.createRecord<Node | Edge>(type, data).save();
+    return this.saveRecord(record, rawData);
   }
 
   @action
@@ -93,6 +83,35 @@ export default class EmberReactConnectorService extends Service {
   @action
   setRfInstance(rfInstance: ReactFlowInstance) {
     this.rfInstance = rfInstance;
+  }
+
+  private saveRecord(record: Model, rawData: any) {
+    const data = this.assignRelationships(record, rawData);
+    Object.assign(record, data);
+    return record.save();
+  }
+
+  private assignRelationships(record: Model, rawData: any) {
+    const data = { ...rawData };
+    record.eachRelationship((key: string, schema: LegacyRelationshipSchema) => {
+      if (schema.kind === 'belongsTo') {
+        const keyWithId = `${key}Id`;
+        if (keyWithId in rawData) {
+          const value = rawData[keyWithId];
+          if (value) {
+            console.log('value', value);
+            console.log('schema', schema);
+
+            data[key] = this.store.peekRecord(schema.type, value);
+          } else if (value === null) {
+            data[key] = null;
+          }
+          delete data[keyWithId];
+        }
+      }
+    });
+
+    return data;
   }
 }
 

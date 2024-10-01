@@ -13,6 +13,8 @@ export default class ModelModel extends Model {
   @hasMany('edges', { async: true, inverse: 'model' })
   declare edges: AsyncHasMany<Edge>;
 
+  @attr('number') declare timeLength: number;
+
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;
 }

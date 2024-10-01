@@ -16,7 +16,7 @@ export const BaseNode = memo(({ data, isConnectable }: NodeProps) => {
   });
 
   return (
-    <div className="react-flow__node-default">
+    <div className="react-flow__node-default content">
       {["target", "source"].map((type: HandleType) =>
         positions.map((position) => (
           <Handle

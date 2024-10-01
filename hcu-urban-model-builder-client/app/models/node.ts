@@ -1,8 +1,9 @@
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { Type } from '@warp-drive/core-types/symbols';
 import type Edge from './edge';
-import { NodeType } from 'hcu-urban-model-builder-backend';
+import { NodeType, type Nodes } from 'hcu-urban-model-builder-backend';
 import type ModelModel from './model';
+import { dasherize } from '@ember/string';
 
 export default class Node extends Model {
   [Type] = 'node' as const;
@@ -13,7 +14,7 @@ export default class Node extends Model {
 
   @attr('string') declare name: string;
 
-  @attr() declare data: { value?: string; rate?: number };
+  @attr() declare data: Nodes['data'];
 
   @attr() declare position: { x: number; y: number };
 
@@ -39,7 +40,7 @@ export default class Node extends Model {
   get raw() {
     return {
       id: this.id,
-      type: NodeType[this.type].toLocaleLowerCase(),
+      type: dasherize(NodeType[this.type]),
       data: this.data,
       position: this.position,
       parentId: this.parent?.id,

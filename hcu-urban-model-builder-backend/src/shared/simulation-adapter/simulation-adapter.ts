@@ -1,26 +1,32 @@
 import { Model } from 'simulation'
-import { Application } from '../declarations.js'
-import { Nodes, NodeType } from '../services/nodes/nodes.shared.js'
+import { NodeType } from '../../services/nodes/nodes.shared.js'
 import { Agent, Container, Flow, Population, Primitive, State, Stock, Transition } from 'simulation/blocks'
-import { Edges, EdgeType } from '../services/edges/edges.shared.js'
+import { Edges, EdgeType } from '../../services/edges/edges.shared.js'
 import { primitiveFactory } from './primitive-factory.js'
-import { logger } from '../logger.js'
 import { Results } from 'simulation/Results'
+import { Logger } from 'winston'
+import { ClientApplication } from '../../client.js'
+import { Application } from '../../declarations.js'
 
 type PopulationNodeResult = {
+  id: string
   location: [number, number]
   state: number[]
 }[][]
 
-export class SimulationAdapter {
+export class SimulationAdapter<T extends ClientApplication | Application> {
+  private app: ClientApplication
   private nodeIdPrimitiveMap = new Map<number, Primitive>()
   private primitiveIdNodeIdMap: Map<string, number> = new Map()
   private primitiveIdTypeMap = new Map<string, NodeType>()
 
   constructor(
-    private app: Application,
-    private modelId: number
-  ) {}
+    app: T,
+    private modelId: number,
+    private logger: Logger | typeof console = console
+  ) {
+    this.app = app as ClientApplication
+  }
 
   public async simulate() {
     const model = await this.createSimulationModel()
@@ -28,8 +34,6 @@ export class SimulationAdapter {
     await this.createModelPrimitives(model)
 
     await this.assignPrimitiveParents()
-
-    await this.assignAgentToPopulation()
 
     await this.createModelRelationsByEdges(model)
 
@@ -92,24 +96,6 @@ export class SimulationAdapter {
     }
   }
 
-  private async assignAgentToPopulation() {
-    const allPopulations = await this.app.service('nodes').find({
-      query: {
-        modelId: this.modelId,
-        type: NodeType.Population
-      }
-    })
-
-    for (const population of allPopulations.data) {
-      const populationPrimitive = this.nodeIdPrimitiveMap.get(population.id) as Population
-
-      if (population.data?.agentBaseId) {
-        const relatedAgent = this.nodeIdPrimitiveMap.get(population.data.agentBaseId) as Agent
-        populationPrimitive.agentBase = relatedAgent
-      }
-    }
-  }
-
   private async createModelRelationsByEdges(model: Model) {
     const edges = await this.app.service('edges').find({
       query: {
@@ -128,6 +114,10 @@ export class SimulationAdapter {
         this.setPrimitiveStartEndByEdge(edge, 'flow')
       } else if (edge.type === EdgeType.Transition) {
         this.setPrimitiveStartEndByEdge(edge, 'transition')
+      } else if (edge.type === EdgeType.AgentPopulation) {
+        const population = this.nodeIdPrimitiveMap.get(edge.targetId) as Population
+        const agent = this.nodeIdPrimitiveMap.get(edge.sourceId) as Agent
+        population.agentBase = agent
       }
     }
   }
@@ -138,16 +128,23 @@ export class SimulationAdapter {
       times: simulationResult.times()
     }
     for (const [nodeId, primitive] of this.nodeIdPrimitiveMap) {
-      if (primitive.id in simulationResult._data.children!) {
+      if (primitive.id in (simulationResult._data.children || {})) {
         const primitiveResult = simulationResult.series(primitive)
 
         let series: number[] | PopulationNodeResult = []
         if (NodeType.Population === this.primitiveIdTypeMap.get(primitive.id)) {
           series = primitiveResult.map((value: any) =>
-            value.current.map((item: { state: { id: string }[]; location: { items: [number, number] } }) => ({
-              location: item.location.items,
-              state: item.state.map((s: { id: string }) => this.primitiveIdNodeIdMap.get(s.id))
-            }))
+            value.current.map(
+              (item: {
+                instanceId: string
+                state: { id: string }[]
+                location: { items: [number, number] }
+              }) => ({
+                id: item.instanceId,
+                location: item.location.items,
+                state: item.state?.map((s: { id: string }) => this.primitiveIdNodeIdMap.get(s.id)) || []
+              })
+            )
           )
         } else {
           series = primitiveResult
@@ -157,7 +154,7 @@ export class SimulationAdapter {
           series
         }
       } else {
-        logger.debug('No result for primitive with id:', primitive.id)
+        this.logger.debug('No result for primitive with id:', primitive.id)
       }
     }
 

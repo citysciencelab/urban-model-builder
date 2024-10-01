@@ -1,0 +1,17 @@
+<@form.element
+  @controlType="radio"
+  @label="Trigger"
+  @property="data.trigger"
+  @options={{this.triggerTypeOptions}}
+/>
+<@form.element @controlType="textarea" @label="Value" @property="data.value" />
+<@form.element
+  @controlType="checkbox"
+  @label="Recalculate"
+  @property="data.recalculate"
+/>
+<@form.element
+  @controlType="checkbox"
+  @label="Repeat"
+  @property="data.repeat"
+/>

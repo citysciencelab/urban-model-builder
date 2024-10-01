@@ -2,7 +2,7 @@ import { Handle, HandleType, NodeProps, Position } from "@xyflow/react";
 import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo } from "react";
 
-export const FlowNode = memo(({ data, isConnectable }: NodeProps) => {
+export const ArrowNode = memo(({ data, isConnectable, type }: NodeProps) => {
   const positions = [
     Position.Top,
     Position.Bottom,
@@ -30,14 +30,14 @@ export const FlowNode = memo(({ data, isConnectable }: NodeProps) => {
       )}
       <Handle
         type="target"
-        id="flow-target"
+        id={`${type}-target`}
         position={Position.Left}
         style={{ background: "red" }}
         isConnectable={isConnectable}
       />
       <Handle
         type="source"
-        id="flow-source"
+        id={`${type}-source`}
         position={Position.Right}
         style={{ background: "red" }}
         isConnectable={isConnectable}
