@@ -62,6 +62,13 @@ main {
   }
 }
 
+.react-flow__edge-agent-population {
+  // set css var
+  --xy-edge-stroke: #aba3d2;
+  --xy-edge-stroke-selected: #9e91db;
+  --xy-edge-stroke-width: 2;
+}
+
 .sidebar__container {
   z-index: 1050;
   position: absolute;

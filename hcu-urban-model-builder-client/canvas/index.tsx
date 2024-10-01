@@ -173,6 +173,10 @@ function Flow({
     ) {
       return ReactFlowEdgeType.Transition;
     }
+    if (connection.sourceHandle.startsWith("agent-")) {
+      return ReactFlowEdgeType.AgentPopulation;
+    }
+
     return ReactFlowEdgeType.Link;
   }, []);
 
