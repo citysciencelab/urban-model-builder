@@ -22,7 +22,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
-import { EdgeType, NodeType } from "hcu-urban-model-builder-backend";
+import { NodeType } from "hcu-urban-model-builder-backend";
 import { FlowTransitionEdge } from "./lib/edges/flow-tranistion.tsx";
 import { ArrowNode } from "./lib/nodes/arrow-node.tsx";
 import { FolderNode } from "./lib/nodes/folder-node.tsx";
@@ -31,6 +31,11 @@ import {
   sortNodeModels,
   sortNodes,
 } from "./lib/utils/grouping.ts";
+import {
+  reactFlowEdgeToEdgeType,
+  ReactFlowEdgeType,
+  ReactFlowNodeType,
+} from "./lib/declarations.ts";
 
 type NodeActions = {
   create: (type: "edge" | "node", data: any) => Promise<any>;
@@ -56,27 +61,24 @@ type NodeActions = {
   };
 };
 
-const getNodeTypeStringName = <T extends NodeType>(type: T) =>
-  NodeType[type].toLowerCase() as keyof T;
-const getEdgeTypeStringName = (type: EdgeType) => EdgeType[type].toLowerCase();
-
 // TODO: use enum instead of string if not possible solve if more dynamically
 const nodeTypes = {
-  [getNodeTypeStringName(NodeType.Stock)]: BaseNode,
-  [getNodeTypeStringName(NodeType.Variable)]: BaseNode,
-  [getNodeTypeStringName(NodeType.State)]: BaseNode,
-  [getNodeTypeStringName(NodeType.Flow)]: ArrowNode,
-  [getNodeTypeStringName(NodeType.Transition)]: ArrowNode,
-  [getNodeTypeStringName(NodeType.Folder)]: FolderNode,
-  [getNodeTypeStringName(NodeType.Agent)]: FolderNode,
-  [getNodeTypeStringName(NodeType.Population)]: BaseNode,
-  [getNodeTypeStringName(NodeType.Action)]: BaseNode,
+  [ReactFlowNodeType.Stock]: BaseNode,
+  [ReactFlowNodeType.Variable]: BaseNode,
+  [ReactFlowNodeType.State]: BaseNode,
+  [ReactFlowNodeType.Flow]: ArrowNode,
+  [ReactFlowNodeType.Transition]: ArrowNode,
+  [ReactFlowNodeType.Folder]: FolderNode,
+  [ReactFlowNodeType.Agent]: FolderNode,
+  [ReactFlowNodeType.Population]: BaseNode,
+  [ReactFlowNodeType.Action]: BaseNode,
 } as const;
 
 const edgesTypes = {
-  [getEdgeTypeStringName(EdgeType.Link)]: SmoothStepEdge,
-  [getEdgeTypeStringName(EdgeType.Flow)]: FlowTransitionEdge,
-  [getEdgeTypeStringName(EdgeType.Transition)]: FlowTransitionEdge,
+  [ReactFlowEdgeType.Link]: SmoothStepEdge,
+  [ReactFlowEdgeType.Flow]: FlowTransitionEdge,
+  [ReactFlowEdgeType.Transition]: FlowTransitionEdge,
+  [ReactFlowEdgeType.AgentPopulation]: SmoothStepEdge,
 };
 
 function Flow({
@@ -163,15 +165,15 @@ function Flow({
       connection.sourceHandle.startsWith("flow-") ||
       connection.targetHandle.startsWith("flow-")
     ) {
-      return EdgeType.Flow;
+      return ReactFlowEdgeType.Flow;
     }
     if (
       connection.targetHandle.startsWith("transition-") ||
       connection.sourceHandle.startsWith("transition-")
     ) {
-      return EdgeType.Transition;
+      return ReactFlowEdgeType.Transition;
     }
-    return EdgeType.Link;
+    return ReactFlowEdgeType.Link;
   }, []);
 
   const onConnect = useCallback(
@@ -182,7 +184,7 @@ function Flow({
       const type = getEdgeTypeByConnection(params);
 
       const tmpEdge: Edge = {
-        type: getEdgeTypeStringName(type),
+        type: type,
         id: tmpEdgeId,
         markerEnd,
         ...params,
@@ -191,7 +193,7 @@ function Flow({
       setEdges((eds) => addEdge(tmpEdge, eds));
 
       const newEdge = await nodeActions.create("edge", {
-        type: type,
+        type: reactFlowEdgeToEdgeType(type),
         sourceId: params.source,
         targetId: params.target,
         sourceHandle: params.sourceHandle,
@@ -311,8 +313,8 @@ function Flow({
         .getNodes()
         .filter(
           (n) =>
-            n.type === getNodeTypeStringName(NodeType.Agent) ||
-            n.type === getNodeTypeStringName(NodeType.Folder),
+            n.type === ReactFlowNodeType.Agent ||
+            n.type === ReactFlowNodeType.Folder,
         );
       const [intersection] = rfInstance.getIntersectingNodes(
         node,
