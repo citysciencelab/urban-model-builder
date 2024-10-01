@@ -35,8 +35,6 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
     await this.assignPrimitiveParents()
 
-    await this.assignAgentToPopulation()
-
     await this.createModelRelationsByEdges(model)
 
     const simulationResult = model.simulate()
@@ -98,24 +96,6 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     }
   }
 
-  private async assignAgentToPopulation() {
-    const allPopulations = await this.app.service('nodes').find({
-      query: {
-        modelId: this.modelId,
-        type: NodeType.Population
-      }
-    })
-
-    for (const population of allPopulations.data) {
-      const populationPrimitive = this.nodeIdPrimitiveMap.get(population.id) as Population
-
-      if (population.data?.agentBaseId) {
-        const relatedAgent = this.nodeIdPrimitiveMap.get(population.data.agentBaseId) as Agent
-        populationPrimitive.agentBase = relatedAgent
-      }
-    }
-  }
-
   private async createModelRelationsByEdges(model: Model) {
     const edges = await this.app.service('edges').find({
       query: {
@@ -134,6 +114,10 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
         this.setPrimitiveStartEndByEdge(edge, 'flow')
       } else if (edge.type === EdgeType.Transition) {
         this.setPrimitiveStartEndByEdge(edge, 'transition')
+      } else if (edge.type === EdgeType.AgentPopulation) {
+        const population = this.nodeIdPrimitiveMap.get(edge.targetId) as Population
+        const agent = this.nodeIdPrimitiveMap.get(edge.sourceId) as Agent
+        population.agentBase = agent
       }
     }
   }
