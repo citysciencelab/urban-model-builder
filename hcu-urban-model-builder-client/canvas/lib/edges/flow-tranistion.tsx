@@ -1,16 +1,5 @@
-import React from "react";
-import {
-  BaseEdge,
-  EdgeLabelRenderer,
-  EdgeProps,
-  getBezierPath,
-  getSmoothStepPath,
-  getStraightPath,
-  Handle,
-  HandleType,
-  Position,
-  useReactFlow,
-} from "@xyflow/react";
+import { useMemo } from "react";
+import { BaseEdge, EdgeProps, getSmoothStepPath } from "@xyflow/react";
 
 export function FlowTransitionEdge({
   id,
@@ -22,6 +11,7 @@ export function FlowTransitionEdge({
   targetPosition,
   markerEnd,
   type,
+  sourceHandleId,
 }: EdgeProps & { type: string }) {
   const [edgePath] = getSmoothStepPath({
     sourceX,
@@ -32,14 +22,20 @@ export function FlowTransitionEdge({
     targetPosition,
   });
 
-  const style =
-    type === "flow"
-      ? { stroke: "#a3c4ff", strokeWidth: "3px" }
-      : { stroke: "#111111", strokeWidth: "3px" };
+  const hasMarkerEnd = useMemo(
+    () =>
+      sourceHandleId.startsWith("transition") ||
+      sourceHandleId.startsWith("flow"),
+    [sourceHandleId],
+  );
 
   return (
     <>
-      <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={style} />
+      <BaseEdge
+        id={id}
+        path={edgePath}
+        markerEnd={hasMarkerEnd ? markerEnd : undefined}
+      />
     </>
   );
 }

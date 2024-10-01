@@ -38,9 +38,7 @@ export const FolderNode = memo(
             )),
           )}
         <NodeResizer color="#ff0071" isVisible={!!selected} />
-        <div>
-          Group: {name} (id: {id})
-        </div>
+        <div className="content">{name}</div>
       </>
     );
   },

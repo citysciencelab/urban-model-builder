@@ -380,6 +380,9 @@ function Flow({
       edges={edges}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      defaultEdgeOptions={{
+        zIndex: 10,
+      }}
       onReconnect={onReconnect}
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}

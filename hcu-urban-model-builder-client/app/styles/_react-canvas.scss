@@ -1,0 +1,43 @@
+@use "sass:map";
+@use "sass:color";
+
+.react-flow__node.selected div {
+  border-color: red;
+}
+
+.react-flow__node-flow__label {
+  padding: 0 0.5rem;
+}
+
+@each $name, $color in $node-color-map {
+  .react-flow__node-#{$name} .content {
+    background-color: $color;
+  }
+}
+
+$group-nodes: "folder", "agent";
+
+@each $name in $group-nodes {
+  .react-flow__node-#{$name} {
+    border: var(--xy-node-border-default);
+    border-radius: var(--xy-node-border-radius-default);
+
+    .content {
+      height: 100%;
+      width: 100%;
+    }
+
+    &.intersect {
+      // add outer shine
+      box-shadow: 0px 0px 15px 9px map.get($node-color-map, $name);
+    }
+  }
+}
+
+@each $name, $color in $edge-color-map {
+  .react-flow__edge-#{$name} {
+    --xy-edge-stroke: #{$color};
+    --xy-edge-stroke-selected: #{darken($color, 10%)};
+    --xy-edge-stroke-width: 2;
+  }
+}
