@@ -36,6 +36,8 @@ export default class ModelsVersion extends Model {
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;
 
+  @attr('number') declare timeLength: number;
+
   get hasVersion() {
     return (
       this.majorVersion > 0 || this.minorVersion > 0 || this.draftVersion > 0

@@ -10,11 +10,12 @@ import type Node from 'hcu-urban-model-builder-client/models/node';
 import { NodeType, SimulationAdapter } from 'hcu-urban-model-builder-backend';
 import type { ModelsService } from 'hcu-urban-model-builder-backend/lib/services/models/models.class';
 import * as echarts from 'echarts';
+import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 
 export interface SimulateModalSignature {
   // The arguments accepted by the component
   Args: {
-    model: ModelModel;
+    model: ModelsVersion;
     show?: boolean;
     onHide: () => void;
   };
