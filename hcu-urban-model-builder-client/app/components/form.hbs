@@ -6,7 +6,11 @@
       </h3>
     </div>
     <div class="sidebar__content">
-      <BsForm @onSubmit={{this.onSave}} @model={{@record}} as |form|>
+      <BsForm
+        @onSubmit={{this.onSave}}
+        @model={{@record}}
+        @disabled={{@disabled}} as |form|
+      >
         <form.element
           @controlType="text"
           @label="Name"

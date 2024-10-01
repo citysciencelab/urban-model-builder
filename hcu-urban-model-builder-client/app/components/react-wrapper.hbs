@@ -12,7 +12,10 @@
     <AnimatedContainer>
       {{#animated-if this.hasSelected use=this.transition}}
         {{#if this.selectedSingleItem}}
-          <Form @record={{this.selectedSingleItem}} />
+          <Form
+            @record={{this.selectedSingleItem}}
+            @disabled={{not @model.canEdit}}
+          />
         {{/if}}
       {{/animated-if}}
     </AnimatedContainer>
