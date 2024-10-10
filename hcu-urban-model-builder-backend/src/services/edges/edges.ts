@@ -53,8 +53,8 @@ export const edges = (app: Application) => {
         schemaHooks.resolveData(edgesDataResolver),
         iff(
           isProvider('external'),
-          checkModelPermission('modelsVersionsId', 'models-versions', Roles.collaborator),
-          checkModelVersionState()
+          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
+          checkModelVersionState('data.modelsVersionsId', 'models-versions')
         )
       ],
       patch: [
@@ -62,11 +62,17 @@ export const edges = (app: Application) => {
         schemaHooks.resolveData(edgesPatchResolver),
         iff(
           isProvider('external'),
-          checkModelPermission('modelsVersionsId', 'models-versions', Roles.collaborator),
-          checkModelVersionState()
+          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
+          checkModelVersionState('data.modelsVersionsId', 'models-versions')
         )
       ],
-      remove: []
+      remove: [
+        iff(
+          isProvider('external'),
+          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
+          checkModelVersionState('data.modelsVersionsId', 'models-versions')
+        )
+      ]
     },
     after: {
       all: []

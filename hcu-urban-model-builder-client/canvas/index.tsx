@@ -136,6 +136,7 @@ function Flow({
           });
         }
         if (change.type === "remove") {
+          if (flowOptions.disabled) return;
           nodeActions.delete("node", change.id);
         }
       }
@@ -149,6 +150,7 @@ function Flow({
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
     for (const change of changes) {
       if (change.type === "remove") {
+        if (flowOptions.disabled) return;
         nodeActions.delete("edge", change.id);
       }
     }
@@ -401,7 +403,7 @@ function Flow({
       nodesDraggable={!flowOptions.disabled}
       nodesConnectable={!flowOptions.disabled}
       nodesFocusable={!flowOptions.disabled}
-      panOnDrag={!flowOptions.disabled}
+      panOnDrag={true}
       fitView
     >
       <Panel position="bottom-center">
