@@ -88,7 +88,7 @@ export default class ModelModel extends Model {
   async publishMinor(version: ModelsVersion, formModel: FormModelPublish) {
     await this.feathers.app.service('models').publishMinor({
       id: Number(this.id),
-      modelsVersionsId: version.id,
+      modelsVersionsId: Number(version.id),
       notes: formModel.notes,
     });
   }
@@ -97,7 +97,7 @@ export default class ModelModel extends Model {
   async publishMajor(version: ModelsVersion, formModel: FormModelPublish) {
     await this.feathers.app.service('models').publishMajor({
       id: Number(this.id),
-      modelsVersionsId: version.id,
+      modelsVersionsId: Number(version.id),
       notes: formModel.notes,
     });
   }

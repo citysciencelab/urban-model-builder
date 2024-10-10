@@ -24,7 +24,7 @@ import { edgesDataSchema } from '../edges/edges.schema.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
-export interface ModelsParams extends KnexAdapterParams<ModelsQuery> { }
+export interface ModelsParams extends KnexAdapterParams<ModelsQuery> {}
 
 export interface ModelsServiceOptions extends KnexAdapterOptions {
   app: Application
@@ -114,52 +114,72 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async publishMinor(data: ModelsPublish, params?: ServiceParams) {
-    const currentModel = await this.app.service('models').get(data.id)
+    const currentModel = await this.app.service('models').get(data.id, { user: params?.user })
 
     const newMinor = currentModel.currentMinorVersion + 1
     const newDraft = 0
 
-    await this.app.service('models').patch(data.id, {
-      currentMinorVersion: newMinor,
-      currentDraftVersion: newDraft,
-      latestPublishedVersionId: currentModel.latestDraftVersionId,
-      latestDraftVersionId: null
-    })
+    await this.app.service('models').patch(
+      data.id,
+      {
+        currentMinorVersion: newMinor,
+        currentDraftVersion: newDraft,
+        latestPublishedVersionId: currentModel.latestDraftVersionId,
+        latestDraftVersionId: null
+      },
+      { user: params?.user }
+    )
 
-    await this.app.service('models-versions').patch(currentModel.latestDraftVersionId!, {
-      notes: data.notes,
-      minorVersion: newMinor,
-      draftVersion: newDraft,
-      publishedAt: new Date().toISOString(),
-      publishedBy: params?.user?.id
-    })
+    await this.app.service('models-versions').patch(
+      currentModel.latestDraftVersionId!,
+      {
+        notes: data.notes,
+        minorVersion: newMinor,
+        draftVersion: newDraft,
+        publishedAt: new Date().toISOString(),
+        publishedBy: params?.user?.id
+      },
+      { user: params?.user }
+    )
 
     return {}
   }
 
   async publishMajor(data: ModelsPublish, params?: ServiceParams) {
-    const currentModel = await this.app.service('models').get(data.id)
+    const currentModel = await this.app.service('models').get(data.id, { user: params?.user })
 
     const newMajor = currentModel.currentMajorVersion + 1
     const newMinor = 0
     const newDraft = 0
 
-    await this.app.service('models').patch(data.id, {
-      currentMajorVersion: newMajor,
-      currentMinorVersion: newMinor,
-      currentDraftVersion: newDraft,
-      latestPublishedVersionId: currentModel.latestDraftVersionId
-      // TODO: decide if latestDraftVersionId becomes null
-    })
+    await this.app.service('models').patch(
+      data.id,
+      {
+        currentMajorVersion: newMajor,
+        currentMinorVersion: newMinor,
+        currentDraftVersion: newDraft,
+        latestPublishedVersionId: currentModel.latestDraftVersionId
+        // TODO: decide if latestDraftVersionId becomes null
+      },
+      {
+        user: params?.user
+      }
+    )
 
-    await this.app.service('models-versions').patch(currentModel.latestDraftVersionId!, {
-      notes: data.notes,
-      majorVersion: newMajor,
-      minorVersion: newMinor,
-      draftVersion: newDraft,
-      publishedAt: new Date().toISOString(),
-      publishedBy: params?.user?.id
-    })
+    await this.app.service('models-versions').patch(
+      currentModel.latestDraftVersionId!,
+      {
+        notes: data.notes,
+        majorVersion: newMajor,
+        minorVersion: newMinor,
+        draftVersion: newDraft,
+        publishedAt: new Date().toISOString(),
+        publishedBy: params?.user?.id
+      },
+      {
+        user: params?.user
+      }
+    )
 
     return {}
   }
@@ -167,19 +187,26 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   async cloneVersion(data: ModelsCloneVersion, params?: ServiceParams) {
     const modelVersionId = data.id
 
-    const currentModelVersion = await this.app.service('models-versions').get(modelVersionId)
+    const currentModelVersion = await this.app.service('models-versions').get(modelVersionId, {
+      user: params?.user
+    })
 
     const modelId = currentModelVersion.modelId
 
-    const currentModel = await this.app.service('models').get(modelId)
-
-    const newModel = await this.app.service('models').create({
-      internalName: data.internalName,
-      // TODO: description is missing (ui -> backend)
-      globalUuid: currentModel.globalUuid,
-      forkedFromVersionId: modelVersionId,
-      createdBy: params?.user?.id
+    const currentModel = await this.app.service('models').get(modelId, {
+      user: params?.user
     })
+
+    const newModel = await this.app.service('models').create(
+      {
+        internalName: data.internalName,
+        // TODO: description is missing (ui -> backend)
+        globalUuid: currentModel.globalUuid,
+        forkedFromVersionId: modelVersionId,
+        createdBy: params?.user?.id
+      },
+      { user: params?.user }
+    )
 
     currentModelVersion.modelId = newModel.id
     const newModelVersion = await this.cloneModelVersion(currentModelVersion, null, 0, 0, 1, params)

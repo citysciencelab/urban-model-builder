@@ -9,7 +9,7 @@ export const checkClonePermissionsAndState = async (context: HookContext) => {
 
   if (context.data && 'id' in context.data) {
     try {
-      const record = await context.service('models-versions').get(context.data.id, {
+      const record = await context.app.service('models-versions').get(context.data.id, {
         user: context.params.user
       })
 

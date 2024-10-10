@@ -64,7 +64,7 @@ export default class ModelsVersion extends Model {
   }
 
   get canCreateNewDraft() {
-    return this.isLatest;
+    return this.isLatest && this.role >= Roles.collaborator;
   }
 
   get canPublish() {
@@ -72,7 +72,7 @@ export default class ModelsVersion extends Model {
   }
 
   get canShare() {
-    return this.role > Roles.co_owner;
+    return this.role >= Roles.co_owner;
   }
 
   get canClone() {

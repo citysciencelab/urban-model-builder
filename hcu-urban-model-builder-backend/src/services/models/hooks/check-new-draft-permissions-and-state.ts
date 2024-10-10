@@ -9,12 +9,12 @@ export const checkNewDraftPermissionsAndState = async (context: HookContext) => 
 
   if (context.data && 'id' in context.data) {
     try {
-      const record = await context.service('models-versions').get(context.data.id, {
+      const record = await context.app.service('models').get(context.data.id, {
         user: context.params.user
       })
 
       if (!record) {
-        throw new Error('ModelVersion not found')
+        throw new Error('Model not found')
       }
 
       if (!record.role || record.role < Roles.collaborator) {

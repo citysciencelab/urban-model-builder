@@ -66,10 +66,10 @@ export const models = (app: Application) => {
       find: [customSoftDelete(), permissionFilter],
       get: [customSoftDelete(), permissionFilter],
       create: [
+        setCreatedBy,
         schemaHooks.validateData(modelsDataValidator),
         schemaHooks.resolveData(modelsDataResolver),
         customSoftDelete(),
-        setCreatedBy,
         iff(isProvider('external'), initModelDefaults)
       ],
       patch: [
@@ -106,7 +106,7 @@ export const models = (app: Application) => {
     },
     after: {
       all: [],
-      create: [iff(isProvider('external'), initModelVersion), iff(isProvider('external'), initModelsUsers)]
+      create: [iff(isProvider('external'), initModelVersion), initModelsUsers]
     },
     error: {
       all: []

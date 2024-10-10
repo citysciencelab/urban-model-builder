@@ -123,8 +123,7 @@ export const modelsPublishResolver = resolve<ModelsPublish, HookContext<ModelsSe
 export const modelsCloneVersionSchema = Type.Object(
   {
     id: Type.Number(),
-    internalName: Type.String(),
-    modelsVersionsId: Type.Number()
+    internalName: Type.String()
   },
   { $id: 'ModelsCloneVersion', additionalProperties: false }
 )

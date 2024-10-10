@@ -63,3 +63,10 @@ components:
   share_modal:
     title: Share model
     intro: Here you can share the model with other users.
+
+permissions:
+  0: No authorization
+  1: View
+  2: Co-worker
+  3: Co-Owner
+  4: Owner

@@ -6,9 +6,12 @@ import type { HookContext } from '../declarations.js'
 export const initModelsUsers = async (context: HookContext) => {
   checkContext(context, 'after', ['create'])
 
-  await context.app.service('models-users').create({
-    modelId: context.result.id,
-    userId: context.params.user.id,
-    role: Roles.owner
-  })
+  await context.app.service('models-users').create(
+    {
+      modelId: context.result.id,
+      userId: context.params.user.id,
+      role: Roles.owner
+    },
+    { user: context.params.user }
+  )
 }

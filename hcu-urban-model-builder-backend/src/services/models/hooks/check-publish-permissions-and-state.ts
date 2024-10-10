@@ -7,7 +7,7 @@ export const checkPublishPermissionsAndState = async (context: HookContext) => {
     throw new Error('publishMinor only works for single models')
   }
   if (context.data && 'id' in context?.data && 'modelsVersionsId' in context?.data) {
-    const record = await context.service('models').get(context.data.id as any, {
+    const record = await context.app.service('models').get(context.data.id as any, {
       user: context.params.user
     })
     if (!record) {

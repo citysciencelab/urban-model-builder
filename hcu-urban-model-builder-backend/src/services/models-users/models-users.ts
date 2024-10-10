@@ -19,6 +19,7 @@ import { ModelsUsersService, getOptions } from './models-users.class.js'
 import { modelsUsersPath, modelsUsersMethods } from './models-users.shared.js'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { Roles } from '../../client.js'
+import { isServerCall } from '../../utils/is-server-call.js'
 
 export * from './models-users.class.js'
 export * from './models-users.schema.js'
@@ -68,6 +69,10 @@ export const modelsUsers = (app: Application) => {
         schemaHooks.validateData(modelsUsersDataValidator),
         schemaHooks.resolveData(modelsUsersDataResolver),
         async (context) => {
+          // server calls are allowed to create without the permission check
+          if (isServerCall(context.params)) {
+            return context
+          }
           // user must have role >= co-owner to be able to create a permission for this model
           if (context.data) {
             const permissionData = context.data as ModelsUsersData

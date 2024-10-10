@@ -13,9 +13,5 @@ export const permissionFilter = async (context: HookContext) => {
 
   const userId = ensureUserId(context)
 
-  _.set(context, 'params.query.$or', [
-    { createdBy: userId },
-    { latestPublishedVersionId: { $ne: null } },
-    { 'models_users.userId': userId }
-  ])
+  _.set(context, 'params.query.$or', [{ latestPublishedVersionId: { $ne: null } }, { role: { $gt: 0 } }])
 }

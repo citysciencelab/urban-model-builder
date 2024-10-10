@@ -15,9 +15,13 @@ export const initModelVersion = async (context: HookContext) => {
     { user: context.params.user }
   )
 
-  await context.app.service('models').patch(context.result.id, {
-    latestDraftVersionId: initialVersion.id
-  })
+  await context.app.service('models').patch(
+    context.result.id,
+    {
+      latestDraftVersionId: initialVersion.id
+    },
+    { user: context.params.user }
+  )
 
   return context
 }
