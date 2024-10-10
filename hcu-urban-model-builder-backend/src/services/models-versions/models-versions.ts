@@ -18,7 +18,8 @@ import type { Application } from '../../declarations.js'
 import { ModelsVersionsService, getOptions } from './models-versions.class.js'
 import { modelsVersionsPath, modelsVersionsMethods } from './models-versions.shared.js'
 import { setCreatedBy } from '../../hooks/set-created-by.js'
-import { touchParent } from '../../utils/touch-parent.js'
+import { iff, isProvider } from 'feathers-hooks-common'
+import _ from 'lodash'
 
 export * from './models-versions.class.js'
 export * from './models-versions.schema.js'
@@ -33,11 +34,8 @@ export const modelsVersions = (app: Application) => {
     events: []
   })
 
-  // const service = app.service(modelsVersionsPath)
-  // if (process.env.NODE_ENV !== 'test') {
-  //   touchParent(app, service, 'models', 'modelId')
-  // }
-
+  const queryOrOnlyWhenPermissions = { role: { $gt: 0 } }
+  const queryOrWhenPublished = { publishedAt: { $ne: null } }
   // Initialize hooks
   app.service(modelsVersionsPath).hooks({
     around: {
@@ -52,8 +50,22 @@ export const modelsVersions = (app: Application) => {
         schemaHooks.validateQuery(modelsVersionsQueryValidator),
         schemaHooks.resolveQuery(modelsVersionsQueryResolver)
       ],
-      find: [],
-      get: [],
+      find: [
+        // TODO: test and shift to external hook function
+        iff(isProvider('external'), (context: any) => {
+          _.set(context, 'params.query.$or', [queryOrOnlyWhenPermissions, queryOrWhenPublished])
+          // necessary because of the join -> be more specific about the table origin of modelId
+          if ('modelId' in context.params.query) {
+            context.params.query['models_versions.modelId'] = context.params.query.modelId
+            delete context.params.query.modelId
+          }
+        })
+      ],
+      get: [
+        (context) => {
+          _.set(context, 'params.query.$or', [queryOrOnlyWhenPermissions, queryOrWhenPublished])
+        }
+      ],
       create: [
         schemaHooks.validateData(modelsVersionsDataValidator),
         schemaHooks.resolveData(modelsVersionsDataResolver),

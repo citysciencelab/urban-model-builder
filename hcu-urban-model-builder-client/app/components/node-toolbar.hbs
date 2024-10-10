@@ -1,10 +1,12 @@
-{{#each this.nodeTypeConfigs as |nodeTypeConfig|}}
-  <div
-    class="node-toolbar__node --{{nodeTypeConfig.className}}"
-    draggable="true"
-    {{on "dragstart" (fn this.onDragStart nodeTypeConfig)}}
-    {{on "dragend" this.onDragEnd}}
-  >
-    {{nodeTypeConfig.label}}
-  </div>
-{{/each}}
+{{#unless @disabled}}
+  {{#each this.nodeTypeConfigs as |nodeTypeConfig|}}
+    <div
+      class="node-toolbar__node --{{nodeTypeConfig.className}}"
+      draggable="true"
+      {{on "dragstart" (fn this.onDragStart nodeTypeConfig)}}
+      {{on "dragend" this.onDragEnd}}
+    >
+      {{nodeTypeConfig.label}}
+    </div>
+  {{/each}}
+{{/unless}}

@@ -10,10 +10,12 @@ import lookupValidator from 'ember-changeset-validations';
 import { Changeset, EmberChangeset } from 'ember-changeset';
 import IntlService from 'ember-intl/services/intl';
 import { isEmpty } from '@ember/utils';
+import type UserService from 'hcu-urban-model-builder-client/services/user';
 
 export default class ModelsIndexController extends Controller<ModelModel[]> {
   @service declare store: Store;
   @service intl!: IntlService;
+  @service declare user: UserService;
 
   Validation = ModelValidations;
   @tracked isModalOpen = false;

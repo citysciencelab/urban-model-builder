@@ -2,11 +2,17 @@
 @import "node_modules/bootstrap/scss/functions";
 @import "node_modules/bootstrap/scss/mixins";
 @import "./variables-overrides";
+@import "ember-power-select/themes/bootstrap";
 @import "node_modules/bootstrap/scss/bootstrap";
 @import "./custom-functions";
 @import "./header";
 @import "./breadcrumbs";
 @import "ember-basic-dropdown";
+@import "ember-power-select";
+
+.ember-basic-dropdown-content {
+  z-index: 1055;
+}
 
 $node-color-map: (
   "flow": #a3c4ff,
@@ -142,7 +148,7 @@ main {
 
 .list-group-body-content {
   display: flex;
-  gap: get-spacer(3);
+  gap: get-spacer(2);
   margin-bottom: get-spacer(1);
 }
 
@@ -275,6 +281,7 @@ a.dropdown-toggle {
 .dropdown-item {
   display: flex;
   gap: get-spacer(3);
+  align-items: center;
 }
 
 .form-check-label {
@@ -304,4 +311,21 @@ a.dropdown-toggle {
     flex-direction: column;
     gap: get-spacer(3);
   }
+}
+
+.model__share__row {
+  .btn {
+    width: 100%;
+  }
+}
+
+.label-sr-only {
+  label {
+    visibility: hidden;
+  }
+}
+
+.meta {
+  font-size: $font-size-sm;
+  color: $text-muted;
 }

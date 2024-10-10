@@ -25,7 +25,8 @@ export const modelsSchema = Type.Object(
     createdBy: Type.Optional(Type.Number()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Nullable(Type.String({ format: 'date-time' })),
-    deletedAt: Nullable(Type.String({ format: 'date-time' }))
+    deletedAt: Nullable(Type.String({ format: 'date-time' })),
+    role: Nullable(Type.Number())
   },
   { $id: 'Models', additionalProperties: false }
 )
@@ -109,7 +110,8 @@ export const modelsNewDraftSimulateResolver = resolve<ModelsNewDraft, HookContex
 export const modelsPublishSchema = Type.Object(
   {
     id: Type.Number(),
-    notes: Type.String()
+    notes: Type.String(),
+    modelsVersionsId: Type.Number()
   },
   { $id: 'ModelsPublish', additionalProperties: false }
 )
@@ -121,7 +123,8 @@ export const modelsPublishResolver = resolve<ModelsPublish, HookContext<ModelsSe
 export const modelsCloneVersionSchema = Type.Object(
   {
     id: Type.Number(),
-    internalName: Type.String()
+    internalName: Type.String(),
+    modelsVersionsId: Type.Number()
   },
   { $id: 'ModelsCloneVersion', additionalProperties: false }
 )

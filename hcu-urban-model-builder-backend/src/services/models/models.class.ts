@@ -24,7 +24,7 @@ import { edgesDataSchema } from '../edges/edges.schema.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
-export interface ModelsParams extends KnexAdapterParams<ModelsQuery> {}
+export interface ModelsParams extends KnexAdapterParams<ModelsQuery> { }
 
 export interface ModelsServiceOptions extends KnexAdapterOptions {
   app: Application
@@ -39,6 +39,31 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
 > {
   declare options: ModelsServiceOptions
 
+  createQuery(params: KnexAdapterParams<ModelsQuery>) {
+    const query = super.createQuery(params as any)
+    // ignore when isTouch is true, because then we only patch the updatedAt field, no need to join
+    if (params.isTouch) {
+      return query
+    }
+
+    if (!params?.user?.id) {
+      throw new Error(
+        'ModelsService:createQuery: params.user.id is required but not set. Probably missing authentication.'
+      )
+    }
+    // join on models_users to get the role of the user
+    query.leftJoin('models_users as models_users', function () {
+      this.on('models.id', '=', 'models_users.modelId').andOn(
+        'models_users.userId',
+        '=',
+        params?.user?.id as unknown as any
+      )
+    })
+
+    query.select('models_users.role as role')
+    return query
+  }
+
   get app(): Application {
     return this.options.app
   }
@@ -50,7 +75,9 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   async newDraft(data: ModelsNewDraft, params?: ServiceParams) {
     const modelId = data.id
 
-    const currentModel = await this.app.service('models').get(modelId)
+    const currentModel = await this.app.service('models').get(modelId, {
+      user: params?.user
+    })
 
     const latestVersion = currentModel.latestDraftVersionId
       ? currentModel.latestDraftVersionId
@@ -60,7 +87,9 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       throw new Error('No draft version found')
     }
 
-    const currentModelVersion = await this.app.service('models-versions').get(latestVersion)
+    const currentModelVersion = await this.app.service('models-versions').get(latestVersion, {
+      user: params?.user
+    })
 
     const newDraftModelVersion = await this.cloneModelVersion(
       currentModelVersion,
@@ -71,9 +100,15 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       params
     )
 
-    await this.app.service('models-versions').patch(currentModelVersion.id, {
-      isLatest: false
-    })
+    await this.app.service('models-versions').patch(
+      currentModelVersion.id,
+      {
+        isLatest: false
+      },
+      {
+        user: params?.user
+      }
+    )
 
     return newDraftModelVersion
   }
@@ -163,44 +198,62 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     const createObjectData = _.pick(currentModelVersion, Object.keys(modelsVersionsDataSchema.properties))
 
     // TODO: ensure createdBy is set on a hook using params
-    const newDraftModelVersion = await this.app.service('models-versions').create({
-      ...createObjectData,
-      parentId: parentId,
-      draftVersion: draft,
-      majorVersion: major,
-      minorVersion: minor,
-      createdBy: params?.user?.id,
-      isLatest: true
-    })
+    const newDraftModelVersion = await this.app.service('models-versions').create(
+      {
+        ...createObjectData,
+        parentId: parentId,
+        draftVersion: draft,
+        majorVersion: major,
+        minorVersion: minor,
+        createdBy: params?.user?.id,
+        isLatest: true
+      },
+      {
+        user: params?.user
+      }
+    )
 
-    await this.app.service('models').patch(currentModelVersion.modelId, {
-      latestDraftVersionId: newDraftModelVersion.id,
-      currentDraftVersion: draft,
-      currentMinorVersion: minor,
-      currentMajorVersion: major
-    })
+    await this.app.service('models').patch(
+      currentModelVersion.modelId,
+      {
+        latestDraftVersionId: newDraftModelVersion.id,
+        currentDraftVersion: draft,
+        currentMinorVersion: minor,
+        currentMajorVersion: major
+      },
+      {
+        user: params?.user
+      }
+    )
 
     const nodes = await this.app.service('nodes').find({
       query: {
         modelsVersionsId: currentModelVersion.id
-      }
+      },
+      user: params?.user
     })
 
     const nodeMigrationMap = new Map<number, number>()
     for (const node of nodes.data) {
       const createNodeData = _.pick(node, Object.keys(nodesDataSchema.properties))
 
-      const newNode = await this.app.service('nodes').create({
-        ...createNodeData,
-        modelsVersionsId: newDraftModelVersion.id
-      })
+      const newNode = await this.app.service('nodes').create(
+        {
+          ...createNodeData,
+          modelsVersionsId: newDraftModelVersion.id
+        },
+        {
+          user: params?.user
+        }
+      )
       nodeMigrationMap.set(node.id, newNode.id)
     }
 
     const edges = await this.app.service('edges').find({
       query: {
         modelsVersionsId: currentModelVersion.id
-      }
+      },
+      user: params?.user
     })
 
     for (const edge of edges.data) {
@@ -218,10 +271,13 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         throw new Error('TargetId node not found')
       }
 
-      await this.app.service('edges').create({
-        ...createEdgeData,
-        modelsVersionsId: newDraftModelVersion.id
-      })
+      await this.app.service('edges').create(
+        {
+          ...createEdgeData,
+          modelsVersionsId: newDraftModelVersion.id
+        },
+        { user: params?.user }
+      )
     }
 
     return newDraftModelVersion

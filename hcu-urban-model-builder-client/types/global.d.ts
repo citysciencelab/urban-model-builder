@@ -13,6 +13,12 @@ export interface FormModelPublish {
   versionType: string;
 }
 
+export interface FormModelShare {
+  selectedUser: null | User;
+  selectedRole: null | { key: string; value: string };
+  model: null | ModelModel;
+}
+
 export interface FormModelClone {
   internalName: string;
 }

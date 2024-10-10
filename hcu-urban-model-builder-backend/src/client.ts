@@ -7,6 +7,14 @@ const authenticationClient =
   authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { modelsUsersClient } from './services/models-users/models-users.shared.js'
+export type {
+  ModelsUsers,
+  ModelsUsersData,
+  ModelsUsersQuery,
+  ModelsUsersPatch
+} from './services/models-users/models-users.shared.js'
+
 import { modelsVersionsClient } from './services/models-versions/models-versions.shared.js'
 export type {
   ModelsVersions,
@@ -37,6 +45,14 @@ export interface ServiceTypes {}
 
 export type ClientApplication = Application<ServiceTypes, Configuration>
 
+export enum Roles {
+  'none' = 0,
+  'viewer' = 1,
+  'collaborator' = 2,
+  'co_owner' = 3,
+  'owner' = 4
+}
+
 /**
  * Returns a typed client for the hcu-urban-model-builder-backend app.
  *
@@ -60,6 +76,7 @@ export const createClient = <Configuration = any>(
   client.configure(modelsClient)
   client.configure(userClient)
   client.configure(modelsVersionsClient)
+  client.configure(modelsUsersClient)
   return client
 }
 

@@ -1,3 +1,4 @@
+import { modelsUsers } from './models-users/models-users.js'
 import { modelsVersions } from './models-versions/models-versions.js'
 import { user } from './users/users.js'
 import { models } from './models/models.js'
@@ -8,6 +9,7 @@ import type { Application } from '../declarations.js'
 import { touchParent } from '../utils/touch-parent.js'
 
 export const services = (app: Application) => {
+  app.configure(modelsUsers)
   app.configure(modelsVersions)
   app.configure(user)
   app.configure(models)

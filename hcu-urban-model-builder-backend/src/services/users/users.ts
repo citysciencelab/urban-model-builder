@@ -17,6 +17,7 @@ import {
 import type { Application } from '../../declarations.js'
 import { UserService, getOptions } from './users.class.js'
 import { userPath, userMethods } from './users.shared.js'
+import { iff, isProvider } from 'feathers-hooks-common'
 
 export * from './users.class.js'
 export * from './users.schema.js'
@@ -33,24 +34,58 @@ export const user = (app: Application) => {
   // Initialize hooks
   app.service(userPath).hooks({
     around: {
-      all: [schemaHooks.resolveExternal(userExternalResolver), schemaHooks.resolveResult(userResolver)],
-      find: [authenticate('jwt')],
-      get: [authenticate('jwt')],
+      all: [
+        authenticate('oidc'),
+        schemaHooks.resolveExternal(userExternalResolver),
+        schemaHooks.resolveResult(userResolver)
+      ],
+      find: [],
+      get: [],
       create: [],
-      update: [authenticate('jwt')],
-      patch: [authenticate('jwt')],
-      remove: [authenticate('jwt')]
+      update: [],
+      patch: [],
+      remove: []
     },
     before: {
       all: [schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
-      find: [],
-      get: [],
+      find: [
+        iff(isProvider('external'), (context: any) => {
+          delete context.params.query.id
+        })
+      ],
+      get: [
+        iff(isProvider('external'), (context: any) => {
+          delete context.params.query.id
+        })
+      ],
       create: [schemaHooks.validateData(userDataValidator), schemaHooks.resolveData(userDataResolver)],
       patch: [schemaHooks.validateData(userPatchValidator), schemaHooks.resolveData(userPatchResolver)],
       remove: []
     },
     after: {
-      all: []
+      all: [],
+      find: [
+        // keep only ID and email
+        iff(isProvider('external'), (context: any) => {
+          context.result.data = context.result.data.map((user: any) => ({
+            id: user.id,
+            email: user.email
+          }))
+        })
+      ],
+      get: [
+        // keep only ID and email when not self
+        iff(isProvider('external'), (context: any) => {
+          const user = context.result
+          if (user.id !== context.params.user.id) {
+            context.result.data = context.result = {
+              id: user.id,
+              email: user.email
+            }
+          }
+          return context
+        })
+      ]
     },
     error: {
       all: []

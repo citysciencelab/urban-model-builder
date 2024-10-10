@@ -131,26 +131,38 @@
                     @models={{array model.id currentModelVersion}}
                   >
                     {{model.internalName}}
+                    {{! Published / Draft }}
                   </LinkTo>
+                  <span class="meta">
+                    {{#if currentModelVersion.publishedAt}}
+                      ({{t "models.model.states.published"}})
+                    {{else}}
+                      ({{t "models.model.states.draft"}})
+                    {{/if}}
+                  </span>
                 </div>
                 {{! Meta }}
                 <div class="list-group-meta">
                   {{! Meta: Version }}
-                  <Model::VersionSelect @model={{model}} />
-                  {{! Published / Draft }}
-                  {{#if model.latestDraftVersion}}
-                    <span
-                      class="badge rounded-pill badge-success text-bg-secondary text-light"
-                    >
-                      {{t "models.model.states.draft"}}
-                    </span>
-                  {{else}}
-                    <span
-                      class="badge rounded-pill badge-success text-bg-secondary text-light"
-                    >
-                      {{t "models.model.states.draft"}}
-                    </span>
-                  {{/if}}
+                  <Model::VersionSelect
+                    @model={{model}}
+                    @currentVersion={{currentModelVersion}}
+                  />
+                  {{! Permissions }}
+                  <span
+                    class="badge rounded-pill badge-success text-bg-secondary text-light"
+                  >
+                    <FaIcon @icon="shield" @fixedWidth={{false}} />
+                    &nbsp;
+                    {{#if (eq this.user.currentUserId model.createdBy.id)}}
+                      Creator
+                    {{else if model.role}}
+                      {{t (concat "permissions." model.role)}}
+                    {{else}}
+                      {{t "permissions.0"}}
+                    {{/if}}
+                  </span>
+
                   {{! Meta: Created at }}
                   <span
                     title={{
@@ -180,6 +192,11 @@
                   >
                     <FaIcon @icon="code-commit" @fixedWidth={{true}} />
                     {{time-ago this.intl.primaryLocale model.updatedAt}}
+                  </span>
+                  {{! Created By }}
+                  <span>
+                    <FaIcon @icon="user" @fixedWidth={{true}} />
+                    {{model.createdBy.email}}
                   </span>
                 </div>
               </div>

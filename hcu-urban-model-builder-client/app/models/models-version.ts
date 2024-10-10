@@ -9,9 +9,8 @@ import type Edge from './edge';
 import type Node from './node';
 import { Type } from '@warp-drive/core-types/symbols';
 import type ModelModel from './model';
-import { cached } from '@ember-data/tracking';
-import { TrackedAsyncData } from 'ember-async-data';
 import type { FormModelClone, FormModelPublish } from 'global';
+import { Roles } from 'hcu-urban-model-builder-backend';
 
 export default class ModelsVersion extends Model {
   declare [Type]: 'models-version';
@@ -22,8 +21,10 @@ export default class ModelsVersion extends Model {
   @attr('number') declare draftVersion: number;
   @attr('string') declare notes: string;
   @attr('boolean') declare isLatest: boolean;
+  @attr('number', { readOnly: true })
+  declare role: number;
 
-  @belongsTo('model', { async: true, inverse: 'modelsVersion' })
+  @belongsTo('model', { async: true, inverse: 'modelsVersions' })
   declare model: AsyncBelongsTo<ModelModel>;
 
   @hasMany('nodes', { async: true, inverse: 'modelsVersions' })
@@ -57,7 +58,25 @@ export default class ModelsVersion extends Model {
   }
 
   get canEdit() {
-    return !this.isPublished && this.isLatest;
+    return (
+      !this.isPublished && this.isLatest && this.role >= Roles.collaborator
+    );
+  }
+
+  get canCreateNewDraft() {
+    return this.isLatest;
+  }
+
+  get canPublish() {
+    return this.isLatest && !this.isPublished && this.role >= Roles.co_owner;
+  }
+
+  get canShare() {
+    return this.role > Roles.co_owner;
+  }
+
+  get canClone() {
+    return this.role != null && this.role >= Roles.none;
   }
 
   async _fetchIsLatestVersion() {

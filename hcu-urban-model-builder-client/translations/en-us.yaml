@@ -22,7 +22,9 @@ actions:
   login: Login
   logout: Logout
   loading: Loading…
-
+  share: Share
+  close: Close
+  
 models:
   model:
     singular: Model
@@ -58,3 +60,6 @@ components:
   simulate_modal:
     title: Simulation Results for
     is_client_side: Is client side calculation?
+  share_modal:
+    title: Share model
+    intro: Here you can share the model with other users.

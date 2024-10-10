@@ -40,7 +40,8 @@ export default class FeathersService extends Service {
         accessToken: jwt,
         updateEntity: true,
       })
-      .then(() => {
+      .then((data: any) => {
+        this.session.set('data.authenticated.userinfo.id', data.user.id);
         // Update local storage for re-connection.
         window.localStorage.setItem('feathers-jwt', jwt);
       })

@@ -137,6 +137,10 @@ export default class ApplicationSerializer extends JSONSerializer {
   }
 
   keyForRelationship(key: string, typeClass: string, method: string) {
+    // createdBy is a special case that has no Id attached as other foreign keys
+    if (key === 'createdBy') {
+      return key;
+    }
     if (
       (method === 'serialize' || method === 'deserialize') &&
       typeClass === 'belongsTo'

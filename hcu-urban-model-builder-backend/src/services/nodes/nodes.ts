@@ -16,8 +16,11 @@ import {
 import type { Application } from '../../declarations.js'
 import { NodesService, getOptions } from './nodes.class.js'
 import { nodesPath, nodesMethods } from './nodes.shared.js'
-import { touchParent } from '../../utils/touch-parent.js'
-import { ServiceAddons } from '@feathersjs/feathers'
+import { Roles } from '../../client.js'
+import { iff, isProvider } from 'feathers-hooks-common'
+import { authenticate } from '@feathersjs/authentication'
+import { checkModelPermission } from '../../hooks/check-model-permission.js'
+import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
 
 export * from './nodes.class.js'
 export * from './nodes.schema.js'
@@ -35,14 +38,34 @@ export const nodes = (app: Application) => {
   // Initialize hooks
   app.service(nodesPath).hooks({
     around: {
-      all: [schemaHooks.resolveExternal(nodesExternalResolver), schemaHooks.resolveResult(nodesResolver)]
+      all: [
+        authenticate('oidc'),
+        schemaHooks.resolveExternal(nodesExternalResolver),
+        schemaHooks.resolveResult(nodesResolver)
+      ]
     },
     before: {
       all: [schemaHooks.validateQuery(nodesQueryValidator), schemaHooks.resolveQuery(nodesQueryResolver)],
       find: [],
       get: [],
-      create: [schemaHooks.validateData(nodesDataValidator), schemaHooks.resolveData(nodesDataResolver)],
-      patch: [schemaHooks.validateData(nodesPatchValidator), schemaHooks.resolveData(nodesPatchResolver)],
+      create: [
+        schemaHooks.validateData(nodesDataValidator),
+        schemaHooks.resolveData(nodesDataResolver),
+        iff(
+          isProvider('external'),
+          checkModelPermission('modelsVersionsId', 'models-versions', Roles.collaborator),
+          checkModelVersionState()
+        )
+      ],
+      patch: [
+        schemaHooks.validateData(nodesPatchValidator),
+        schemaHooks.resolveData(nodesPatchResolver),
+        iff(
+          isProvider('external'),
+          checkModelPermission('modelsVersionsId', 'models-versions', Roles.collaborator),
+          checkModelVersionState()
+        )
+      ],
       remove: []
     },
     after: {

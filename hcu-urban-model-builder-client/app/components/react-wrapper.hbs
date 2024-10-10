@@ -24,6 +24,6 @@
 
 {{#if this.emberReactConnector.toolbarElement}}
   {{#in-element this.emberReactConnector.toolbarElement}}
-    <NodeToolbar @model={{@model}} />
+    <NodeToolbar @model={{@model}} @disabled={{not @model.canEdit}} />
   {{/in-element}}
 {{/if}}

@@ -34,7 +34,7 @@
     </span>
   {{/if}}
   {{! Badge: Edit Mode / View Mode }}
-  {{#if (and this.model.isLatest (not this.model.isPublished))}}
+  {{#if this.model.canEdit}}
     &nbsp;
     <span class="badge rounded-pill badge-warning text-bg-light">
       Edit Mode
@@ -66,7 +66,9 @@
       <menu.item>
         <a
           href="javascript:void(0)"
-          class="dropdown-item {{if this.model.isLatest "" "disabled"}}"
+          class="dropdown-item {{
+            if this.model.canCreateNewDraft "" "disabled"
+          }}"
           {{on "click" this.onCreateNewDraftVersion}}
         >
           <FaIcon @icon="pencil" @fixedWidth={{true}} />
@@ -77,16 +79,22 @@
       <menu.item>
         <a
           href="javascript:void(0)"
-          class="dropdown-item {{
-            if
-            (and this.model.isLatest (not this.model.isPublished))
-            ""
-            "disabled"
-          }}"
+          class="dropdown-item {{if this.model.canPublish "" "disabled"}}"
           {{on "click" this.onStartPublish}}
         >
           <FaIcon @icon="upload" @fixedWidth={{true}} />
           Publish
+        </a>
+      </menu.item>
+      {{! Action: Share -> Dialog }}
+      <menu.item>
+        <a
+          href="javascript:void(0)"
+          class="dropdown-item {{if this.model.canShare "" "disabled"}}"
+          {{on "click" this.onStartShare}}
+        >
+          <FaIcon @icon="share-alt" @fixedWidth={{true}} />
+          Share
         </a>
       </menu.item>
       {{! Action: Clone -> Dialog }}
@@ -124,4 +132,8 @@
   @onClose={{this.hideCloneDialog}}
 />
 
-{{outlet}}
+<Model::ShareModal
+  @open={{this.showShareModal}}
+  @model={{this.model}}
+  @onClose={{this.hideShareDialog}}
+/>

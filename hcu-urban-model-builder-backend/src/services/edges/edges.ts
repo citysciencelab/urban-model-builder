@@ -16,7 +16,11 @@ import {
 import type { Application } from '../../declarations.js'
 import { EdgesService, getOptions } from './edges.class.js'
 import { edgesPath, edgesMethods } from './edges.shared.js'
-import { touchParent } from '../../utils/touch-parent.js'
+import { authenticate } from '@feathersjs/authentication'
+import { Roles } from '../../client.js'
+import { iff, isProvider } from 'feathers-hooks-common'
+import { checkModelPermission } from '../../hooks/check-model-permission.js'
+import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
 
 export * from './edges.class.js'
 export * from './edges.schema.js'
@@ -34,14 +38,34 @@ export const edges = (app: Application) => {
   // Initialize hooks
   app.service(edgesPath).hooks({
     around: {
-      all: [schemaHooks.resolveExternal(edgesExternalResolver), schemaHooks.resolveResult(edgesResolver)]
+      all: [
+        authenticate('oidc'),
+        schemaHooks.resolveExternal(edgesExternalResolver),
+        schemaHooks.resolveResult(edgesResolver)
+      ]
     },
     before: {
       all: [schemaHooks.validateQuery(edgesQueryValidator), schemaHooks.resolveQuery(edgesQueryResolver)],
       find: [],
       get: [],
-      create: [schemaHooks.validateData(edgesDataValidator), schemaHooks.resolveData(edgesDataResolver)],
-      patch: [schemaHooks.validateData(edgesPatchValidator), schemaHooks.resolveData(edgesPatchResolver)],
+      create: [
+        schemaHooks.validateData(edgesDataValidator),
+        schemaHooks.resolveData(edgesDataResolver),
+        iff(
+          isProvider('external'),
+          checkModelPermission('modelsVersionsId', 'models-versions', Roles.collaborator),
+          checkModelVersionState()
+        )
+      ],
+      patch: [
+        schemaHooks.validateData(edgesPatchValidator),
+        schemaHooks.resolveData(edgesPatchResolver),
+        iff(
+          isProvider('external'),
+          checkModelPermission('modelsVersionsId', 'models-versions', Roles.collaborator),
+          checkModelVersionState()
+        )
+      ],
       remove: []
     },
     after: {

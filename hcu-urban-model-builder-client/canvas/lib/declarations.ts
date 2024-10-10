@@ -9,8 +9,8 @@ type Dasherize<T extends string> = T extends `${infer First}${infer Rest}` // Sp
 // Helper type to process the rest of the string
 type DasherizeHelper<T extends string> = T extends `${infer First}${infer Rest}` // Recursively process the string
   ? First extends Uppercase<First> // Check if the character is uppercase
-  ? `-${Lowercase<First>}${DasherizeHelper<Rest>}` // Insert dash before the uppercase letter and lowercase it
-  : `${First}${DasherizeHelper<Rest>}` // Keep lowercase letters unchanged
+    ? `-${Lowercase<First>}${DasherizeHelper<Rest>}` // Insert dash before the uppercase letter and lowercase it
+    : `${First}${DasherizeHelper<Rest>}` // Keep lowercase letters unchanged
   : T; // Base case: If T is an empty string, just return it
 
 type EnumToLowerCaseStringMap<T extends Record<number | string, any>> = {

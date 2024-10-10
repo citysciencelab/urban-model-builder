@@ -19,23 +19,25 @@ import {
   modelsPublishResolver,
   modelsCloneVersionSchema,
   modelsCloneVersionResolver,
-  modelsCloneVersionValidator
+  modelsCloneVersionValidator,
+  ModelsPublish
 } from './models.schema.js'
 
-import type { Application } from '../../declarations.js'
-import { ModelsService, getOptions } from './models.class.js'
+import type { Application, HookContext } from '../../declarations.js'
+import { ModelsParams, ModelsService, getOptions } from './models.class.js'
 import { modelsPath, modelsMethods } from './models.shared.js'
 import { authenticate } from '@feathersjs/authentication'
 import customSoftDelete from '../../hooks/custom-soft-delete.js'
 import { setCreatedBy } from '../../hooks/set-created-by.js'
-import { filterCreatedBy } from '../../hooks/filter-created-by.js'
+import { permissionFilter } from '../../hooks/permission-filter.js'
 import { ensureCreatedBy } from '../../hooks/ensure-created-by.js'
 import { iff, isProvider } from 'feathers-hooks-common'
 import { initModelDefaults } from './hooks/init-model-defaults.js'
 import { initModelVersion } from './hooks/init-model-version.js'
-import { ServiceAddons } from '@feathersjs/feathers'
-import { EventEmitter } from 'stream'
-import { touchParent } from '../../utils/touch-parent.js'
+import { initModelsUsers } from '../../hooks/init-models-users.js'
+import { checkPublishPermissionsAndState } from './hooks/check-publish-permissions-and-state.js'
+import { checkClonePermissionsAndState } from './hooks/check-clone-permissions-and-state.js'
+import { checkNewDraftPermissionsAndState } from './hooks/check-new-draft-permissions-and-state.js'
 
 export * from './models.class.js'
 export * from './models.schema.js'
@@ -61,8 +63,8 @@ export const models = (app: Application) => {
         schemaHooks.validateQuery(modelsQueryValidator),
         schemaHooks.resolveQuery(modelsQueryResolver)
       ],
-      find: [customSoftDelete(), filterCreatedBy],
-      get: [customSoftDelete(), filterCreatedBy],
+      find: [customSoftDelete(), permissionFilter],
+      get: [customSoftDelete(), permissionFilter],
       create: [
         schemaHooks.validateData(modelsDataValidator),
         schemaHooks.resolveData(modelsDataResolver),
@@ -83,20 +85,28 @@ export const models = (app: Application) => {
       ],
       newDraft: [
         schemaHooks.validateData(modelsNewDraftSimulateValidator),
-        schemaHooks.resolveData(modelsNewDraftSimulateResolver)
+        schemaHooks.resolveData(modelsNewDraftSimulateResolver),
+        iff(isProvider('external'), checkNewDraftPermissionsAndState)
       ],
       publishMinor: [
         schemaHooks.validateData(modelsPublishValidator),
-        schemaHooks.resolveData(modelsPublishResolver)
+        schemaHooks.resolveData(modelsPublishResolver),
+        iff(isProvider('external'), checkPublishPermissionsAndState)
+      ],
+      publishMajor: [
+        schemaHooks.validateData(modelsPublishValidator),
+        schemaHooks.resolveData(modelsPublishResolver),
+        iff(isProvider('external'), checkPublishPermissionsAndState)
       ],
       cloneVersion: [
         schemaHooks.validateData(modelsCloneVersionValidator),
-        schemaHooks.resolveData(modelsCloneVersionResolver)
+        schemaHooks.resolveData(modelsCloneVersionResolver),
+        iff(isProvider('external'), checkClonePermissionsAndState)
       ]
     },
     after: {
       all: [],
-      create: [iff(isProvider('external'), initModelVersion)]
+      create: [iff(isProvider('external'), initModelVersion), iff(isProvider('external'), initModelsUsers)]
     },
     error: {
       all: []
