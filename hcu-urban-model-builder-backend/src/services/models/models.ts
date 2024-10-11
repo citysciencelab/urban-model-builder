@@ -38,6 +38,8 @@ import { initModelsUsers } from '../../hooks/init-models-users.js'
 import { checkPublishPermissionsAndState } from './hooks/check-publish-permissions-and-state.js'
 import { checkClonePermissionsAndState } from './hooks/check-clone-permissions-and-state.js'
 import { checkNewDraftPermissionsAndState } from './hooks/check-new-draft-permissions-and-state.js'
+import _ from 'lodash'
+import { Roles } from '../../client.js'
 
 export * from './models.class.js'
 export * from './models.schema.js'
@@ -75,14 +77,21 @@ export const models = (app: Application) => {
       patch: [
         schemaHooks.validateData(modelsPatchValidator),
         schemaHooks.resolveData(modelsPatchResolver),
-        iff(isProvider('external'), ensureCreatedBy),
-        // TODO: permissions?
+        iff(isProvider('external'), async (context) => {
+          _.set(context, 'params.query', {
+            role: { $gte: Roles.co_owner }
+          })
+          // TODO: check if model can be patched due to the state
+        }),
         customSoftDelete()
       ],
       remove: [
-        iff(isProvider('external'), ensureCreatedBy),
+        iff(isProvider('external'), async (context) => {
+          _.set(context, 'params.query', {
+            role: { $gte: Roles.owner }
+          })
+        }),
         customSoftDelete()
-        // TODO: permissions?
       ],
       simulate: [
         schemaHooks.validateData(modelsSimulateValidator),

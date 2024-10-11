@@ -65,7 +65,8 @@ export const modelsQueryProperties = Type.Pick(modelsSchema, [
   'createdAt',
   'deletedAt',
   'updatedAt',
-  'createdBy'
+  'createdBy',
+  'role'
 ])
 export const modelsQuerySchema = Type.Intersect(
   [
