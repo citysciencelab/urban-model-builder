@@ -208,10 +208,18 @@
                 >
                   <FaIcon @icon="eye" />
                 </LinkTo>
-                <a href="#" {{on "click" (fn this.startEditing model)}}>
+                <a
+                  href="#"
+                  class="{{if model.canEdit "" "disabled"}}"
+                  {{on "click" (fn this.startEditing model)}}
+                >
                   <FaIcon @icon="pencil" />
                 </a>
-                <a href="#" {{on "click" (fn this.startDeleting model)}}>
+                <a
+                  href="#"
+                  class="{{if model.canDelete "" "disabled"}}"
+                  {{on "click" (fn this.startDeleting model)}}
+                >
                   <FaIcon @icon="trash" />
                 </a>
               </div>

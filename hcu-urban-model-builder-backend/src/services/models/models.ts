@@ -76,9 +76,14 @@ export const models = (app: Application) => {
         schemaHooks.validateData(modelsPatchValidator),
         schemaHooks.resolveData(modelsPatchResolver),
         iff(isProvider('external'), ensureCreatedBy),
+        // TODO: permissions?
         customSoftDelete()
       ],
-      remove: [iff(isProvider('external'), ensureCreatedBy), customSoftDelete()],
+      remove: [
+        iff(isProvider('external'), ensureCreatedBy),
+        customSoftDelete()
+        // TODO: permissions?
+      ],
       simulate: [
         schemaHooks.validateData(modelsSimulateValidator),
         schemaHooks.resolveData(modelsSimulateResolver)

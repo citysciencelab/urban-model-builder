@@ -13,6 +13,7 @@ import { inject as service } from '@ember/service';
 import type ModelsUser from './models-user';
 import { TrackedAsyncData } from 'ember-async-data';
 import type UserModel from './user';
+import { Roles } from 'hcu-urban-model-builder-backend';
 
 export default class ModelModel extends Model {
   declare [Type]: 'model';
@@ -82,6 +83,14 @@ export default class ModelModel extends Model {
     return this.store.query('models-user', {
       modelId: this.id,
     });
+  }
+
+  get canDelete() {
+    return this.role >= Roles.owner;
+  }
+
+  get canEdit() {
+    return this.role >= Roles.co_owner;
   }
 
   // TODO: version currently unused - remove or use

@@ -272,6 +272,7 @@ a.dropdown-toggle {
   align-items: center;
 }
 
+a.disabled,
 .dropdown-item.disabled {
   pointer-events: none;
   opacity: 0.5 !important;
