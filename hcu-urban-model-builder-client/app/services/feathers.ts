@@ -52,19 +52,30 @@ export default class FeathersService extends Service {
     this.app.hooks({
       error: {
         all: [
-          (context: HookContext) => {
+          async (context: HookContext) => {
             console.error('Error in hook', context.error);
+            if (
+              ['TokenExpiredError', 'NotAuthenticated'].includes(
+                context.error.name,
+              )
+            ) {
+              this.session.invalidate();
+            }
           },
         ],
       },
       before: {
         all: [
           async (context: HookContext) => {
+            const tokenBefore = this.session.data.authenticated.access_token;
             await this.session.refreshAuthentication.perform();
             window.localStorage.setItem(
               'feathers-jwt',
               this.session.data.authenticated.access_token,
             );
+            if (tokenBefore !== this.session.data.authenticated.access_token) {
+              await context.app.reAuthenticate(true, 'oidc');
+            }
             return context;
           },
         ],
