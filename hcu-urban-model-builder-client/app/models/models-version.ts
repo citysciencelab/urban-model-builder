@@ -15,14 +15,19 @@ import { Roles } from 'hcu-urban-model-builder-backend';
 export default class ModelsVersion extends Model {
   declare [Type]: 'models-version';
 
-  @attr('string') declare internalName: string;
   @attr('number') declare minorVersion: number;
   @attr('number') declare majorVersion: number;
   @attr('number') declare draftVersion: number;
   @attr('string') declare notes: string;
   @attr('boolean') declare isLatest: boolean;
-  @attr('number', { readOnly: true })
-  declare role: number;
+  @attr('number', { readOnly: true }) declare role: number;
+
+  @attr('number') declare timeStart: number;
+  @attr('number') declare timeStep: number;
+  @attr('number') declare timeLength: number;
+  @attr('string') declare timeUnits: string;
+  @attr('string') declare algorithm: string;
+  @attr('string') declare globals: string;
 
   @belongsTo('model', { async: true, inverse: 'modelsVersions' })
   declare model: AsyncBelongsTo<ModelModel>;
@@ -36,8 +41,6 @@ export default class ModelsVersion extends Model {
   @attr('date') declare publishedAt: Date;
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;
-
-  @attr('number') declare timeLength: number;
 
   get hasVersion() {
     return (

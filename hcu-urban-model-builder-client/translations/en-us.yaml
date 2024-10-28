@@ -39,6 +39,11 @@ models:
       notes: Notes
       versionType: Version type
       timeLength: Time period
+      timeUnits: Unit
+      timeStart: Start
+      timeStep: Interval
+      algorithm: Algorithm
+      globals: Globals & Macros
 
 routes:
   models:
@@ -63,6 +68,9 @@ components:
   share_modal:
     title: Share model
     intro: Here you can share the model with other users.
+  settings_dialog:
+    title: Model settings
+    intro: Here you can edit the (simulation) settings of the model.
 
 permissions:
   0: No authorization

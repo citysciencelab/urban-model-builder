@@ -10,7 +10,13 @@ export const initModelVersion = async (context: HookContext) => {
       majorVersion: 0,
       minorVersion: 0,
       draftVersion: 1,
-      isLatest: true
+      isLatest: true,
+      timeStart: 0,
+      timeLength: 20,
+      timeStep: 1,
+      algorithm: 'Euler',
+      timeUnits: 'Years',
+      globals: ''
     },
     { user: context.params.user }
   )

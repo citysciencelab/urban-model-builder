@@ -99,9 +99,6 @@ export default class EmberReactConnectorService extends Service {
         if (keyWithId in rawData) {
           const value = rawData[keyWithId];
           if (value) {
-            console.log('value', value);
-            console.log('schema', schema);
-
             data[key] = this.store.peekRecord(schema.type, value);
           } else if (value === null) {
             data[key] = null;

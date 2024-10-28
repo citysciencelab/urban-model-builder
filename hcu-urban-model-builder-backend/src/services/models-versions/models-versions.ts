@@ -18,7 +18,7 @@ import type { Application } from '../../declarations.js'
 import { ModelsVersionsService, getOptions } from './models-versions.class.js'
 import { modelsVersionsPath, modelsVersionsMethods } from './models-versions.shared.js'
 import { setCreatedBy } from '../../hooks/set-created-by.js'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discard, iff, isProvider } from 'feathers-hooks-common'
 import _ from 'lodash'
 
 export * from './models-versions.class.js'
@@ -72,6 +72,7 @@ export const modelsVersions = (app: Application) => {
         setCreatedBy
       ],
       patch: [
+        iff(isProvider('external'), discard('publishedAt')),
         schemaHooks.validateData(modelsVersionsPatchValidator),
         schemaHooks.resolveData(modelsVersionsPatchResolver)
       ],

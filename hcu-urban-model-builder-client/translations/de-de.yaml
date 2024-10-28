@@ -38,7 +38,12 @@ models:
     attributes:
       notes: Notizen
       versionType: Versionstyp
-      timeLength: Zeitraum
+      timeLength: Länge
+      timeUnits: Einheit
+      timeStart: Start
+      timeStep: Intervall
+      algorithm: Algorithmus
+      globals: Globals & Makros
 
 routes:
   models:
@@ -63,6 +68,9 @@ components:
   share_modal:
     title: Modell teilen
     intro: Hier können Sie das Modell mit anderen Nutzern teilen.
+  settings_dialog:
+    title: Modelleinstellungen
+    intro: Hier können Sie die (Simulations-)Einstellungen des Modells bearbeiten.
 
 permissions:
   0: Keine Berechtigung

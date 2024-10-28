@@ -135,7 +135,7 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
 
       this.initChangeset();
     } else {
-      console.log('Error Message');
+      console.error('Error Message');
     }
   }
 

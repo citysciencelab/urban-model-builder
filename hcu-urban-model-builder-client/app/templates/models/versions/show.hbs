@@ -48,6 +48,15 @@
 </BreadcrumbsItem>
 
 {{#in-element this.navbar}}
+  {{! Button: Settings }}
+  <BsButton
+    @type="light"
+    @size="sm"
+    @onClick={{fn (mut this.showSettingsModal) true}} as |button|
+  >
+    <FaIcon @icon="cog" />
+    Settings
+  </BsButton>
   {{! Button: Simulate }}
   <BsButton
     @type="primary"
@@ -58,7 +67,7 @@
   </BsButton>
   {{! Dropdown: More Actions }}
   <BsDropdown @tagName="span" as |dd|>
-    <dd.toggle>
+    <dd.toggle class="btn">
       <FaIcon @icon="ellipsis-v" />
     </dd.toggle>
     <dd.menu @align="right" as |menu|>
@@ -136,4 +145,10 @@
   @open={{this.showShareModal}}
   @model={{this.model}}
   @onClose={{this.hideShareDialog}}
+/>
+
+<Model::SettingsDialog
+  @open={{this.showSettingsModal}}
+  @model={{this.model}}
+  @onClose={{this.hideSettingsDialog}}
 />

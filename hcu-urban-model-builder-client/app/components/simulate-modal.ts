@@ -121,8 +121,6 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   async setTime(value: number) {
     this.time = value;
     if (this.chart) {
-      console.log('setting time', value);
-
       const dataset = await this.tabNameToDatasetFunction[this.activeTab]?.();
       this.chart.setOption({
         series: dataset,
