@@ -346,3 +346,17 @@ a.disabled,
   white-space: pre-wrap; /* Preserve whitespace formatting */
   line-height: 1.5;
 }
+
+.formula__linked {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  margin-top: get-spacer(2);
+  gap: get-spacer(2);
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.formula__add-linked {
+  border-radius: $border-radius-lg;
+}

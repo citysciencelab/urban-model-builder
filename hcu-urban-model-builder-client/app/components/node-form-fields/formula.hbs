@@ -1,0 +1,32 @@
+{{yield}}
+
+{{log @node.data.value}}
+
+<ul
+  class="formula__linked"
+  {{did-insert this.didInsert}}
+  {{did-update this.checkForIssues @node.data.value}}
+>
+  {{#each this.sourceNodes as |node|}}
+    <li>
+      <a
+        href="javascript:void(0)"
+        class="btn btn-sm btn-secondary formula__add-linked"
+        {{on "click" (fn this.insertNodeTemplate node)}}
+      >
+        {{node.name}}
+      </a>
+    </li>
+  {{/each}}
+
+  {{#if this.warnings}}
+    {{#each this.warnings as |warning|}}
+      <li>
+        <span class="text-warning">
+          <FaIcon @icon="exclamation-triangle" />
+        </span>
+        {{warning}}
+      </li>
+    {{/each}}
+  {{/if}}
+</ul>
