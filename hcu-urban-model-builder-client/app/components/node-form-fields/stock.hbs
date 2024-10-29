@@ -1,9 +1,9 @@
 <@form.element
-  @controlType="text"
+  @controlType="textarea"
   @label="Value"
   @property="data.value" as |el|
 >
   <NodeFormFields::Formula @form={{@form}} @node={{@node}} @el={{el}}>
-    <el.control />
+    <el.control class="code-textarea" />
   </NodeFormFields::Formula>
 </@form.element>
