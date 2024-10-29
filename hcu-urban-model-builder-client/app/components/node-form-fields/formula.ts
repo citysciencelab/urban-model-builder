@@ -60,7 +60,8 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
     return formulaCollection;
   }
 
-  @action async didInsert() {
+  @action async getSourceNodes() {
+    this.sourceNodes = [];
     const targetEdges = await this.args.node.targetEdges;
     for (const edge of targetEdges) {
       const source = await edge.source;

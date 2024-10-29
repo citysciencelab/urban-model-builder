@@ -64,7 +64,8 @@
   {{! LINKED NODES }}
   <ul
     class="formula__linked"
-    {{did-insert this.didInsert}}
+    {{did-insert this.getSourceNodes}}
+    {{did-update this.getSourceNodes @node.id}}
     {{did-update this.checkForIssues @node.data.value}}
   >
     {{#each this.sourceNodes as |node|}}
