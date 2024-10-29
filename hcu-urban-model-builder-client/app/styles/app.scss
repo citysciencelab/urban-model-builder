@@ -360,3 +360,49 @@ a.disabled,
 .formula__add-linked {
   border-radius: $border-radius-lg;
 }
+
+.formula__wrapper {
+  position: relative;
+  .form-control {
+    padding-right: 41px;
+  }
+}
+
+.formula__accordion {
+  width: 320px;
+  .accordion-body {
+    padding: 0;
+    max-height: 240px;
+    overflow: auto;
+  }
+  a {
+    display: block;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    &:hover {
+      background-color: $primary;
+      color: $white;
+    }
+  }
+}
+
+.formula__list-group li {
+  padding: 0;
+}
+
+.formula__functions__btn {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+
+#formulas-filter {
+  border: none;
+  padding: 1rem 1.25rem;
+  width: 100%;
+  + a {
+    position: absolute;
+    right: 12px;
+    top: 8px;
+  }
+}

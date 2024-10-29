@@ -1,32 +1,93 @@
-{{yield}}
+<div class="formula__wrapper">
+  {{yield}}
 
-{{log @node.data.value}}
+  {{! FORMULAS }}
+  <BasicDropdown as |dd|>
+    <dd.Trigger class="formula__functions__btn btn btn-secondary btn-sm">
+      <FaIcon @icon="code" />
+    </dd.Trigger>
+    <dd.Content @overlay={{true}}>
+      {{! search input}}
+      <div class="formula__search">
+        <Input
+          id="formulas-filter"
+          @type="text"
+          @value={{this.filterValue}}
+          placeholder="Search..."
+        />
+        <a
+          href="javascript:void()"
+          class="btn btn-link"
+          {{on "click" this.clearFilter}}
+        >
+          <FaIcon @icon="times" />
+        </a>
+      </div>
+      {{! formulas: accordion with categories}}
+      <BsAccordion class="formula__accordion" as |acc|>
+        {{#each-in this.filteredFormulas as |k v|}}
+          <acc.item @value={{k}} @title={{k}}>
+            <BsListGroup
+              @flush={{true}}
+              class="formula__list-group" as |ListGroup|
+            >
+              {{! each item is a formula }}
+              {{#each v as |item|}}
+                <ListGroup.item>
+                  <a
+                    href="javascript:void(0)"
+                    {{on "click" (fn this.insertFormula item dd)}}
+                  >
+                    {{item.name}}
+                    <BsTooltip @placement="left">
+                      {{item.formula}}<br />
+                      <small>
+                        {{item.description}}
+                      </small>
+                    </BsTooltip>
+                  </a>
+                </ListGroup.item>
+              {{/each}}
+            </BsListGroup>
+          </acc.item>
+        {{else}}
+          <BsListGroup @flush={{true}} as |ListGroup|>
+            <ListGroup.item>
+              Nothing found
+            </ListGroup.item>
+          </BsListGroup>
+        {{/each-in}}
+      </BsAccordion>
+    </dd.Content>
+  </BasicDropdown>
 
-<ul
-  class="formula__linked"
-  {{did-insert this.didInsert}}
-  {{did-update this.checkForIssues @node.data.value}}
->
-  {{#each this.sourceNodes as |node|}}
-    <li>
-      <a
-        href="javascript:void(0)"
-        class="btn btn-sm btn-secondary formula__add-linked"
-        {{on "click" (fn this.insertNodeTemplate node)}}
-      >
-        {{node.name}}
-      </a>
-    </li>
-  {{/each}}
-
-  {{#if this.warnings}}
-    {{#each this.warnings as |warning|}}
+  {{! LINKED NODES }}
+  <ul
+    class="formula__linked"
+    {{did-insert this.didInsert}}
+    {{did-update this.checkForIssues @node.data.value}}
+  >
+    {{#each this.sourceNodes as |node|}}
       <li>
-        <span class="text-warning">
-          <FaIcon @icon="exclamation-triangle" />
-        </span>
-        {{warning}}
+        <a
+          href="javascript:void(0)"
+          class="btn btn-sm btn-secondary formula__add-linked"
+          {{on "click" (fn this.insertNodeTemplate node)}}
+        >
+          {{node.name}}
+        </a>
       </li>
     {{/each}}
-  {{/if}}
-</ul>
+
+    {{#if this.warnings}}
+      {{#each this.warnings as |warning|}}
+        <li>
+          <span class="text-warning">
+            <FaIcon @icon="exclamation-triangle" />
+          </span>
+          {{warning}}
+        </li>
+      {{/each}}
+    {{/if}}
+  </ul>
+</div>

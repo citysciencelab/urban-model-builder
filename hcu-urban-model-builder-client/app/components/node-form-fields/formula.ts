@@ -3,6 +3,17 @@ import type Node from 'hcu-urban-model-builder-client/models/node';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { A } from '@ember/array';
+import { next } from '@ember/runloop';
+import { formulaCollection } from 'hcu-urban-model-builder-client/config/formula-collection';
+import { isEmpty } from '@ember/utils';
+
+interface Formula {
+  name: string;
+  formula: string;
+  description: string;
+}
+
+type FormulaCollection = Record<string, Formula[]>;
 
 export interface NodeFormFieldsFormulaSignature {
   // The arguments accepted by the component
@@ -22,26 +33,38 @@ export interface NodeFormFieldsFormulaSignature {
 export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFieldsFormulaSignature> {
   @tracked sourceNodes: Node[] = A([]);
   @tracked warnings: string[] = A([]);
+  @tracked filterValue = '';
+  formulas: FormulaCollection = formulaCollection;
 
-  @action insertNodeTemplate(node: Node) {
-    const input = document.getElementById(this.args.el.id) as HTMLInputElement;
-    const text = `[${node.name}]`;
-    if (input) {
-      const start = input.selectionStart || 0;
-      const end = input.selectionEnd || 0;
-      const currentText = input.value;
-      input.value = currentText.slice(0, start) + text + currentText.slice(end);
-      input.selectionStart = input.selectionEnd = start + text.length;
-      input.focus();
+  get inputEl() {
+    return document.getElementById(this.args.el.id) as HTMLInputElement;
+  }
+
+  get filteredFormulas() {
+    if (!isEmpty(this.filterValue)) {
+      const formulaCollection = this.formulas;
+      const filteredFormulas: FormulaCollection = {};
+      for (const category in formulaCollection) {
+        const formulas = formulaCollection[category];
+        if (formulas) {
+          const filtered = formulas.filter((formula) =>
+            formula.name.toLowerCase().includes(this.filterValue.toLowerCase()),
+          );
+          if (filtered.length > 0) {
+            filteredFormulas[category] = filtered;
+          }
+        }
+      }
+      return filteredFormulas;
     }
+    return formulaCollection;
   }
 
   @action async didInsert() {
     const targetEdges = await this.args.node.targetEdges;
     for (const edge of targetEdges) {
       const source = await edge.source;
-      // TODO: typings
-      this.sourceNodes.pushObject(source);
+      this.sourceNodes = [...this.sourceNodes, source];
     }
 
     this.checkForIssues();
@@ -63,8 +86,49 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
         }
       }
       if (!found) {
-        this.warnings.pushObject(`[${match}] not found as a linked node`);
+        this.warnings = [
+          ...this.warnings,
+          `[${match}] not found as a linked node`,
+        ];
       }
+    }
+  }
+
+  @action insertNodeTemplate(node: Node) {
+    const text = `[${node.name}]`;
+    this._insertText(text);
+  }
+
+  @action insertFormula(
+    formula: {
+      name: string;
+      formula: string;
+      description: string;
+    },
+    dd: { actions: { close: () => void } },
+  ) {
+    dd.actions.close();
+    const text = formula.formula;
+    this._insertText(text);
+  }
+
+  @action clearFilter() {
+    this.filterValue = '';
+  }
+
+  _insertText(textPart: string) {
+    const input = this.inputEl;
+    if (input) {
+      const start = input.selectionStart || 0;
+      const end = input.selectionEnd || 0;
+      const currentText = input.value;
+      input.value =
+        currentText.slice(0, start) + textPart + currentText.slice(end);
+      input.selectionStart = input.selectionEnd = start + textPart.length;
+      next(() => {
+        input.focus();
+        input.selectionStart = start;
+      });
     }
   }
 }
