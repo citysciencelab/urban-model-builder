@@ -405,3 +405,17 @@ a.disabled,
     top: 8px;
   }
 }
+
+.simulate-model__range__wrapper {
+  display: flex;
+  gap: get-spacer(2);
+  align-items: flex-end;
+}
+
+.simulate-model__range {
+  flex: 1;
+}
+
+.btn-round {
+  border-radius: 50%;
+}

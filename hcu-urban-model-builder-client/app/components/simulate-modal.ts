@@ -2,7 +2,6 @@ import { action } from '@ember/object';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
 import { TrackedAsyncData } from 'ember-async-data';
 import type Store from '@ember-data/store';
@@ -32,6 +31,8 @@ enum TabName {
   ScatterPlot = 'scatter-plot',
 }
 
+const BASE_SPEED = 20;
+
 export default class SimulateModalComponent extends Component<SimulateModalSignature> {
   @service declare feathers: FeathersService;
   @service declare store: Store;
@@ -40,7 +41,10 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @tracked activeTab: TabName = TabName.TimeSeries;
   @tracked tabNames = Object.values(TabName);
 
-  @tracked time = 0;
+  @tracked isPlaying = false;
+  @tracked animationCursor = 0.01;
+  @tracked speed = 1;
+  @tracked time = -1;
 
   @tracked chartContainer?: HTMLElement;
   @tracked chart?: echarts.ECharts;
@@ -59,10 +63,44 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     [TabName.ScatterPlot]: this.getScatterPlotDataset,
   };
 
+  get isAnimationFinished() {
+    return this.animationCursor >= 100;
+  }
+
+  get simulationEndTime() {
+    return this.args.model.timeStart + this.args.model.timeLength;
+  }
+
+  calculateNextAnimationCursor() {
+    this.animationCursor =
+      Number(this.animationCursor) + 0.01 * this.speed * BASE_SPEED;
+  }
+
+  startAnimation() {
+    this.isPlaying = true;
+    requestAnimationFrame(this.animateChart.bind(this));
+  }
+
+  animateChart() {
+    if (this.isPlaying && this.animationCursor < 100) {
+      this.calculateNextAnimationCursor();
+      this.updateDatasetFromAnimationCursor();
+      requestAnimationFrame(this.animateChart.bind(this));
+    } else {
+      // still playing? then we reached the end
+      if (this.isPlaying) {
+        // ensure we are at the end, no matter what float math says
+        this.animationCursor = 100;
+        this.setTime(Number(this.simulationEndTime));
+        this.isPlaying = false;
+      }
+    }
+  }
+
   @action
   async onShow() {
     this.simulate();
-    this.time = this.args.model.timeLength;
+    this.startAnimation();
   }
 
   @action
@@ -119,7 +157,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   @action
   async setTime(value: number) {
-    this.time = value;
+    this.time = Number(value);
     if (this.chart) {
       const dataset = await this.tabNameToDatasetFunction[this.activeTab]?.();
       this.chart.setOption({
@@ -168,14 +206,20 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     const data = this.simulateResult.value;
 
     const series = [];
+
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
+
+      const dataIndex = Math.floor(
+        (data.times.length / 100) * this.animationCursor,
+      );
 
       if (node.type !== NodeType.Flow && node.type !== NodeType.Population) {
         series.push({
           type: 'line',
           name: node.name,
-          data: value.series.slice(0, this.time) as number[],
+          data: value.series.slice(0, dataIndex) as number[],
+          animation: false,
         });
       }
     }
@@ -241,5 +285,24 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     }
 
     return datasets;
+  }
+
+  @action playPause() {
+    if (this.isPlaying) {
+      this.isPlaying = false;
+    } else {
+      if (this.isAnimationFinished) {
+        this.animationCursor = 0.01;
+      }
+      this.startAnimation();
+    }
+  }
+
+  @action setSpeed(value: number) {
+    this.speed = value;
+  }
+
+  @action updateDatasetFromAnimationCursor() {
+    this.setTime((this.args.model.timeLength / 100) * this.animationCursor);
   }
 }
