@@ -10,20 +10,35 @@ import type { NodesService } from './nodes.class.js'
 import { Literals, Nullable } from '../../utils/schema.js'
 import { NodeType } from './nodes.shared.js'
 
+const constraintsSchema = Type.Partial(
+  Type.Object({
+    min: Type.Optional(Type.Number()),
+    max: Type.Optional(Type.Number())
+  })
+)
+
+const unitsAndConstraintsSchema = Type.Object({
+  units: Type.Optional(Type.String()),
+  constraints: Type.Optional(constraintsSchema)
+})
+
 export const variableNodeSchema = Type.Object({
-  value: Type.Optional(Type.String())
+  value: Type.Optional(Type.String()),
+  ...unitsAndConstraintsSchema.properties
 })
 
 export const stockNodeSchema = Type.Object({
   initial: Type.Optional(Type.String()),
   type: Type.Optional(Literals<StockTypeType>('Conveyor', 'Store')),
   delay: Type.Optional(Type.String()),
-  nonNegative: Type.Optional(Type.Boolean())
+  nonNegative: Type.Optional(Type.Boolean()),
+  ...unitsAndConstraintsSchema.properties
 })
 
 export const flowNodeSchema = Type.Object({
   rate: Type.Optional(Type.String()),
-  nonNegative: Type.Optional(Type.Boolean())
+  nonNegative: Type.Optional(Type.Boolean()),
+  ...unitsAndConstraintsSchema.properties
 })
 
 export const stateNodeSchema = Type.Object({
@@ -43,7 +58,8 @@ export const transitionNodeSchema = Type.Object({
   value: Type.Optional(Type.String()),
   recalculate: Type.Optional(Type.Boolean()),
   repeat: Type.Optional(Type.Boolean()),
-  trigger: Type.Optional(Literals<TriggerType>('Condition', 'Probability', 'Timeout'))
+  trigger: Type.Optional(Literals<TriggerType>('Condition', 'Probability', 'Timeout')),
+  constraints: Type.Optional(constraintsSchema)
 })
 
 export const populationNodeSchema = Type.Object({

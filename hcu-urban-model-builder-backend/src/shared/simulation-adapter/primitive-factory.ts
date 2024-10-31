@@ -5,24 +5,36 @@ const simulationFactoryMap = {
   [NodeType.Stock]: (model: Model, node: Nodes) => {
     return model.Stock({
       name: node.name,
-      initial: node.data.value
+      initial: node.data.value,
+      type: node.data.type,
+      delay: node.data.delay,
+      nonNegative: node.data.nonNegative,
+      units: node.data.units,
+      constraints: node.data.constraints
     })
   },
   [NodeType.Variable]: (model: Model, node: Nodes) => {
     return model.Variable({
       name: node.name,
-      value: node.data.value
+      value: node.data.value,
+      units: node.data.units,
+      constraints: node.data.constraints
     })
   },
   [NodeType.Flow]: async (model: Model, node: Nodes) => {
     return model.Flow(null, null, {
       name: node.name,
-      rate: node.data.rate
+      rate: node.data.rate,
+      nonNegative: node.data.nonNegative,
+      units: node.data.units,
+      constraints: node.data.constraints
     })
   },
   [NodeType.Converter]: (model: Model, node: Nodes) => {
     return model.Converter({
-      name: node.name
+      name: node.name,
+      units: node.data.units,
+      constraints: node.data.constraints
     })
   },
   [NodeType.State]: (model: Model, node: Nodes) => {
@@ -38,7 +50,8 @@ const simulationFactoryMap = {
       value: node.data.value,
       recalculate: node.data.recalculate,
       repeat: node.data.repeat,
-      trigger: node.data.trigger
+      trigger: node.data.trigger,
+      constraints: node.data.constraints
     })
   },
   [NodeType.Action]: (model: Model, node: Nodes) => {
