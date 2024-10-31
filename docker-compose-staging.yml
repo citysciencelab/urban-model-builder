@@ -34,33 +34,33 @@ services:
         aliases:
           - postgres
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8088:8080
-    networks:
-      default:
-        aliases:
-          - adminer
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8088:8080
+  #   networks:
+  #     default:
+  #       aliases:
+  #         - adminer
 
-  keyycloak:
-    image: quay.io/keycloak/keycloak:25.0.4
-    restart: always
-    env_file: ./config/.env
-    environment:
-      KC_DB: postgres
-      KC_DB_URL: "jdbc:postgresql://postgres/keycloak"
-      KC_HOSTNAME: keycloak
-      KC_HTTP_ENABLED: true
-      #KC_LOG_LEVEL: debug
+  # keyycloak:
+  #   image: quay.io/keycloak/keycloak:25.0.4
+  #   restart: always
+  #   env_file: ./config/.env
+  #   environment:
+  #     KC_DB: postgres
+  #     KC_DB_URL: "jdbc:postgresql://postgres/keycloak"
+  #     KC_HOSTNAME: keycloak
+  #     KC_HTTP_ENABLED: true
+  #     #KC_LOG_LEVEL: debug
 
-    command: ["start-dev"]
-    ports:
-      - 8080:8080
-    depends_on:
-      - postgres
-    networks:
-      default:
-        aliases:
-          - keycloak
+  #   command: ["start-dev"]
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     default:
+  #       aliases:
+  #         - keycloak

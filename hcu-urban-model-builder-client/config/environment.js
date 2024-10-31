@@ -56,6 +56,8 @@ module.exports = function (environment) {
 
   if (environment === 'production') {
     // here you can enable a production-specific feature
+    ENV['ember-simple-auth-oidc'].host =
+      'https://keycloak.datanarrator.city//realms/hcu-model-builder/protocol/openid-connect';
   }
 
   return ENV;

@@ -5,6 +5,9 @@
   },
   "host": "HOSTNAME",
   "authentication": {
-    "secret": "FEATHERS_SECRET"
+    "secret": "FEATHERS_SECRET",
+    "oidc": {
+      "issuer": "OIDC_ISSUER"
+    }
   }
 }
