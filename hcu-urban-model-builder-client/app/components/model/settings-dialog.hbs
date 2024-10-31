@@ -1,0 +1,96 @@
+<BsModal
+  @open={{@open}}
+  @onSubmit={{this.onSubmit}}
+  @onHide={{this.onHide}}
+  {{did-insert this.prepare}} as |modal|
+>
+  <modal.header>
+    <h5 class="modal-title">
+      {{t "components.settings_dialog.title"}}
+    </h5>
+  </modal.header>
+  <modal.body>
+    <BsForm
+      @formLayout="vertical"
+      @model={{this.changeset}}
+      @onSubmit={{this.onSubmit}} as |form|
+    >
+      <div class="row">
+        <form.element
+          @controlType="number"
+          @label={{t "models.models_version.attributes.timeStart"}}
+          @property="timeStart"
+          class="col-4" as |el|
+        >
+          <el.control min="0" max="99999" />
+        </form.element>
+        <form.element
+          @controlType="number"
+          @label={{t "models.models_version.attributes.timeLength"}}
+          @property="timeLength"
+          class="col-4" as |el|
+        >
+          <el.control min="1" max="99999" />
+        </form.element>
+
+        <form.element
+          @controlType="number"
+          @label={{t "models.models_version.attributes.timeStep"}}
+          @property="timeStep"
+          class="col-4" as |el|
+        >
+          <el.control step="0.1" min="0.1" max="99999" />
+        </form.element>
+      </div>
+
+      <div class="row">
+        <form.element
+          @label={{t "models.models_version.attributes.timeUnits"}}
+          @property="timeUnits"
+          class="col-6"
+        >
+          <PowerSelect
+            @options={{this.timeUnits}}
+            @selected={{this.changeset.timeUnits}}
+            @onChange={{fn (mut this.changeset.timeUnits)}} as |unit|
+          >
+            {{unit}}
+          </PowerSelect>
+        </form.element>
+
+        <form.element
+          @label={{t "models.models_version.attributes.algorithm"}}
+          @property="algorithm"
+          class="col-6"
+        >
+          <PowerSelect
+            @options={{this.algorithms}}
+            @selected={{this.changeset.algorithm}}
+            @onChange={{fn (mut this.changeset.algorithm)}} as |alg|
+          >
+            {{alg}}
+          </PowerSelect>
+        </form.element>
+      </div>
+
+      <div class="row">
+        <form.element
+          @controlType="textarea"
+          @label={{t "models.models_version.attributes.globals"}}
+          @property="globals"
+          class="col-12" as |el|
+        >
+          <el.control rows="5" class="code-textarea" />
+        </form.element>
+      </div>
+    </BsForm>
+  </modal.body>
+  <modal.footer>
+    <BsButton @onClick={{this.onHide}}>
+      {{t "actions.cancel"}}
+    </BsButton>
+    <BsButton @type="success" @onClick={{this.onSubmit}}>
+      {{t "actions.save"}}
+    </BsButton>
+  </modal.footer>
+</BsModal>

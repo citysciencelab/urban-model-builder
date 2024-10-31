@@ -103,6 +103,9 @@ main {
   flex-direction: column;
   align-items: flex-start;
   overflow-y: auto;
+  form {
+    width: 100%;
+  }
 }
 
 .navbar h3 {
@@ -256,7 +259,7 @@ main {
 #navbar-secondary {
   display: flex;
   align-items: center;
-  gap: get-spacer(4);
+  gap: get-spacer(2);
 }
 
 a.dropdown-toggle {
@@ -329,4 +332,90 @@ a.disabled,
 .meta {
   font-size: $font-size-sm;
   color: $text-muted;
+}
+
+.code-textarea {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  color: #333;
+  padding: 10px;
+  border-radius: 4px;
+  resize: vertical; /* Allow resizing only vertically */
+  white-space: pre-wrap; /* Preserve whitespace formatting */
+  line-height: 1.5;
+  field-sizing: content;
+}
+
+.formula__linked {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  margin-top: get-spacer(2);
+  gap: get-spacer(2);
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.formula__add-linked {
+  border-radius: $border-radius-lg;
+}
+
+.formula__wrapper {
+  position: relative;
+  .form-control {
+    padding-right: 41px;
+  }
+}
+
+.formula__accordion {
+  width: 320px;
+  .accordion-body {
+    padding: 0;
+    max-height: 240px;
+    overflow: auto;
+  }
+  a {
+    display: block;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    &:hover {
+      background-color: $primary;
+      color: $white;
+    }
+  }
+}
+
+.formula__list-group li {
+  padding: 0;
+}
+
+.formula__functions__btn {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+
+#formulas-filter {
+  border: none;
+  padding: 1rem 1.25rem;
+  width: 100%;
+  + a {
+    position: absolute;
+    right: 12px;
+    top: 8px;
+  }
+}
+
+.simulate-model__range__wrapper {
+  display: flex;
+  gap: get-spacer(2);
+  align-items: flex-end;
+}
+
+.simulate-model__range {
+  flex: 1;
+}
+
+.btn-round {
+  border-radius: 50%;
 }

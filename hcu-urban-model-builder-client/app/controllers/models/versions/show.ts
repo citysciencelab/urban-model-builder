@@ -14,6 +14,7 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
   @tracked showPublishModal = false;
   @tracked showCloneModal = false;
   @tracked showShareModal = false;
+  @tracked showSettingsModal = false;
 
   get navbar() {
     return document.querySelector('#navbar-secondary');
@@ -59,5 +60,9 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
 
   @action hideShareDialog() {
     this.showShareModal = false;
+  }
+
+  @action hideSettingsDialog() {
+    this.showSettingsModal = false;
   }
 }

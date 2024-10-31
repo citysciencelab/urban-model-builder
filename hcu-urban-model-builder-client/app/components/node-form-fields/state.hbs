@@ -1,11 +1,19 @@
 <@form.element
   @controlType="textarea"
   @label="Start Active"
-  @property="data.startActive"
-/>
+  @property="data.startActive" as |el|
+>
+  <NodeFormFields::Formula @form={{@form}} @node={{@node}} @el={{el}}>
+    <el.control class="code-textarea" />
+  </NodeFormFields::Formula>
+</@form.element>
 
 <@form.element
   @controlType="textarea"
   @label="Residency"
-  @property="data.residency"
-/>
+  @property="data.residency" as |el|
+>
+  <NodeFormFields::Formula @form={{@form}} @node={{@node}} @el={{el}}>
+    <el.control class="code-textarea" />
+  </NodeFormFields::Formula>
+</@form.element>

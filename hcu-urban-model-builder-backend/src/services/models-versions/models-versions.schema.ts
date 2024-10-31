@@ -58,6 +58,7 @@ export const modelsVersionsDataSchema = Type.Pick(
     'timeUnits',
     'timeStart',
     'timeLength',
+    'timeStep',
     'algorithm',
     'globals'
   ],

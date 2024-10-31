@@ -114,8 +114,6 @@ function Flow({
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       for (const change of changes) {
-        console.log("change", change);
-
         if (change.type === "select") {
           if (change.selected) {
             nodeActions.select("node", change.id);
@@ -303,7 +301,6 @@ function Flow({
 
   const onNodeDrag = useCallback(
     (_e: any, node: Node) => {
-      console.log("dragging");
       const intersections = rfInstance
         .getIntersectingNodes(node)
         .map((n) => n.id);
@@ -358,8 +355,6 @@ function Flow({
       }
 
       if (nodeChangeData) {
-        console.log("nodeChangeData", nodeChangeData);
-
         setNodes((ns) =>
           ns
             .map((n) => {
