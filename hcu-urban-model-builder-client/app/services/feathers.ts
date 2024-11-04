@@ -14,6 +14,7 @@ import type Store from '@ember-data/store';
 import type StoreEventEmitterService from './store-event-emitter';
 import type { DataModelsNames } from './store-event-emitter';
 import type { HookContext } from '@feathersjs/feathers';
+import ENV from 'hcu-urban-model-builder-client/config/environment';
 
 export default class FeathersService extends Service {
   app: ClientApplication;
@@ -24,9 +25,7 @@ export default class FeathersService extends Service {
 
   constructor(owner?: Owner) {
     super(owner);
-    const socket = socketio(
-      io('http://localhost:3030', { transports: ['websocket'] }),
-    );
+    const socket = socketio(io(ENV.apiURL, { transports: ['websocket'] }));
 
     this.app = createClient(socket, {
       jwtStrategy: 'oidc',
