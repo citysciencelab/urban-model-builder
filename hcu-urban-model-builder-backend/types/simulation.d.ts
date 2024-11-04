@@ -55,7 +55,7 @@ declare module 'simulation' {
     Transition(
       start: State | null,
       end: State | null,
-      config?: (PrimitiveConfig & TransitionConfig) | undefined
+      config?: (PrimitiveConfig & ValuedConfig & TransitionConfig) | undefined
     ): Transition
     Link(start: Primitive, end: Primitive, config?: (PrimitiveConfig & LinkConfig) | undefined): Link
     Agent(config?: PrimitiveConfig & ContainerConfig & AgentConfig): Agent

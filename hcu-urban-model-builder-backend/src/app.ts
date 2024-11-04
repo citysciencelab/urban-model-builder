@@ -11,8 +11,9 @@ import { postgresql } from './postgresql.js'
 import { authentication } from './authentication.js'
 import { services } from './services/index.js'
 import { channels } from './channels.js'
-import { BadRequest, NotImplemented } from '@feathersjs/errors'
-import { discard, iff, isProvider } from 'feathers-hooks-common'
+import { BadRequest } from '@feathersjs/errors'
+import { iff } from 'feathers-hooks-common'
+import { authenticate } from '@feathersjs/authentication'
 
 const app: Application = koa(feathers())
 
@@ -46,6 +47,7 @@ app.hooks({
     all: [logError]
   },
   before: {
+    all: [iff((context) => context.path !== 'authentication', authenticate('oidc'))],
     create: [
       (context) => {
         delete context.data.createdAt
