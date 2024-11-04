@@ -21,6 +21,7 @@ import _ from 'lodash'
 import { ModelsVersions, modelsVersionsDataSchema } from '../models-versions/models-versions.schema.js'
 import { nodesDataSchema } from '../nodes/nodes.schema.js'
 import { edgesDataSchema } from '../edges/edges.schema.js'
+import { isServerCall } from '../../utils/is-server-call.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
@@ -42,7 +43,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   createQuery(params: KnexAdapterParams<ModelsQuery>) {
     const query = super.createQuery(params as any)
     // ignore when isTouch is true, because then we only patch the updatedAt field, no need to join
-    if (params.isTouch) {
+    if (params.isTouch || isServerCall(params)) {
       return query
     }
 

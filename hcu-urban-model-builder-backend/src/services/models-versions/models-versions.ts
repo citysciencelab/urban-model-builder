@@ -61,9 +61,9 @@ export const modelsVersions = (app: Application) => {
         })
       ],
       get: [
-        (context) => {
+        iff(isProvider('external'), (context) => {
           _.set(context, 'params.query.$or', [queryOrOnlyWhenPermissions, queryOrWhenPublished])
-        }
+        })
       ],
       create: [
         schemaHooks.validateData(modelsVersionsDataValidator),
