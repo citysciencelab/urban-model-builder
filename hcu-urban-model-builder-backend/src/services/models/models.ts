@@ -60,11 +60,7 @@ export const models = (app: Application) => {
       all: [schemaHooks.resolveExternal(modelsExternalResolver), schemaHooks.resolveResult(modelsResolver)]
     },
     before: {
-      all: [
-        authenticate('oidc'),
-        schemaHooks.validateQuery(modelsQueryValidator),
-        schemaHooks.resolveQuery(modelsQueryResolver)
-      ],
+      all: [schemaHooks.validateQuery(modelsQueryValidator), schemaHooks.resolveQuery(modelsQueryResolver)],
       find: [customSoftDelete(), permissionFilter],
       get: [customSoftDelete(), permissionFilter],
       create: [

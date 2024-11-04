@@ -40,7 +40,6 @@ export const modelsVersions = (app: Application) => {
   app.service(modelsVersionsPath).hooks({
     around: {
       all: [
-        authenticate('oidc'),
         schemaHooks.resolveExternal(modelsVersionsExternalResolver),
         schemaHooks.resolveResult(modelsVersionsResolver)
       ]

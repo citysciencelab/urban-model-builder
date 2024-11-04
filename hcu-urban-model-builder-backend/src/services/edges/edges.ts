@@ -38,11 +38,7 @@ export const edges = (app: Application) => {
   // Initialize hooks
   app.service(edgesPath).hooks({
     around: {
-      all: [
-        authenticate('oidc'),
-        schemaHooks.resolveExternal(edgesExternalResolver),
-        schemaHooks.resolveResult(edgesResolver)
-      ]
+      all: [schemaHooks.resolveExternal(edgesExternalResolver), schemaHooks.resolveResult(edgesResolver)]
     },
     before: {
       all: [schemaHooks.validateQuery(edgesQueryValidator), schemaHooks.resolveQuery(edgesQueryResolver)],
