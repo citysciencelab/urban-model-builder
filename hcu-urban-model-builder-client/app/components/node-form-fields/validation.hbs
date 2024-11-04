@@ -1,4 +1,4 @@
-<@form.element @controlType="text" @label="Unit" @property="data.units" />
+<NodeFormFields::UnitsSelection @form={{@form}} @node={{@node}} @el={{@el}} />
 
 <@form.element
   @controlType="switch"
@@ -12,8 +12,10 @@
     @controlType="number"
     @label="Minimum Value"
     @property="data.constraints.min"
-    @onChange={{fn (mut-number @node.data.constraints.min)}}
-  />
+    @onChange={{fn (mut-number @node.data.constraints.min)}} as |el|
+  >
+    <el.control step={{0.001}} />
+  </@form.element>
 {{/if}}
 
 <@form.element
@@ -28,6 +30,8 @@
     @controlType="number"
     @label="Maximum Value"
     @property="data.constraints.max"
-    @onChange={{fn (mut-number @node.data.constraints.max)}}
-  />
+    @onChange={{fn (mut-number @node.data.constraints.max)}} as |el|
+  >
+    <el.control step={{0.001}} />
+  </@form.element>
 {{/if}}
