@@ -5,6 +5,7 @@ module.exports = function (environment) {
     modulePrefix: 'hcu-urban-model-builder-client',
     environment,
     rootURL: '/',
+    apiURL: 'http://localhost:3030',
     locationType: 'history',
     EmberENV: {
       EXTEND_PROTOTYPES: false,
@@ -58,6 +59,8 @@ module.exports = function (environment) {
     // here you can enable a production-specific feature
     ENV['ember-simple-auth-oidc'].host =
       'https://keycloak.datanarrator.city//realms/hcu-model-builder/protocol/openid-connect';
+    ENV.apiURL = 'https://modelbuilder.comodeling.city';
+    ENV.locationType = 'hash';
   }
 
   return ENV;

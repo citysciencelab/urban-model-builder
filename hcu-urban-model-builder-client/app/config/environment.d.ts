@@ -8,6 +8,7 @@ declare const config: {
   podModulePrefix: string;
   locationType: 'history' | 'hash' | 'none';
   rootURL: string;
+  apiURL: string;
   APP: Record<string, unknown>;
   'ember-simple-auth-oidc': Record<string, unknown>;
   'ember-simple-auth': Record<string, unknown>;
