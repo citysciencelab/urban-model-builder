@@ -10,7 +10,7 @@ const simulationFactoryMap = {
       delay: node.data.delay,
       nonNegative: node.data.nonNegative,
       units: node.data.units,
-      constraints: node.data.constraints
+      constraints: node.data.constraints || {}
     })
   },
   [NodeType.Variable]: (model: Model, node: Nodes) => {
@@ -18,7 +18,7 @@ const simulationFactoryMap = {
       name: node.name,
       value: node.data.value,
       units: node.data.units,
-      constraints: node.data.constraints
+      constraints: node.data.constraints || {}
     })
   },
   [NodeType.Flow]: async (model: Model, node: Nodes) => {
@@ -27,14 +27,14 @@ const simulationFactoryMap = {
       rate: node.data.rate,
       nonNegative: node.data.nonNegative,
       units: node.data.units,
-      constraints: node.data.constraints
+      constraints: node.data.constraints || {}
     })
   },
   [NodeType.Converter]: (model: Model, node: Nodes) => {
     return model.Converter({
       name: node.name,
       units: node.data.units,
-      constraints: node.data.constraints
+      constraints: node.data.constraints || {}
     })
   },
   [NodeType.State]: (model: Model, node: Nodes) => {
@@ -51,7 +51,7 @@ const simulationFactoryMap = {
       recalculate: node.data.recalculate,
       repeat: node.data.repeat,
       trigger: node.data.trigger,
-      constraints: node.data.constraints
+      constraints: node.data.constraints || {}
     })
   },
   [NodeType.Action]: (model: Model, node: Nodes) => {
