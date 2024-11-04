@@ -43,7 +43,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   createQuery(params: KnexAdapterParams<ModelsQuery>) {
     const query = super.createQuery(params as any)
     // ignore when isTouch is true, because then we only patch the updatedAt field, no need to join
-    if (params.isTouch || isServerCall(params)) {
+    if (params.isTouch || (isServerCall(params) && !params?.user?.id)) {
       return query
     }
 
