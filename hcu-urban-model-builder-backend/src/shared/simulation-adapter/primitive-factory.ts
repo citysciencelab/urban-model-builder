@@ -8,7 +8,7 @@ const getUnitsDefault = (node: Nodes) => {
 const simulationFactoryMap = {
   [NodeType.Stock]: (model: Model, node: Nodes) => {
     return model.Stock({
-      name: node.name,
+      name: node.name!,
       initial: node.data.value,
       type: node.data.type,
       delay: node.data.delay,
@@ -19,7 +19,7 @@ const simulationFactoryMap = {
   },
   [NodeType.Variable]: (model: Model, node: Nodes) => {
     return model.Variable({
-      name: node.name,
+      name: node.name!,
       value: node.data.value,
       units: getUnitsDefault(node),
       constraints: node.data.constraints || {}
@@ -27,7 +27,7 @@ const simulationFactoryMap = {
   },
   [NodeType.Flow]: async (model: Model, node: Nodes) => {
     return model.Flow(null, null, {
-      name: node.name,
+      name: node.name!,
       rate: node.data.rate,
       nonNegative: node.data.nonNegative,
       units: getUnitsDefault(node),
@@ -36,21 +36,21 @@ const simulationFactoryMap = {
   },
   [NodeType.Converter]: (model: Model, node: Nodes) => {
     return model.Converter({
-      name: node.name,
+      name: node.name!,
       units: getUnitsDefault(node),
       constraints: node.data.constraints || {}
     })
   },
   [NodeType.State]: (model: Model, node: Nodes) => {
     return model.State({
-      name: node.name,
+      name: node.name!,
       residency: node.data.residency,
       startActive: node.data.startActive
     })
   },
   [NodeType.Transition]: (model: Model, node: Nodes) => {
     return model.Transition(null, null, {
-      name: node.name,
+      name: node.name!,
       value: node.data.value,
       recalculate: node.data.recalculate,
       repeat: node.data.repeat,
@@ -60,7 +60,7 @@ const simulationFactoryMap = {
   },
   [NodeType.Action]: (model: Model, node: Nodes) => {
     return model.Action({
-      name: node.name,
+      name: node.name!,
       value: node.data.value,
       recalculate: node.data.recalculate,
       repeat: node.data.repeat,
@@ -70,7 +70,7 @@ const simulationFactoryMap = {
   },
   [NodeType.Population]: (model: Model, node: Nodes) => {
     return model.Population({
-      name: node.name,
+      name: node.name!,
       geoHeight: node.data.geoHeight,
       geoPlacementFunction: node.data.geoPlacementFunction,
       geoPlacementType: node.data.geoPlacementType,
@@ -84,13 +84,16 @@ const simulationFactoryMap = {
   },
   [NodeType.Agent]: (model: Model, node: Nodes) => {
     return model.Agent({
-      name: node.name
+      name: node.name!
     })
   },
   [NodeType.Folder]: (model: Model, node: Nodes) => {
     return model.Folder({
-      name: node.name
+      name: node.name!
     })
+  },
+  [NodeType.Ghost]: (model: Model, node: Nodes) => {
+    throw new Error('Ghost nodes are not supported. Can not create a primitive for a ghost node.')
   }
 }
 

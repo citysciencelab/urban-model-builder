@@ -1,7 +1,7 @@
 // // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import type { Static } from '@feathersjs/typebox'
+import type { Static, TObject, TProperties, TSchema } from '@feathersjs/typebox'
 import { NetworkType, PlacementType, StockTypeType, TriggerType } from 'simulation/types'
 
 import type { HookContext } from '../../declarations.js'
@@ -82,7 +82,7 @@ export const nodesSchema = Type.Object(
     id: Type.Number(),
     modelsVersionsId: Type.Number(),
     type: Type.Enum(NodeType),
-    name: Type.String(),
+    name: Nullable(Type.String()),
     data: Type.Intersect([
       variableNodeSchema,
       stockNodeSchema,
@@ -98,7 +98,8 @@ export const nodesSchema = Type.Object(
     }),
     height: Nullable(Type.Number()),
     width: Nullable(Type.Number()),
-    parentId: Nullable(Type.Number())
+    parentId: Nullable(Type.Number()),
+    ghostParentId: Nullable(Type.Number())
   },
   { $id: 'Nodes', additionalProperties: false }
 )
@@ -111,7 +112,7 @@ export const nodesExternalResolver = resolve<Nodes, HookContext<NodesService>>({
 // Schema for creating new entries
 export const nodesDataSchema = Type.Pick(
   nodesSchema,
-  ['modelsVersionsId', 'type', 'name', 'position', 'data', 'height', 'width', 'parentId'],
+  ['modelsVersionsId', 'type', 'name', 'position', 'data', 'height', 'width', 'parentId', 'ghostParentId'],
   {
     $id: 'NodesData'
   }
@@ -138,7 +139,8 @@ export const nodesQueryProperties = Type.Pick(nodesSchema, [
   'data',
   'height',
   'width',
-  'parentId'
+  'parentId',
+  'ghostParentId'
 ])
 export const nodesQuerySchema = Type.Intersect(
   [
