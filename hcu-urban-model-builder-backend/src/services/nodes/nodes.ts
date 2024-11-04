@@ -38,11 +38,7 @@ export const nodes = (app: Application) => {
   // Initialize hooks
   app.service(nodesPath).hooks({
     around: {
-      all: [
-        authenticate('oidc'),
-        schemaHooks.resolveExternal(nodesExternalResolver),
-        schemaHooks.resolveResult(nodesResolver)
-      ]
+      all: [schemaHooks.resolveExternal(nodesExternalResolver), schemaHooks.resolveResult(nodesResolver)]
     },
     before: {
       all: [schemaHooks.validateQuery(nodesQueryValidator), schemaHooks.resolveQuery(nodesQueryResolver)],

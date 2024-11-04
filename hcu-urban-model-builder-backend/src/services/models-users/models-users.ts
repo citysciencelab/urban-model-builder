@@ -37,7 +37,6 @@ export const modelsUsers = (app: Application) => {
   app.service(modelsUsersPath).hooks({
     around: {
       all: [
-        authenticate('oidc'),
         schemaHooks.resolveExternal(modelsUsersExternalResolver),
         schemaHooks.resolveResult(modelsUsersResolver)
       ]

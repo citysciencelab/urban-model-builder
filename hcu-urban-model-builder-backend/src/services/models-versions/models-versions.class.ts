@@ -11,10 +11,11 @@ import type {
   ModelsVersionsQuery
 } from './models-versions.schema.js'
 import { AlgorithmType } from 'simulation'
+import { isServerCall } from '../../utils/is-server-call.js'
 
 export type { ModelsVersions, ModelsVersionsData, ModelsVersionsPatch, ModelsVersionsQuery }
 
-export interface ModelsVersionsParams extends KnexAdapterParams<ModelsVersionsQuery> { }
+export interface ModelsVersionsParams extends KnexAdapterParams<ModelsVersionsQuery> {}
 
 // By default calls the standard Knex adapter service methods but can be customized with your own functionality.
 export class ModelsVersionsService<ServiceParams extends Params = ModelsVersionsParams> extends KnexService<
@@ -26,7 +27,7 @@ export class ModelsVersionsService<ServiceParams extends Params = ModelsVersions
   createQuery(params: KnexAdapterParams<ModelsVersionsQuery>) {
     const query = super.createQuery(params as any)
     // ignore when isTouch is true, because then we only patch the updatedAt field, no need to join
-    if (params.isTouch) {
+    if (params.isTouch || isServerCall(params)) {
       return query
     }
 

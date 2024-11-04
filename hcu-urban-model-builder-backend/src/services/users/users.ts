@@ -34,11 +34,7 @@ export const user = (app: Application) => {
   // Initialize hooks
   app.service(userPath).hooks({
     around: {
-      all: [
-        authenticate('oidc'),
-        schemaHooks.resolveExternal(userExternalResolver),
-        schemaHooks.resolveResult(userResolver)
-      ],
+      all: [schemaHooks.resolveExternal(userExternalResolver), schemaHooks.resolveResult(userResolver)],
       find: [],
       get: [],
       create: [],

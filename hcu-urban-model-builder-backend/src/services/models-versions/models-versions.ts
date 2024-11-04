@@ -40,7 +40,6 @@ export const modelsVersions = (app: Application) => {
   app.service(modelsVersionsPath).hooks({
     around: {
       all: [
-        authenticate('oidc'),
         schemaHooks.resolveExternal(modelsVersionsExternalResolver),
         schemaHooks.resolveResult(modelsVersionsResolver)
       ]
@@ -62,9 +61,9 @@ export const modelsVersions = (app: Application) => {
         })
       ],
       get: [
-        (context) => {
+        iff(isProvider('external'), (context) => {
           _.set(context, 'params.query.$or', [queryOrOnlyWhenPermissions, queryOrWhenPublished])
-        }
+        })
       ],
       create: [
         schemaHooks.validateData(modelsVersionsDataValidator),
