@@ -7,6 +7,7 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { EdgesData, EdgeType, NodeType } from '../../../src/client.js'
 import { Model } from 'simulation'
+import { Params } from '@feathersjs/feathers'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -18,18 +19,34 @@ describe.only('models service', () => {
   })
 
   describe('simulate', () => {
-    beforeEach(async () => {
+    let params: Params
+
+    before(async () => {
       await app.get('postgresqlClient').table('models').del()
+      await app.get('postgresqlClient').table('users').del()
+
+      const user = await app.service('users').create({
+        email: 'tester@example.com'
+      })
+
+      params = {
+        user: user,
+        authenticated: true,
+        provider: 'socketio'
+      }
     })
 
-    after(async () => {
+    afterEach(async () => {
       await app.get('postgresqlClient').table('models').del()
     })
 
     it('should create a basic system dynamic model', async () => {
-      const model = await app.service('models').create({
-        internalName: 'Basic SD Model'
-      })
+      const model = await app.service('models').create(
+        {
+          internalName: 'Basic SD Model'
+        },
+        params
+      )
 
       const modelVersion = await app.service('models-versions').create({
         modelId: model.id,
@@ -226,9 +243,12 @@ describe.only('models service', () => {
     })
 
     it('should create a agent based model', async () => {
-      const model = await app.service('models').create({
-        internalName: 'Agent Based Model'
-      })
+      const model = await app.service('models').create(
+        {
+          internalName: 'Agent Based Model'
+        },
+        params
+      )
 
       const modelVersion = await app.service('models-versions').create({
         modelId: model.id,
@@ -548,9 +568,12 @@ describe.only('models service', () => {
     })
 
     it('simple agent based', async () => {
-      const model = await app.service('models').create({
-        internalName: 'Simple Agent Based Model'
-      })
+      const model = await app.service('models').create(
+        {
+          internalName: 'Simple Agent Based Model'
+        },
+        params
+      )
 
       const modelVersion = await app.service('models-versions').create({
         modelId: model.id,
