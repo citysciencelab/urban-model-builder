@@ -1,6 +1,10 @@
 import { Model } from 'simulation'
 import { Nodes, NodeType } from '../../client.js'
 
+const getUnitsDefault = (node: Nodes) => {
+  return node.data.units || 'Unitless'
+}
+
 const simulationFactoryMap = {
   [NodeType.Stock]: (model: Model, node: Nodes) => {
     return model.Stock({
@@ -9,7 +13,7 @@ const simulationFactoryMap = {
       type: node.data.type,
       delay: node.data.delay,
       nonNegative: node.data.nonNegative,
-      units: node.data.units,
+      units: getUnitsDefault(node),
       constraints: node.data.constraints || {}
     })
   },
@@ -17,7 +21,7 @@ const simulationFactoryMap = {
     return model.Variable({
       name: node.name,
       value: node.data.value,
-      units: node.data.units,
+      units: getUnitsDefault(node),
       constraints: node.data.constraints || {}
     })
   },
@@ -26,14 +30,14 @@ const simulationFactoryMap = {
       name: node.name,
       rate: node.data.rate,
       nonNegative: node.data.nonNegative,
-      units: node.data.units,
+      units: getUnitsDefault(node),
       constraints: node.data.constraints || {}
     })
   },
   [NodeType.Converter]: (model: Model, node: Nodes) => {
     return model.Converter({
       name: node.name,
-      units: node.data.units,
+      units: getUnitsDefault(node),
       constraints: node.data.constraints || {}
     })
   },
@@ -70,7 +74,7 @@ const simulationFactoryMap = {
       geoHeight: node.data.geoHeight,
       geoPlacementFunction: node.data.geoPlacementFunction,
       geoPlacementType: node.data.geoPlacementType,
-      geoUnits: node.data.geoUnits,
+      geoUnits: getUnitsDefault(node),
       geoWidth: node.data.geoWidth,
       geoWrapAround: node.data.geoWrapAround,
       networkFunction: node.data.networkFunction,
