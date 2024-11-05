@@ -1,37 +1,45 @@
-<NodeFormFields::UnitsSelection @form={{@form}} @node={{@node}} @el={{@el}} />
+<fieldset>
+  <NodeFormFields::UnitsSelection @form={{@form}} @node={{@node}} @el={{@el}} />
 
-<@form.element
-  @controlType="switch"
-  @label="Minimum Contraint"
-  @onChange={{fn this.handleConstraintChange "min"}}
-  @value={{is-numeric @node.data.constraints.min}}
-/>
+  <div class="row">
+    <div class="col-6">
+      <@form.element
+        @controlType="switch"
+        @label="Min"
+        @onChange={{fn this.handleConstraintChange "min"}}
+        @value={{is-numeric @node.data.constraints.min}}
+      />
 
-{{#if (is-numeric @node.data.constraints.min)}}
-  <@form.element
-    @controlType="number"
-    @label="Minimum Value"
-    @property="data.constraints.min"
-    @onChange={{fn (mut-number @node.data.constraints.min)}} as |el|
-  >
-    <el.control step={{0.001}} />
-  </@form.element>
-{{/if}}
+      {{#if (is-numeric @node.data.constraints.min)}}
+        <@form.element
+          @controlType="number"
+          @label=""
+          @property="data.constraints.min"
+          @onChange={{fn (mut-number @node.data.constraints.min)}} as |el|
+        >
+          <el.control step={{0.001}} />
+        </@form.element>
+      {{/if}}
+    </div>
 
-<@form.element
-  @controlType="switch"
-  @label="Maximum Contraint"
-  @onChange={{fn this.handleConstraintChange "max"}}
-  @value={{is-numeric @node.data.constraints.max}}
-/>
+    <div class="col-6">
+      <@form.element
+        @controlType="switch"
+        @label="Max"
+        @onChange={{fn this.handleConstraintChange "max"}}
+        @value={{is-numeric @node.data.constraints.max}}
+      />
 
-{{#if (is-numeric @node.data.constraints.max)}}
-  <@form.element
-    @controlType="number"
-    @label="Maximum Value"
-    @property="data.constraints.max"
-    @onChange={{fn (mut-number @node.data.constraints.max)}} as |el|
-  >
-    <el.control step={{0.001}} />
-  </@form.element>
-{{/if}}
+      {{#if (is-numeric @node.data.constraints.max)}}
+        <@form.element
+          @controlType="number"
+          @label=""
+          @property="data.constraints.max"
+          @onChange={{fn (mut-number @node.data.constraints.max)}} as |el|
+        >
+          <el.control step={{0.001}} />
+        </@form.element>
+      {{/if}}
+    </div>
+  </div>
+</fieldset>

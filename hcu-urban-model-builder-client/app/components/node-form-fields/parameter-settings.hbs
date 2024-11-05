@@ -1,0 +1,32 @@
+<fieldset class="parameter__settings">
+  {{! Enable Parameter Switch }}
+  <@form.element
+    @controlType="switch"
+    @label="Is Parameter?"
+    @property="isParameter" as |el|
+  >
+    <el.control />
+  </@form.element>
+  {{#if @node.isParameter}}
+    <div class="row">
+      {{! MIN Value }}
+      <@form.element
+        class="col-6"
+        @controlType="number"
+        @label="Minimum Value"
+        @property="parameterMin" as |el|
+      >
+        <el.control step={{0.001}} />
+      </@form.element>
+      {{! MAX Value }}
+      <@form.element
+        class="col-6"
+        @controlType="number"
+        @label="Maximum Value"
+        @property="parameterMax" as |el|
+      >
+        <el.control step={{0.001}} />
+      </@form.element>
+    </div>
+  {{/if}}
+</fieldset>

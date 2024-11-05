@@ -465,3 +465,20 @@ a.disabled,
   border-top: none;
   border-bottom: none;
 }
+
+fieldset {
+  border: 1px solid $border-color;
+  background-color: $body-tertiary-bg;
+  padding: get-spacer(2);
+  margin-bottom: get-spacer(3);
+  .mb-3:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+.form-switch {
+  &,
+  .form-label {
+    margin-bottom: 0;
+  }
+}

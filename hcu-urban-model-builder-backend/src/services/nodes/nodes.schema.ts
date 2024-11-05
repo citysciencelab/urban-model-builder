@@ -98,7 +98,10 @@ export const nodesSchema = Type.Object(
     }),
     height: Nullable(Type.Number()),
     width: Nullable(Type.Number()),
-    parentId: Nullable(Type.Number())
+    parentId: Nullable(Type.Number()),
+    isParameter: Type.Boolean(),
+    parameterMin: Nullable(Type.Number()),
+    parameterMax: Nullable(Type.Number())
   },
   { $id: 'Nodes', additionalProperties: false }
 )

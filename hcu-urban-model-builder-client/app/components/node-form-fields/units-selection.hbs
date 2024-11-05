@@ -15,18 +15,7 @@
     <BsAccordion class="units__accordion" as |acc|>
       {{#each this.units as |unit_category|}}
         {{#each-in unit_category as |k v|}}
-          {{#if (not v)}}
-            <BsListGroup lass="units__list-group" as |ListGroup|>
-              <ListGroup.item>
-                <a
-                  href="javascript:void()"
-                  {{on "click" (fn this.setUnit "Unitless")}}
-                >
-                  Unitless
-                </a>
-              </ListGroup.item>
-            </BsListGroup>
-          {{else}}
+          {{#if v}}
             <acc.item @value={{k}} @title={{k}}>
               {{#if (is-array v)}}
                 <BsListGroup
@@ -68,6 +57,17 @@
                 </BsAccordion>
               {{/if}}
             </acc.item>
+          {{else}}
+            <BsListGroup lass="units__list-group" as |ListGroup|>
+              <ListGroup.item>
+                <a
+                  href="javascript:void()"
+                  {{on "click" (fn this.setUnit "Unitless")}}
+                >
+                  Unitless
+                </a>
+              </ListGroup.item>
+            </BsListGroup>
           {{/if}}
         {{/each-in}}
       {{/each}}
