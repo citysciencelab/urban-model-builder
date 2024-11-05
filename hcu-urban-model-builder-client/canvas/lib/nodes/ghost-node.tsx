@@ -1,15 +1,9 @@
-import { Handle, HandleType, NodeProps, Position } from "@xyflow/react";
+import { NodeProps } from "@xyflow/react";
 import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo, useEffect, useState } from "react";
+import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 
-export const GhostNode = memo(({ id, data, isConnectable }: NodeProps) => {
-  const positions = [
-    Position.Top,
-    Position.Bottom,
-    Position.Left,
-    Position.Right,
-  ];
-
+export const GhostNode = memo(({ data, isConnectable }: NodeProps) => {
   const [ghostNodeModel, setGhostNodeModel] = useState(null);
 
   useEffect(() => {
@@ -27,17 +21,8 @@ export const GhostNode = memo(({ id, data, isConnectable }: NodeProps) => {
 
   return (
     <div className={`react-flow__node-default content`}>
-      {["target", "source"].map((type: HandleType) =>
-        positions.map((position) => (
-          <Handle
-            id={`${type}-${position}`}
-            key={`${type}-${position}`}
-            type={type}
-            position={position}
-            isConnectable={isConnectable}
-          />
-        )),
-      )}
+      <DefaultNodeHandles isConnectable={isConnectable} />
+
       {ghostName}
     </div>
   );

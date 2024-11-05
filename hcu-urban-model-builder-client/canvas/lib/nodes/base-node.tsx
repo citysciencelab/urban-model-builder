@@ -1,14 +1,9 @@
-import {
-  Handle,
-  HandleType,
-  NodeProps,
-  NodeToolbar,
-  Position,
-} from "@xyflow/react";
+import { NodeProps, NodeToolbar, Position } from "@xyflow/react";
 import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo, useContext } from "react";
 import { EmberReactConnectorContext } from "../context/ember-react-connector.ts";
 import { NodeType } from "hcu-urban-model-builder-backend";
+import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 
 export const BaseNode = memo(
   ({
@@ -19,13 +14,6 @@ export const BaseNode = memo(
     positionAbsoluteX,
     positionAbsoluteY,
   }: NodeProps) => {
-    const positions = [
-      Position.Top,
-      Position.Bottom,
-      Position.Left,
-      Position.Right,
-    ];
-
     const emberReactConnector = useContext(EmberReactConnectorContext);
 
     const name = useModelPropState({
@@ -47,17 +35,7 @@ export const BaseNode = memo(
 
     return (
       <div className={`react-flow__node-default content`}>
-        {["target", "source"].map((type: HandleType) =>
-          positions.map((position) => (
-            <Handle
-              id={`${type}-${position}`}
-              key={`${type}-${position}`}
-              type={type}
-              position={position}
-              isConnectable={isConnectable}
-            />
-          )),
-        )}
+        <DefaultNodeHandles isConnectable={isConnectable} />
 
         {name}
 
