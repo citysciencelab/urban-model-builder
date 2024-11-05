@@ -29,7 +29,7 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
 
   get nodeTypeConfigs() {
     return Object.values(NodeType).reduce((acc, type) => {
-      if (typeof type === 'number') {
+      if (typeof type === 'number' && type !== NodeType.Ghost) {
         const typeStr = NodeType[type];
         acc.push({
           label: typeStr.toLocaleUpperCase(),

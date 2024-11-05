@@ -99,6 +99,14 @@ describe.only('models service', () => {
         ...baseNodeData
       })
 
+      const population19PlusStockGhost = await app.service('nodes').create({
+        type: NodeType.Ghost,
+        position: { x: 100, y: 1000 },
+        data: {},
+        ghostParentId: population19PlusStock.id,
+        ...baseNodeData
+      })
+
       const birthsFlow = await app.service('nodes').create({
         name: 'Births',
         type: NodeType.Flow,
@@ -149,7 +157,7 @@ describe.only('models service', () => {
           type: EdgeType.Link
         },
         {
-          sourceId: population19PlusStock.id,
+          sourceId: population19PlusStockGhost.id,
           targetId: totalPopulationVar.id,
           type: EdgeType.Link
         },
@@ -167,12 +175,12 @@ describe.only('models service', () => {
         },
         {
           sourceId: agingFlow.id,
-          targetId: population19PlusStock.id,
+          targetId: population19PlusStockGhost.id,
           sourceHandle: 'flow-source',
           type: EdgeType.Flow
         },
         {
-          sourceId: population19PlusStock.id,
+          sourceId: population19PlusStockGhost.id,
           targetId: deathsFlow.id,
           targetHandle: 'flow-target',
           type: EdgeType.Flow
@@ -188,10 +196,16 @@ describe.only('models service', () => {
         })
       )
 
-      const nodes = await app.service('nodes').find()
+      const nodes = await app.service('nodes').find({
+        query: {
+          type: {
+            $ne: NodeType.Ghost
+          }
+        }
+      })
       const nodeNameToIdMap = new Map<string, number>()
       for (const node of nodes.data) {
-        nodeNameToIdMap.set(node.name, node.id)
+        nodeNameToIdMap.set(node.name!, node.id)
       }
 
       const actual = await app.service('models').simulate({ id: modelVersion.id })
@@ -465,8 +479,8 @@ describe.only('models service', () => {
       const nodeNameToIdMap = new Map<string, number>()
       const nodeIdToNameMap = new Map<number, string>()
       for (const node of nodes.data) {
-        nodeNameToIdMap.set(node.name, node.id)
-        nodeIdToNameMap.set(node.id, node.name)
+        nodeNameToIdMap.set(node.name!, node.id)
+        nodeIdToNameMap.set(node.id, node.name!)
       }
 
       const actual = await app.service('models').simulate({ id: modelVersion.id })

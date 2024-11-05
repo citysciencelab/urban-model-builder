@@ -33,9 +33,9 @@ export const channels = (app: Application) => {
     // To publish only for a specific event use `app.publish(eventname, () => {})`
 
     // e.g. to publish all service events to all authenticated users use
-    return app.channel('authenticated', 'anonymous').filter((connection) => {
+    return app.channel('authenticated').filter((connection) => {
       // publish to all users
-      return connection !== context.params.connection
+      return connection !== context?.params?.connection
     })
   })
 }
