@@ -21,6 +21,7 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import { authenticate } from '@feathersjs/authentication'
 import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
+import { emitRemovedForGhostChildren } from '../../hooks/nodes/emit-removed-for-ghost-children.js'
 
 export * from './nodes.class.js'
 export * from './nodes.schema.js'
@@ -38,7 +39,8 @@ export const nodes = (app: Application) => {
   // Initialize hooks
   app.service(nodesPath).hooks({
     around: {
-      all: [schemaHooks.resolveExternal(nodesExternalResolver), schemaHooks.resolveResult(nodesResolver)]
+      all: [schemaHooks.resolveExternal(nodesExternalResolver), schemaHooks.resolveResult(nodesResolver)],
+      remove: [emitRemovedForGhostChildren()]
     },
     before: {
       all: [schemaHooks.validateQuery(nodesQueryValidator), schemaHooks.resolveQuery(nodesQueryResolver)],
