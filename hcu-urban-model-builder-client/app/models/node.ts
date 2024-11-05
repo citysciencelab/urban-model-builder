@@ -1,4 +1,10 @@
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import Model, {
+  attr,
+  belongsTo,
+  hasMany,
+  type AsyncBelongsTo,
+  type AsyncHasMany,
+} from '@ember-data/model';
 import { Type } from '@warp-drive/core-types/symbols';
 import type Edge from './edge';
 import { NodeType, type Nodes } from 'hcu-urban-model-builder-backend';
@@ -26,16 +32,19 @@ export default class Node extends Model {
   declare modelsVersions: ModelsVersion;
 
   @hasMany('edge', { async: true, inverse: 'source' })
-  declare sourceEdges: Edge[];
+  declare sourceEdges: AsyncHasMany<Edge>;
 
   @hasMany('edge', { async: true, inverse: 'target' })
-  declare targetEdges: Edge[];
+  declare targetEdges: AsyncHasMany<Edge>;
 
   @belongsTo('node', { async: true, inverse: null })
-  declare parent: Node;
+  declare parent: AsyncBelongsTo<Node>;
 
-  @belongsTo('node', { async: true, inverse: null })
-  declare ghostParent: Node;
+  @belongsTo('node', { async: true, inverse: 'ghostChildren' })
+  declare ghostParent: AsyncBelongsTo<Node>;
+
+  @hasMany('node', { async: true, inverse: 'ghostParent' })
+  declare ghostChildren: AsyncHasMany<Node>;
 
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;

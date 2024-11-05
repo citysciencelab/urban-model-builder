@@ -2,13 +2,18 @@
   <div class="sidebar">
     <div class="sidebar__header">
       <h3>
-        {{@record.name}}
+        {{this.name}}
       </h3>
     </div>
     <div class="sidebar__content">
+      {{#if this.isGhostNode}}
+        <div class="alert alert-warning">
+          👻 {{t "forms.node.ghost_warning"}}
+        </div>
+      {{/if}}
       <BsForm
         @onSubmit={{this.onSave}}
-        @model={{@record}}
+        @model={{this.record}}
         @disabled={{@disabled}} as |form|
       >
         <form.element
@@ -19,7 +24,7 @@
         />
 
         {{#if this.nodeFormFieldsComponent}}
-          <this.nodeFormFieldsComponent @form={{form}} @node={{@record}} />
+          <this.nodeFormFieldsComponent @form={{form}} @node={{this.record}} />
         {{/if}}
 
         <form.submitButton>
