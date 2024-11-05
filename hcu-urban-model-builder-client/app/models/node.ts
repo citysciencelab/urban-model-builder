@@ -34,6 +34,9 @@ export default class Node extends Model {
   @belongsTo('node', { async: true, inverse: null })
   declare parent: Node;
 
+  @belongsTo('node', { async: true, inverse: null })
+  declare ghostParent: Node;
+
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;
 
