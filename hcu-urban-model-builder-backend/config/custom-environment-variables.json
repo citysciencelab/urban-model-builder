@@ -4,6 +4,9 @@
     "__format": "number"
   },
   "host": "HOSTNAME",
+  "postgresql": {
+    "connection": "DATABASE_URL"
+  },
   "authentication": {
     "secret": "FEATHERS_SECRET",
     "oidc": {
