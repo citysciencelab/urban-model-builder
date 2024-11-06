@@ -60,15 +60,29 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
     return formulaCollection;
   }
 
-  @action async getSourceNodes() {
-    this.sourceNodes = [];
-    const targetEdges = await this.args.node.targetEdges;
-    for (const edge of targetEdges) {
-      const source = await edge.source;
-      this.sourceNodes = [...this.sourceNodes, source];
+  @action
+  async loadSourceNodes() {
+    this.sourceNodes = await this.getSourceNodes(this.args.node);
+
+    const ghostChildren = await this.args.node.ghostChildren;
+    for (const node of ghostChildren) {
+      const sourceNodes = await this.getSourceNodes(node);
+      this.sourceNodes = this.sourceNodes.concat(sourceNodes);
     }
 
     this.checkForIssues();
+  }
+
+  async getSourceNodes(node: Node) {
+    const sourceNodes: Node[] = [];
+    const targetEdges = await node.targetEdges;
+    for (const edge of targetEdges) {
+      const source = await edge.source;
+      if (source) {
+        sourceNodes.push(source);
+      }
+    }
+    return sourceNodes;
   }
 
   @action checkForIssues() {
@@ -179,10 +193,10 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
     // Calculate the start offset and length of the parameter at the specified index
     let currentPos = start + 1;
     for (let i = 0; i < paramIndex; i++) {
-      currentPos += parameters[i].length + 1; // Move past parameter and comma
+      currentPos += parameters[i]!.length + 1; // Move past parameter and comma
     }
     const paramStart = currentPos;
-    const paramLength = parameters[paramIndex].length;
+    const paramLength = parameters[paramIndex]!.length;
 
     // Return an object with the start and length of the parameter
     return { start: paramStart, length: paramLength };

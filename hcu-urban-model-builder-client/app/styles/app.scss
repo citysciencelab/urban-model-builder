@@ -385,6 +385,24 @@ a.disabled,
   }
 }
 
+.units__accordion {
+  .accordion-body {
+    padding: 0;
+  }
+  a {
+    display: block;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    &:hover {
+      background-color: $primary;
+      color: $white;
+    }
+  }
+  li {
+    padding: 0;
+  }
+}
+
 .formula__list-group li {
   padding: 0;
 }
@@ -418,4 +436,32 @@ a.disabled,
 
 .btn-round {
   border-radius: 50%;
+}
+
+.units__selection__input {
+  position: relative;
+  margin-bottom: 0 !important;
+  input {
+    cursor: pointer;
+  }
+}
+
+.units__selection__caret {
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.units__selection {
+  margin-bottom: get-spacer(3);
+  .accordion-button {
+    border-radius: 0;
+  }
+}
+
+.units__accordion > .list-group:first-child > .list-group-item:first-child {
+  border-radius: 0;
+  border-top: none;
+  border-bottom: none;
 }

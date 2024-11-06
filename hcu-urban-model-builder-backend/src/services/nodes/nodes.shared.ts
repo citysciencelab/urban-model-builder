@@ -15,7 +15,8 @@ export enum NodeType {
   Action,
   Population,
   Agent,
-  Folder
+  Folder,
+  Ghost
 }
 
 export type NodesClientService = Pick<NodesService<Params<NodesQuery>>, (typeof nodesMethods)[number]>

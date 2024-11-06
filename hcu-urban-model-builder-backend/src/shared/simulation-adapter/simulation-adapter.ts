@@ -35,6 +35,8 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
     await this.assignPrimitiveParents()
 
+    await this.addGhostNodesToPrimitiveMap()
+
     await this.createModelRelationsByEdges(model)
 
     const simulationResult = model.simulate()
@@ -61,7 +63,10 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   private async createModelPrimitives(model: Model) {
     const nodes = await this.app.service('nodes').find({
       query: {
-        modelsVersionsId: this.modelVersionId
+        modelsVersionsId: this.modelVersionId,
+        type: {
+          $ne: NodeType.Ghost
+        }
       }
     })
 
@@ -93,6 +98,26 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
         throw new Error('Child primitive not found')
       }
       childPrimitive.parent = parentPrimitive
+    }
+  }
+
+  private async addGhostNodesToPrimitiveMap() {
+    const ghostNodes = await this.app.service('nodes').find({
+      query: {
+        modelsVersionsId: this.modelVersionId,
+        type: NodeType.Ghost
+      }
+    })
+
+    for (const ghostNode of ghostNodes.data) {
+      if (!ghostNode.ghostParentId) {
+        throw new Error('Ghost node must have a ghost parent')
+      }
+      const ghostParent = this.nodeIdPrimitiveMap.get(ghostNode.ghostParentId!)
+      if (!ghostParent) {
+        throw new Error('Ghost parent not found')
+      }
+      this.nodeIdPrimitiveMap.set(ghostNode.id, ghostParent)
     }
   }
 

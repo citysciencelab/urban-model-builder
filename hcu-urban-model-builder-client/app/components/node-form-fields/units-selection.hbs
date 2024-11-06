@@ -1,0 +1,76 @@
+<div class="units__selection">
+  <@form.element
+    class="units__selection__input"
+    @controlType="text"
+    @label="Unit"
+    @property="data.units" as |el|
+  >
+    <el.control readonly {{on "click" this.toggleUnitsVisibility}} />
+    <span class="units__selection__caret btn btn_link">
+      <FaIcon @icon="caret-down" />
+    </span>
+  </@form.element>
+
+  {{#if this.showUnits}}
+    <BsAccordion class="units__accordion" as |acc|>
+      {{#each this.units as |unit_category|}}
+        {{#each-in unit_category as |k v|}}
+          {{#if (not v)}}
+            <BsListGroup lass="units__list-group" as |ListGroup|>
+              <ListGroup.item>
+                <a
+                  href="javascript:void()"
+                  {{on "click" (fn this.setUnit "Unitless")}}
+                >
+                  Unitless
+                </a>
+              </ListGroup.item>
+            </BsListGroup>
+          {{else}}
+            <acc.item @value={{k}} @title={{k}}>
+              {{#if (is-array v)}}
+                <BsListGroup
+                  @flush={{true}}
+                  class="units__list-group" as |ListGroup|
+                >
+                  {{#each v as |item|}}
+                    <ListGroup.item>
+                      <a
+                        href="javascript:void()"
+                        {{on "click" (fn this.setUnit item)}}
+                      >
+                        {{item}}
+                      </a>
+                    </ListGroup.item>
+                  {{/each}}
+                </BsListGroup>
+              {{else}}
+                <BsAccordion class="units__accordion" as |acc|>
+                  {{#each-in v as |k2 v2|}}
+                    <acc.item @value={{k2}} @title={{k2}}>
+                      <BsListGroup
+                        @flush={{true}}
+                        class="units__list-group" as |ListGroup|
+                      >
+                        {{#each v2 as |item|}}
+                          <ListGroup.item>
+                            <a
+                              href="javascript:void()"
+                              {{on "click" (fn this.setUnit item)}}
+                            >
+                              {{item}}
+                            </a>
+                          </ListGroup.item>
+                        {{/each}}
+                      </BsListGroup>
+                    </acc.item>
+                  {{/each-in}}
+                </BsAccordion>
+              {{/if}}
+            </acc.item>
+          {{/if}}
+        {{/each-in}}
+      {{/each}}
+    </BsAccordion>
+  {{/if}}
+</div>
