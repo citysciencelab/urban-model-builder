@@ -41,6 +41,19 @@ export const flowNodeSchema = Type.Object({
   ...unitsAndConstraintsSchema.properties
 })
 
+export const converterNodeSchema = Type.Object({
+  values: Type.Optional(
+    Type.Array(
+      Type.Object({
+        x: Type.Number(),
+        y: Type.Number()
+      })
+    )
+  ),
+  interpolation: Type.Optional(Type.Union([Type.Literal('Linear'), Type.Literal('Discrete')])),
+  ...unitsAndConstraintsSchema.properties
+})
+
 export const stateNodeSchema = Type.Object({
   startActive: Type.Optional(Type.String()),
   residency: Type.Optional(Type.String())
@@ -87,6 +100,7 @@ export const nodesSchema = Type.Object(
       variableNodeSchema,
       stockNodeSchema,
       flowNodeSchema,
+      converterNodeSchema,
       stateNodeSchema,
       actionNodeSchema,
       transitionNodeSchema,

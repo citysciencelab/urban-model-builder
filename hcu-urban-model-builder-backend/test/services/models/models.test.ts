@@ -256,6 +256,166 @@ describe.only('models service', () => {
       }
     })
 
+    it('should create a system dynamics model with a converter node', async () => {
+      const model = await app.service('models').create(
+        {
+          internalName: 'SD Model with Converter'
+        },
+        params
+      )
+
+      const modelVersion = await app.service('models-versions').create({
+        modelId: model.id,
+        draftVersion: 1,
+        minorVersion: 0,
+        majorVersion: 0,
+        timeUnits: 'Years',
+        timeStart: 0,
+        timeLength: 20
+      })
+
+      const baseNodeData = {
+        modelsVersionsId: modelVersion.id,
+        height: null,
+        width: null,
+        parentId: null
+      }
+
+      const initFlow = await app.service('nodes').create({
+        name: 'Init',
+        type: NodeType.Flow,
+        data: { rate: '2' },
+        position: { x: 100, y: 0 },
+        ...baseNodeData
+      })
+
+      const initialStock = await app.service('nodes').create({
+        name: 'Initial',
+        type: NodeType.Stock,
+        data: { value: '0' },
+        position: { x: 100, y: 100 },
+        ...baseNodeData
+      })
+
+      const lookUpConverter = await app.service('nodes').create({
+        name: 'Look Up',
+        type: NodeType.Converter,
+        data: {
+          // interpolation 'Linear' is the default value
+          values: [
+            { x: 0, y: 10 },
+            { x: 10, y: 30 },
+            { x: 20, y: 100 }
+          ]
+        },
+        position: { x: 100, y: 200 },
+        ...baseNodeData
+      })
+
+      const outputVariable = await app.service('nodes').create({
+        name: 'Output',
+        type: NodeType.Variable,
+        data: { value: '[Look Up]' },
+        position: { x: 100, y: 300 },
+        ...baseNodeData
+      })
+
+      const baseEdgeData = {
+        modelsVersionsId: modelVersion.id,
+        sourceHandle: '0',
+        targetHandle: '0'
+      }
+
+      const modelEdges: (Omit<EdgesData, 'modelsVersionsId' | 'sourceHandle' | 'targetHandle'> & {
+        sourceHandle?: string
+        targetHandle?: string
+      })[] = [
+        {
+          sourceId: initFlow.id,
+          targetId: initialStock.id,
+          type: EdgeType.Flow,
+          sourceHandle: 'flow-source'
+        },
+        {
+          sourceId: initialStock.id,
+          targetId: lookUpConverter.id,
+          type: EdgeType.Link
+        },
+        {
+          sourceId: lookUpConverter.id,
+          targetId: outputVariable.id,
+          type: EdgeType.Link
+        }
+      ]
+
+      const edges = await Promise.all(
+        modelEdges.map(async (edge) => {
+          return app.service('edges').create({
+            ...baseEdgeData,
+            ...edge
+          })
+        })
+      )
+
+      const nodes = await app.service('nodes').find()
+      const nodeNameToIdMap = new Map<string, number>()
+      for (const node of nodes.data) {
+        nodeNameToIdMap.set(node.name!, node.id)
+      }
+
+      const actual = await app.service('models').simulate({ id: modelVersion.id })
+
+      assert.ok(actual.nodes)
+
+      const file = await readFile(join(__dirname, 'sd-model-with-converter.xml'), 'utf8')
+
+      const imModel = loadInsightMaker(file)
+      const res = imModel.simulate()
+
+      const expectedData = res._data.data?.map((d: any) => {
+        return Object.entries(d).reduce((acc, [key, value]) => {
+          acc[res._nameIdMapping[key]] = value
+          return acc
+        }, {} as any)
+      })
+
+      assert.deepStrictEqual(actual.times, res._data.times)
+
+      let i = 0
+      const allNodeNames = ['Init', 'Initial', 'Look Up', 'Output']
+      const actualNodeData = actual.nodes
+      for (const expectedDataItem of expectedData!) {
+        for (const nodeName of allNodeNames) {
+          const expectedValue = expectedDataItem[nodeName]
+          const nodeId = nodeNameToIdMap.get(nodeName)
+          assert.ok(nodeId)
+          assert.ok(nodeId in actualNodeData, `Node ${nodeName} not found in actual data`)
+          const actualValue = actualNodeData[nodeId].series[i]
+
+          assert.ok(!isNaN(expectedValue))
+          assert.ok(typeof actualValue === 'number')
+          assert.ok(!isNaN(actualValue))
+
+          const expectedValueAsInt = Math.round(expectedValue)
+          const actualValueAsInt = Math.round(actualValue)
+          assert.strictEqual(
+            expectedValueAsInt,
+            actualValueAsInt,
+            `Expected ${expectedValue} but got ${actualValue}. Node name: ${nodeName}. Index: ${i}`
+          )
+
+          const diff = Math.abs(expectedValue - actualValue)
+
+          assert.ok(
+            diff <= 10e-10,
+            `Expected ${i} item ${nodeName} to be ${expectedValue} but got ${actualValue}. Diff: ${diff}`
+          )
+        }
+
+        i++
+      }
+    })
+
     it('should create a agent based model', async () => {
       const model = await app.service('models').create(
         {

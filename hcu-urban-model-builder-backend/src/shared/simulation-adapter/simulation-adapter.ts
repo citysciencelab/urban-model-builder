@@ -1,6 +1,17 @@
 import { Model } from 'simulation'
 import { NodeType } from '../../services/nodes/nodes.shared.js'
-import { Agent, Container, Flow, Population, Primitive, State, Stock, Transition } from 'simulation/blocks'
+import {
+  Agent,
+  Container,
+  Converter,
+  Flow,
+  Population,
+  Primitive,
+  State,
+  Stock,
+  Transition,
+  ValuedPrimitive
+} from 'simulation/blocks'
 import { Edges, EdgeType } from '../../services/edges/edges.shared.js'
 import { primitiveFactory } from './primitive-factory.js'
 import { Results } from 'simulation/Results'
@@ -36,6 +47,8 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     await this.assignPrimitiveParents()
 
     await this.addGhostNodesToPrimitiveMap()
+
+    await this.assignConverterInput()
 
     await this.createModelRelationsByEdges(model)
 
@@ -118,6 +131,37 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
         throw new Error('Ghost parent not found')
       }
       this.nodeIdPrimitiveMap.set(ghostNode.id, ghostParent)
+    }
+  }
+
+  private async assignConverterInput() {
+    const converterNodes = await this.app.service('nodes').find({
+      query: {
+        modelsVersionsId: this.modelVersionId,
+        type: NodeType.Converter
+      }
+    })
+
+    for (const node of converterNodes.data) {
+      const converterInputEdges = await this.app.service('edges').find({
+        query: {
+          modelsVersionsId: this.modelVersionId,
+          targetId: node.id
+        }
+      })
+
+      if (converterInputEdges.total > 1) {
+        throw new Error('Converter node must have only one input node')
+      }
+      if (converterInputEdges.total === 0) {
+        console.debug('Converter node has no input node. Has input type time')
+        continue
+      }
+
+      const converterInputEdge = converterInputEdges.data[0]
+      const converter = this.nodeIdPrimitiveMap.get(node.id) as Converter
+      const inputNode = this.nodeIdPrimitiveMap.get(converterInputEdge.sourceId) as ValuedPrimitive
+      converter.input = inputNode
     }
   }
 

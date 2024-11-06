@@ -193,7 +193,7 @@ declare module 'simulation/blocks' {
   export type ConverterConfig = {
     interpolation?: ('Discrete' | 'Linear') | undefined
     input?: ('Time' | ValuedPrimitive) | undefined
-    data?:
+    values?:
       | {
           x: number
           y: number
