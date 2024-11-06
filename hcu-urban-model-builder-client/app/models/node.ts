@@ -4,6 +4,7 @@ import type Edge from './edge';
 import { NodeType, type Nodes } from 'hcu-urban-model-builder-backend';
 import type ModelsVersion from './models-version';
 import { dasherize } from '@ember/string';
+import type ScenariosValue from './scenarios-value';
 
 export default class Node extends Model {
   [Type] = 'node' as const;
@@ -37,6 +38,9 @@ export default class Node extends Model {
 
   @belongsTo('node', { async: true, inverse: null })
   declare parent: Node;
+
+  @hasMany('scenarios-value', { async: true, inverse: 'nodes' })
+  declare scenariosValues: ScenariosValue[];
 
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;

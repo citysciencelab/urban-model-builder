@@ -10,7 +10,8 @@ import {
   nodesExternalResolver,
   nodesDataResolver,
   nodesPatchResolver,
-  nodesQueryResolver
+  nodesQueryResolver,
+  Nodes
 } from './nodes.schema.js'
 
 import type { Application } from '../../declarations.js'
@@ -21,6 +22,8 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import { authenticate } from '@feathersjs/authentication'
 import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
+import { Paginated } from '@feathersjs/feathers'
+import { manageDefaultScenariosValues } from './hooks/manage-default-scenarios-values.js'
 
 export * from './nodes.class.js'
 export * from './nodes.schema.js'
@@ -71,7 +74,8 @@ export const nodes = (app: Application) => {
       ]
     },
     after: {
-      all: []
+      all: [],
+      patch: [iff(isProvider('external'), manageDefaultScenariosValues)]
     },
     error: {
       all: []

@@ -7,6 +7,22 @@ const authenticationClient =
   authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { scenarioValuesClient } from './services/scenarios-values/scenarios-values.shared.js'
+export type {
+  ScenarioValues,
+  ScenarioValuesData,
+  ScenarioValuesQuery,
+  ScenarioValuesPatch
+} from './services/scenarios-values/scenarios-values.shared.js'
+
+import { scenariosClient } from './services/scenarios/scenarios.shared.js'
+export type {
+  Scenarios,
+  ScenariosData,
+  ScenariosQuery,
+  ScenariosPatch
+} from './services/scenarios/scenarios.shared.js'
+
 import { modelsUsersClient } from './services/models-users/models-users.shared.js'
 export type {
   ModelsUsers,
@@ -77,6 +93,8 @@ export const createClient = <Configuration = any>(
   client.configure(userClient)
   client.configure(modelsVersionsClient)
   client.configure(modelsUsersClient)
+  client.configure(scenariosClient)
+  client.configure(scenarioValuesClient)
   return client
 }
 

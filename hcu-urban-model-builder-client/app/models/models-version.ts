@@ -11,9 +11,15 @@ import { Type } from '@warp-drive/core-types/symbols';
 import type ModelModel from './model';
 import type { FormModelClone, FormModelPublish } from 'global';
 import { Roles } from 'hcu-urban-model-builder-backend';
+import { inject as service } from '@ember/service';
+import type Store from '@ember-data/store';
+import { cached } from '@ember-data/tracking';
+import { TrackedAsyncData } from 'ember-async-data';
 
 export default class ModelsVersion extends Model {
   declare [Type]: 'models-version';
+
+  @service declare store: Store;
 
   @attr('number') declare minorVersion: number;
   @attr('number') declare majorVersion: number;
@@ -112,5 +118,19 @@ export default class ModelsVersion extends Model {
       return parentModel.cloneVersion(this, formModel);
     }
     return null;
+  }
+
+  @cached
+  get defaultScenario() {
+    const promise = new Promise(async (resolve) => {
+      const defaultScenario = await this.store.query('scenario', {
+        modelsVersionsId: this.id,
+        isDefault: true,
+      });
+      if (defaultScenario.length > 0) {
+        resolve(defaultScenario[0]);
+      }
+    });
+    return new TrackedAsyncData(promise);
   }
 }

@@ -114,7 +114,19 @@ export const nodesExternalResolver = resolve<Nodes, HookContext<NodesService>>({
 // Schema for creating new entries
 export const nodesDataSchema = Type.Pick(
   nodesSchema,
-  ['modelsVersionsId', 'type', 'name', 'position', 'data', 'height', 'width', 'parentId'],
+  [
+    'modelsVersionsId',
+    'type',
+    'name',
+    'position',
+    'data',
+    'height',
+    'width',
+    'parentId',
+    'isParameter',
+    'parameterMin',
+    'parameterMax'
+  ],
   {
     $id: 'NodesData'
   }

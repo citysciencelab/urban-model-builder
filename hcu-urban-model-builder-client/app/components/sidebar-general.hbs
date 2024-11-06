@@ -1,0 +1,40 @@
+{{#let @model as |modelVersion|}}
+  <div class="sidebar__container sidebar__container--left">
+    <div class="sidebar">
+      <div class="sidebar__header">
+        <h3 class="mb-0">
+          {{modelVersion.model.internalName}}
+        </h3>
+      </div>
+      <div class="sidebar__content">
+        {{! TODO: show model description & note }}
+        {{! Dropdown with scenarios }}
+        {{! show all parameters with values, slider vs. boolean }}
+        {{#if modelVersion.defaultScenario.isResolved}}
+          {{#let modelVersion.defaultScenario.value as |defaultScenario|}}
+            {{#each defaultScenario.scenariosValues as |scenarioValue|}}
+              {{#let scenarioValue.nodes as |node|}}
+                {{node.name}} - {{node.parameterMin}} | {{node.parameterMax
+                }} | {{scenarioValue.value}}
+                <Input
+                  @type="range"
+                  @value={{scenarioValue.value}}
+                  min={{node.parameterMin}}
+                  max={{node.parameterMax}}
+                  step="0.001"
+                />
+              {{/let}}
+            {{/each}}
+          {{/let}}
+        {{else if modelVersion.defaultScenario.isPending}}
+          loading
+        {{else if modelVersion.defaultScenario.isRejected}}
+          <p>
+            Whoops! Looks like something went wrong!
+            {{modelVersion.defaultScenario.error.message}}
+          </p>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+{{/let}}

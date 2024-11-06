@@ -44,6 +44,7 @@ body {
 }
 
 main {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -481,4 +482,9 @@ fieldset {
   .form-label {
     margin-bottom: 0;
   }
+}
+
+.sidebar__container--left {
+  left: 0;
+  right: auto;
 }
