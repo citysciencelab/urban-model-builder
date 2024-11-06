@@ -62,7 +62,6 @@ module.exports = function (environment) {
     ENV['ember-simple-auth-oidc'].afterLogoutUri =
       'https://modelbuilder.comodeling.city';
     ENV.apiURL = 'https://modelbuilderapi.comodeling.city';
-    ENV.locationType = 'hash';
   }
 
   return ENV;
