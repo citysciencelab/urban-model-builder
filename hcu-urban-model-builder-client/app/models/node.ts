@@ -53,11 +53,11 @@ export default class Node extends Model {
     return {
       id: this.id,
       type: dasherize(NodeType[this.type]),
-      data: this.data,
       position: this.position,
       parentId: this.parent?.id,
       height: this.height,
       width: this.width,
+      data: { emberModel: this as Node },
     };
   }
 
