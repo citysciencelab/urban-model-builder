@@ -78,7 +78,12 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
     const targetEdges = await node.targetEdges;
     for (const edge of targetEdges) {
       const source = await edge.source;
-      if (source) {
+      if (source?.isGhost) {
+        const ghostParent = await source.ghostParent;
+        if (ghostParent) {
+          sourceNodes.push(ghostParent);
+        }
+      } else if (source) {
         sourceNodes.push(source);
       }
     }
