@@ -61,6 +61,10 @@ export default class Node extends Model {
     };
   }
 
+  get isGhost() {
+    return this.type === NodeType.Ghost;
+  }
+
   emitSave() {
     this.listeners.forEach((listener) => listener(this));
   }
