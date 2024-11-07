@@ -37,6 +37,8 @@ const simulationFactoryMap = {
   [NodeType.Converter]: (model: Model, node: Nodes) => {
     return model.Converter({
       name: node.name!,
+      values: node.data.values,
+      interpolation: node.data.interpolation || 'Linear',
       units: getUnitsDefault(node),
       constraints: node.data.constraints || {}
     })

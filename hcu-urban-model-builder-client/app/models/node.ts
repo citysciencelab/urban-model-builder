@@ -53,12 +53,44 @@ export default class Node extends Model {
     return {
       id: this.id,
       type: dasherize(NodeType[this.type]),
-      data: this.data,
       position: this.position,
       parentId: this.parent?.id,
       height: this.height,
       width: this.width,
+      data: { emberModel: this as Node },
     };
+  }
+
+  get isGhost() {
+    return this.type === NodeType.Ghost;
+  }
+
+  /**
+   * Get all source edges, including those that are connected through ghost nodes.
+   */
+  get sourceEdgesWithGhosts() {
+    const fetch = async () => {
+      const edges = await this.sourceEdges;
+      const childrenEdges = await Promise.all(
+        (await this.ghostChildren).map((child) => child.sourceEdges),
+      );
+      return edges.concat(...childrenEdges);
+    };
+    return fetch();
+  }
+
+  /**
+   * Get all target edges, including those that are connected through ghost nodes.
+   */
+  get targetEdgesWithGhosts() {
+    const fetch = async () => {
+      const edges = await this.targetEdges;
+      const childrenEdges = await Promise.all(
+        (await this.ghostChildren).map((child) => child.targetEdges),
+      );
+      return edges.concat(...childrenEdges);
+    };
+    return fetch();
   }
 
   emitSave() {

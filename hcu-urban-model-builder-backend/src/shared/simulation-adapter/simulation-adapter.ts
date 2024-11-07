@@ -1,6 +1,17 @@
 import { Model } from 'simulation'
 import { NodeType } from '../../services/nodes/nodes.shared.js'
-import { Agent, Container, Flow, Population, Primitive, State, Stock, Transition } from 'simulation/blocks'
+import {
+  Agent,
+  Container,
+  Converter,
+  Flow,
+  Population,
+  Primitive,
+  State,
+  Stock,
+  Transition,
+  ValuedPrimitive
+} from 'simulation/blocks'
 import { Edges, EdgeType } from '../../services/edges/edges.shared.js'
 import { primitiveFactory } from './primitive-factory.js'
 import { Results } from 'simulation/Results'
@@ -16,7 +27,9 @@ type PopulationNodeResult = {
 
 export class SimulationAdapter<T extends ClientApplication | Application> {
   private app: ClientApplication
-  private nodeIdPrimitiveMap = new Map<number, Primitive>()
+  private nodeIdPrimitiveMapWithGhosts = new Map<number, Primitive>()
+  private nodeIdPrimitiveMapWithoutGhosts = new Map<number, Primitive>()
+  private ghostParentToChildIdMap = new Map<number, number[]>()
   private primitiveIdNodeIdMap: Map<string, number> = new Map()
   private primitiveIdTypeMap = new Map<string, NodeType>()
 
@@ -33,9 +46,11 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
     await this.createModelPrimitives(model)
 
+    await this.addGhostNodesToPrimitiveMap()
+
     await this.assignPrimitiveParents()
 
-    await this.addGhostNodesToPrimitiveMap()
+    await this.assignConverterInput()
 
     await this.createModelRelationsByEdges(model)
 
@@ -72,32 +87,10 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
     for (const node of nodes.data) {
       const simulationPrimitive = await primitiveFactory(model, node)
-      this.nodeIdPrimitiveMap.set(node.id, simulationPrimitive)
+      this.nodeIdPrimitiveMapWithGhosts.set(node.id, simulationPrimitive)
+      this.nodeIdPrimitiveMapWithoutGhosts.set(node.id, simulationPrimitive)
       this.primitiveIdNodeIdMap.set(simulationPrimitive.id, node.id)
       this.primitiveIdTypeMap.set(simulationPrimitive.id, node.type)
-    }
-  }
-
-  private async assignPrimitiveParents() {
-    const nodesWithParent = await this.app.service('nodes').find({
-      query: {
-        modelsVersionsId: this.modelVersionId,
-        parentId: {
-          $ne: null
-        }
-      }
-    })
-
-    for (const node of nodesWithParent.data) {
-      const parentPrimitive = this.nodeIdPrimitiveMap.get(node.parentId!) as Container
-      const childPrimitive = this.nodeIdPrimitiveMap.get(node.id) as Primitive
-      if (!parentPrimitive) {
-        throw new Error('Parent primitive not found')
-      }
-      if (!childPrimitive) {
-        throw new Error('Child primitive not found')
-      }
-      childPrimitive.parent = parentPrimitive
     }
   }
 
@@ -113,11 +106,73 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
       if (!ghostNode.ghostParentId) {
         throw new Error('Ghost node must have a ghost parent')
       }
-      const ghostParent = this.nodeIdPrimitiveMap.get(ghostNode.ghostParentId!)
+      const ghostParent = this.nodeIdPrimitiveMapWithGhosts.get(ghostNode.ghostParentId!)
       if (!ghostParent) {
         throw new Error('Ghost parent not found')
       }
-      this.nodeIdPrimitiveMap.set(ghostNode.id, ghostParent)
+      this.nodeIdPrimitiveMapWithGhosts.set(ghostNode.id, ghostParent)
+      if (this.ghostParentToChildIdMap.has(ghostNode.ghostParentId)) {
+        this.ghostParentToChildIdMap.get(ghostNode.ghostParentId)!.push(ghostNode.id)
+      } else {
+        this.ghostParentToChildIdMap.set(ghostNode.ghostParentId, [ghostNode.id])
+      }
+    }
+  }
+
+  private async assignPrimitiveParents() {
+    const nodesWithParent = await this.app.service('nodes').find({
+      query: {
+        modelsVersionsId: this.modelVersionId,
+        parentId: {
+          $ne: null
+        }
+      }
+    })
+
+    for (const node of nodesWithParent.data) {
+      const parentPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(node.parentId!) as Container
+      const childPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(node.id) as Primitive
+      if (!parentPrimitive) {
+        throw new Error('Parent primitive not found')
+      }
+      if (!childPrimitive) {
+        throw new Error('Child primitive not found')
+      }
+      childPrimitive.parent = parentPrimitive
+    }
+  }
+
+  private async assignConverterInput() {
+    const converterNodes = await this.app.service('nodes').find({
+      query: {
+        modelsVersionsId: this.modelVersionId,
+        type: NodeType.Converter
+      }
+    })
+
+    for (const node of converterNodes.data) {
+      const ghostChildren = this.ghostParentToChildIdMap.get(node.id) || []
+      const converterInputEdges = await this.app.service('edges').find({
+        query: {
+          modelsVersionsId: this.modelVersionId,
+          targetId: {
+            $in: [node.id, ...(ghostChildren || [])]
+          }
+        }
+      })
+
+      if (converterInputEdges.total > 1) {
+        throw new Error('Converter node must have only one input node')
+      }
+      if (converterInputEdges.total === 0) {
+        console.debug('Converter node has no input node. Has input type time')
+        continue
+      }
+
+      const converterInputEdge = converterInputEdges.data[0]
+      const converter = this.nodeIdPrimitiveMapWithGhosts.get(node.id) as Converter
+      const inputNode = this.nodeIdPrimitiveMapWithGhosts.get(converterInputEdge.sourceId) as ValuedPrimitive
+      converter.input = inputNode
     }
   }
 
@@ -130,8 +185,8 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
     for (const edge of edges.data) {
       if (edge.type === EdgeType.Link) {
-        const sourcePrimitive = this.nodeIdPrimitiveMap.get(edge.sourceId)
-        const targetPrimitive = this.nodeIdPrimitiveMap.get(edge.targetId)
+        const sourcePrimitive = this.nodeIdPrimitiveMapWithGhosts.get(edge.sourceId)
+        const targetPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(edge.targetId)
         if (sourcePrimitive && targetPrimitive) {
           model.Link(sourcePrimitive, targetPrimitive)
         }
@@ -140,8 +195,8 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
       } else if (edge.type === EdgeType.Transition) {
         this.setPrimitiveStartEndByEdge(edge, 'transition')
       } else if (edge.type === EdgeType.AgentPopulation) {
-        const population = this.nodeIdPrimitiveMap.get(edge.targetId) as Population
-        const agent = this.nodeIdPrimitiveMap.get(edge.sourceId) as Agent
+        const population = this.nodeIdPrimitiveMapWithGhosts.get(edge.targetId) as Population
+        const agent = this.nodeIdPrimitiveMapWithGhosts.get(edge.sourceId) as Agent
         population.agentBase = agent
       }
     }
@@ -152,7 +207,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
       nodes: {} as Record<number, { series: number[] | PopulationNodeResult }>,
       times: simulationResult.times()
     }
-    for (const [nodeId, primitive] of this.nodeIdPrimitiveMap) {
+    for (const [nodeId, primitive] of this.nodeIdPrimitiveMapWithoutGhosts) {
       if (primitive.id in (simulationResult._data.children || {})) {
         const primitiveResult = simulationResult.series(primitive)
 
@@ -188,17 +243,21 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
   private setPrimitiveStartEndByEdge<T extends 'flow' | 'transition'>(edge: Edges, handlePrefix: T) {
     if (edge.sourceHandle.startsWith(handlePrefix)) {
-      const flowOrTransition = this.nodeIdPrimitiveMap.get(edge.sourceId) as T extends 'flow'
+      const flowOrTransition = this.nodeIdPrimitiveMapWithGhosts.get(edge.sourceId) as T extends 'flow'
         ? Flow
         : Transition
 
-      flowOrTransition.end = this.nodeIdPrimitiveMap.get(edge.targetId) as T extends 'flow' ? Stock : State
+      flowOrTransition.end = this.nodeIdPrimitiveMapWithGhosts.get(edge.targetId) as T extends 'flow'
+        ? Stock
+        : State
     } else if (edge.targetHandle.startsWith(handlePrefix)) {
-      const flowOrTransition = this.nodeIdPrimitiveMap.get(edge.targetId) as T extends 'flow'
+      const flowOrTransition = this.nodeIdPrimitiveMapWithGhosts.get(edge.targetId) as T extends 'flow'
         ? Flow
         : Transition
 
-      flowOrTransition.start = this.nodeIdPrimitiveMap.get(edge.sourceId) as T extends 'flow' ? Stock : State
+      flowOrTransition.start = this.nodeIdPrimitiveMapWithGhosts.get(edge.sourceId) as T extends 'flow'
+        ? Stock
+        : State
     } else {
       throw new Error(`Invalid ${handlePrefix} edge. Must have a ${handlePrefix} handle. Edge id: ${edge.id}`)
     }

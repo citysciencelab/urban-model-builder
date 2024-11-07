@@ -60,6 +60,7 @@ const nodeTypes = {
   [ReactFlowNodeType.Variable]: BaseNode,
   [ReactFlowNodeType.State]: BaseNode,
   [ReactFlowNodeType.Flow]: ArrowNode,
+  [ReactFlowNodeType.Converter]: BaseNode,
   [ReactFlowNodeType.Transition]: ArrowNode,
   [ReactFlowNodeType.Folder]: FolderNode,
   [ReactFlowNodeType.Agent]: FolderNode,
@@ -84,9 +85,7 @@ function Flow({
   const nodeActions = useContext(EmberReactConnectorContext);
 
   const [nodes, setNodes] = useState(() =>
-    [...initialNodes]
-      ?.sort(sortNodeModels)
-      .map((n) => ({ ...n.raw, data: { emberModel: n } })),
+    [...initialNodes]?.sort(sortNodeModels).map((n) => ({ ...n.raw })),
   );
 
   const [edges, setEdges] = useState(() =>
@@ -232,7 +231,6 @@ function Flow({
       setNodes((nds) =>
         nds.concat({
           ...result.raw,
-          data: { emberModel: result },
         }),
       );
     },

@@ -64,21 +64,20 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
   async loadSourceNodes() {
     this.sourceNodes = await this.getSourceNodes(this.args.node);
 
-    const ghostChildren = await this.args.node.ghostChildren;
-    for (const node of ghostChildren) {
-      const sourceNodes = await this.getSourceNodes(node);
-      this.sourceNodes = this.sourceNodes.concat(sourceNodes);
-    }
-
     this.checkForIssues();
   }
 
   async getSourceNodes(node: Node) {
     const sourceNodes: Node[] = [];
-    const targetEdges = await node.targetEdges;
+    const targetEdges = await node.targetEdgesWithGhosts;
     for (const edge of targetEdges) {
       const source = await edge.source;
-      if (source) {
+      if (source?.isGhost) {
+        const ghostParent = await source.ghostParent;
+        if (ghostParent) {
+          sourceNodes.push(ghostParent);
+        }
+      } else if (source) {
         sourceNodes.push(source);
       }
     }
