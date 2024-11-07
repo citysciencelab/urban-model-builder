@@ -234,7 +234,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     const datasets = [];
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const populationNode = await this.store.findRecord<Node>('node', nodeId);
-      const [edge] = (await populationNode.targetEdges).filter(
+      const [edge] = (await populationNode.targetEdgesWithGhosts).filter(
         (edge) => edge.type === EdgeType.AgentPopulation,
       );
 

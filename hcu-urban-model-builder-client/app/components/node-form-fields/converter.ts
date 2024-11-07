@@ -23,17 +23,7 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
   @cached
   get inputNode() {
     const fetchInputNode = async () => {
-      const inputEdges = await this.args.node.targetEdges;
-      const ghostChildren = await this.args.node.ghostChildren;
-
-      for (const ghostChild of ghostChildren) {
-        const ghostChildEdges = await ghostChild.targetEdges;
-
-        inputEdges.push(...ghostChildEdges);
-      }
-
-      const [inputEdge] = inputEdges;
-
+      const [inputEdge] = await this.args.node.targetEdgesWithGhosts;
       if (!inputEdge) {
         return null;
       }
