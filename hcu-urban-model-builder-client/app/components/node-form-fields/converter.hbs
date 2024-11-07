@@ -1,0 +1,39 @@
+<@form.element
+  @label="Input"
+  @value={{this.inputName}}
+  @controlType="text"
+  @disabled={{true}} as |el|
+>
+  <el.control disabled="true" />
+</@form.element>
+
+<p>
+  {{#each @node.data.values as |value i|}}
+    <div>
+      <@form.element
+        @label="Input"
+        @value={{value.x}}
+        @controlType="number"
+        @onChange={{fn this.updateValue i "x"}}
+      />
+      <@form.element
+        @label="Output"
+        @value={{value.y}}
+        @controlType="number"
+        @onChange={{fn this.updateValue i "y"}}
+      />
+    </div>
+  {{/each}}
+  <BsButton @type="primary" @onClick={{this.addNewValue}}>
+    Add New Row
+  </BsButton>
+</p>
+
+<@form.element
+  @controlType="radio"
+  @label="Interpolation"
+  @property="data.interpolation"
+  @options={{this.interpolationOptions}}
+/>
+
+<NodeFormFields::Validation @form={{@form}} @node={{@node}} @el={{@el}} />
