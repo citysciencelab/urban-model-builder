@@ -60,6 +60,7 @@ const nodeTypes = {
   [ReactFlowNodeType.Variable]: BaseNode,
   [ReactFlowNodeType.State]: BaseNode,
   [ReactFlowNodeType.Flow]: ArrowNode,
+  [ReactFlowNodeType.Converter]: BaseNode,
   [ReactFlowNodeType.Transition]: ArrowNode,
   [ReactFlowNodeType.Folder]: FolderNode,
   [ReactFlowNodeType.Agent]: FolderNode,
