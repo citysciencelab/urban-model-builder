@@ -7,7 +7,7 @@ import {
   type ClientApplication,
   type ServiceTypes,
 } from 'hcu-urban-model-builder-backend';
-import { camelize, dasherize } from '@ember/string';
+import { dasherize } from '@ember/string';
 import { pluralize, singularize } from '@ember-data/request-utils/string';
 import { service } from '@ember/service';
 import type Store from '@ember-data/store';
@@ -60,22 +60,6 @@ export default class FeathersService extends Service {
             ) {
               this.session.invalidate();
             }
-          },
-        ],
-      },
-      before: {
-        all: [
-          async (context: HookContext) => {
-            const tokenBefore = this.session.data.authenticated.access_token;
-            await this.session.refreshAuthentication.perform();
-            window.localStorage.setItem(
-              'feathers-jwt',
-              this.session.data.authenticated.access_token,
-            );
-            if (tokenBefore !== this.session.data.authenticated.access_token) {
-              await context.app.reAuthenticate(true, 'oidc');
-            }
-            return context;
           },
         ],
       },
