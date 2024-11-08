@@ -25,7 +25,13 @@ export default class FeathersService extends Service {
 
   constructor(owner?: Owner) {
     super(owner);
-    const socket = socketio(io(ENV.apiURL, { transports: ['websocket'] }));
+    const socket = socketio(
+      io(ENV.apiURL, {
+        transports: ['websocket'],
+        timeout: 5000,
+        ackTimeout: 3000,
+      }),
+    );
 
     this.app = createClient(socket, {
       jwtStrategy: 'oidc',
