@@ -19,7 +19,7 @@
             <BsListGroup lass="units__list-group" as |ListGroup|>
               <ListGroup.item>
                 <a
-                  href="javascript:void()"
+                  href="javascript:void(0)"
                   {{on "click" (fn this.setUnit "Unitless")}}
                 >
                   Unitless
@@ -36,7 +36,7 @@
                   {{#each v as |item|}}
                     <ListGroup.item>
                       <a
-                        href="javascript:void()"
+                        href="javascript:void(0)"
                         {{on "click" (fn this.setUnit item)}}
                       >
                         {{item}}
@@ -55,7 +55,7 @@
                         {{#each v2 as |item|}}
                           <ListGroup.item>
                             <a
-                              href="javascript:void()"
+                              href="javascript:void(0)"
                               {{on "click" (fn this.setUnit item)}}
                             >
                               {{item}}
