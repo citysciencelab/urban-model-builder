@@ -58,7 +58,7 @@ export default class FeathersService extends Service {
                 context.error.name,
               )
             ) {
-              this.session.invalidate();
+              await this.session.invalidate();
             }
           },
         ],
