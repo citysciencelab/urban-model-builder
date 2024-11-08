@@ -101,7 +101,8 @@ export const nodesSchema = Type.Object(
     parentId: Nullable(Type.Number()),
     isParameter: Type.Boolean(),
     parameterMin: Nullable(Type.Number()),
-    parameterMax: Nullable(Type.Number())
+    parameterMax: Nullable(Type.Number()),
+    parameterStep: Nullable(Type.Number())
   },
   { $id: 'Nodes', additionalProperties: false }
 )
@@ -125,7 +126,8 @@ export const nodesDataSchema = Type.Pick(
     'parentId',
     'isParameter',
     'parameterMin',
-    'parameterMax'
+    'parameterMax',
+    'parameterStep'
   ],
   {
     $id: 'NodesData'

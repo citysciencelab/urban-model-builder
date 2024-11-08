@@ -1,40 +1,87 @@
-{{#let @model as |modelVersion|}}
-  <div class="sidebar__container sidebar__container--left">
-    <div class="sidebar">
-      <div class="sidebar__header">
-        <h3 class="mb-0">
-          {{modelVersion.model.internalName}}
-        </h3>
-      </div>
-      <div class="sidebar__content">
-        {{! TODO: show model description & note }}
-        {{! Dropdown with scenarios }}
-        {{! show all parameters with values, slider vs. boolean }}
-        {{#if modelVersion.defaultScenario.isResolved}}
-          {{#let modelVersion.defaultScenario.value as |defaultScenario|}}
-            {{#each defaultScenario.scenariosValues as |scenarioValue|}}
-              {{#let scenarioValue.nodes as |node|}}
-                {{node.name}} - {{node.parameterMin}} | {{node.parameterMax
-                }} | {{scenarioValue.value}}
-                <Input
-                  @type="range"
-                  @value={{scenarioValue.value}}
-                  min={{node.parameterMin}}
-                  max={{node.parameterMax}}
-                  step="0.001"
-                />
-              {{/let}}
+<SaveStateManager as |saveAction isSaving isError|>
+  {{#let @model as |modelVersion|}}
+    <div
+      class="sidebar__container sidebar__container--left"
+      {{did-insert this.addEventListeners}}
+      {{did-insert (fn this.loadDefaultScenario modelVersion)}}
+      {{will-destroy this.removeEventListeners}}
+    >
+      <div class="sidebar">
+        <div class="sidebar__header">
+          <h3 class="mb-0">
+            {{modelVersion.model.internalName}}
+          </h3>
+        </div>
+        <div class="sidebar__content">
+          {{! ERROR }}
+          <BsAlert @type="danger" @visible={{isError}}>
+            <strong>
+              Error:
+            </strong>
+            Please try again. If the problem persists, please contact support.
+          </BsAlert>
+          {{! DEFAULT SCENARIO }}
+          {{#if this.defaultScenario}}
+            {{#each this.defaultScenario.scenariosValues as |scenarioValue|}}
+              <div class="scenario__value">
+                {{#let scenarioValue.nodes as |node|}}
+                  <h5>
+                    {{node.name}}
+                  </h5>
+                  <div class="range-input__min-max">
+                    <div class="range-input__min-max__control">
+                      <Input
+                        @type="range"
+                        @value={{scenarioValue.value}}
+                        min={{node.parameterMin}}
+                        max={{node.parameterMax}}
+                        step={{or node.parameterStep 1}}
+                        {{on
+                          "change"
+                          (fn
+                            this.handleScenarioValueChange
+                            this.defaultScenario
+                            scenarioValue
+                          )
+                        }}
+                      />
+                    </div>
+                    <div class="range-input__min_max__meta">
+                      <div class="range-input__min_max__meta__min">
+                        {{node.parameterMin}}
+                      </div>
+                      <div class="range-input__min_max__meta__value">
+                        {{scenarioValue.value}}
+                      </div>
+                      <div class="range-input__min_max__meta__max">
+                        {{node.parameterMax}}
+                      </div>
+                    </div>
+                  </div>
+                {{/let}}
+              </div>
             {{/each}}
-          {{/let}}
-        {{else if modelVersion.defaultScenario.isPending}}
-          loading
-        {{else if modelVersion.defaultScenario.isRejected}}
-          <p>
-            Whoops! Looks like something went wrong!
-            {{modelVersion.defaultScenario.error.message}}
-          </p>
-        {{/if}}
+            <hr />
+            <div class="text-center">
+              <a
+                href="javascript:void(0)"
+                class="btn btn-primary"
+                {{on
+                  "click"
+                  (fn this.saveDefaultScenario this.defaultScenario saveAction)
+                }}
+              >
+                {{#if isSaving}}
+                  <FaIcon @icon="spinner" @spin={{true}} @fixedWidth={{true}} />
+                {{/if}}
+                Save Scenario
+              </a>
+            </div>
+          {{else}}
+            No Parameters
+          {{/if}}
+        </div>
       </div>
     </div>
-  </div>
-{{/let}}
+  {{/let}}
+</SaveStateManager>

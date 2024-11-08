@@ -11,18 +11,27 @@
     <div class="row">
       {{! MIN Value }}
       <@form.element
-        class="col-6"
+        class="col-4"
         @controlType="number"
-        @label="Minimum Value"
+        @label="Min"
         @property="parameterMin" as |el|
+      >
+        <el.control step={{0.001}} />
+      </@form.element>
+      {{! STEP Value }}
+      <@form.element
+        class="col-4"
+        @controlType="number"
+        @label="Step"
+        @property="parameterStep" as |el|
       >
         <el.control step={{0.001}} />
       </@form.element>
       {{! MAX Value }}
       <@form.element
-        class="col-6"
+        class="col-4"
         @controlType="number"
-        @label="Maximum Value"
+        @label="Max"
         @property="parameterMax" as |el|
       >
         <el.control step={{0.001}} />

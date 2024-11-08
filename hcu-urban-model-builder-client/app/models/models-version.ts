@@ -15,6 +15,7 @@ import { inject as service } from '@ember/service';
 import type Store from '@ember-data/store';
 import { cached } from '@ember-data/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
+import type Scenario from './scenario';
 
 export default class ModelsVersion extends Model {
   declare [Type]: 'models-version';
@@ -42,6 +43,9 @@ export default class ModelsVersion extends Model {
   declare nodes: AsyncHasMany<Node>;
   @hasMany('edges', { async: true, inverse: 'modelsVersions' })
   declare edges: AsyncHasMany<Edge>;
+
+  @hasMany('scenario', { async: true, inverse: 'modelsVersions' })
+  declare scenarios: AsyncHasMany<Scenario>;
 
   @attr('date') declare publishedBy: number; // TODO: relation to user?
   @attr('date') declare publishedAt: Date;

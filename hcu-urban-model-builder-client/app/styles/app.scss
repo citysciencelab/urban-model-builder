@@ -487,4 +487,46 @@ fieldset {
 .sidebar__container--left {
   left: 0;
   right: auto;
+  bottom: get-spacer(5);
+  z-index: 1055;
+  .sidebar__content {
+    align-items: initial;
+  }
+}
+
+.range-input__min-max {
+  width: 100%;
+  input {
+    width: 100%;
+  }
+}
+
+.range-input__min-max__control {
+  width: 100%;
+}
+
+.range-input__min_max__meta {
+  display: flex;
+  justify-content: space-between;
+  > div {
+    width: 3rem;
+  }
+}
+
+.range-input__min_max__meta__value {
+  font-weight: bold;
+  text-align: center;
+}
+
+.range-input__min_max__meta__max {
+  text-align: right;
+}
+
+.scenario__value {
+  width: 100%;
+  margin-bottom: get-spacer(3);
+}
+
+.react-wrapper .react-flow__controls {
+  flex-direction: row;
 }

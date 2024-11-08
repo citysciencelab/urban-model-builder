@@ -10,6 +10,9 @@ import { NodeType, SimulationAdapter } from 'hcu-urban-model-builder-backend';
 import type { ModelsService } from 'hcu-urban-model-builder-backend/lib/services/models/models.class';
 import * as echarts from 'echarts';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
+import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
+import type Scenario from 'hcu-urban-model-builder-client/models/scenario';
+import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
 
 export interface SimulateModalSignature {
   // The arguments accepted by the component
@@ -36,6 +39,7 @@ const BASE_SPEED = 20;
 export default class SimulateModalComponent extends Component<SimulateModalSignature> {
   @service declare feathers: FeathersService;
   @service declare store: Store;
+  @service declare eventBus: EventBus;
 
   @tracked isClientSideCalculation = true;
   @tracked activeTab: TabName = TabName.TimeSeries;
@@ -62,6 +66,17 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     [TabName.TimeSeries]: this.getTimeSeriesDataset,
     [TabName.ScatterPlot]: this.getScatterPlotDataset,
   };
+
+  constructor(owner: unknown, args: any) {
+    super(owner, args);
+    this.eventBus.on('scenario-value-changed', this, this.restartSimulation);
+  }
+
+  restartSimulation() {
+    this.animationCursor = 0;
+    this.simulate();
+    this.startAnimation();
+  }
 
   get isAnimationFinished() {
     return this.animationCursor >= 100;
@@ -121,8 +136,39 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     await this.renderChart();
   }
 
+  get inMemoryScenario() {
+    // from the store get the current default scenario
+    const defaultScenario = this.store
+      .peekAll<Scenario>('scenario')
+      .find((item) => {
+        return (
+          item.modelsVersions.id == this.args.model.id && item.isDefault == true
+        );
+      }) as Scenario;
+
+    const scenarioValues = this.store
+      .peekAll<ScenariosValue>('scenarios-value')
+      .filter((item) => {
+        return item.scenarios.id == defaultScenario.id;
+      });
+
+    const scenarioNodeValueMap = scenarioValues.reduce(
+      (acc: Map<number, number>, item: ScenariosValue) => {
+        acc.set(Number((item.nodes as any).id), Number(item.value));
+        return acc;
+      },
+      new Map(),
+    );
+
+    return scenarioNodeValueMap;
+  }
+
   @action simulate() {
+    const nodeValuesMap = this.inMemoryScenario;
+    // TODO: @nico send this to the simulate endpoint
+    // nodeValuesMap is a map of node.id -> value
     if (this.isClientSideCalculation) {
+      // TODO: map node.id to value (from scenario -> scenarioValues)
       this.simulateResult = new TrackedAsyncData(
         new SimulationAdapter(
           this.feathers.app,
