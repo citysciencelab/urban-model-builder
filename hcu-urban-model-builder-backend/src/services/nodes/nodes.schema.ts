@@ -1,7 +1,7 @@
 // // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
-import type { Static } from '@feathersjs/typebox'
+import type { Static, TObject, TProperties, TSchema } from '@feathersjs/typebox'
 import { NetworkType, PlacementType, StockTypeType, TriggerType } from 'simulation/types'
 
 import type { HookContext } from '../../declarations.js'
@@ -38,6 +38,19 @@ export const stockNodeSchema = Type.Object({
 export const flowNodeSchema = Type.Object({
   rate: Type.Optional(Type.String()),
   nonNegative: Type.Optional(Type.Boolean()),
+  ...unitsAndConstraintsSchema.properties
+})
+
+export const converterNodeSchema = Type.Object({
+  values: Type.Optional(
+    Type.Array(
+      Type.Object({
+        x: Type.Number(),
+        y: Type.Number()
+      })
+    )
+  ),
+  interpolation: Type.Optional(Type.Union([Type.Literal('Linear'), Type.Literal('Discrete')])),
   ...unitsAndConstraintsSchema.properties
 })
 
@@ -82,11 +95,12 @@ export const nodesSchema = Type.Object(
     id: Type.Number(),
     modelsVersionsId: Type.Number(),
     type: Type.Enum(NodeType),
-    name: Type.String(),
+    name: Nullable(Type.String()),
     data: Type.Intersect([
       variableNodeSchema,
       stockNodeSchema,
       flowNodeSchema,
+      converterNodeSchema,
       stateNodeSchema,
       actionNodeSchema,
       transitionNodeSchema,
@@ -102,7 +116,8 @@ export const nodesSchema = Type.Object(
     isParameter: Type.Boolean(),
     parameterMin: Nullable(Type.Number()),
     parameterMax: Nullable(Type.Number()),
-    parameterStep: Nullable(Type.Number())
+    parameterStep: Nullable(Type.Number()),
+    ghostParentId: Nullable(Type.Number())
   },
   { $id: 'Nodes', additionalProperties: false }
 )
@@ -127,7 +142,8 @@ export const nodesDataSchema = Type.Pick(
     'isParameter',
     'parameterMin',
     'parameterMax',
-    'parameterStep'
+    'parameterStep',
+    'ghostParentId'
   ],
   {
     $id: 'NodesData'
@@ -155,7 +171,8 @@ export const nodesQueryProperties = Type.Pick(nodesSchema, [
   'data',
   'height',
   'width',
-  'parentId'
+  'parentId',
+  'ghostParentId'
 ])
 export const nodesQuerySchema = Type.Intersect(
   [

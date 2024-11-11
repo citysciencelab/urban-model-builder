@@ -1,4 +1,12 @@
-import { useState, useCallback, useRef, useEffect, DragEvent } from "react";
+import {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  DragEvent,
+  useContext,
+  createContext,
+} from "react";
 import { createRoot } from "react-dom/client";
 import {
   ReactFlow,
@@ -36,30 +44,11 @@ import {
   ReactFlowEdgeType,
   ReactFlowNodeType,
 } from "./lib/declarations.ts";
-
-type NodeActions = {
-  create: (type: "edge" | "node", data: any) => Promise<any>;
-  save: (type: "edge" | "node", id: string, data: any) => Promise<any>;
-  delete: (type: "edge" | "node", id: string) => Promise<void>;
-  select: (type: "edge" | "node", id: string) => void;
-  unselect: (type: "edge" | "node", id: string) => void;
-  onSidebarInserted: (element: HTMLElement) => void;
-  onToolbarInserted: (element: HTMLElement) => void;
-  setRfInstance: (instance: ReactFlowInstance) => void;
-  draggedNodeConfig: any;
-  storeEventEmitter: {
-    on: (
-      dataModelName: string,
-      event: "created" | "updated" | "deleted",
-      callback: (data: any) => void,
-    ) => void;
-    off: (
-      dataModelName: string,
-      event: "created" | "updated" | "deleted",
-      callback: (data: any) => void,
-    ) => void;
-  };
-};
+import {
+  EmberReactConnectorContext,
+  NodeActions,
+} from "./lib/context/ember-react-connector.ts";
+import { GhostNode } from "./lib/nodes/ghost-node.tsx";
 
 type FlowOptions = {
   disabled?: boolean;
@@ -71,11 +60,13 @@ const nodeTypes = {
   [ReactFlowNodeType.Variable]: BaseNode,
   [ReactFlowNodeType.State]: BaseNode,
   [ReactFlowNodeType.Flow]: ArrowNode,
+  [ReactFlowNodeType.Converter]: BaseNode,
   [ReactFlowNodeType.Transition]: ArrowNode,
   [ReactFlowNodeType.Folder]: FolderNode,
   [ReactFlowNodeType.Agent]: FolderNode,
   [ReactFlowNodeType.Population]: BaseNode,
   [ReactFlowNodeType.Action]: BaseNode,
+  [ReactFlowNodeType.Ghost]: GhostNode,
 } as const;
 
 const edgesTypes = {
@@ -88,15 +79,13 @@ const edgesTypes = {
 function Flow({
   nodes: initialNodes,
   edges: initialEdges,
-  nodeActions,
   flowOptions,
 }: AppProps) {
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
+  const nodeActions = useContext(EmberReactConnectorContext);
 
   const [nodes, setNodes] = useState(() =>
-    [...initialNodes]
-      ?.sort(sortNodeModels)
-      .map((n) => ({ ...n.raw, data: { emberModel: n } })),
+    [...initialNodes]?.sort(sortNodeModels).map((n) => ({ ...n.raw })),
   );
 
   const [edges, setEdges] = useState(() =>
@@ -242,9 +231,15 @@ function Flow({
       setNodes((nds) =>
         nds.concat({
           ...result.raw,
-          data: { emberModel: result },
         }),
       );
+    },
+    [rfInstance],
+  );
+
+  const removeNode = useCallback(
+    (result: any) => {
+      setNodes((nds) => nds.filter((n) => n.id !== result.id));
     },
     [rfInstance],
   );
@@ -275,9 +270,11 @@ function Flow({
 
   useEffect(() => {
     nodeActions.storeEventEmitter.on("node", "created", addNode);
+    nodeActions.storeEventEmitter.on("node", "deleted", removeNode);
 
     return () => {
       nodeActions.storeEventEmitter.off("node", "created", addNode);
+      nodeActions.storeEventEmitter.off("node", "deleted", removeNode);
     };
   }, [addNode]);
 
@@ -418,19 +415,13 @@ function Flow({
 interface AppProps {
   nodes: any[];
   edges: any[];
-  nodeActions: NodeActions;
   flowOptions: FlowOptions;
 }
 
-function App({ nodes, nodeActions, edges, flowOptions }: AppProps) {
+function App({ nodes, edges, flowOptions }: AppProps) {
   return (
     <ReactFlowProvider>
-      <Flow
-        nodes={nodes}
-        edges={edges}
-        nodeActions={nodeActions}
-        flowOptions={flowOptions}
-      />
+      <Flow nodes={nodes} edges={edges} flowOptions={flowOptions} />
     </ReactFlowProvider>
   );
 }
@@ -443,11 +434,8 @@ export function initReact(
   flowOptions: FlowOptions,
 ) {
   createRoot(root).render(
-    <App
-      nodes={nodes}
-      edges={edges}
-      nodeActions={nodeActions}
-      flowOptions={flowOptions}
-    />,
+    <EmberReactConnectorContext.Provider value={nodeActions}>
+      <App nodes={nodes} edges={edges} flowOptions={flowOptions} />
+    </EmberReactConnectorContext.Provider>,
   );
 }

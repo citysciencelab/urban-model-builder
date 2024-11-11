@@ -6,7 +6,11 @@ import type FeathersService from 'hcu-urban-model-builder-client/services/feathe
 import { TrackedAsyncData } from 'ember-async-data';
 import type Store from '@ember-data/store';
 import type Node from 'hcu-urban-model-builder-client/models/node';
-import { NodeType, SimulationAdapter } from 'hcu-urban-model-builder-backend';
+import {
+  EdgeType,
+  NodeType,
+  SimulationAdapter,
+} from 'hcu-urban-model-builder-backend';
 import type { ModelsService } from 'hcu-urban-model-builder-backend/lib/services/models/models.class';
 import * as echarts from 'echarts';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
@@ -256,10 +260,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
 
-      const dataIndex = Math.floor(
-        (data.times.length / 100) * this.animationCursor,
-      );
-
+      const dataIndex = this.getDataIndex(data);
       if (node.type !== NodeType.Flow && node.type !== NodeType.Population) {
         series.push({
           type: 'line',
@@ -279,14 +280,19 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     const datasets = [];
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const populationNode = await this.store.findRecord<Node>('node', nodeId);
+      const [edge] = (await populationNode.targetEdgesWithGhosts).filter(
+        (edge) => edge.type === EdgeType.AgentPopulation,
+      );
 
       const allStates = await this.store.query<Node>('node', {
-        parentId: Number(populationNode.data.agentBaseId),
+        parentId: edge?.source?.id ?? null,
         type: NodeType.State,
       });
 
       if (populationNode?.type === NodeType.Population) {
-        const last = value.series[this.time];
+        const dataIndex = this.getDataIndex(data);
+
+        const last = value.series[dataIndex];
         if (Array.isArray(last)) {
           const populationData: {
             id: string;
@@ -350,5 +356,11 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   @action updateDatasetFromAnimationCursor() {
     this.setTime((this.args.model.timeLength / 100) * this.animationCursor);
+  }
+
+  getDataIndex(
+    data: NonNullable<NonNullable<this['simulateResult']>['value']>,
+  ) {
+    return Math.floor((data.times.length / 100) * this.animationCursor);
   }
 }

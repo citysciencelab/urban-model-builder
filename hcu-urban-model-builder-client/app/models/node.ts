@@ -1,4 +1,10 @@
-import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
+import Model, {
+  attr,
+  belongsTo,
+  hasMany,
+  type AsyncBelongsTo,
+  type AsyncHasMany,
+} from '@ember-data/model';
 import { Type } from '@warp-drive/core-types/symbols';
 import type Edge from './edge';
 import { NodeType, type Nodes } from 'hcu-urban-model-builder-backend';
@@ -32,13 +38,19 @@ export default class Node extends Model {
   declare modelsVersions: ModelsVersion;
 
   @hasMany('edge', { async: true, inverse: 'source' })
-  declare sourceEdges: Edge[];
+  declare sourceEdges: AsyncHasMany<Edge>;
 
   @hasMany('edge', { async: true, inverse: 'target' })
-  declare targetEdges: Edge[];
+  declare targetEdges: AsyncHasMany<Edge>;
 
   @belongsTo('node', { async: true, inverse: null })
-  declare parent: Node;
+  declare parent: AsyncBelongsTo<Node>;
+
+  @belongsTo('node', { async: true, inverse: 'ghostChildren' })
+  declare ghostParent: AsyncBelongsTo<Node>;
+
+  @hasMany('node', { async: true, inverse: 'ghostParent' })
+  declare ghostChildren: AsyncHasMany<Node>;
 
   @hasMany('scenarios-value', { async: true, inverse: 'nodes' })
   declare scenariosValues: ScenariosValue[];
@@ -50,12 +62,44 @@ export default class Node extends Model {
     return {
       id: this.id,
       type: dasherize(NodeType[this.type]),
-      data: this.data,
       position: this.position,
       parentId: this.parent?.id,
       height: this.height,
       width: this.width,
+      data: { emberModel: this as Node },
     };
+  }
+
+  get isGhost() {
+    return this.type === NodeType.Ghost;
+  }
+
+  /**
+   * Get all source edges, including those that are connected through ghost nodes.
+   */
+  get sourceEdgesWithGhosts() {
+    const fetch = async () => {
+      const edges = await this.sourceEdges;
+      const childrenEdges = await Promise.all(
+        (await this.ghostChildren).map((child) => child.sourceEdges),
+      );
+      return edges.concat(...childrenEdges);
+    };
+    return fetch();
+  }
+
+  /**
+   * Get all target edges, including those that are connected through ghost nodes.
+   */
+  get targetEdgesWithGhosts() {
+    const fetch = async () => {
+      const edges = await this.targetEdges;
+      const childrenEdges = await Promise.all(
+        (await this.ghostChildren).map((child) => child.targetEdges),
+      );
+      return edges.concat(...childrenEdges);
+    };
+    return fetch();
   }
 
   emitSave() {
