@@ -29,6 +29,7 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
   @service declare store: Store;
 
   @tracked defaultScenario: Scenario | null = null;
+  @tracked isMinimized = false;
 
   @action async loadDefaultScenario(modelsVersion: ModelsVersion) {
     const defaultScenarios = (await this.store.query('scenario', {
@@ -41,8 +42,7 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
     this.defaultScenario = defaultScenarios[0] as Scenario;
   }
 
-  @action scenarioValuesServiceChangeListener(data: any) {
-    console.log('-> deleted');
+  @action scenarioValuesServiceChangeListener() {
     this.loadDefaultScenario(this.args.model);
   }
 
@@ -90,5 +90,9 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
       scenario,
       scenarioValue,
     });
+  }
+
+  @action minimize() {
+    this.isMinimized = !this.isMinimized;
   }
 }

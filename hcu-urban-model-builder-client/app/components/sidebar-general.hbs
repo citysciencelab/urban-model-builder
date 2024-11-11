@@ -1,7 +1,9 @@
 <SaveStateManager as |saveAction isSaving isError|>
   {{#let @model as |modelVersion|}}
     <div
-      class="sidebar__container sidebar__container--left"
+      class="sidebar__container sidebar__container--left {{
+        if this.isMinimized "sidebar__container--minimized"
+      }}"
       {{did-insert this.addEventListeners}}
       {{did-insert (fn this.loadDefaultScenario modelVersion)}}
       {{will-destroy this.removeEventListeners}}
@@ -10,6 +12,16 @@
         <div class="sidebar__header">
           <h3 class="mb-0">
             {{modelVersion.model.internalName}}
+            <a
+              href="javascript:void(0)"
+              class="btn btn-link toggle-minimize"
+              {{on "click" this.minimize}}
+            >
+              <FaIcon
+                @icon={{if this.isMinimized "expand" "compress"}}
+                @fixedWidth={{true}}
+              />
+            </a>
           </h3>
         </div>
         <div class="sidebar__content">
@@ -56,6 +68,11 @@
                       <div class="range-input__min_max__meta__max">
                         {{node.parameterMax}}
                       </div>
+                      {{#if node.data.units}}
+                        <div class="range-input__min_max__meta__unit">
+                          {{node.data.units}}
+                        </div>
+                      {{/if}}
                     </div>
                   </div>
                 {{/let}}
