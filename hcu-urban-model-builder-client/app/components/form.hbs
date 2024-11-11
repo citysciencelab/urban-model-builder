@@ -15,11 +15,7 @@
           👻 {{t "forms.node.ghost_warning"}}
         </div>
       {{/if}}
-      <BsForm
-        @onSubmit={{this.onSave}}
-        @model={{this.changeset}}
-        @disabled={{@disabled}} as |form|
-      >
+      <BsForm @model={{this.changeset}} @disabled={{@disabled}} as |form|>
         <form.element
           @controlType="text"
           @label="Name"
@@ -36,10 +32,6 @@
         {{/if}}
 
         <div {{did-update this.onIsDirtyChanged this.isDirty}}></div>
-
-        <form.submitButton>
-          {{t "actions.save"}}
-        </form.submitButton>
       </BsForm>
     </div>
   </div>

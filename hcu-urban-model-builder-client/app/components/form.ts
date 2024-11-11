@@ -100,20 +100,22 @@ export default class FormComponent extends Component<FormSignature> {
     }
   }
 
-  createChangeset(record: Node | Edge) {
+  createChangeset(record: Record<string, any>) {
     const attrData: any = {};
     for (const [attrKey] of Node.attributes) {
-      console.log('attr', attrKey);
-      attrData[attrKey] = (record as any)[attrKey];
+      const val = structuredClone(record[attrKey]);
+      if (val && typeof val === 'object') {
+        attrData[attrKey] = new TrackedObject(val);
+      } else {
+        attrData[attrKey] = val;
+      }
     }
-    console.log('attrData', attrData);
 
-    return new TrackedObject(structuredClone(attrData));
+    return new TrackedObject(attrData);
   }
 
   @action
   onIsDirtyChanged() {
-    console.log('maybeSave', arguments);
     if (this.isDirty) {
       this.saveTask.perform();
     }
@@ -133,13 +135,4 @@ export default class FormComponent extends Component<FormSignature> {
     Object.assign(this.record!, this.changeset);
     await this.record!.save();
   });
-
-  @action
-  async onSave() {
-    if (!this.record) {
-      throw new Error('No record to save');
-    }
-    Object.assign(this.record, this.changeset);
-    await this.record.save();
-  }
 }

@@ -5,7 +5,7 @@ import type Node from 'hcu-urban-model-builder-client/models/node';
 export interface NodeFormFieldsValidationSignature {
   // The arguments accepted by the component
   Args: {
-    node: Node;
+    changeset: Node;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -18,13 +18,19 @@ export interface NodeFormFieldsValidationSignature {
 export default class NodeFormFieldsValidationComponent extends Component<NodeFormFieldsValidationSignature> {
   @action handleConstraintChange(field: 'min' | 'max', state: boolean) {
     if (state == true) {
-      const contraints = this.args.node.data.constraints || {};
-      contraints[field] = 0;
-      this.args.node.data = { ...this.args.node.data, constraints: contraints };
+      const constraints = this.args.changeset.data.constraints || {};
+      constraints[field] = 0;
+      this.args.changeset.data.constraints = constraints;
     } else {
-      const contraints = this.args.node.data.constraints || {};
-      contraints[field] = undefined;
-      this.args.node.data = { ...this.args.node.data, constraints: contraints };
+      const constraints = this.args.changeset.data.constraints || {};
+      constraints[field] = undefined;
+      this.args.changeset.data.constraints = constraints;
     }
+  }
+
+  @action setConstraintValue(field: 'min' | 'max', value: number) {
+    const constraints = this.args.changeset.data.constraints || {};
+    constraints[field] = Number(value);
+    this.args.changeset.data.constraints = constraints;
   }
 }
