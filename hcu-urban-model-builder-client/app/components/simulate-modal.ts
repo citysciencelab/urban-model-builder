@@ -291,6 +291,8 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
       if (populationNode?.type === NodeType.Population) {
         const dataIndex = this.getDataIndex(data);
+        console.log(dataIndex);
+
 
         const last = value.series[dataIndex];
         if (Array.isArray(last)) {
@@ -324,12 +326,14 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
             type: 'scatter',
             label: populationNode.name,
             data: populationData,
+            // animation: false,
           });
           for (const [stateNodes, locations] of stateLocationsMap.entries()) {
             datasets.push({
               type: 'scatter',
               label: stateNodes.name,
               data: locations,
+              // animation: false,
             });
           }
         }

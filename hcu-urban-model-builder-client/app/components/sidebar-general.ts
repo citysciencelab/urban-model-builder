@@ -65,7 +65,21 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
   }
 
   @action removeEventListeners() {
-    console.log('remove');
+    this.storeEventEmitter.off(
+      'node',
+      'deleted',
+      this.scenarioValuesServiceChangeListener,
+    );
+    this.storeEventEmitter.off(
+      'scenarios-value',
+      'deleted',
+      this.scenarioValuesServiceChangeListener,
+    );
+    this.storeEventEmitter.off(
+      'scenarios-value',
+      'created',
+      this.scenarioValuesServiceChangeListener,
+    );
   }
 
   @action async saveDefaultScenario(
