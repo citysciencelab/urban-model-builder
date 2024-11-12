@@ -3,7 +3,7 @@
     class="units__selection__input"
     @controlType="text"
     @label="Unit"
-    @property="data.units" as |el|
+    @property={{@property}} as |el|
   >
     <el.control readonly {{on "click" this.toggleUnitsVisibility}} />
     <span class="units__selection__caret btn btn_link">
