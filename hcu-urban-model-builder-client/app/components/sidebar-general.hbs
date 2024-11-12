@@ -41,6 +41,50 @@
                     {{node.name}}
                   </h5>
                   <div class="range-input__min-max">
+                    {{! Error: Out of bounds - MIN }}
+                    <BsAlert
+                      @type="warning"
+                      @visible={{gt node.parameterMin scenarioValue.value}}
+                      @dismissible={{false}}
+                    >
+                      <strong>
+                        Warning:
+                      </strong>
+                      The current value is below the minimum value.
+                    </BsAlert>
+                    {{! Error: Out of bounds - Max }}
+                    <BsAlert
+                      @type="warning"
+                      @visible={{lt node.parameterMax scenarioValue.value}}
+                      @dismissible={{false}}
+                    >
+                      <strong>
+                        Warning:
+                      </strong>
+                      The current value is above the maximum value.
+                    </BsAlert>
+                    {{! Error: Step size issue }}
+                    <BsAlert
+                      @type="warning"
+                      @visible={{
+                        not-eq
+                        0
+                        (mod
+                          (div
+                            (sub scenarioValue.value node.parameterMin)
+                            node.parameterStep
+                          )
+                          1
+                        )
+                      }}
+                      @dismissible={{false}}
+                    >
+                      <strong>
+                        Warning:
+                      </strong>
+                      The current value is not a multiple of the step size.
+                    </BsAlert>
+                    {{! Slider }}
                     <div class="range-input__min-max__control">
                       <Input
                         @type="range"
@@ -58,6 +102,7 @@
                         }}
                       />
                     </div>
+                    {{! Slider-Meta: Min, Value, Max, Units }}
                     <div class="range-input__min_max__meta">
                       <div class="range-input__min_max__meta__min">
                         {{node.parameterMin}}
