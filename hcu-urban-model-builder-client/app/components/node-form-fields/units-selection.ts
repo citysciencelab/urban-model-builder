@@ -7,7 +7,7 @@ import { tracked } from '@glimmer/tracking';
 export interface NodeFormFieldsUnitsSelectionSignature {
   // The arguments accepted by the component
   Args: {
-    node: Node;
+    changeset: Node;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -23,10 +23,7 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
   @tracked showUnits = false;
 
   @action setUnit(unit: string) {
-    this.args.node.data = {
-      ...this.args.node.data,
-      units: unit,
-    };
+    this.args.changeset.data.units = unit;
     this.toggleUnitsVisibility();
   }
 

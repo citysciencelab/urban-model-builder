@@ -5,17 +5,17 @@
         {{this.name}}
       </h3>
     </div>
-    <div class="sidebar__content">
+    <div
+      class="sidebar__content"
+      {{did-insert this.initialize}}
+      {{did-update this.initialize @record}}
+    >
       {{#if this.isGhostNode}}
         <div class="alert alert-warning">
           👻 {{t "forms.node.ghost_warning"}}
         </div>
       {{/if}}
-      <BsForm
-        @onSubmit={{this.onSave}}
-        @model={{this.record}}
-        @disabled={{@disabled}} as |form|
-      >
+      <BsForm @model={{this.changeset}} @disabled={{@disabled}} as |form|>
         <form.element
           @controlType="text"
           @label="Name"
@@ -24,12 +24,14 @@
         />
 
         {{#if this.nodeFormFieldsComponent}}
-          <this.nodeFormFieldsComponent @form={{form}} @node={{this.record}} />
+          <this.nodeFormFieldsComponent
+            @form={{form}}
+            @node={{this.record}}
+            @changeset={{this.changeset}}
+          />
         {{/if}}
 
-        <form.submitButton>
-          {{t "actions.save"}}
-        </form.submitButton>
+        <div {{did-update this.onIsDirtyChanged this.isDirty}}></div>
       </BsForm>
     </div>
   </div>
