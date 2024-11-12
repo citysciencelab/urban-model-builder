@@ -10,6 +10,7 @@ import { tracked } from '@glimmer/tracking';
 import { TrackedObject } from 'tracked-built-ins';
 import { Value } from '@sinclair/typebox/value';
 import { task, timeout } from 'ember-concurrency';
+import { deepTracked } from 'ember-deep-tracked';
 
 export interface FormSignature {
   // The arguments accepted by the component
@@ -103,15 +104,10 @@ export default class FormComponent extends Component<FormSignature> {
   createChangeset(record: Record<string, any>) {
     const attrData: any = {};
     for (const [attrKey] of Node.attributes) {
-      const val = structuredClone(record[attrKey]);
-      if (val && typeof val === 'object') {
-        attrData[attrKey] = new TrackedObject(val);
-      } else {
-        attrData[attrKey] = val;
-      }
+      attrData[attrKey] = record[attrKey];
     }
 
-    return new TrackedObject(attrData);
+    return deepTracked(structuredClone(attrData));
   }
 
   @action
