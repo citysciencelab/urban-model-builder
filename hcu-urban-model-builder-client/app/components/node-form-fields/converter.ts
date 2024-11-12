@@ -8,6 +8,7 @@ export interface NodeFormFieldsConverterSignature {
   // The arguments accepted by the component
   Args: {
     node: Node;
+    changeset: Node;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -52,18 +53,24 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
   }
 
   @action addNewValue() {
-    if (!this.args.node.data.values) {
-      this.args.node.data.values = [{ x: 0, y: 0 }];
+    if (!this.args.changeset.data.values) {
+      this.args.changeset.data.values = [{ x: 0, y: 0 }];
     } else {
-      const len = this.args.node.data.values.length;
-      this.args.node.data.values.push({ x: len, y: len });
+      const len = this.args.changeset.data.values.length;
+      this.args.changeset.data.values.push({
+        x: len,
+        y: len,
+      });
     }
-
-    this.args.node.data = { ...this.args.node.data };
   }
 
-  @action updateValue(index: number, key: 'x' | 'y', val: number) {
-    this.args.node.data.values![index]![key] = Number(val);
-    this.args.node.data = { ...this.args.node.data };
+  @action
+  updateValue(index: number, key: 'x' | 'y', val: number | string) {
+    this.args.changeset.data.values![index]![key] = Number(val);
+  }
+
+  @action
+  removeValue(index: number) {
+    this.args.changeset.data.values!.splice(index, 1);
   }
 }

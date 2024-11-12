@@ -8,20 +8,24 @@
 </@form.element>
 
 <p>
-  {{#each @node.data.values as |value i|}}
+  {{#each @changeset.data.values as |value i|}}
     <div>
       <@form.element
+        @controlType="number"
         @label="Input"
         @value={{value.x}}
-        @controlType="number"
         @onChange={{fn this.updateValue i "x"}}
       />
       <@form.element
+        @controlType="number"
         @label="Output"
         @value={{value.y}}
-        @controlType="number"
         @onChange={{fn this.updateValue i "y"}}
       />
+
+      <a href="javascript:void(0)" {{on "click" (fn this.removeValue i)}}>
+        Remove
+      </a>
     </div>
   {{/each}}
   <BsButton @type="primary" @onClick={{this.addNewValue}}>
