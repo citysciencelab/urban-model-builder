@@ -17,6 +17,7 @@
     @controlType="number"
     @label="Minimum Value"
     @property="data.constraints.min"
+    @customError={{get @errors "data.constraints.min"}}
     @onChange={{fn (mut-number @changeset.data.constraints.min)}} as |el|
   >
     <el.control step={{0.001}} />
@@ -35,6 +36,7 @@
     @controlType="number"
     @label="Maximum Value"
     @property="data.constraints.max"
+    @customError={{get @errors "data.constraints.max"}}
     @onChange={{fn (mut-number @changeset.data.constraints.max)}} as |el|
   >
     <el.control step={{0.001}} />

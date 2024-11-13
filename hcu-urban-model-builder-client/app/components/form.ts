@@ -142,7 +142,15 @@ export default class FormComponent extends Component<FormSignature> {
       });
       if (msg != true) {
         hasError = true;
-        this._errors = { ...this._errors, [key]: msg };
+        for (const error of msg) {
+          if (typeof error === 'string') {
+            this._errors = { ...this._errors, [key]: error };
+          } else if (typeof error === 'object') {
+            this._errors = { ...this._errors, [key]: error };
+          } else {
+            throw new Error('Unexpected return value from validation');
+          }
+        }
       }
     }
     return hasError;

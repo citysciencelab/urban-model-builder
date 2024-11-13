@@ -48,8 +48,41 @@ const validateStep = () => {
   };
 };
 
+const validatData = () => {
+  return (
+    key: string,
+    newValue: number,
+    oldValue: number,
+    changes: any,
+    content: any,
+  ) => {
+    // check if content.data.constraints.min exists and is a number
+    const minIsNumber =
+      content.data.constraints.min &&
+      typeof content.data.constraints.min === 'number';
+    const maxIsNumber =
+      content.data.constraints.max &&
+      typeof content.data.constraints.max === 'number';
+    if (minIsNumber && maxIsNumber) {
+      if (
+        Number(content.data.constraints.min) >
+        Number(content.data.constraints.max)
+      ) {
+        // TODO: i18n
+        return {
+          constraints: {
+            min: 'Min value can not be greater than max value',
+          },
+        };
+      }
+    }
+    return true;
+  };
+};
+
 export default {
   name: [validatePresence(true), validateLength({ min: 2 })],
   parameterMin: [validateMinMax()],
   parameterStep: [validateStep()],
+  data: [validatData()],
 };
