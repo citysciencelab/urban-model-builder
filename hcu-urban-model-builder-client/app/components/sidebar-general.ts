@@ -109,4 +109,8 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
   @action minimize() {
     this.isMinimized = !this.isMinimized;
   }
+
+  @action updateBoolParameter(boolScenarioValue: any) {
+    boolScenarioValue.value = !boolScenarioValue.value;
+  }
 }

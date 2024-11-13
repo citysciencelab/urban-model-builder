@@ -6,11 +6,12 @@
   <@form.element
     @controlType="switch"
     @label="Is Parameter?"
+    @onChange={{fn this.toggleParameter}}
     @property="isParameter" as |el|
   >
     <el.control />
   </@form.element>
-  {{#if @changeset.isParameter}}
+  {{#if (and @changeset.isParameter (eq @type "numeric"))}}
     <div class="row">
       {{! MIN Value }}
       <@form.element
