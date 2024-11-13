@@ -95,11 +95,15 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
   @action didInsertChartContainer(el: HTMLElement) {
     this.chartContainer = el;
     this.chart = echarts.init(this.chartContainer, null, {
-      height: 300,
+      height: 260,
       width: 'auto',
     });
 
     this.chart.setOption({
+      grid: {
+        top: 5,
+        bottom: 32
+      },
       xAxis: {
         type: 'value',
       },

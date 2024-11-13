@@ -8,6 +8,9 @@
 </@form.element>
 
 <fieldset>
+  <legend>
+    Mapping
+  </legend>
   <div class="row">
     <div class="col-12">
       <div
@@ -62,15 +65,24 @@
   </div>
 </fieldset>
 
-<@form.element
-  @controlType="radio"
-  @label="Interpolation"
-  @property="data.interpolation"
-  @options={{this.interpolationOptions}}
-/>
+<@form.element @label="Interpolation">
+  <BsButtonGroup
+    class="button-group__full-width"
+    @value={{@changeset.data.interpolation}}
+    @type="radio"
+    @onChange={{fn (mut @changeset.data.interpolation)}} as |bg|
+  >
+    {{#each this.interpolationOptions as |option|}}
+      <bg.button @type="light" @value={{option}}>
+        {{option}}
+      </bg.button>
+    {{/each}}
+  </BsButtonGroup>
+</@form.element>
 
 <NodeFormFields::Validation
   @form={{@form}}
   @changeset={{@changeset}}
   @el={{@el}}
+  @errors={{@errors}}
 />
