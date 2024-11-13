@@ -30,7 +30,7 @@ export default class FormComponent extends Component<FormSignature> {
 
   @tracked changesetBeforeHash: bigint | null = null;
   @tracked record: Node | Edge | null = null;
-  @tracked changeset: TrackedObject | null = null;
+  @tracked changeset: Node | Edge | null = null;
   @tracked isGhostNode = false;
 
   get NodeType() {
@@ -107,7 +107,7 @@ export default class FormComponent extends Component<FormSignature> {
       attrData[attrKey] = record[attrKey];
     }
 
-    return deepTracked(structuredClone(attrData));
+    return deepTracked(Value.Clone(attrData));
   }
 
   @action
@@ -128,7 +128,13 @@ export default class FormComponent extends Component<FormSignature> {
       return;
     }
 
-    Object.assign(this.record!, this.changeset);
+    await this.finalSaveTask.perform();
+  });
+
+  finalSaveTask = task({ enqueue: true }, async () => {
+    Object.assign(this.record!, Value.Clone(this.changeset));
+
     await this.record!.save();
+    this.changesetBeforeHash = Value.Hash({ ...this.changeset });
   });
 }
