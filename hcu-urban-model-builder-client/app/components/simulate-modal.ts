@@ -140,7 +140,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     await this.renderChart();
   }
 
-  get inMemoryScenario() {
+  get inMemoryScenario(): Map<number, number> {
     // from the store get the current default scenario
     const defaultScenario = this.store
       .peekAll<Scenario>('scenario')
@@ -169,21 +169,22 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   @action simulate() {
     const nodeValuesMap = this.inMemoryScenario;
-    // TODO: @nico send this to the simulate endpoint
-    // nodeValuesMap is a map of node.id -> value
+
     if (this.isClientSideCalculation) {
       // TODO: map node.id to value (from scenario -> scenarioValues)
       this.simulateResult = new TrackedAsyncData(
         new SimulationAdapter(
           this.feathers.app,
           Number(this.args.model.id),
+          nodeValuesMap,
         ).simulate(),
       );
     } else {
       this.simulateResult = new TrackedAsyncData(
-        this.feathers.app
-          .service('models')
-          .simulate({ id: Number(this.args.model.id!) }),
+        this.feathers.app.service('models').simulate({
+          id: Number(this.args.model.id!),
+          nodeIdToParameterMap: Object.fromEntries(nodeValuesMap),
+        }),
       );
     }
   }
@@ -292,7 +293,6 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       if (populationNode?.type === NodeType.Population) {
         const dataIndex = this.getDataIndex(data);
         console.log(dataIndex);
-
 
         const last = value.series[dataIndex];
         if (Array.isArray(last)) {
