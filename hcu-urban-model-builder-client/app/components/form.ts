@@ -7,10 +7,11 @@ import { importSync } from '@embroider/macros';
 import { ensureSafeComponent } from '@embroider/util';
 import { dasherize } from '@ember/string';
 import { tracked } from '@glimmer/tracking';
-import { TrackedObject } from 'tracked-built-ins';
 import { Value } from '@sinclair/typebox/value';
 import { task, timeout } from 'ember-concurrency';
 import { deepTracked } from 'ember-deep-tracked';
+import lookupValidator from 'ember-changeset-validations';
+import nodeValidator from 'hcu-urban-model-builder-client/validations/node-validator';
 
 export interface FormSignature {
   // The arguments accepted by the component
@@ -25,6 +26,10 @@ export interface FormSignature {
   Element: null;
 }
 
+type Errors = {
+  [key: string]: string;
+};
+
 export default class FormComponent extends Component<FormSignature> {
   readonly DEBOUNCE_MS = 250;
 
@@ -32,6 +37,9 @@ export default class FormComponent extends Component<FormSignature> {
   @tracked record: Node | Edge | null = null;
   @tracked changeset: Node | Edge | null = null;
   @tracked isGhostNode = false;
+  @tracked _errors: Errors = {};
+
+  validator = lookupValidator(nodeValidator);
 
   get NodeType() {
     return NodeType;
@@ -117,7 +125,36 @@ export default class FormComponent extends Component<FormSignature> {
     }
   }
 
+  get errors() {
+    return this._errors;
+  }
+
+  validate() {
+    let hasError = false;
+    this._errors = {};
+    for (const [key, value] of Object.entries(this.changeset)) {
+      const msg = this.validator({
+        key: key,
+        newValue: value,
+        oldValue: (this.record as any)[key],
+        changes: {}, // TODO: implement changes
+        content: this.changeset,
+      });
+      if (msg != true) {
+        hasError = true;
+        this._errors = { ...this._errors, [key]: msg };
+      }
+    }
+    return hasError;
+  }
+
   saveTask = task({ restartable: true }, async () => {
+    const hasError = this.validate();
+
+    if (hasError) {
+      return;
+    }
+
     if (!this.isDirty) {
       return;
     }
