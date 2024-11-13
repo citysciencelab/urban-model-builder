@@ -56,6 +56,9 @@ const validatData = () => {
     changes: any,
     content: any,
   ) => {
+    if (!content.data.constraints) {
+      return true;
+    }
     // check if content.data.constraints.min exists and is a number
     const minIsNumber =
       content.data.constraints.min &&
