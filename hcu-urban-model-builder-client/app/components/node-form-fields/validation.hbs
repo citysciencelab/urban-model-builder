@@ -1,44 +1,49 @@
-<NodeFormFields::UnitsSelection
-  @form={{@form}}
-  @changeset={{@changeset}}
-  @el={{@el}}
-  @property="data.units"
-/>
+<fieldset>
+  <legend>
+    Validation
+  </legend>
+  <NodeFormFields::UnitsSelection
+    @form={{@form}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+    @property="data.units"
+  />
 
-<@form.element
-  @controlType="switch"
-  @label="Minimum Contraint"
-  @onChange={{fn this.handleConstraintChange "min"}}
-  @value={{is-numeric @changeset.data.constraints.min}}
-/>
-
-{{#if (is-numeric @changeset.data.constraints.min)}}
   <@form.element
-    @controlType="number"
-    @label="Minimum Value"
-    @property="data.constraints.min"
-    @customError={{get @errors "data.constraints.min"}}
-    @onChange={{fn (mut-number @changeset.data.constraints.min)}} as |el|
-  >
-    <el.control step={{0.001}} />
-  </@form.element>
-{{/if}}
+    @controlType="switch"
+    @label="Minimum Contraint"
+    @onChange={{fn this.handleConstraintChange "min"}}
+    @value={{is-numeric @changeset.data.constraints.min}}
+  />
 
-<@form.element
-  @controlType="switch"
-  @label="Maximum Contraint"
-  @onChange={{fn this.handleConstraintChange "max"}}
-  @value={{is-numeric @changeset.data.constraints.max}}
-/>
+  {{#if (is-numeric @changeset.data.constraints.min)}}
+    <@form.element
+      @controlType="number"
+      @label="Minimum Value"
+      @property="data.constraints.min"
+      @customError={{get @errors "data.constraints.min"}}
+      @onChange={{fn (mut-number @changeset.data.constraints.min)}} as |el|
+    >
+      <el.control step={{0.001}} />
+    </@form.element>
+  {{/if}}
 
-{{#if (is-numeric @changeset.data.constraints.max)}}
   <@form.element
-    @controlType="number"
-    @label="Maximum Value"
-    @property="data.constraints.max"
-    @customError={{get @errors "data.constraints.max"}}
-    @onChange={{fn (mut-number @changeset.data.constraints.max)}} as |el|
-  >
-    <el.control step={{0.001}} />
-  </@form.element>
-{{/if}}
+    @controlType="switch"
+    @label="Maximum Contraint"
+    @onChange={{fn this.handleConstraintChange "max"}}
+    @value={{is-numeric @changeset.data.constraints.max}}
+  />
+
+  {{#if (is-numeric @changeset.data.constraints.max)}}
+    <@form.element
+      @controlType="number"
+      @label="Maximum Value"
+      @property="data.constraints.max"
+      @customError={{get @errors "data.constraints.max"}}
+      @onChange={{fn (mut-number @changeset.data.constraints.max)}} as |el|
+    >
+      <el.control step={{0.001}} />
+    </@form.element>
+  {{/if}}
+</fieldset>
