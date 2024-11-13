@@ -3,7 +3,6 @@ import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
-import { TrackedAsyncData } from 'ember-async-data';
 import type Store from '@ember-data/store';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import {
@@ -11,7 +10,6 @@ import {
   NodeType,
   SimulationAdapter,
 } from 'hcu-urban-model-builder-backend';
-import type { ModelsService } from 'hcu-urban-model-builder-backend/lib/services/models/models.class';
 import * as echarts from 'echarts';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
@@ -38,6 +36,8 @@ enum TabName {
   ScatterPlot = 'scatter-plot',
 }
 
+type SimulationResult = Awaited<ReturnType<SimulationAdapter<any>['simulate']>>;
+
 const BASE_SPEED = 20;
 
 export default class SimulateModalComponent extends Component<SimulateModalSignature> {
@@ -57,9 +57,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @tracked chartContainer?: HTMLElement;
   @tracked chart?: echarts.ECharts;
 
-  @tracked simulateResult?: TrackedAsyncData<
-    Awaited<ReturnType<ModelsService['simulate']>>
-  >;
+  @tracked simulationResult?: SimulationResult | null;
 
   tabNameToChartRenderFunction = {
     [TabName.TimeSeries]: this.renderTimeSeriesChart,
@@ -74,12 +72,6 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   constructor(owner: unknown, args: any) {
     super(owner, args);
     this.eventBus.on('scenario-value-changed', this, this.restartSimulation);
-  }
-
-  restartSimulation() {
-    this.animationCursor = 0;
-    this.simulate();
-    this.startAnimation();
   }
 
   get isAnimationFinished() {
@@ -110,22 +102,16 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       if (this.isPlaying) {
         // ensure we are at the end, no matter what float math says
         this.animationCursor = 100;
-        this.setTime(Number(this.simulationEndTime));
+        this.updateDatasetFromAnimationCursor();
         this.isPlaying = false;
       }
     }
   }
 
   @action
-  async onShow() {
-    this.simulate();
-    this.startAnimation();
-  }
-
-  @action
-  toggleClientSideCalculation(value: boolean) {
+  async toggleClientSideCalculation(value: boolean) {
     this.isClientSideCalculation = value;
-    this.simulate();
+    await this.restartSimulation();
   }
 
   @action isTabActive(tabName: TabName) {
@@ -136,8 +122,17 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   async switchTab(tabName: TabName) {
     this.activeTab = tabName;
     this.chart?.clear();
+    await this.restartSimulation();
+  }
 
-    await this.renderChart();
+  async restartSimulation() {
+    if (!this.chartContainer) {
+      return;
+    }
+    this.animationCursor = 0;
+    await this.simulate();
+    this.renderChart(this.simulationResult!);
+    this.startAnimation();
   }
 
   get inMemoryScenario(): Map<number, number> {
@@ -167,50 +162,51 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     return scenarioNodeValueMap;
   }
 
-  @action simulate() {
-    const nodeValuesMap = this.inMemoryScenario;
-
-    if (this.isClientSideCalculation) {
-      // TODO: map node.id to value (from scenario -> scenarioValues)
-      this.simulateResult = new TrackedAsyncData(
-        new SimulationAdapter(
-          this.feathers.app,
-          Number(this.args.model.id),
-          nodeValuesMap,
-        ).simulate(),
-      );
-    } else {
-      this.simulateResult = new TrackedAsyncData(
-        this.feathers.app.service('models').simulate({
-          id: Number(this.args.model.id!),
-          nodeIdToParameterMap: Object.fromEntries(nodeValuesMap),
-        }),
-      );
-    }
-  }
-
   @action
   async didInsertChartContainer(element: any) {
+    console.log('didInsertChartContainer');
+
+    await this.simulate();
+
+    console.log('simulationResult', this.simulationResult);
+
     this.chartContainer = element;
     this.chart = echarts.init(this.chartContainer, null, {
       height: 400,
       width: 'auto',
     });
-    await this.renderChart();
+    await this.renderChart(this.simulationResult!);
+    this.startAnimation();
   }
 
   @action
-  async renderChart() {
-    if (this.chartContainer) {
-      await this.tabNameToChartRenderFunction[this.activeTab]?.();
+  async simulate() {
+    const nodeValuesMap = this.inMemoryScenario;
+
+    if (this.isClientSideCalculation) {
+      console.log('simulate client side', nodeValuesMap);
+
+      this.simulationResult = await new SimulationAdapter(
+        this.feathers.app,
+        Number(this.args.model.id),
+        nodeValuesMap,
+      ).simulate();
+    } else {
+      this.simulationResult = await this.feathers.app
+        .service('models')
+        .simulate({
+          id: Number(this.args.model.id!),
+          nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
+        });
     }
   }
 
   @action
-  async setTime(value: number) {
-    this.time = Number(value);
+  async updateDatasetFromAnimationCursor() {
     if (this.chart) {
-      const dataset = await this.tabNameToDatasetFunction[this.activeTab]?.();
+      const dataset = await this.tabNameToDatasetFunction[this.activeTab]?.(
+        this.simulationResult!,
+      );
       this.chart.setOption({
         series: dataset,
       });
@@ -218,25 +214,40 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   }
 
   @action
-  async renderTimeSeriesChart() {
-    const datasets = await this.getTimeSeriesDataset();
+  async renderChart(simulationResult: SimulationResult) {
+    console.log('renderChart');
+
+    if (this.chartContainer) {
+      await this.tabNameToChartRenderFunction[this.activeTab]?.(
+        simulationResult,
+      );
+    }
+  }
+
+  @action
+  async renderTimeSeriesChart(simulateResult: SimulationResult) {
+    const datasets = await this.getTimeSeriesDataset(simulateResult);
+
+    console.log(datasets);
 
     this.chart!.setOption({
       legend: {},
       xAxis: {
-        data: this.simulateResult!.value!.times,
+        data: simulateResult!.times,
       },
       yAxis: {},
       tooltip: {
         trigger: 'axis',
       },
+      animation: false,
+      animationDuration: 20000,
       series: datasets,
     });
   }
 
   @action
-  async renderScatterPlotChart() {
-    const datasets = await this.getScatterPlotDataset();
+  async renderScatterPlotChart(simulateResult: SimulationResult) {
+    const datasets = await this.getScatterPlotDataset(simulateResult);
 
     this.chart!.setOption({
       legend: {},
@@ -250,11 +261,8 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   }
 
   @action
-  async getTimeSeriesDataset() {
-    if (!this.simulateResult?.value) {
-      return;
-    }
-    const data = this.simulateResult.value;
+  async getTimeSeriesDataset(simulateResult: SimulationResult) {
+    const data = simulateResult;
 
     const series = [];
 
@@ -267,7 +275,6 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
           type: 'line',
           name: node.name,
           data: value.series.slice(0, dataIndex) as number[],
-          animation: false,
         });
       }
     }
@@ -276,8 +283,8 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   }
 
   @action
-  async getScatterPlotDataset() {
-    const data = this.simulateResult!.value!;
+  async getScatterPlotDataset(simulateResult: SimulationResult) {
+    const data = simulateResult;
     const datasets = [];
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const populationNode = await this.store.findRecord<Node>('node', nodeId);
@@ -358,13 +365,12 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     this.speed = value;
   }
 
-  @action updateDatasetFromAnimationCursor() {
-    this.setTime((this.args.model.timeLength / 100) * this.animationCursor);
+  getDataIndex(data: SimulationResult) {
+    return Math.floor((data.times.length / 100) * this.animationCursor);
   }
 
-  getDataIndex(
-    data: NonNullable<NonNullable<this['simulateResult']>['value']>,
-  ) {
-    return Math.floor((data.times.length / 100) * this.animationCursor);
+  willDestroy(): void {
+    super.willDestroy();
+    this.eventBus.off('scenario-value-changed', this, this.restartSimulation);
   }
 }
