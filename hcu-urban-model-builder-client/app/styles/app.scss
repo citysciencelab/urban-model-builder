@@ -567,3 +567,22 @@ fieldset {
 .modal--no-backdrop {
   pointer-events: none;
 }
+
+.converter__values__row {
+  align-items: center;
+}
+
+.converter__values__actions {
+  display: flex;
+  a {
+    display: block;
+    height: 38px;
+    margin-bottom: get-spacer(3);
+    display: flex;
+    align-items: center;
+  }
+}
+
+.converter__values__actions__add {
+  width: 100%;
+}
