@@ -29,7 +29,7 @@ export default class FeathersService extends Service {
       io(ENV.apiURL, {
         transports: ['websocket'],
         timeout: 5000,
-        ackTimeout: 3000,
+        ackTimeout: 10000,
       }),
     );
 

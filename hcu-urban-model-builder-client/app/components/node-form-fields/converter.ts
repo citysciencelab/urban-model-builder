@@ -3,6 +3,8 @@ import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { TrackedAsyncData } from 'ember-async-data';
 import type Node from 'hcu-urban-model-builder-client/models/node';
+import { tracked } from '@glimmer/tracking';
+import * as echarts from 'echarts';
 
 export interface NodeFormFieldsConverterSignature {
   // The arguments accepted by the component
@@ -20,6 +22,9 @@ export interface NodeFormFieldsConverterSignature {
 
 export default class NodeFormFieldsConverterComponent extends Component<NodeFormFieldsConverterSignature> {
   readonly interpolationOptions = ['Linear', 'Discrete'];
+
+  @tracked chartContainer?: HTMLElement;
+  @tracked chart?: echarts.ECharts;
 
   @cached
   get inputNode() {
@@ -67,10 +72,58 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
   @action
   updateValue(index: number, key: 'x' | 'y', val: number | string) {
     this.args.changeset.data.values![index]![key] = Number(val);
+    this.updateChart();
   }
 
   @action
   removeValue(index: number) {
     this.args.changeset.data.values!.splice(index, 1);
+    this.updateChart();
+  }
+
+  @action updateChart() {
+    this.chart?.setOption({
+      series: [
+        {
+          data: this.chartData,
+          type: 'line',
+        },
+      ],
+    });
+  }
+
+  @action didInsertChartContainer(el: HTMLElement) {
+    this.chartContainer = el;
+    this.chart = echarts.init(this.chartContainer, null, {
+      height: 260,
+      width: 'auto',
+    });
+
+    this.chart.setOption({
+      grid: {
+        top: 5,
+        bottom: 32
+      },
+      xAxis: {
+        type: 'value',
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [
+        {
+          data: this.chartData,
+          type: 'line',
+        },
+      ],
+    });
+  }
+
+  get chartData() {
+    const seriesData = [];
+    for (const value of Object.values(this.args.changeset.data.values || [])) {
+      seriesData.push([value.x, value.y]);
+    }
+    return seriesData;
   }
 }

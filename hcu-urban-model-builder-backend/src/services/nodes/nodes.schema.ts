@@ -113,6 +113,10 @@ export const nodesSchema = Type.Object(
     height: Nullable(Type.Number()),
     width: Nullable(Type.Number()),
     parentId: Nullable(Type.Number()),
+    isParameter: Type.Boolean(),
+    parameterMin: Nullable(Type.Number()),
+    parameterMax: Nullable(Type.Number()),
+    parameterStep: Nullable(Type.Number()),
     ghostParentId: Nullable(Type.Number())
   },
   { $id: 'Nodes', additionalProperties: false }
@@ -126,7 +130,21 @@ export const nodesExternalResolver = resolve<Nodes, HookContext<NodesService>>({
 // Schema for creating new entries
 export const nodesDataSchema = Type.Pick(
   nodesSchema,
-  ['modelsVersionsId', 'type', 'name', 'position', 'data', 'height', 'width', 'parentId', 'ghostParentId'],
+  [
+    'modelsVersionsId',
+    'type',
+    'name',
+    'position',
+    'data',
+    'height',
+    'width',
+    'parentId',
+    'isParameter',
+    'parameterMin',
+    'parameterMax',
+    'parameterStep',
+    'ghostParentId'
+  ],
   {
     $id: 'NodesData'
   }

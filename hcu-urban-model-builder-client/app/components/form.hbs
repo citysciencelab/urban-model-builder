@@ -21,6 +21,7 @@
           @label="Name"
           @placeholder="Name"
           @property="name"
+          @customError={{get this.errors "name"}}
         />
 
         {{#if this.nodeFormFieldsComponent}}
@@ -28,6 +29,7 @@
             @form={{form}}
             @node={{this.record}}
             @changeset={{this.changeset}}
+            @errors={{this.errors}}
           />
         {{/if}}
 

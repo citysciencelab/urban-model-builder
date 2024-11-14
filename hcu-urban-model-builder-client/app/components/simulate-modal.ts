@@ -3,7 +3,6 @@ import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
-import { TrackedAsyncData } from 'ember-async-data';
 import type Store from '@ember-data/store';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import {
@@ -11,9 +10,11 @@ import {
   NodeType,
   SimulationAdapter,
 } from 'hcu-urban-model-builder-backend';
-import type { ModelsService } from 'hcu-urban-model-builder-backend/lib/services/models/models.class';
 import * as echarts from 'echarts';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
+import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
+import type Scenario from 'hcu-urban-model-builder-client/models/scenario';
+import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
 
 export interface SimulateModalSignature {
   // The arguments accepted by the component
@@ -35,11 +36,14 @@ enum TabName {
   ScatterPlot = 'scatter-plot',
 }
 
+type SimulationResult = Awaited<ReturnType<SimulationAdapter<any>['simulate']>>;
+
 const BASE_SPEED = 20;
 
 export default class SimulateModalComponent extends Component<SimulateModalSignature> {
   @service declare feathers: FeathersService;
   @service declare store: Store;
+  @service declare eventBus: EventBus;
 
   @tracked isClientSideCalculation = true;
   @tracked activeTab: TabName = TabName.TimeSeries;
@@ -53,9 +57,10 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @tracked chartContainer?: HTMLElement;
   @tracked chart?: echarts.ECharts;
 
-  @tracked simulateResult?: TrackedAsyncData<
-    Awaited<ReturnType<ModelsService['simulate']>>
-  >;
+  @tracked simulationResult?: SimulationResult | null;
+
+  @tracked simulationError?: any;
+  @tracked simulationErrorNode: Node | null = null;
 
   tabNameToChartRenderFunction = {
     [TabName.TimeSeries]: this.renderTimeSeriesChart,
@@ -67,12 +72,48 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     [TabName.ScatterPlot]: this.getScatterPlotDataset,
   };
 
+  constructor(owner: unknown, args: any) {
+    super(owner, args);
+    this.eventBus.on('scenario-value-changed', this, this.restartSimulation);
+  }
+
   get isAnimationFinished() {
     return this.animationCursor >= 100;
   }
 
   get simulationEndTime() {
     return this.args.model.timeStart + this.args.model.timeLength;
+  }
+
+  get hasError() {
+    return !!this.simulationError;
+  }
+
+  get inMemoryScenario(): Map<number, number> {
+    // from the store get the current default scenario
+    const defaultScenario = this.store
+      .peekAll<Scenario>('scenario')
+      .find((item) => {
+        return (
+          item.modelsVersions.id == this.args.model.id && item.isDefault == true
+        );
+      }) as Scenario;
+
+    const scenarioValues = this.store
+      .peekAll<ScenariosValue>('scenarios-value')
+      .filter((item) => {
+        return item.scenarios.id == defaultScenario.id;
+      });
+
+    const scenarioNodeValueMap = scenarioValues.reduce(
+      (acc: Map<number, number>, item: ScenariosValue) => {
+        acc.set(Number((item.nodes as any).id), Number(item.value));
+        return acc;
+      },
+      new Map(),
+    );
+
+    return scenarioNodeValueMap;
   }
 
   calculateNextAnimationCursor() {
@@ -95,22 +136,16 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       if (this.isPlaying) {
         // ensure we are at the end, no matter what float math says
         this.animationCursor = 100;
-        this.setTime(Number(this.simulationEndTime));
+        this.updateDatasetFromAnimationCursor();
         this.isPlaying = false;
       }
     }
   }
 
   @action
-  async onShow() {
-    this.simulate();
-    this.startAnimation();
-  }
-
-  @action
-  toggleClientSideCalculation(value: boolean) {
+  async toggleClientSideCalculation(value: boolean) {
     this.isClientSideCalculation = value;
-    this.simulate();
+    await this.restartSimulation();
   }
 
   @action isTabActive(tabName: TabName) {
@@ -121,106 +156,140 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   async switchTab(tabName: TabName) {
     this.activeTab = tabName;
     this.chart?.clear();
-
-    await this.renderChart();
+    await this.restartSimulation();
   }
 
-  @action simulate() {
-    if (this.isClientSideCalculation) {
-      this.simulateResult = new TrackedAsyncData(
-        new SimulationAdapter(
-          this.feathers.app,
-          Number(this.args.model.id),
-        ).simulate(),
-      );
-    } else {
-      this.simulateResult = new TrackedAsyncData(
-        this.feathers.app
-          .service('models')
-          .simulate({ id: Number(this.args.model.id!) }),
-      );
+  async restartSimulation() {
+    if (!this.chartContainer) {
+      return;
     }
+    this.animationCursor = 0.01;
+    await this.simulate();
+    this.renderChart(this.simulationResult!);
+    this.startAnimation();
   }
 
   @action
   async didInsertChartContainer(element: any) {
+    await this.simulate();
+
     this.chartContainer = element;
     this.chart = echarts.init(this.chartContainer, null, {
       height: 400,
       width: 'auto',
     });
-    await this.renderChart();
+    await this.renderChart(this.simulationResult!);
+    this.animationCursor = 0.01;
+    this.startAnimation();
   }
 
   @action
-  async renderChart() {
-    if (this.chartContainer) {
-      await this.tabNameToChartRenderFunction[this.activeTab]?.();
+  async simulate() {
+    try {
+      const nodeValuesMap = this.inMemoryScenario;
+      if (this.isClientSideCalculation) {
+        this.simulationResult = await new SimulationAdapter(
+          this.feathers.app,
+          Number(this.args.model.id),
+          nodeValuesMap,
+        ).simulate();
+      } else {
+        this.simulationResult = await this.feathers.app
+          .service('models')
+          .simulate({
+            id: Number(this.args.model.id!),
+            nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
+          });
+      }
+      this.simulationError = undefined;
+    } catch (e: any) {
+      if (e.name === 'SimulationError') {
+        this.simulationError = e;
+        if (e.data.nodeId) {
+          this.simulationErrorNode = this.store.peekRecord<Node>(
+            'node',
+            e.data.nodeId,
+          );
+        }
+      }
+      throw e;
     }
   }
 
   @action
-  async setTime(value: number) {
-    this.time = Number(value);
+  async updateDatasetFromAnimationCursor() {
     if (this.chart) {
-      const dataset = await this.tabNameToDatasetFunction[this.activeTab]?.();
+      const dataset = await this.tabNameToDatasetFunction[this.activeTab]?.(
+        this.simulationResult!,
+      );
       this.chart.setOption({
+        ...this.chart.getOption(),
         series: dataset,
       });
     }
   }
 
   @action
-  async renderTimeSeriesChart() {
-    const datasets = await this.getTimeSeriesDataset();
+  async renderChart(simulationResult: SimulationResult) {
+    if (this.chartContainer) {
+      await this.tabNameToChartRenderFunction[this.activeTab]?.(
+        simulationResult,
+      );
+    }
+  }
+
+  @action
+  async renderTimeSeriesChart(simulateResult: SimulationResult) {
+    const datasets = await this.getTimeSeriesDataset(simulateResult);
 
     this.chart!.setOption({
-      legend: {},
       xAxis: {
-        data: this.simulateResult!.value!.times,
+        data: simulateResult!.times,
       },
       yAxis: {},
       tooltip: {
         trigger: 'axis',
       },
+      animation: false,
+      animationDuration: 20000,
       series: datasets,
     });
   }
 
   @action
-  async renderScatterPlotChart() {
-    const datasets = await this.getScatterPlotDataset();
+  async renderScatterPlotChart(simulateResult: SimulationResult) {
+    const datasets = await this.getScatterPlotDataset(simulateResult);
 
     this.chart!.setOption({
-      legend: {},
+      legend: {
+        data: datasets.map((d) => d.name),
+        top: 10,
+      },
       xAxis: {},
       yAxis: {},
       tooltip: {
         trigger: 'axis',
       },
+      animation: false,
       series: datasets,
     });
   }
 
   @action
-  async getTimeSeriesDataset() {
-    if (!this.simulateResult?.value) {
-      return;
-    }
-    const data = this.simulateResult.value;
+  async getTimeSeriesDataset(simulateResult: SimulationResult) {
+    const data = simulateResult;
 
     const series = [];
 
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
 
-      const dataIndex = this.getDataIndex(data);
+      const dataIndex = this.getDataIndex(data) + 1;
       if (node.type !== NodeType.Flow && node.type !== NodeType.Population) {
         series.push({
           type: 'line',
           name: node.name,
           data: value.series.slice(0, dataIndex) as number[],
-          animation: false,
         });
       }
     }
@@ -229,8 +298,8 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   }
 
   @action
-  async getScatterPlotDataset() {
-    const data = this.simulateResult!.value!;
+  async getScatterPlotDataset(simulateResult: SimulationResult) {
+    const data = simulateResult;
     const datasets = [];
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const populationNode = await this.store.findRecord<Node>('node', nodeId);
@@ -276,12 +345,14 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
           datasets.push({
             type: 'scatter',
+            name: populationNode.name,
             label: populationNode.name,
             data: populationData,
           });
           for (const [stateNodes, locations] of stateLocationsMap.entries()) {
             datasets.push({
               type: 'scatter',
+              name: stateNodes.name,
               label: stateNodes.name,
               data: locations,
             });
@@ -308,13 +379,12 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     this.speed = value;
   }
 
-  @action updateDatasetFromAnimationCursor() {
-    this.setTime((this.args.model.timeLength / 100) * this.animationCursor);
+  getDataIndex(data: SimulationResult) {
+    return Math.floor(((data.times.length - 1) / 100) * this.animationCursor);
   }
 
-  getDataIndex(
-    data: NonNullable<NonNullable<this['simulateResult']>['value']>,
-  ) {
-    return Math.floor((data.times.length / 100) * this.animationCursor);
+  willDestroy(): void {
+    super.willDestroy();
+    this.eventBus.off('scenario-value-changed', this, this.restartSimulation);
   }
 }

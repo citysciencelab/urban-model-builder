@@ -61,7 +61,6 @@ export default class ApplicationAdapter extends Adapter {
     snapshot: Snapshot,
   ): Promise<AdapterPayload> {
     const data = this.serialize(snapshot, {});
-
     return this.feathers.app
       .service(this.feathers.getServiceNameByModelName(type.modelName))
       .patch(snapshot.id, data);

@@ -25,7 +25,7 @@ const simulationFactoryMap = {
       constraints: node.data.constraints || {}
     })
   },
-  [NodeType.Flow]: async (model: Model, node: Nodes) => {
+  [NodeType.Flow]: (model: Model, node: Nodes) => {
     return model.Flow(null, null, {
       name: node.name!,
       rate: node.data.rate,

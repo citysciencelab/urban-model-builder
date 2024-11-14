@@ -116,7 +116,7 @@ export const models = (app: Application) => {
     },
     after: {
       all: [],
-      create: [iff(isProvider('external'), initModelVersion), initModelsUsers]
+      create: [iff(isProvider('external'), initModelsUsers, initModelVersion)]
     },
     error: {
       all: []

@@ -87,7 +87,8 @@ export const modelsQueryResolver = resolve<ModelsQuery, HookContext<ModelsServic
 // Schema for custom method: simulate
 export const modelsSimulateSchema = Type.Object(
   {
-    id: Type.Number()
+    id: Type.Number(),
+    nodeIdToParameterValueMap: Type.Optional(Type.Record(Type.Number(), Type.Number()))
   },
   { $id: 'ModelsSimulate', additionalProperties: false }
 )

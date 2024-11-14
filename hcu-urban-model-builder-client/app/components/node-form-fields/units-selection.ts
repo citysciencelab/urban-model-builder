@@ -3,11 +3,13 @@ import { unitsCollection } from 'hcu-urban-model-builder-client/config/units-col
 import { action } from '@ember/object';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import { tracked } from '@glimmer/tracking';
+import { set } from '@ember/object';
 
 export interface NodeFormFieldsUnitsSelectionSignature {
   // The arguments accepted by the component
   Args: {
     changeset: Node;
+    property: string;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -23,7 +25,7 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
   @tracked showUnits = false;
 
   @action setUnit(unit: string) {
-    this.args.changeset.data.units = unit;
+    set(this.args.changeset, this.args.property, unit);
     this.toggleUnitsVisibility();
   }
 

@@ -70,7 +70,10 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async simulate(data: ModelsSimulate, params?: ServiceParams) {
-    return new SimulationAdapter(this.app, data.id, logger).simulate()
+    const nodeIdToParamValueMap = data.nodeIdToParameterValueMap
+      ? new Map(Object.entries(data.nodeIdToParameterValueMap).map(([key, value]) => [parseInt(key), value]))
+      : new Map<number, number>()
+    return new SimulationAdapter(this.app, data.id, nodeIdToParamValueMap, logger).simulate()
   }
 
   async newDraft(data: ModelsNewDraft, params?: ServiceParams) {

@@ -7,8 +7,18 @@ import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 import type ModelsUser from 'hcu-urban-model-builder-client/models/models-user';
+import type Scenario from 'hcu-urban-model-builder-client/models/scenario';
+import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
 
-type DataModels = Node | Edge | ModelModel | User | ModelsVersion | ModelsUser;
+type DataModels =
+  | Node
+  | Edge
+  | ModelModel
+  | User
+  | ModelsVersion
+  | ModelsUser
+  | Scenario
+  | ScenariosValue;
 
 export type DataModelsNames = DataModels[typeof Type];
 
@@ -31,6 +41,8 @@ export default class StoreEventEmitterService extends Service {
     user: new Map(),
     'models-version': new Map(),
     'models-user': new Map(),
+    scenario: new Map(),
+    'scenarios-value': new Map(),
   };
 
   @action
