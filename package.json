@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "setup": "./scripts/setup.sh"
+    "setup": "./scripts/setup.sh",
+    "deploy:latest": "./scripts/deploy.sh"
   },
   "author": "",
   "license": "ISC",
