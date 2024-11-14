@@ -18,6 +18,8 @@ import { Results } from 'simulation/Results'
 import { Logger } from 'winston'
 import { ClientApplication } from '../../client.js'
 import { Application } from '../../declarations.js'
+import { Unprocessable } from '@feathersjs/errors'
+import { SimulationError } from './simulation-error.js'
 
 type PopulationNodeResult = {
   id: string
@@ -63,10 +65,15 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     await this.assignConverterInput()
 
     await this.createModelRelationsByEdges(model)
+    try {
+      const simulationResult = model.simulate()
 
-    const simulationResult = model.simulate()
-
-    return this.serializeSimulationResult(simulationResult)
+      return this.serializeSimulationResult(simulationResult)
+    } catch (error: any) {
+      throw new SimulationError(error.message, {
+        nodeId: this.primitiveIdNodeIdMap.get(error.primitive.id) || null
+      })
+    }
   }
 
   private async createSimulationModel() {
