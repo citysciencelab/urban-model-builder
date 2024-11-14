@@ -223,6 +223,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
         this.simulationResult!,
       );
       this.chart.setOption({
+        ...this.chart.getOption(),
         series: dataset,
       });
     }
@@ -230,8 +231,6 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   @action
   async renderChart(simulationResult: SimulationResult) {
-    console.log('renderChart');
-
     if (this.chartContainer) {
       await this.tabNameToChartRenderFunction[this.activeTab]?.(
         simulationResult,
@@ -243,10 +242,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   async renderTimeSeriesChart(simulateResult: SimulationResult) {
     const datasets = await this.getTimeSeriesDataset(simulateResult);
 
-    console.log(datasets);
-
     this.chart!.setOption({
-      legend: {},
       xAxis: {
         data: simulateResult!.times,
       },
@@ -265,12 +261,16 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     const datasets = await this.getScatterPlotDataset(simulateResult);
 
     this.chart!.setOption({
-      legend: {},
+      legend: {
+        data: datasets.map((d) => d.name),
+        top: 10,
+      },
       xAxis: {},
       yAxis: {},
       tooltip: {
         trigger: 'axis',
       },
+      animation: false,
       series: datasets,
     });
   }
@@ -314,7 +314,6 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
       if (populationNode?.type === NodeType.Population) {
         const dataIndex = this.getDataIndex(data);
-        console.log(dataIndex);
 
         const last = value.series[dataIndex];
         if (Array.isArray(last)) {
@@ -346,16 +345,16 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
           datasets.push({
             type: 'scatter',
+            name: populationNode.name,
             label: populationNode.name,
             data: populationData,
-            // animation: false,
           });
           for (const [stateNodes, locations] of stateLocationsMap.entries()) {
             datasets.push({
               type: 'scatter',
+              name: stateNodes.name,
               label: stateNodes.name,
               data: locations,
-              // animation: false,
             });
           }
         }
