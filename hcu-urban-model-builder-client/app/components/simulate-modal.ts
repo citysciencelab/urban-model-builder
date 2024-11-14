@@ -284,7 +284,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
 
-      const dataIndex = this.getDataIndex(data);
+      const dataIndex = this.getDataIndex(data) + 1;
       if (node.type !== NodeType.Flow && node.type !== NodeType.Population) {
         series.push({
           type: 'line',
@@ -380,7 +380,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   }
 
   getDataIndex(data: SimulationResult) {
-    return Math.floor((data.times.length / 100) * this.animationCursor);
+    return Math.floor(((data.times.length - 1) / 100) * this.animationCursor);
   }
 
   willDestroy(): void {
