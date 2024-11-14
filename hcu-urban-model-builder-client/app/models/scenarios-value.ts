@@ -5,7 +5,7 @@ import type Scenario from './scenario';
 export default class ScenariosValue extends Model {
   [Type] = 'scenarios-value' as const;
 
-  @attr('number') declare value: string;
+  @attr('number') declare value: number;
   @belongsTo('node', { async: true, inverse: 'scenariosValues' })
   declare nodes: Node;
   @belongsTo('scenario', { async: true, inverse: 'scenariosValues' })

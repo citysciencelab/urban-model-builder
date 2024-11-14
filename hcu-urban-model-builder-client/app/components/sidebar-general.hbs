@@ -50,7 +50,11 @@
                           @checked={{scenarioValue.value}}
                           {{on
                             "change"
-                            (fn this.updateBoolParameter scenarioValue)
+                            (fn
+                              this.updateBoolParameter
+                              this.defaultScenario
+                              scenarioValue
+                            )
                           }}
                         />
                         On

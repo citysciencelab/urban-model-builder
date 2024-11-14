@@ -98,8 +98,6 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
     scenario: Scenario,
     scenarioValue: ScenariosValue,
   ) {
-    // TODO: retrigger simulation if open
-    console.log('change');
     this.eventBus.emit('scenario-value-changed', {
       scenario,
       scenarioValue,
@@ -110,7 +108,14 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
     this.isMinimized = !this.isMinimized;
   }
 
-  @action updateBoolParameter(boolScenarioValue: any) {
-    boolScenarioValue.value = !boolScenarioValue.value;
+  @action updateBoolParameter(
+    scenario: Scenario,
+    boolScenarioValue: ScenariosValue,
+  ) {
+    boolScenarioValue.value = boolScenarioValue.value == 0 ? 1 : 0;
+    this.eventBus.emit('scenario-value-changed', {
+      scenario,
+      boolScenarioValue,
+    });
   }
 }
