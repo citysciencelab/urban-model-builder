@@ -7,41 +7,82 @@
   <el.control disabled="true" />
 </@form.element>
 
-<p>
+<fieldset>
+  <legend>
+    Mapping
+  </legend>
+  <div class="row">
+    <div class="col-12">
+      <div
+        class="chart-container"
+        {{did-insert this.didInsertChartContainer}}
+      ></div>
+    </div>
+    <div class="col-5 mb-2">
+      <strong>
+        Input
+      </strong>
+    </div>
+    <div class="col-5">
+      <strong>
+        Output
+      </strong>
+    </div>
+    <div class="col-2">
+    </div>
+  </div>
   {{#each @changeset.data.values as |value i|}}
-    <div>
+    <div class="row converter__values__row">
       <@form.element
+        class="col-5"
         @controlType="number"
-        @label="Input"
         @value={{value.x}}
         @onChange={{fn this.updateValue i "x"}}
       />
       <@form.element
+        class="col-5"
         @controlType="number"
-        @label="Output"
         @value={{value.y}}
         @onChange={{fn this.updateValue i "y"}}
       />
-
-      <a href="javascript:void(0)" {{on "click" (fn this.removeValue i)}}>
-        Remove
-      </a>
+      <div class="col-2 converter__values__actions">
+        <a href="javascript:void(0)" {{on "click" (fn this.removeValue i)}}>
+          <FaIcon @icon="trash" />
+        </a>
+      </div>
     </div>
   {{/each}}
-  <BsButton @type="primary" @onClick={{this.addNewValue}}>
-    Add New Row
-  </BsButton>
-</p>
+  <div class="row">
+    <div class="col-12">
+      <BsButton
+        class="converter__values__actions__add"
+        @type="secondary"
+        @onClick={{this.addNewValue}}
+      >
+        Add Point
+      </BsButton>
+    </div>
+  </div>
+</fieldset>
 
-<@form.element
-  @controlType="radio"
-  @label="Interpolation"
-  @property="data.interpolation"
-  @options={{this.interpolationOptions}}
-/>
+<@form.element @label="Interpolation">
+  <BsButtonGroup
+    class="button-group__full-width"
+    @value={{@changeset.data.interpolation}}
+    @type="radio"
+    @onChange={{fn (mut @changeset.data.interpolation)}} as |bg|
+  >
+    {{#each this.interpolationOptions as |option|}}
+      <bg.button @type="light" @value={{option}}>
+        {{option}}
+      </bg.button>
+    {{/each}}
+  </BsButtonGroup>
+</@form.element>
 
 <NodeFormFields::Validation
   @form={{@form}}
   @changeset={{@changeset}}
   @el={{@el}}
+  @errors={{@errors}}
 />

@@ -1,5 +1,5 @@
 import { Model } from 'simulation'
-import { NodeType } from '../../services/nodes/nodes.shared.js'
+import { Nodes, NodeType } from '../../services/nodes/nodes.shared.js'
 import {
   Agent,
   Container,
@@ -25,6 +25,15 @@ type PopulationNodeResult = {
   state: number[]
 }[][]
 
+const NODE_TYPE_TO_PARAMETER_NAME_MAP = {
+  [NodeType.Stock]: 'initial',
+  [NodeType.Variable]: 'value',
+  [NodeType.Flow]: 'rate',
+  [NodeType.State]: 'startActive',
+  [NodeType.Transition]: 'value',
+  [NodeType.Population]: 'populationSize'
+}
+
 export class SimulationAdapter<T extends ClientApplication | Application> {
   private app: ClientApplication
   private nodeIdPrimitiveMapWithGhosts = new Map<number, Primitive>()
@@ -36,6 +45,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   constructor(
     app: T,
     private modelVersionId: number,
+    private nodeIdToParameterValueMap: Map<number, number>,
     private logger: Logger | typeof console = console
   ) {
     this.app = app as ClientApplication
@@ -86,7 +96,10 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     })
 
     for (const node of nodes.data) {
-      const simulationPrimitive = await primitiveFactory(model, node)
+      const simulationPrimitive = primitiveFactory(model, node)
+
+      this.setParameter(node, simulationPrimitive)
+
       this.nodeIdPrimitiveMapWithGhosts.set(node.id, simulationPrimitive)
       this.nodeIdPrimitiveMapWithoutGhosts.set(node.id, simulationPrimitive)
       this.primitiveIdNodeIdMap.set(simulationPrimitive.id, node.id)
@@ -261,5 +274,20 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     } else {
       throw new Error(`Invalid ${handlePrefix} edge. Must have a ${handlePrefix} handle. Edge id: ${edge.id}`)
     }
+  }
+
+  private setParameter(node: Nodes, simulationPrimitive: Primitive) {
+    if (this.nodeIdToParameterValueMap.has(node.id)) {
+      const type = node.type
+      if (!this.isParameterNodeType(type)) {
+        throw new Error('Node type does not have a corresponding parameter name')
+      }
+      const parameterName = NODE_TYPE_TO_PARAMETER_NAME_MAP[type]
+      ;(simulationPrimitive as any)[parameterName] = this.nodeIdToParameterValueMap.get(node.id)
+    }
+  }
+
+  private isParameterNodeType(type: NodeType): type is keyof typeof NODE_TYPE_TO_PARAMETER_NAME_MAP {
+    return type in NODE_TYPE_TO_PARAMETER_NAME_MAP
   }
 }

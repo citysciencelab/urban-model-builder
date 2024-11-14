@@ -1,7 +1,9 @@
 <BsModal
+  class="modal--no-backdrop"
   @open={{@show}}
-  @onShow={{this.onShow}}
   @onHide={{@onHide}}
+  @backdrop={{false}}
+  @backdropClose={{false}}
   @size="lg" as |modal|
 >
   <modal.header>
@@ -20,127 +22,126 @@
         @value={{this.isClientSideCalculation}}
         @onChange={{this.toggleClientSideCalculation}}
       />
-      {{#if this.simulateResult.isPending}}
+      {{#if (not this.chart)}}
         <BsSpinner>
           {{t "actions.loading"}}
         </BsSpinner>
-      {{else if this.simulateResult.isResolved}}
-        <BsNav @type="tabs" as |nav|>
-          {{#each this.tabNames as |tabName|}}
-            <nav.item>
-              <a
-                href="javascript:void(0)"
-                class="nav-link {{if (this.isTabActive tabName) "active"}}"
-                {{on "click" (fn this.switchTab tabName)}}
-              >
-                {{titleize tabName}}
-              </a>
-            </nav.item>
-          {{/each}}
-        </BsNav>
-        <div
-          class="simulate-model__chart-container"
-          {{did-insert this.didInsertChartContainer}}
-        ></div>
-        {{#if this.chart}}
-          <div class="simulate-model__range__wrapper">
-            <div class="simulate-model__range">
-              <label for="time-range" class="form-label">
-                Simulation Control
-              </label>
-              <Input
-                @type="range"
-                class="form-range"
-                min={{0.01}}
-                max={{100}}
-                step={{0.01}}
-                id="time-range"
-                @value={{this.animationCursor}}
-                {{on "change" this.updateDatasetFromAnimationCursor}}
-              />
-            </div>
-
-            <BsButton
-              @type="primary"
-              class="btn-round"
-              {{on "click" this.playPause}}
+      {{/if}}
+      <BsNav @type="tabs" as |nav|>
+        {{#each this.tabNames as |tabName|}}
+          <nav.item>
+            <a
+              href="javascript:void(0)"
+              class="nav-link {{if (this.isTabActive tabName) "active"}}"
+              {{on "click" (fn this.switchTab tabName)}}
             >
-              <FaIcon @icon={{if this.isPlaying "pause" "play"}} />
-            </BsButton>
-
-            <BsDropdown as |dd|>
-              <dd.button @type="link">
-                {{this.speed}}x
-                <span class="caret"></span>
-              </dd.button>
-              <dd.menu as |menu|>
-                <menu.item>
-                  <a
-                    href="#"
-                    class="dropdown-item"
-                    {{on "click" (fn this.setSpeed 0.2)}}
-                  >
-                    0.2x
-                  </a>
-                </menu.item>
-                <menu.item>
-                  <a
-                    href="#"
-                    class="dropdown-item"
-                    {{on "click" (fn this.setSpeed 0.5)}}
-                  >
-                    0.5x
-                  </a>
-                </menu.item>
-                <menu.item>
-                  <a
-                    href="#"
-                    class="dropdown-item"
-                    {{on "click" (fn this.setSpeed 1)}}
-                  >
-                    1x (Normal Speed)
-                  </a>
-                </menu.item>
-                <menu.item>
-                  <a
-                    href="#"
-                    class="dropdown-item"
-                    {{on "click" (fn this.setSpeed 1.5)}}
-                  >
-                    1.5x
-                  </a>
-                </menu.item>
-                <menu.item>
-                  <a
-                    href="#"
-                    class="dropdown-item"
-                    {{on "click" (fn this.setSpeed 2)}}
-                  >
-                    2x
-                  </a>
-                </menu.item>
-                <menu.item>
-                  <a
-                    href="#"
-                    class="dropdown-item"
-                    {{on "click" (fn this.setSpeed 5)}}
-                  >
-                    5x
-                  </a>
-                </menu.item>
-                <menu.item>
-                  <a
-                    href="#"
-                    class="dropdown-item"
-                    {{on "click" (fn this.setSpeed 10)}}
-                  >
-                    10x
-                  </a>
-                </menu.item>
-              </dd.menu>
-            </BsDropdown>
+              {{titleize tabName}}
+            </a>
+          </nav.item>
+        {{/each}}
+      </BsNav>
+      <div
+        class="simulate-model__chart-container"
+        {{did-insert this.didInsertChartContainer}}
+      ></div>
+      {{#if this.chart}}
+        <div class="simulate-model__range__wrapper">
+          <div class="simulate-model__range">
+            <label for="time-range" class="form-label">
+              Simulation Control
+            </label>
+            <Input
+              @type="range"
+              class="form-range"
+              min={{0.01}}
+              max={{100}}
+              step={{0.01}}
+              id="time-range"
+              @value={{this.animationCursor}}
+              {{on "change" this.updateDatasetFromAnimationCursor}}
+            />
           </div>
-        {{/if}}
+
+          <BsButton
+            @type="primary"
+            class="btn-round"
+            {{on "click" this.playPause}}
+          >
+            <FaIcon @icon={{if this.isPlaying "pause" "play"}} />
+          </BsButton>
+
+          <BsDropdown as |dd|>
+            <dd.button @type="link">
+              {{this.speed}}x
+              <span class="caret"></span>
+            </dd.button>
+            <dd.menu as |menu|>
+              <menu.item>
+                <a
+                  href="#"
+                  class="dropdown-item"
+                  {{on "click" (fn this.setSpeed 0.2)}}
+                >
+                  0.2x
+                </a>
+              </menu.item>
+              <menu.item>
+                <a
+                  href="#"
+                  class="dropdown-item"
+                  {{on "click" (fn this.setSpeed 0.5)}}
+                >
+                  0.5x
+                </a>
+              </menu.item>
+              <menu.item>
+                <a
+                  href="#"
+                  class="dropdown-item"
+                  {{on "click" (fn this.setSpeed 1)}}
+                >
+                  1x (Normal Speed)
+                </a>
+              </menu.item>
+              <menu.item>
+                <a
+                  href="#"
+                  class="dropdown-item"
+                  {{on "click" (fn this.setSpeed 1.5)}}
+                >
+                  1.5x
+                </a>
+              </menu.item>
+              <menu.item>
+                <a
+                  href="#"
+                  class="dropdown-item"
+                  {{on "click" (fn this.setSpeed 2)}}
+                >
+                  2x
+                </a>
+              </menu.item>
+              <menu.item>
+                <a
+                  href="#"
+                  class="dropdown-item"
+                  {{on "click" (fn this.setSpeed 5)}}
+                >
+                  5x
+                </a>
+              </menu.item>
+              <menu.item>
+                <a
+                  href="#"
+                  class="dropdown-item"
+                  {{on "click" (fn this.setSpeed 10)}}
+                >
+                  10x
+                </a>
+              </menu.item>
+            </dd.menu>
+          </BsDropdown>
+        </div>
       {{/if}}
     </BsForm>
   </modal.body>

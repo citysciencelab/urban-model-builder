@@ -62,7 +62,8 @@ describe.only('models service', () => {
         modelsVersionsId: modelVersion.id,
         height: null,
         width: null,
-        parentId: null
+        parentId: null,
+        isParameter: false
       }
 
       const childrenPerWomanVar = await app.service('nodes').create({
@@ -278,7 +279,8 @@ describe.only('models service', () => {
         modelsVersionsId: modelVersion.id,
         height: null,
         width: null,
-        parentId: null
+        parentId: null,
+        isParameter: false
       }
 
       const initFlow = await app.service('nodes').create({
@@ -438,7 +440,8 @@ describe.only('models service', () => {
         modelsVersionsId: modelVersion.id,
         height: null,
         width: null,
-        parentId: null
+        parentId: null,
+        isParameter: false
       }
 
       const initFlow = await app.service('nodes').create({
@@ -612,7 +615,8 @@ describe.only('models service', () => {
       })
 
       const baseNodeData = {
-        modelsVersionsId: modelVersion.id
+        modelsVersionsId: modelVersion.id,
+        isParameter: false
       }
 
       const personAgent = await app.service('nodes').create({
@@ -936,7 +940,8 @@ describe.only('models service', () => {
       })
 
       const baseNodeData = {
-        modelsVersionsId: modelVersion.id
+        modelsVersionsId: modelVersion.id,
+        isParameter: false
       }
 
       const personAgent = await app.service('nodes').create({

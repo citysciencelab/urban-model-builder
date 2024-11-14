@@ -8,6 +8,7 @@ export interface NodeFormFieldsUnitsSelectionSignature {
   // The arguments accepted by the component
   Args: {
     changeset: Node;
+    property: string;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -23,7 +24,14 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
   @tracked showUnits = false;
 
   @action setUnit(unit: string) {
-    this.args.changeset.data.units = unit;
+    const path: string[] = this.args.property.split('.');
+    if (path && Array.isArray(path) && path.length == 2) {
+      (this.args.changeset as any)[path[0] as string][path[1] as string] = unit;
+    } else {
+      throw Error('Invalid property path');
+    }
+
+    (this.args.changeset.data as any)[this.args.property] = unit;
     this.toggleUnitsVisibility();
   }
 

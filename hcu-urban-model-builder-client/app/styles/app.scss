@@ -44,6 +44,7 @@ body {
 }
 
 main {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -66,7 +67,7 @@ main {
   position: absolute;
   top: 0;
   right: 0;
-  bottom: 0;
+  bottom: calc(60px + #{get-spacer(3)});
   margin: get-spacer(3);
 
   .animated-container {
@@ -89,6 +90,7 @@ main {
 }
 
 .sidebar__header {
+  position: relative;
   min-height: 80px;
   display: flex;
   align-items: center;
@@ -464,4 +466,128 @@ a.disabled,
   border-radius: 0;
   border-top: none;
   border-bottom: none;
+}
+
+fieldset {
+  border: 1px solid $border-color;
+  background-color: $body-tertiary-bg;
+  padding: get-spacer(2);
+  margin-bottom: get-spacer(3);
+  .mb-3:last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+.form-switch {
+  &,
+  .form-label {
+    margin-bottom: 0;
+  }
+}
+
+.sidebar__container--left {
+  left: 0;
+  right: auto;
+  bottom: calc(60px + #{get-spacer(3)});
+  // z-index: 1055;
+  .sidebar__content {
+    align-items: initial;
+  }
+  .sidebar__header {
+    padding-right: 46px;
+  }
+  &.sidebar__container--minimized {
+    bottom: auto;
+    .sidebar__content {
+      display: none;
+    }
+  }
+}
+
+.range-input__min-max {
+  width: 100%;
+  input {
+    width: 100%;
+  }
+}
+
+.range-input__min-max__control {
+  width: 100%;
+}
+
+.range-input__min_max__meta {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  > div {
+    width: 3rem;
+  }
+}
+
+.range-input__min_max__meta__value {
+  font-weight: bold;
+  text-align: center;
+}
+
+.range-input__min_max__meta__max {
+  text-align: right;
+}
+
+.range-input__min_max__meta__unit {
+  flex: 0 1 100%;
+  text-align: center;
+}
+
+.scenario__value {
+  width: 100%;
+  margin-bottom: get-spacer(3);
+}
+
+.react-wrapper .react-flow__controls {
+  flex-direction: row;
+}
+
+.toggle-minimize {
+  position: absolute;
+  right: 0px;
+}
+
+.react-wrapper .react-flow__panel.center {
+  margin-left: 140px;
+  margin-right: 140px;
+  overflow: auto;
+  width: calc(100% - 280px);
+  display: flex;
+  justify-content: center;
+
+  left: auto;
+  transform: none;
+}
+
+.modal--no-backdrop {
+  pointer-events: none;
+}
+
+.converter__values__row {
+  align-items: center;
+}
+
+.converter__values__actions {
+  display: flex;
+  a {
+    display: block;
+    height: 38px;
+    margin-bottom: get-spacer(3);
+    display: flex;
+    align-items: center;
+  }
+}
+
+.converter__values__actions__add {
+  width: 100%;
+}
+
+.button-group__full-width {
+  width: 100%;
+  display: flex;
 }

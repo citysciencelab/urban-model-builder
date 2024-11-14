@@ -1,0 +1,48 @@
+<fieldset class="parameter__settings">
+  <legend>
+    Interface &amp; Scenario
+  </legend>
+  {{! Enable Parameter Switch }}
+  <@form.element
+    @controlType="switch"
+    @label="Is Parameter?"
+    @onChange={{fn this.toggleParameter}}
+    @property="isParameter" as |el|
+  >
+    <el.control />
+  </@form.element>
+  {{#if (and @changeset.isParameter (eq @type "numeric"))}}
+    <div class="row">
+      {{! MIN Value }}
+      <@form.element
+        class="col-4"
+        @controlType="number"
+        @label="Min"
+        @customError={{get @errors "parameterMin"}}
+        @property="parameterMin" as |el|
+      >
+        <el.control step={{0.001}} />
+      </@form.element>
+      {{! STEP Value }}
+      <@form.element
+        class="col-4"
+        @controlType="number"
+        @label="Step"
+        @customError={{get @errors "parameterStep"}}
+        @property="parameterStep" as |el|
+      >
+        <el.control step={{0.001}} />
+      </@form.element>
+      {{! MAX Value }}
+      <@form.element
+        class="col-4"
+        @controlType="number"
+        @label="Max"
+        @customError={{get @errors "parameterMax"}}
+        @property="parameterMax" as |el|
+      >
+        <el.control step={{0.001}} />
+      </@form.element>
+    </div>
+  {{/if}}
+</fieldset>

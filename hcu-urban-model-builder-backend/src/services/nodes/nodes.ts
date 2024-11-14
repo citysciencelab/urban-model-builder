@@ -10,7 +10,8 @@ import {
   nodesExternalResolver,
   nodesDataResolver,
   nodesPatchResolver,
-  nodesQueryResolver
+  nodesQueryResolver,
+  Nodes
 } from './nodes.schema.js'
 
 import type { Application } from '../../declarations.js'
@@ -18,9 +19,9 @@ import { NodesService, getOptions } from './nodes.class.js'
 import { nodesPath, nodesMethods } from './nodes.shared.js'
 import { Roles } from '../../client.js'
 import { iff, isProvider } from 'feathers-hooks-common'
-import { authenticate } from '@feathersjs/authentication'
 import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
+import { manageDefaultScenariosValues } from './hooks/manage-default-scenarios-values.js'
 import { emitRemovedForGhostChildren } from '../../hooks/nodes/emit-removed-for-ghost-children.js'
 
 export * from './nodes.class.js'
@@ -73,7 +74,8 @@ export const nodes = (app: Application) => {
       ]
     },
     after: {
-      all: []
+      all: [],
+      patch: [iff(isProvider('external'), manageDefaultScenariosValues)]
     },
     error: {
       all: []

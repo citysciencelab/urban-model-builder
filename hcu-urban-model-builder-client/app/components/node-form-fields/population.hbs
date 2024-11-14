@@ -5,9 +5,10 @@
   @onChange={{fn (mut-number @node.data.populationSize)}}
 />
 
-<@form.element
-  @controlType="text"
-  @label="Geo Units"
+<NodeFormFields::UnitsSelection
+  @form={{@form}}
+  @changeset={{@changeset}}
+  @el={{@el}}
   @property="data.geoUnits"
 />
 

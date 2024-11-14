@@ -8,8 +8,17 @@
   </NodeFormFields::Formula>
 </@form.element>
 
+<NodeFormFields::ParameterSettings
+  @form={{@form}}
+  @changeset={{@changeset}}
+  @el={{@el}}
+  @errors={{@errors}}
+  @type="numeric"
+/>
+
 <NodeFormFields::Validation
   @form={{@form}}
   @changeset={{@changeset}}
   @el={{@el}}
+  @errors={{@errors}}
 />

@@ -10,6 +10,7 @@ import type Edge from './edge';
 import { NodeType, type Nodes } from 'hcu-urban-model-builder-backend';
 import type ModelsVersion from './models-version';
 import { dasherize } from '@ember/string';
+import type ScenariosValue from './scenarios-value';
 
 export default class Node extends Model {
   [Type] = 'node' as const;
@@ -28,6 +29,11 @@ export default class Node extends Model {
 
   @attr('number') declare width: number;
 
+  @attr('boolean') declare isParameter: boolean;
+  @attr('number') declare parameterMin: number;
+  @attr('number') declare parameterMax: number;
+  @attr('number') declare parameterStep: number;
+
   @belongsTo('modelsVersion', { async: true, inverse: 'nodes' })
   declare modelsVersions: ModelsVersion;
 
@@ -45,6 +51,9 @@ export default class Node extends Model {
 
   @hasMany('node', { async: true, inverse: 'ghostParent' })
   declare ghostChildren: AsyncHasMany<Node>;
+
+  @hasMany('scenarios-value', { async: true, inverse: 'nodes' })
+  declare scenariosValues: ScenariosValue[];
 
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;
