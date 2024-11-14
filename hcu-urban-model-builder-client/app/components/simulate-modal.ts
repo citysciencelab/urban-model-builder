@@ -59,6 +59,9 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   @tracked simulationResult?: SimulationResult | null;
 
+  @tracked simulationError?: any;
+  @tracked simulationErrorNode: Node | null = null;
+
   tabNameToChartRenderFunction = {
     [TabName.TimeSeries]: this.renderTimeSeriesChart,
     [TabName.ScatterPlot]: this.renderScatterPlotChart,
@@ -80,6 +83,37 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   get simulationEndTime() {
     return this.args.model.timeStart + this.args.model.timeLength;
+  }
+
+  get hasError() {
+    return !!this.simulationError;
+  }
+
+  get inMemoryScenario(): Map<number, number> {
+    // from the store get the current default scenario
+    const defaultScenario = this.store
+      .peekAll<Scenario>('scenario')
+      .find((item) => {
+        return (
+          item.modelsVersions.id == this.args.model.id && item.isDefault == true
+        );
+      }) as Scenario;
+
+    const scenarioValues = this.store
+      .peekAll<ScenariosValue>('scenarios-value')
+      .filter((item) => {
+        return item.scenarios.id == defaultScenario.id;
+      });
+
+    const scenarioNodeValueMap = scenarioValues.reduce(
+      (acc: Map<number, number>, item: ScenariosValue) => {
+        acc.set(Number((item.nodes as any).id), Number(item.value));
+        return acc;
+      },
+      new Map(),
+    );
+
+    return scenarioNodeValueMap;
   }
 
   calculateNextAnimationCursor() {
@@ -129,46 +163,15 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     if (!this.chartContainer) {
       return;
     }
-    this.animationCursor = 0;
+    this.animationCursor = 0.01;
     await this.simulate();
     this.renderChart(this.simulationResult!);
     this.startAnimation();
   }
 
-  get inMemoryScenario(): Map<number, number> {
-    // from the store get the current default scenario
-    const defaultScenario = this.store
-      .peekAll<Scenario>('scenario')
-      .find((item) => {
-        return (
-          item.modelsVersions.id == this.args.model.id && item.isDefault == true
-        );
-      }) as Scenario;
-
-    const scenarioValues = this.store
-      .peekAll<ScenariosValue>('scenarios-value')
-      .filter((item) => {
-        return item.scenarios.id == defaultScenario.id;
-      });
-
-    const scenarioNodeValueMap = scenarioValues.reduce(
-      (acc: Map<number, number>, item: ScenariosValue) => {
-        acc.set(Number((item.nodes as any).id), Number(item.value));
-        return acc;
-      },
-      new Map(),
-    );
-
-    return scenarioNodeValueMap;
-  }
-
   @action
   async didInsertChartContainer(element: any) {
-    console.log('didInsertChartContainer');
-
     await this.simulate();
-
-    console.log('simulationResult', this.simulationResult);
 
     this.chartContainer = element;
     this.chart = echarts.init(this.chartContainer, null, {
@@ -176,28 +179,40 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       width: 'auto',
     });
     await this.renderChart(this.simulationResult!);
+    this.animationCursor = 0.01;
     this.startAnimation();
   }
 
   @action
   async simulate() {
-    const nodeValuesMap = this.inMemoryScenario;
-
-    if (this.isClientSideCalculation) {
-      console.log('simulate client side', nodeValuesMap);
-
-      this.simulationResult = await new SimulationAdapter(
-        this.feathers.app,
-        Number(this.args.model.id),
-        nodeValuesMap,
-      ).simulate();
-    } else {
-      this.simulationResult = await this.feathers.app
-        .service('models')
-        .simulate({
-          id: Number(this.args.model.id!),
-          nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
-        });
+    try {
+      const nodeValuesMap = this.inMemoryScenario;
+      if (this.isClientSideCalculation) {
+        this.simulationResult = await new SimulationAdapter(
+          this.feathers.app,
+          Number(this.args.model.id),
+          nodeValuesMap,
+        ).simulate();
+      } else {
+        this.simulationResult = await this.feathers.app
+          .service('models')
+          .simulate({
+            id: Number(this.args.model.id!),
+            nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
+          });
+      }
+      this.simulationError = undefined;
+    } catch (e: any) {
+      if (e.name === 'SimulationError') {
+        this.simulationError = e;
+        if (e.data.nodeId) {
+          this.simulationErrorNode = this.store.peekRecord<Node>(
+            'node',
+            e.data.nodeId,
+          );
+        }
+      }
+      throw e;
     }
   }
 
