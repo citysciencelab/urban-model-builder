@@ -13,4 +13,4 @@ EXPOSE 3030
 VOLUME [ "/app/data", "/app/node_modules" ]
 
 # Start the app
-CMD [ "npm", "start:production" ]
+CMD [ "npm", "run", "start:production" ]
