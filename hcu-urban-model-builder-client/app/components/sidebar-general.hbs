@@ -88,14 +88,11 @@
                       <BsAlert
                         @type="warning"
                         @visible={{
-                          not-eq
-                          0
-                          (mod
-                            (div
-                              (sub scenarioValue.value node.parameterMin)
-                              node.parameterStep
-                            )
-                            1
+                          not
+                          (check-step-in-range
+                            node.parameterMin
+                            node.parameterStep
+                            scenarioValue.value
                           )
                         }}
                         @dismissible={{false}}
