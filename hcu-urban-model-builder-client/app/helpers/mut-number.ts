@@ -20,7 +20,9 @@ export default setInternalHelperManager(({ positional }) => {
 
   const update = invokableRef.update;
   invokableRef.update = (input: number) => {
-    update(Number(input));
+    if (input) {
+      update(Number(input));
+    }
   };
 
   return invokableRef;
