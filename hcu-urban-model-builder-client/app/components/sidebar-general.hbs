@@ -25,6 +25,17 @@
           </h3>
         </div>
         <div class="sidebar__content">
+          {{#if modelVersion.model.description}}
+            <div class="">
+              <strong>
+                Description:
+              </strong>
+              <br />
+              {{modelVersion.model.description}}
+            </div>
+            <hr />
+          {{/if}}
+          {{! SCENARIO ERROR }}
           {{! ERROR }}
           <BsAlert @type="danger" @visible={{isError}}>
             <strong>
