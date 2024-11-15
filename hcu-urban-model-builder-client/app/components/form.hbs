@@ -31,6 +31,14 @@
           @customError={{get this.errors "name"}}
         />
 
+        <form.element
+          @controlType="textarea"
+          @label="Description"
+          @placeholder="Description"
+          @property="description"
+          @customError={{get this.errors "description"}}
+        />
+
         {{#if this.nodeFormFieldsComponent}}
           <this.nodeFormFieldsComponent
             @form={{form}}

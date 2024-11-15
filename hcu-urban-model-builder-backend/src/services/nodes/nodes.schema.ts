@@ -96,6 +96,7 @@ export const nodesSchema = Type.Object(
     modelsVersionsId: Type.Number(),
     type: Type.Enum(NodeType),
     name: Nullable(Type.String()),
+    description: Nullable(Type.String()),
     data: Type.Intersect([
       variableNodeSchema,
       stockNodeSchema,
@@ -134,6 +135,7 @@ export const nodesDataSchema = Type.Pick(
     'modelsVersionsId',
     'type',
     'name',
+    'description',
     'position',
     'data',
     'height',

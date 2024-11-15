@@ -20,6 +20,7 @@ export default class Node extends Model {
   @attr('number') declare type: NodeType;
 
   @attr('string') declare name: string;
+  @attr('string') declare description: string;
 
   @attr() declare data: Nodes['data'];
 
