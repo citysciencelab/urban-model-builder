@@ -122,8 +122,10 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   }
 
   startAnimation() {
-    this.isPlaying = true;
-    requestAnimationFrame(this.animateChart.bind(this));
+    if (!this.isPlaying) {
+      this.isPlaying = true;
+      requestAnimationFrame(this.animateChart.bind(this));
+    }
   }
 
   animateChart() {
