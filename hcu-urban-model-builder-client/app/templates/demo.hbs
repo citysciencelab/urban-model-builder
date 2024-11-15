@@ -1,0 +1,30 @@
+{{page-title "Demo"}}
+
+<div id="navbar-secondary"></div>
+{{#in-element this.navbar}}
+  {{! Button: Settings }}
+  <BsButton
+    @type="light"
+    @size="sm"
+    @onClick={{fn (mut this.showSettingsModal) true}} as |button|
+  >
+    <FaIcon @icon="cog" />
+    Settings
+  </BsButton>
+  {{! Button: Simulate }}
+  <BsButton
+    @type="primary"
+    @size="sm"
+    @onClick={{fn (mut this.showSimulateModal) true}}
+  >
+    Simulate
+  </BsButton>
+{{/in-element}}
+
+<ReactWrapper @model={{this.model}} />
+
+<SimulateModal
+  @model={{this.model}}
+  @show={{this.showSimulateModal}}
+  @onHide={{fn (mut this.showSimulateModal) false}}
+/>

@@ -13,8 +13,20 @@ import { service } from '@ember/service';
 import type Store from '@ember-data/store';
 import type StoreEventEmitterService from './store-event-emitter';
 import type { DataModelsNames } from './store-event-emitter';
-import type { HookContext } from '@feathersjs/feathers';
+import { feathers, type HookContext } from '@feathersjs/feathers';
 import ENV from 'hcu-urban-model-builder-client/config/environment';
+import { MemoryService } from '@feathersjs/memory';
+import type Route from '@ember/routing/route';
+import type RouterService from '@ember/routing/router-service';
+
+class NodesMemoryService extends MemoryService<any, any> { }
+class EdgesMemoryService extends MemoryService<any, any> { }
+class ModelVersionsMemoryService extends MemoryService<any, any> { }
+
+const defaultPaginate = {
+  default: 1000,
+  max: 1000,
+};
 
 export default class FeathersService extends Service {
   app: ClientApplication;
@@ -22,6 +34,11 @@ export default class FeathersService extends Service {
   @service() declare store: Store;
   @service() declare storeEventEmitter: StoreEventEmitterService;
   @service() declare session: any;
+  @service declare router: RouterService;
+
+  get isDemoMode() {
+    return this.router.currentRouteName?.startsWith('demo');
+  }
 
   constructor(owner?: Owner) {
     super(owner);
@@ -33,28 +50,86 @@ export default class FeathersService extends Service {
       }),
     );
 
-    this.app = createClient(socket, {
-      jwtStrategy: 'oidc',
-      storage: window.localStorage,
-    });
+    this.app = feathers();
 
-    const jwt = this.session.data.authenticated.access_token;
-    this.app
-      .authenticate({
-        strategy: 'oidc',
-        accessToken: jwt,
-        updateEntity: true,
-      })
-      .then((data: any) => {
-        this.session.set('data.authenticated.userinfo.id', data.user.id);
-        // Update local storage for re-connection.
-        window.localStorage.setItem('feathers-jwt', jwt);
-      })
-      .catch((e) => {
-        console.error('Authentication error', e);
-      });
+    // this.app = createClient(socket, {
+    //   jwtStrategy: 'oidc',
+    //   storage: window.localStorage,
+    // });
+
+    // const jwt = this.session.data.authenticated.access_token;
+    // this.app
+    //   .authenticate({
+    //     strategy: 'oidc',
+    //     accessToken: jwt,
+    //     updateEntity: true,
+    //   })
+    //   .then((data: any) => {
+    //     this.session.set('data.authenticated.userinfo.id', data.user.id);
+    //     // Update local storage for re-connection.
+    //     window.localStorage.setItem('feathers-jwt', jwt);
+    //   })
+    //   .catch((e) => {
+    //     console.error('Authentication error', e);
+    //   });
+
+    this.app.use(
+      'nodes',
+      new NodesMemoryService({ paginate: defaultPaginate, startId: 1 }) as any,
+    );
+    this.app.use(
+      'edges',
+      new EdgesMemoryService({ paginate: defaultPaginate, startId: 1 }) as any,
+    );
+    this.app.use(
+      'models-versions',
+      new ModelVersionsMemoryService({
+        paginate: defaultPaginate,
+        startId: 1,
+      }) as any,
+    );
 
     this.app.hooks({
+      before: {
+        all: [
+          async (context: HookContext) => {
+            console.log(
+              'before all',
+              context.path,
+              context.method,
+              context.type,
+              context.data,
+              context.params,
+            );
+          },
+        ],
+        create: [
+          async (context: HookContext) => {
+            context.data.createdAt = new Date().toISOString();
+            context.data.updatedAt = new Date().toISOString();
+          },
+        ],
+        patch: [
+          async (context: HookContext) => {
+            context.data.updatedAt = new Date().toISOString();
+          },
+        ],
+      },
+      after: {
+        all: [
+          async (context: HookContext) => {
+            console.log(
+              'before all',
+              context.path,
+              context.method,
+              context.type,
+              context.params,
+              context.result,
+              context.service.store,
+            );
+          },
+        ],
+      },
       error: {
         all: [
           async (context: HookContext) => {
@@ -71,7 +146,7 @@ export default class FeathersService extends Service {
       },
     });
 
-    this.registerEventListeners();
+    // this.registerEventListeners();
   }
 
   registerEventListeners() {
@@ -100,6 +175,8 @@ export default class FeathersService extends Service {
     record: { id: number | string; updatedAt: Date },
   ) {
     const recordInStore: any = this.store.peekRecord(modelName, record.id);
+    console.log('recordInStore', recordInStore.updatedAt instanceof Date);
+
     if (
       !recordInStore ||
       new Date(record.updatedAt).getTime() > recordInStore.updatedAt.getTime()
