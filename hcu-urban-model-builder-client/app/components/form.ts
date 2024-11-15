@@ -142,6 +142,10 @@ export default class FormComponent extends Component<FormSignature> {
     return this._errors;
   }
 
+  get hasErrors() {
+    return Object.keys(this.errors).length > 0;
+  }
+
   validate() {
     let hasError = false;
     this._errors = {};

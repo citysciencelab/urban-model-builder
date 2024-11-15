@@ -10,6 +10,13 @@
       {{did-insert this.initialize}}
       {{did-update this.initialize @record}}
     >
+      <BsAlert
+        @type="danger"
+        @dismissible={{false}}
+        @visible={{this.hasErrors}}
+      >
+        There is an error in the form. Please fix it to save.
+      </BsAlert>
       {{#if this.isGhostNode}}
         <div class="alert alert-warning">
           👻 {{t "forms.node.ghost_warning"}}
