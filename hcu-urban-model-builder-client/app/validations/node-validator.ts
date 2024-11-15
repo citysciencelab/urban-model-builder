@@ -64,10 +64,10 @@ const validatData = () => {
     }
     // check if content.data.constraints.min exists and is a number
     const minIsNumber =
-      content.data.constraints.min &&
+      typeof content.data.constraints.min != 'undefined' &&
       typeof content.data.constraints.min === 'number';
     const maxIsNumber =
-      content.data.constraints.max &&
+      typeof content.data.constraints.max != 'undefined' &&
       typeof content.data.constraints.max === 'number';
     if (minIsNumber && maxIsNumber) {
       if (
