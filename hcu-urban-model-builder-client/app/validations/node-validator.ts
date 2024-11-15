@@ -37,10 +37,13 @@ const validateStep = () => {
     if (!content.isParameter) {
       return true;
     }
+    const step = Number(newValue);
+    if (step <= 0) {
+      return 'Step must be greater than 0';
+    }
     // min + step must not be larger than max
     const min = Number(content.parameterMin);
     const max = Number(content.parameterMax);
-    const step = Number(newValue);
     if (min + step > max) {
       // TODO: i18n
       return "Min value + step can't be greater than max value";
