@@ -38,7 +38,7 @@ const validateStep = () => {
       return true;
     }
     const step = Number(newValue);
-    if (step <= 0) {
+    if (step && step <= 0) {
       return 'Step must be greater than 0';
     }
     // min + step must not be larger than max

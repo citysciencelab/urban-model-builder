@@ -1,10 +1,13 @@
 <@form.element
   @controlType="textarea"
   @label="Start Active"
+  @helpText={{
+    if @changeset.isParameter "Currently controlled as scenario parameter"
+  }}
   @property="data.startActive" as |el|
 >
   <NodeFormFields::Formula @form={{@form}} @node={{@node}} @el={{el}}>
-    <el.control class="code-textarea" />
+    <el.control class="code-textarea" disabled={{@changeset.isParameter}} />
   </NodeFormFields::Formula>
 </@form.element>
 
