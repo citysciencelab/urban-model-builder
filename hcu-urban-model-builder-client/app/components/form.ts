@@ -17,6 +17,7 @@ export interface FormSignature {
   // The arguments accepted by the component
   Args: {
     record: Node | Edge;
+    close: () => void;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -122,6 +123,18 @@ export default class FormComponent extends Component<FormSignature> {
   onIsDirtyChanged() {
     if (this.isDirty) {
       this.saveTask.perform();
+    }
+  }
+
+  @action
+  deleteNode() {
+    if (this.record instanceof Node) {
+      const yesNo = confirm('Are you sure you want to delete this node?');
+      if (yesNo) {
+        this.record.deleteRecord();
+        this.record.save();
+        this.args.close();
+      }
     }
   }
 

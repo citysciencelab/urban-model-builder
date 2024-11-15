@@ -16,6 +16,7 @@
           <Form
             @record={{this.selectedSingleItem}}
             @disabled={{not @model.canEdit}}
+            @close={{this.closeForm}}
           />
         {{/if}}
       {{/animated-if}}

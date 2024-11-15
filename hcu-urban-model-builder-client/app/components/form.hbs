@@ -35,6 +35,17 @@
 
         <div {{did-update this.onIsDirtyChanged this.isDirty}}></div>
       </BsForm>
+      {{! DELETE Button }}
+      <div class="node__delete-button-wrapper">
+        <button
+          type="button"
+          class="btn btn-danger"
+          disabled={{@disabled}}
+          {{on "click" this.deleteNode}}
+        >
+          Delete
+        </button>
+      </div>
     </div>
   </div>
 {{/if}}
