@@ -47,7 +47,7 @@ app.hooks({
     all: [logError]
   },
   before: {
-    all: [iff((context) => context.path !== 'authentication', authenticate('oidc'))],
+    all: [iff((context) => !['authentication', 'ogcapi/processes'].includes(context.path), authenticate('oidc'))],
     create: [
       (context) => {
         delete context.data.createdAt

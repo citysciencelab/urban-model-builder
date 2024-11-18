@@ -7,6 +7,12 @@ const authenticationClient =
   authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { processesClient } from './services/ogcapi/processes/processes.shared.js'
+export type {
+  Processes,
+  ProcessesQuery,
+} from './services/ogcapi/processes/processes.shared.js'
+
 import { scenarioValuesClient } from './services/scenarios-values/scenarios-values.shared.js'
 export type {
   ScenarioValues,
@@ -57,7 +63,7 @@ export interface Configuration {
   connection: TransportConnection<ServiceTypes>
 }
 
-export interface ServiceTypes {}
+export interface ServiceTypes { }
 
 export type ClientApplication = Application<ServiceTypes, Configuration>
 
@@ -77,7 +83,7 @@ export enum Roles {
  * @see https://dove.feathersjs.com/api/client.html
  * @returns The Feathers client application
  */
-export const createClient = <Configuration = any>(
+export const createClient = <Configuration = any,>(
   connection: TransportConnection<ServiceTypes>,
   authenticationOptions: Partial<AuthenticationClientOptions> = {}
 ) => {
@@ -95,6 +101,7 @@ export const createClient = <Configuration = any>(
   client.configure(modelsUsersClient)
   client.configure(scenariosClient)
   client.configure(scenarioValuesClient)
+  client.configure(processesClient)
   return client
 }
 

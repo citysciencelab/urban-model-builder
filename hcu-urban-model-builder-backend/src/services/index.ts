@@ -1,3 +1,4 @@
+import { processes } from './ogcapi/processes/processes.js'
 import { scenarioValues } from './scenarios-values/scenarios-values.js'
 import { scenarios } from './scenarios/scenarios.js'
 import { modelsUsers } from './models-users/models-users.js'
@@ -19,6 +20,8 @@ export const services = (app: Application) => {
   app.configure(models)
   app.configure(edges)
   app.configure(nodes)
+  app.configure(processes)
+
   // All services will be registered here
 
   if (process.env.NODE_ENV !== 'test') {
