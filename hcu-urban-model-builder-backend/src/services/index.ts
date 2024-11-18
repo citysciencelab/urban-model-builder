@@ -1,3 +1,4 @@
+import { jobs } from './ogcapi/jobs/jobs.js'
 import { processes } from './ogcapi/processes/processes.js'
 import { scenarioValues } from './scenarios-values/scenarios-values.js'
 import { scenarios } from './scenarios/scenarios.js'
@@ -12,6 +13,8 @@ import type { Application } from '../declarations.js'
 import { touchParent } from '../utils/touch-parent.js'
 
 export const services = (app: Application) => {
+  app.configure(jobs)
+  app.configure(processes)
   app.configure(scenarioValues)
   app.configure(scenarios)
   app.configure(modelsUsers)
@@ -20,7 +23,6 @@ export const services = (app: Application) => {
   app.configure(models)
   app.configure(edges)
   app.configure(nodes)
-  app.configure(processes)
 
   // All services will be registered here
 

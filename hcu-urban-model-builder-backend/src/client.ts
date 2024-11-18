@@ -7,11 +7,11 @@ const authenticationClient =
   authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { jobsClient } from './services/ogcapi/jobs/jobs.shared.js'
+export type { Jobs, JobsQuery } from './services/ogcapi/jobs/jobs.shared.js'
+
 import { processesClient } from './services/ogcapi/processes/processes.shared.js'
-export type {
-  Processes,
-  ProcessesQuery,
-} from './services/ogcapi/processes/processes.shared.js'
+export type { Processes, ProcessesQuery } from './services/ogcapi/processes/processes.shared.js'
 
 import { scenarioValuesClient } from './services/scenarios-values/scenarios-values.shared.js'
 export type {
@@ -102,6 +102,7 @@ export const createClient = <Configuration = any,>(
   client.configure(scenariosClient)
   client.configure(scenarioValuesClient)
   client.configure(processesClient)
+  client.configure(jobsClient)
   return client
 }
 
