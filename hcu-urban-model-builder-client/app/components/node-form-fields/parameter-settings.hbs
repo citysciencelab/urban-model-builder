@@ -6,7 +6,7 @@
   <@form.element
     @controlType="switch"
     @label="Is Parameter?"
-    @onChange={{fn this.toggleParameter}}
+    @onChange={{this.toggleParameter}}
     @property="isParameter" as |el|
   >
     <el.control />

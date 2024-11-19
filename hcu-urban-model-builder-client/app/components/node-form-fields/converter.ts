@@ -102,7 +102,7 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
     this.chart.setOption({
       grid: {
         top: 5,
-        bottom: 32
+        bottom: 32,
       },
       xAxis: {
         type: 'value',
