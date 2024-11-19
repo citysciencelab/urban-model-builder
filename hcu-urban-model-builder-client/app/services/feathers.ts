@@ -1,9 +1,6 @@
 import type Owner from '@ember/owner';
 import Service from '@ember/service';
-import socketio from '@feathersjs/socketio-client';
-import io from 'socket.io-client';
 import {
-  createClient,
   type ClientApplication,
   type ServiceTypes,
 } from 'hcu-urban-model-builder-backend';
@@ -13,11 +10,10 @@ import { service } from '@ember/service';
 import type Store from '@ember-data/store';
 import type StoreEventEmitterService from './store-event-emitter';
 import type { DataModelsNames } from './store-event-emitter';
-import type { HookContext } from '@feathersjs/feathers';
-import ENV from 'hcu-urban-model-builder-client/config/environment';
-
+import createDefaultFeathersApp from 'hcu-urban-model-builder-client/utils/create-default-feathers-app';
+import { createDemoFeathersApp } from 'hcu-urban-model-builder-client/utils/create-demo-feathers-app';
 export default class FeathersService extends Service {
-  app: ClientApplication;
+  declare app: ClientApplication;
 
   @service() declare store: Store;
   @service() declare storeEventEmitter: StoreEventEmitterService;
@@ -25,19 +21,25 @@ export default class FeathersService extends Service {
 
   constructor(owner?: Owner) {
     super(owner);
-    const socket = socketio(
-      io(ENV.apiURL, {
-        transports: ['websocket'],
-        timeout: 5000,
-        ackTimeout: 10000,
-      }),
-    );
 
-    this.app = createClient(socket, {
-      jwtStrategy: 'oidc',
-      storage: window.localStorage,
-    });
+    this.createDefaultApp();
+  }
 
+  enableDemoMode() {
+    this.unregisterEventListeners();
+    this.app = createDemoFeathersApp();
+  }
+
+  disableDemoMode() {
+    this.createDefaultApp();
+  }
+
+  createDefaultApp() {
+    this.app = createDefaultFeathersApp(this.session);
+    this.registerEventListeners();
+  }
+
+  authenticate() {
     const jwt = this.session.data.authenticated.access_token;
     this.app
       .authenticate({
@@ -53,28 +55,9 @@ export default class FeathersService extends Service {
       .catch((e) => {
         console.error('Authentication error', e);
       });
-
-    this.app.hooks({
-      error: {
-        all: [
-          async (context: HookContext) => {
-            console.error('Error in hook', context.error);
-            if (
-              ['TokenExpiredError', 'NotAuthenticated'].includes(
-                context.error.name,
-              )
-            ) {
-              await this.session.invalidate();
-            }
-          },
-        ],
-      },
-    });
-
-    this.registerEventListeners();
   }
 
-  registerEventListeners() {
+  private registerEventListeners() {
     for (const serviceName of Object.keys(this.app.services)) {
       const service = this.app.service(serviceName as keyof ServiceTypes);
       const modelName = this.getModelNameByServiceName(serviceName);
@@ -84,7 +67,19 @@ export default class FeathersService extends Service {
     }
   }
 
-  onCreated(modelName: DataModelsNames, record: { id: number | string }) {
+  private unregisterEventListeners() {
+    for (const serviceName of Object.keys(this.app.services)) {
+      const service = this.app.service(serviceName as keyof ServiceTypes);
+      service.removeListener('created', this.onCreated);
+      service.removeListener('patched', this.onPatched);
+      service.removeListener('removed', this.onRemoved);
+    }
+  }
+
+  private onCreated(
+    modelName: DataModelsNames,
+    record: { id: number | string },
+  ) {
     const recordInStore: any = this.store.peekRecord(modelName, record.id);
 
     if (!recordInStore) {
@@ -95,11 +90,12 @@ export default class FeathersService extends Service {
     }
   }
 
-  onPatched(
+  private onPatched(
     modelName: DataModelsNames,
     record: { id: number | string; updatedAt: Date },
   ) {
     const recordInStore: any = this.store.peekRecord(modelName, record.id);
+
     if (
       !recordInStore ||
       new Date(record.updatedAt).getTime() > recordInStore.updatedAt.getTime()
@@ -111,7 +107,10 @@ export default class FeathersService extends Service {
     }
   }
 
-  onRemoved(modelName: DataModelsNames, record: { id: number | string }) {
+  private onRemoved(
+    modelName: DataModelsNames,
+    record: { id: number | string },
+  ) {
     const recordInStore: any = this.store.peekRecord(modelName, record.id);
     if (recordInStore && !recordInStore.isDeleted) {
       recordInStore.unloadRecord();
@@ -119,12 +118,12 @@ export default class FeathersService extends Service {
     }
   }
 
-  pushRecordIntoStore(modelName: DataModelsNames, record: any) {
+  private pushRecordIntoStore(modelName: DataModelsNames, record: any) {
     const normalizedRecord = (this.store as any).normalize(modelName, record);
     return this.store.push(normalizedRecord);
   }
 
-  getServiceNameByModelName(modelName: string) {
+  private getServiceNameByModelName(modelName: string) {
     return modelName.split('/').reduce((accumulator, currentValue, index) => {
       const separator = index === 0 ? '' : '/';
       const dasherized = dasherize(currentValue);
@@ -132,7 +131,7 @@ export default class FeathersService extends Service {
     }, '') as any;
   }
 
-  getModelNameByServiceName(serviceName: string) {
+  private getModelNameByServiceName(serviceName: string) {
     return serviceName.split('/').reduce((accumulator, currentValue, index) => {
       const separator = index === 0 ? '' : '/';
       return `${accumulator}${separator}${singularize(currentValue)}`;

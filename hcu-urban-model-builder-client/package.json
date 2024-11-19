@@ -127,6 +127,7 @@
   "dependencies": {
     "@feathersjs/authentication-client": "^5.0.30",
     "@feathersjs/feathers": "^5.0.29",
+    "@feathersjs/memory": "^5.0.31",
     "@feathersjs/socketio-client": "^5.0.29",
     "@sinclair/typebox": "^0.33.21",
     "@xyflow/react": "^12.3.0",

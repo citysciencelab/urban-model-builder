@@ -2,6 +2,7 @@ import type { Snapshot } from '@ember-data/legacy-compat/-private';
 import JSONSerializer from '@ember-data/serializer/json';
 import type Store from '@ember-data/store';
 import type { ModelSchema } from '@ember-data/store/types';
+import isNone from '@ember/utils/lib/is_none';
 import type { Paginated } from '@feathersjs/feathers';
 import type {
   SingleResourceDocument,
@@ -38,6 +39,7 @@ export default class ApplicationSerializer extends JSONSerializer {
     }
 
     const ret = items.map((item) => {
+      item.id = String(item.id);
       const { data, included } = this.normalize(primaryModelClass, item);
       if (included) {
         documentHash.included.push(...included);
@@ -81,7 +83,7 @@ export default class ApplicationSerializer extends JSONSerializer {
       }
 
       //Need to check whether the id is there for new&async records
-      if (!belongsToId) {
+      if (isNone(belongsToId)) {
         json[payloadKey] = null;
       } else {
         json[payloadKey] = Number(belongsToId);
