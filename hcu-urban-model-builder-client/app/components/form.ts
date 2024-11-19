@@ -7,11 +7,9 @@ import { importSync } from '@embroider/macros';
 import { ensureSafeComponent } from '@embroider/util';
 import { dasherize } from '@ember/string';
 import { tracked } from '@glimmer/tracking';
-import { Value } from '@sinclair/typebox/value';
-import { task, timeout } from 'ember-concurrency';
-import { deepTracked } from 'ember-deep-tracked';
 import lookupValidator from 'ember-changeset-validations';
 import nodeValidator from 'hcu-urban-model-builder-client/validations/node-validator';
+import { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
 
 export interface FormSignature {
   // The arguments accepted by the component
@@ -26,18 +24,13 @@ export interface FormSignature {
   Element: null;
 }
 
-type Errors = {
-  [key: string]: string;
-};
-
 export default class FormComponent extends Component<FormSignature> {
-  readonly DEBOUNCE_MS = 250;
+  private readonly DEBOUNCE_MS = 250;
 
   @tracked changesetBeforeHash: bigint | null = null;
   @tracked record: Node | Edge | null = null;
-  @tracked changeset: Node | Edge | null = null;
+  @tracked trackedChangeset: TrackedChangeset<Edge | Node> | null = null;
   @tracked isGhostNode = false;
-  @tracked _errors: Errors = {};
 
   validator = lookupValidator(nodeValidator);
 
@@ -79,21 +72,26 @@ export default class FormComponent extends Component<FormSignature> {
     }
   }
 
+  get changeset() {
+    return this.trackedChangeset?.data ?? null;
+  }
+
   get isDirty() {
-    if (!this.changeset) {
+    if (!this.trackedChangeset) {
       return false;
     }
 
-    return this.changesetBeforeHash !== Value.Hash(this.changeset);
+    return this.trackedChangeset.isDirty;
+  }
+
+  get errors() {
+    return this.trackedChangeset?._errors;
   }
 
   @action
   async initialize() {
     this.record = await this.getRecord();
-
-    this.changeset = this.createChangeset(this.record!);
-
-    this.changesetBeforeHash = Value.Hash({ ...this.changeset });
+    this.trackedChangeset = new TrackedChangeset(this.record!, this.validator);
   }
 
   async getRecord() {
@@ -109,77 +107,10 @@ export default class FormComponent extends Component<FormSignature> {
     }
   }
 
-  createChangeset(record: Record<string, any>) {
-    const attrData: any = {};
-    for (const [attrKey] of Node.attributes) {
-      attrData[attrKey] = record[attrKey];
-    }
-
-    return deepTracked(Value.Clone(attrData));
-  }
-
   @action
   onIsDirtyChanged() {
-    if (this.isDirty) {
-      this.saveTask.perform();
+    if (this.trackedChangeset?.isDirty) {
+      this.trackedChangeset.saveTask.perform();
     }
   }
-
-  get errors() {
-    return this._errors;
-  }
-
-  validate() {
-    let hasError = false;
-    this._errors = {};
-    for (const [key, value] of Object.entries(this.changeset)) {
-      const msg = this.validator({
-        key: key,
-        newValue: value,
-        oldValue: (this.record as any)[key],
-        changes: {}, // TODO: implement changes
-        content: this.changeset,
-      });
-      if (msg != true) {
-        hasError = true;
-        for (const error of msg) {
-          if (typeof error === 'string') {
-            this._errors = { ...this._errors, [key]: error };
-          } else if (typeof error === 'object') {
-            this._errors = { ...this._errors, [key]: error };
-          } else {
-            throw new Error('Unexpected return value from validation');
-          }
-        }
-      }
-    }
-    return hasError;
-  }
-
-  saveTask = task({ restartable: true }, async () => {
-    const hasError = this.validate();
-
-    if (hasError) {
-      return;
-    }
-
-    if (!this.isDirty) {
-      return;
-    }
-
-    await timeout(this.DEBOUNCE_MS);
-
-    if (!this.isDirty) {
-      return;
-    }
-
-    await this.finalSaveTask.perform();
-  });
-
-  finalSaveTask = task({ enqueue: true }, async () => {
-    Object.assign(this.record!, Value.Clone(this.changeset));
-
-    await this.record!.save();
-    this.changesetBeforeHash = Value.Hash({ ...this.changeset });
-  });
 }
