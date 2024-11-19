@@ -54,8 +54,14 @@
         @linkClass="breadcrumbs__link"
         class="breadcrumbs"
       />
-    {{else}}
-      <div></div>
+    {{else if this.isDemoRoute}}
+      <div>
+        ⚠️
+        <strong>
+          Achtung Demo-Modus:
+        </strong>
+        Alle Änderungen werden nicht gespeichert!
+      </div>
     {{/if}}
     <div id="navbar-secondary"></div>
   </BsNavbar>

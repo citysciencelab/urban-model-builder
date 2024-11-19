@@ -10,11 +10,12 @@ export default class ApplicationController extends Controller {
   @service feathers!: FeathersService;
   @service declare router: RouterService;
 
+  get isDemoRoute() {
+    return this.router.currentRouteName?.startsWith('demo');
+  }
+
   get hasSecondaryNav() {
-    return (
-      this.session.isAuthenticated ||
-      this.router.currentRouteName?.startsWith('demo')
-    );
+    return this.session.isAuthenticated || this.isDemoRoute;
   }
 
   @action
