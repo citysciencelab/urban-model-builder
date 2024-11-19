@@ -1,9 +1,6 @@
 import type Owner from '@ember/owner';
 import Service from '@ember/service';
-import socketio from '@feathersjs/socketio-client';
-import io from 'socket.io-client';
 import {
-  createClient,
   type ClientApplication,
   type ServiceTypes,
 } from 'hcu-urban-model-builder-backend';
@@ -13,15 +10,8 @@ import { service } from '@ember/service';
 import type Store from '@ember-data/store';
 import type StoreEventEmitterService from './store-event-emitter';
 import type { DataModelsNames } from './store-event-emitter';
-import { feathers, type HookContext } from '@feathersjs/feathers';
-import ENV from 'hcu-urban-model-builder-client/config/environment';
-import { MemoryService } from '@feathersjs/memory';
-import type Route from '@ember/routing/route';
-import type RouterService from '@ember/routing/router-service';
-import { tracked } from '@glimmer/tracking';
 import createDefaultFeathersApp from 'hcu-urban-model-builder-client/utils/create-default-feathers-app';
 import { createDemoFeathersApp } from 'hcu-urban-model-builder-client/utils/create-demo-feathers-app';
-
 export default class FeathersService extends Service {
   declare app: ClientApplication;
 
@@ -47,6 +37,24 @@ export default class FeathersService extends Service {
   createDefaultApp() {
     this.app = createDefaultFeathersApp(this.session);
     this.registerEventListeners();
+  }
+
+  authenticate() {
+    const jwt = this.session.data.authenticated.access_token;
+    this.app
+      .authenticate({
+        strategy: 'oidc',
+        accessToken: jwt,
+        updateEntity: true,
+      })
+      .then((data: any) => {
+        this.session.set('data.authenticated.userinfo.id', data.user.id);
+        // Update local storage for re-connection.
+        window.localStorage.setItem('feathers-jwt', jwt);
+      })
+      .catch((e) => {
+        console.error('Authentication error', e);
+      });
   }
 
   private registerEventListeners() {
