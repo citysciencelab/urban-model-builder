@@ -205,7 +205,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     } catch (e: any) {
       if (e.name === 'SimulationError') {
         this.simulationError = e;
-        if (e.data.nodeId) {
+        if (e.data?.nodeId) {
           this.simulationErrorNode = this.store.peekRecord<Node>(
             'node',
             e.data.nodeId,
