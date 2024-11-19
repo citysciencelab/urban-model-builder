@@ -46,16 +46,20 @@
   </ul>
 </BsNavbar>
 
-{{#if this.session.isAuthenticated}}
+{{#if this.hasSecondaryNav}}
   <BsNavbar @type="dark" @backgroundColor="secondary" @fluid={{false}}>
-    <BreadcrumbsContainer
-      @itemClass="breadcrumbs__item"
-      @linkClass="breadcrumbs__link"
-      class="breadcrumbs"
-    />
+    {{#if this.session.isAuthenticated}}
+      <BreadcrumbsContainer
+        @itemClass="breadcrumbs__item"
+        @linkClass="breadcrumbs__link"
+        class="breadcrumbs"
+      />
+    {{else}}
+      <div></div>
+    {{/if}}
     <div id="navbar-secondary"></div>
   </BsNavbar>
-  <BreadcrumbsItem as |linkClass|>
+  <BreadcrumbsItem>
     {{t "general.home"}}
   </BreadcrumbsItem>
 {{/if}}

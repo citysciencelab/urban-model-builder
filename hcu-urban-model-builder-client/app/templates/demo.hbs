@@ -1,25 +1,26 @@
 {{page-title "Demo"}}
 
-<div id="navbar-secondary"></div>
-{{#in-element this.navbar}}
-  {{! Button: Settings }}
-  <BsButton
-    @type="light"
-    @size="sm"
-    @onClick={{fn (mut this.showSettingsModal) true}} as |button|
-  >
-    <FaIcon @icon="cog" />
-    Settings
-  </BsButton>
-  {{! Button: Simulate }}
-  <BsButton
-    @type="primary"
-    @size="sm"
-    @onClick={{fn (mut this.showSimulateModal) true}}
-  >
-    Simulate
-  </BsButton>
-{{/in-element}}
+{{#if this.navbar}}
+  {{#in-element this.navbar}}
+    {{! Button: Settings }}
+    <BsButton
+      @type="light"
+      @size="sm"
+      @onClick={{fn (mut this.showSettingsModal) true}}
+    >
+      <FaIcon @icon="cog" />
+      Settings
+    </BsButton>
+    {{! Button: Simulate }}
+    <BsButton
+      @type="primary"
+      @size="sm"
+      @onClick={{fn (mut this.showSimulateModal) true}}
+    >
+      Simulate
+    </BsButton>
+  {{/in-element}}
+{{/if}}
 
 <ReactWrapper @model={{this.model}} />
 
@@ -27,4 +28,10 @@
   @model={{this.model}}
   @show={{this.showSimulateModal}}
   @onHide={{fn (mut this.showSimulateModal) false}}
+/>
+
+<Model::SettingsDialog
+  @open={{this.showSettingsModal}}
+  @model={{this.model}}
+  @onClose={{this.hideSettingsDialog}}
 />
