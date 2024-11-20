@@ -11,7 +11,7 @@
   >
     <el.control />
   </@form.element>
-  {{#if (and @changeset.isParameter (eq @type "numeric"))}}
+  {{#if (and @changeset.dataProxy.isParameter (eq @type "numeric"))}}
     <div class="row">
       {{! MIN Value }}
       <@form.element

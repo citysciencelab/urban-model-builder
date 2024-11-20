@@ -27,9 +27,8 @@ export interface FormSignature {
 export default class FormComponent extends Component<FormSignature> {
   private readonly DEBOUNCE_MS = 250;
 
-  @tracked changesetBeforeHash: bigint | null = null;
   @tracked record: Node | Edge | null = null;
-  @tracked trackedChangeset: TrackedChangeset<Edge | Node> | null = null;
+  @tracked changeset: TrackedChangeset<Edge | Node> | null = null;
   @tracked isGhostNode = false;
 
   validator = lookupValidator(nodeValidator);
@@ -72,26 +71,22 @@ export default class FormComponent extends Component<FormSignature> {
     }
   }
 
-  get changeset() {
-    return this.trackedChangeset?.data ?? null;
-  }
-
   get isDirty() {
-    if (!this.trackedChangeset) {
+    if (!this.changeset) {
       return false;
     }
 
-    return this.trackedChangeset.isDirty;
+    return this.changeset.isDirty;
   }
 
   get errors() {
-    return this.trackedChangeset?._errors;
+    return this.changeset?._errors;
   }
 
   @action
   async initialize() {
     this.record = await this.getRecord();
-    this.trackedChangeset = new TrackedChangeset(this.record!, this.validator);
+    this.changeset = new TrackedChangeset(this.record!, this.validator);
   }
 
   async getRecord() {
@@ -109,8 +104,8 @@ export default class FormComponent extends Component<FormSignature> {
 
   @action
   onIsDirtyChanged() {
-    if (this.trackedChangeset?.isDirty) {
-      this.trackedChangeset.saveTask.perform();
+    if (this.changeset?.isDirty) {
+      this.changeset.saveTask.perform();
     }
   }
 }

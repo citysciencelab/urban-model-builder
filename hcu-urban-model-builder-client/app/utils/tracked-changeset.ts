@@ -11,21 +11,21 @@ export class TrackedChangeset<T extends ModelLike> {
   @tracked changesetBeforeHash: bigint | null = null;
   @tracked _errors: Record<string, string> | null = null;
 
-  #data!: T;
+  #dataProxy!: T;
   model!: T;
 
   declare validator: (args: any) => true | any;
 
+  get dataProxy() {
+    return this.#dataProxy;
+  }
+
   get isDirty() {
-    if (!this.data) {
+    if (!this.#dataProxy) {
       return false;
     }
 
-    return this.changesetBeforeHash !== Value.Hash(this.data);
-  }
-
-  get data() {
-    return this.#data;
+    return this.changesetBeforeHash !== Value.Hash(this.#dataProxy);
   }
 
   constructor(model: T, validator: any) {
@@ -33,9 +33,9 @@ export class TrackedChangeset<T extends ModelLike> {
 
     this.model = model;
 
-    this.#data = this.createChangeset(this.model!);
+    this.#dataProxy = this.createChangeset(this.model!);
 
-    this.changesetBeforeHash = Value.Hash({ ...this.data });
+    this.changesetBeforeHash = Value.Hash({ ...this.dataProxy });
 
     return this;
   }
@@ -53,13 +53,13 @@ export class TrackedChangeset<T extends ModelLike> {
   validate() {
     let hasError = false;
     this._errors = {};
-    for (const [key, value] of Object.entries(this.data!)) {
+    for (const [key, value] of Object.entries(this.dataProxy!)) {
       const msg = this.validator({
         key: key,
         newValue: value,
         oldValue: (this.model as any)[key],
         changes: {}, // TODO: implement changes
-        content: this.data,
+        content: this.dataProxy,
       });
       if (msg != true) {
         hasError = true;
@@ -98,9 +98,9 @@ export class TrackedChangeset<T extends ModelLike> {
   });
 
   private finalSaveTask = task({ enqueue: true }, async () => {
-    Object.assign(this.model!, Value.Clone(this.data));
+    Object.assign(this.model!, Value.Clone(this.#dataProxy));
 
     await this.model!.save();
-    this.changesetBeforeHash = Value.Hash({ ...this.data });
+    this.changesetBeforeHash = Value.Hash({ ...this.#dataProxy });
   });
 }
