@@ -95,10 +95,6 @@ export default class ApplicationSerializer extends JSONSerializer {
     }
   }
 
-  // serialize(snapshot: Snapshot, options: any) {
-  //   debugger
-  // }
-
   serializeAttribute(
     snapshot: Snapshot,
     json: Record<string, any>,

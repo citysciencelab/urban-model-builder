@@ -27,7 +27,7 @@ export default class FeathersService extends Service {
 
   enableDemoMode() {
     this.unregisterEventListeners();
-    this.app = createDemoFeathersApp();
+    this.app = createDemoFeathersApp() as any;
   }
 
   disableDemoMode() {
@@ -55,6 +55,14 @@ export default class FeathersService extends Service {
       .catch((e) => {
         console.error('Authentication error', e);
       });
+  }
+
+  getServiceNameByModelName(modelName: string) {
+    return modelName.split('/').reduce((accumulator, currentValue, index) => {
+      const separator = index === 0 ? '' : '/';
+      const dasherized = dasherize(currentValue);
+      return `${accumulator}${separator}${pluralize(dasherized)}`;
+    }, '') as any;
   }
 
   private registerEventListeners() {
@@ -121,14 +129,6 @@ export default class FeathersService extends Service {
   private pushRecordIntoStore(modelName: DataModelsNames, record: any) {
     const normalizedRecord = (this.store as any).normalize(modelName, record);
     return this.store.push(normalizedRecord);
-  }
-
-  private getServiceNameByModelName(modelName: string) {
-    return modelName.split('/').reduce((accumulator, currentValue, index) => {
-      const separator = index === 0 ? '' : '/';
-      const dasherized = dasherize(currentValue);
-      return `${accumulator}${separator}${pluralize(dasherized)}`;
-    }, '') as any;
   }
 
   private getModelNameByServiceName(serviceName: string) {
