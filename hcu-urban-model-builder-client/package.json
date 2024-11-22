@@ -135,7 +135,7 @@
     "echarts": "^5.5.1",
     "ember-bootstrap-power-select": "^5.0.0",
     "ember-power-select": "^8.3.1",
-    "hcu-urban-model-builder-backend": "file:../bundle/hcu-urban-model-builder-backend-1.0.0-0.tgz",
+    "hcu-urban-model-builder-backend": "file:../bundle/hcu-urban-model-builder-backend-1.0.0-1.tgz",
     "hcu-urban-model-builder-react-canvas": "file:canvas",
     "luxon": "^3.5.0",
     "react": "^18.3.1",
