@@ -175,11 +175,12 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       this.simulationErrorNode = null;
       this.currentDataset = null;
       this.isPlaying = false;
-      await this.simulate();
-
       if (this.chart) {
         this.chart.clear();
       }
+
+      await this.simulate();
+
       this.chart = echarts.init(this.chartContainer!, null, {
         height: 400,
         width: 'auto',
@@ -188,7 +189,6 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       this.currentDataset = await this.tabNameToDatasetFunction[
         this.activeTab
       ]?.(this.simulationResult!);
-      console.log('currentDataset', this.currentDataset);
 
       this.animationCursor = 0;
       this.startAnimation();
@@ -220,8 +220,6 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   startAnimation() {
     if (!this.isPlaying) {
       this.isPlaying = true;
-      console.log('startAnimation');
-
       requestAnimationFrame(this.animateChart.bind(this));
     }
   }

@@ -49,7 +49,7 @@
         </strong>
         {{this.simulationError.message}}
       </BsAlert>
-      {{#if (and this.chart (not this.hasError))}}
+      {{#if (and this.currentDataset (not this.hasError))}}
         <BsNav @type="tabs" as |nav|>
           {{#each this.tabNames as |tabName|}}
             <nav.item>
@@ -64,7 +64,7 @@
           {{/each}}
         </BsNav>
       {{/if}}
-      {{#if (and (not this.chart) (not this.simulationError))}}
+      {{#if this.simulationTask.isRunning}}
         <BsSpinner>
           {{t "actions.loading"}}
         </BsSpinner>
@@ -73,7 +73,7 @@
         class="simulate-model__chart-container"
         {{did-insert this.didInsertChartContainer}}
       ></div>
-      {{#if (and this.chart (not this.hasError))}}
+      {{#if (and this.currentDataset (not this.hasError))}}
         <div class="simulate-model__range__wrapper">
           <div class="simulate-model__range">
             <label for="time-range" class="form-label">
