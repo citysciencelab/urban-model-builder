@@ -85,7 +85,7 @@ export default class ApplicationAdapter extends Adapter {
     },
   ) {
     const query: AdapterHasManyQuery = {
-      [`${type.options.inverse}Id`]: _snapshot.id!,
+      [`${type.options.inverse}Id`]: Number(_snapshot.id!),
     };
 
     if (type.options.sortField) {

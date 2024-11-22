@@ -1,7 +1,7 @@
 #!/bin/sh
 su - modelbuilder -c "
 cd /var/www/vhosts/comodeling.city/modelbuilder/urban-model-builder
-git checkout main && git pull
+git checkout main && git restore . && git pull
 cd hcu-urban-model-builder-client && npm i && npm run build
 "
 

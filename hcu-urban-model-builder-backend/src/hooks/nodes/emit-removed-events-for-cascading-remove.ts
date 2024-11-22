@@ -1,20 +1,26 @@
 import { HookContext, NextFunction, ServiceTypes } from '../../declarations.js'
 
-export function emitRemovedForGhostChildren() {
+export function emitRemovedEventsForCascadingRemove() {
   return async (context: HookContext<ServiceTypes['nodes']>, next: NextFunction) => {
     if (context.method !== 'remove') {
       throw new Error('stashGhostChildren hook should be used on the remove method')
     }
 
-    const service = context.app.service('nodes')
+    const nodesService = context.app.service('nodes')
+    const scenariosValuesService = context.app.service('scenarios-values')
 
     if (!context.id) {
       throw new Error('stashGhostChildren hook should be used on a single node')
     }
 
-    const ghostChildNodes = await service.find({
+    const ghostChildNodes = await nodesService.find({
       query: {
         ghostParentId: context.id as number
+      }
+    })
+    const scenarioValues = await scenariosValuesService.find({
+      query: {
+        nodesId: context.id as number
       }
     })
 
@@ -22,7 +28,12 @@ export function emitRemovedForGhostChildren() {
 
     if (ghostChildNodes.total) {
       for (const ghostChildNode of ghostChildNodes.data) {
-        service.emit('removed', ghostChildNode)
+        nodesService.emit('removed', ghostChildNode)
+      }
+    }
+    if (scenarioValues.total) {
+      for (const scenarioValue of scenarioValues.data) {
+        scenariosValuesService.emit('removed', scenarioValue)
       }
     }
   }

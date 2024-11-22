@@ -22,7 +22,10 @@
           👻 {{t "forms.node.ghost_warning"}}
         </div>
       {{/if}}
-      <BsForm @model={{this.changeset}} @disabled={{@disabled}} as |form|>
+      <BsForm
+        @model={{this.changeset.dataProxy}}
+        @disabled={{@disabled}} as |form|
+      >
         <form.element
           @controlType="text"
           @label="Name"

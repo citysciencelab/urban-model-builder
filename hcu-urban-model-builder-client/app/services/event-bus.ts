@@ -29,7 +29,10 @@ export default class EventBus extends Service {
     }
     for (const callback of this.events[eventName]) {
       if (callback.fn === fn && callback.context === context) {
-        this.events[eventName].removeObject(callback);
+        this.events[eventName].splice(
+          this.events[eventName].indexOf(callback),
+          1,
+        );
       }
     }
   }

@@ -6,6 +6,7 @@ general:
   createdAt_-1: Newest First
   createdAt_1: Oldest First
   updatedAt_-1: Last Modified First
+  demo: Demo
 
 pagination:
   meta: Showing {start} - {end} of {total}
