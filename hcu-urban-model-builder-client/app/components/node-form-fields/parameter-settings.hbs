@@ -31,7 +31,7 @@
         @customError={{get @errors "parameterStep"}}
         @property="parameterStep" as |el|
       >
-        <el.control step={{0.001}} />
+        <el.control step={{0.001}} min={{0.001}} />
       </@form.element>
       {{! MAX Value }}
       <@form.element

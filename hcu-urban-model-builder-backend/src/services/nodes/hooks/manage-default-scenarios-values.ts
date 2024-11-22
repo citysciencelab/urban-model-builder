@@ -84,7 +84,7 @@ export const manageDefaultScenariosValues = async (context: HookContext) => {
      */
     const item = context.result as Nodes
 
-    if (item.isParameter) {
+    if (item.isParameter && context.method != 'remove') {
       const scenario = await getOrCreateDefaultScenario(item.modelsVersionsId)
       await createScenarioValueIfNotExists(scenario.id, item)
     } else {

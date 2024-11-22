@@ -10,6 +10,13 @@
       {{did-insert this.initialize}}
       {{did-update this.initialize @record}}
     >
+      <BsAlert
+        @type="danger"
+        @dismissible={{false}}
+        @visible={{this.hasErrors}}
+      >
+        There is an error in the form. Please fix it to save.
+      </BsAlert>
       {{#if this.isGhostNode}}
         <div class="alert alert-warning">
           👻 {{t "forms.node.ghost_warning"}}
@@ -27,6 +34,14 @@
           @customError={{get this.errors "name"}}
         />
 
+        <form.element
+          @controlType="textarea"
+          @label="Description"
+          @placeholder="Description"
+          @property="description"
+          @customError={{get this.errors "description"}}
+        />
+
         {{#if this.nodeFormFieldsComponent}}
           <this.nodeFormFieldsComponent
             @form={{form}}
@@ -38,6 +53,17 @@
 
         <div {{did-update this.onIsDirtyChanged this.isDirty}}></div>
       </BsForm>
+      {{! DELETE Button }}
+      <div class="node__delete-button-wrapper">
+        <button
+          type="button"
+          class="btn btn-danger"
+          disabled={{@disabled}}
+          {{on "click" this.deleteNode}}
+        >
+          Delete
+        </button>
+      </div>
     </div>
   </div>
 {{/if}}

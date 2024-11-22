@@ -32,6 +32,7 @@ models:
     plural: Modelle
     attributes:
       name: Name
+      description: Beschreibung
     states:
       published: Veröffentlicht
       draft: Entwurf

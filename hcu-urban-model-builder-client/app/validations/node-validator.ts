@@ -37,10 +37,13 @@ const validateStep = () => {
     if (!content.isParameter) {
       return true;
     }
+    const step = Number(newValue);
+    if (step && step <= 0) {
+      return 'Step must be greater than 0';
+    }
     // min + step must not be larger than max
     const min = Number(content.parameterMin);
     const max = Number(content.parameterMax);
-    const step = Number(newValue);
     if (min + step > max) {
       // TODO: i18n
       return "Min value + step can't be greater than max value";
@@ -61,10 +64,10 @@ const validatData = () => {
     }
     // check if content.data.constraints.min exists and is a number
     const minIsNumber =
-      content.data.constraints.min &&
+      typeof content.data.constraints.min != 'undefined' &&
       typeof content.data.constraints.min === 'number';
     const maxIsNumber =
-      content.data.constraints.max &&
+      typeof content.data.constraints.max != 'undefined' &&
       typeof content.data.constraints.max === 'number';
     if (minIsNumber && maxIsNumber) {
       if (

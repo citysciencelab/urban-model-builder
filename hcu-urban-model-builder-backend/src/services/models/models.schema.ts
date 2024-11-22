@@ -39,7 +39,7 @@ export const modelsExternalResolver = resolve<Models, HookContext<ModelsService>
 // Schema for creating new entries
 export const modelsDataSchema = Type.Pick(
   modelsSchema,
-  ['internalName', 'globalUuid', 'forkedFromVersionId', 'createdBy', 'updatedAt'],
+  ['internalName', 'description', 'globalUuid', 'forkedFromVersionId', 'createdBy', 'updatedAt'],
   {
     $id: 'ModelsData'
   }

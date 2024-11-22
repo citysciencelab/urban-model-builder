@@ -75,7 +75,8 @@ export const nodes = (app: Application) => {
     },
     after: {
       all: [],
-      patch: [iff(isProvider('external'), manageDefaultScenariosValues)]
+      patch: [iff(isProvider('external'), manageDefaultScenariosValues)],
+      remove: [iff(isProvider('external'), manageDefaultScenariosValues)]
     },
     error: {
       all: []
