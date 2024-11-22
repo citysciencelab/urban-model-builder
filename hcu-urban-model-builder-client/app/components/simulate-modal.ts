@@ -16,6 +16,7 @@ import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
 import type Scenario from 'hcu-urban-model-builder-client/models/scenario';
 import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
 import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
+import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
 
 export interface SimulateModalSignature {
   // The arguments accepted by the component
@@ -44,6 +45,7 @@ const BASE_SPEED = 20;
 export default class SimulateModalComponent extends Component<SimulateModalSignature> {
   @service declare feathers: FeathersService;
   @service declare store: Store;
+  @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare eventBus: EventBus;
   @service declare emberReactConnector: EmberReactConnectorService;
 
@@ -77,6 +79,14 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   constructor(owner: unknown, args: any) {
     super(owner, args);
     this.eventBus.on('scenario-value-changed', this.restartSimulation);
+
+    this.storeEventEmitter.on('node', 'created', this.restartSimulation);
+    this.storeEventEmitter.on('node', 'updated', this.restartSimulation);
+    this.storeEventEmitter.on('node', 'deleted', this.restartSimulation);
+
+    this.storeEventEmitter.on('edge', 'created', this.restartSimulation);
+    this.storeEventEmitter.on('edge', 'updated', this.restartSimulation);
+    this.storeEventEmitter.on('edge', 'deleted', this.restartSimulation);
   }
 
   get isAnimationFinished() {
@@ -391,5 +401,13 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   willDestroy(): void {
     super.willDestroy();
     this.eventBus.off('scenario-value-changed', this.restartSimulation);
+
+    this.storeEventEmitter.off('node', 'created', this.restartSimulation);
+    this.storeEventEmitter.off('node', 'updated', this.restartSimulation);
+    this.storeEventEmitter.off('node', 'deleted', this.restartSimulation);
+
+    this.storeEventEmitter.off('edge', 'created', this.restartSimulation);
+    this.storeEventEmitter.off('edge', 'updated', this.restartSimulation);
+    this.storeEventEmitter.off('edge', 'deleted', this.restartSimulation);
   }
 }
