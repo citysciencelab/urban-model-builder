@@ -10,16 +10,17 @@ import type { NodeType } from 'hcu-urban-model-builder-backend';
 import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type Model from '@ember-data/model';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
+import type EventBus from './event-bus';
 
 export default class EmberReactConnectorService extends Service {
   @service declare store: Store;
   @service declare storeEventEmitter: StoreEventEmitterService;
+  @service declare eventBus: EventBus;
 
   @tracked selected: (Node | Edge)[] = [];
   @tracked currentModel: ModelsVersion | null = null;
   @tracked sidebarElement: HTMLElement | null = null;
   @tracked toolbarElement: HTMLElement | null = null;
-  @tracked rfInstance: ReactFlowInstance | null = null;
   @tracked draggedNodeConfig: {
     label: string;
     className: string;
@@ -62,11 +63,21 @@ export default class EmberReactConnectorService extends Service {
     if (!record) {
       throw new Error(`Node with id ${id} not found`);
     }
+    this.selected = [record];
+    this.eventBus.emit('node:selected', record.id);
+  }
+
+  @action
+  pushSelection(type: 'node' | 'edge', id: string) {
+    const record = this.store.peekRecord<Node | Edge>(type, id);
+    if (!record) {
+      throw new Error(`Node with id ${id} not found`);
+    }
     this.selected = [...this.selected, record];
   }
 
   @action
-  unselect(type: 'node' | 'edge', id: string) {
+  removeSelection(type: 'node' | 'edge', id: string) {
     this.selected = this.selected.filter((r) => r.id !== id);
   }
 
@@ -78,11 +89,6 @@ export default class EmberReactConnectorService extends Service {
   @action
   onToolbarInserted(element: HTMLElement) {
     this.toolbarElement = element;
-  }
-
-  @action
-  setRfInstance(rfInstance: ReactFlowInstance) {
-    this.rfInstance = rfInstance;
   }
 
   private saveRecord(record: Model, rawData: any) {

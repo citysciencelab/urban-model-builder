@@ -26,7 +26,22 @@
       <BsAlert @type="danger" @visible={{this.hasError}}>
         <strong>
           {{#if this.simulationErrorNode}}
-            Error in Node [{{this.simulationErrorNode.name}}]:
+            Error in Node
+            <a
+              href="javascript:void(0)"
+              class="simulate-model__error-node__select-link"
+              {{on
+                "click"
+                (fn
+                  this.emberReactConnector.select
+                  "node"
+                  this.simulationErrorNode.id
+                )
+              }}
+            >
+              [{{this.simulationErrorNode.name}}]
+            </a>
+            :
           {{else}}
             Error:
           {{/if}}

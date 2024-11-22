@@ -15,6 +15,7 @@ import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-ver
 import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
 import type Scenario from 'hcu-urban-model-builder-client/models/scenario';
 import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
+import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
 
 export interface SimulateModalSignature {
   // The arguments accepted by the component
@@ -44,6 +45,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @service declare feathers: FeathersService;
   @service declare store: Store;
   @service declare eventBus: EventBus;
+  @service declare emberReactConnector: EmberReactConnectorService;
 
   @tracked isClientSideCalculation = true;
   @tracked activeTab: TabName = TabName.TimeSeries;

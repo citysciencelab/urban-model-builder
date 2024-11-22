@@ -48,10 +48,7 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
 
   @action
   closeForm() {
-    this.emberReactConnector.unselect(
-      'node',
-      (this.selectedSingleItem as { id: string }).id,
-    );
+    this.emberReactConnector.selected = [];
   }
 
   @action
