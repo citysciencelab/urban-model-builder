@@ -74,7 +74,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   constructor(owner: unknown, args: any) {
     super(owner, args);
-    this.eventBus.on('scenario-value-changed', this, this.restartSimulation);
+    this.eventBus.on('scenario-value-changed', this.restartSimulation);
   }
 
   get isAnimationFinished() {
@@ -161,6 +161,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     await this.restartSimulation();
   }
 
+  @action
   async restartSimulation() {
     if (!this.chartContainer) {
       return;
@@ -387,6 +388,6 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   willDestroy(): void {
     super.willDestroy();
-    this.eventBus.off('scenario-value-changed', this, this.restartSimulation);
+    this.eventBus.off('scenario-value-changed', this.restartSimulation);
   }
 }

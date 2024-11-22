@@ -1,48 +1,39 @@
+import { action } from '@ember/object';
 import Service from '@ember/service';
 
-export type TEventBusEvents = 'scenario-value-changed';
+export type TEventBusEvents =
+  | 'scenario-value-changed'
+  | 'node:selected'
+  | 'node:unselected';
 
 export default class EventBus extends Service {
-  public events: any = {};
+  public _events: Partial<
+    Record<TEventBusEvents, Set<(...args: any[]) => any>>
+  > = {};
 
-  public on(
-    eventName: TEventBusEvents,
-    context: any,
-    fn: (...args: any[]) => any,
-  ) {
-    if (!(eventName in this.events)) {
-      this.events[eventName] = [];
+  @action
+  public on(eventName: TEventBusEvents, fn: (...args: any[]) => any): void {
+    if (!(eventName in this._events)) {
+      this._events[eventName] = new Set();
     }
-    this.events[eventName].push({
-      context,
-      fn,
-    });
+    this._events[eventName]!.add(fn);
   }
 
-  public off(
-    eventName: TEventBusEvents,
-    context: any,
-    fn: (...args: any[]) => any,
-  ) {
-    if (!(eventName in this.events)) {
+  @action public off(eventName: TEventBusEvents, fn: (...args: any[]) => any) {
+    if (!(eventName in this._events)) {
       return;
     }
-    for (const callback of this.events[eventName]) {
-      if (callback.fn === fn && callback.context === context) {
-        this.events[eventName].splice(
-          this.events[eventName].indexOf(callback),
-          1,
-        );
-      }
+    if (this._events[eventName]) {
+      this._events[eventName].delete(fn);
     }
   }
 
-  public emit(eventName: TEventBusEvents, data: any) {
-    if (!(eventName in this.events)) {
+  @action public emit(eventName: TEventBusEvents, ...data: any[]) {
+    if (!this._events[eventName]) {
       return;
     }
-    for (const callback of this.events[eventName]) {
-      callback.fn.apply(callback.context, [data]);
+    for (const [callback] of this._events[eventName]!.entries()) {
+      callback(...data);
     }
   }
 }
