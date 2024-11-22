@@ -2,12 +2,17 @@
   @controlType="textarea"
   @label="Value"
   @helpText={{
-    if @changeset.isParameter "Currently controlled as scenario parameter"
+    if
+    @changeset.dataProxy.isParameter
+    "Currently controlled as scenario parameter"
   }}
   @property="data.value" as |el|
 >
   <NodeFormFields::Formula @form={{@form}} @node={{@node}} @el={{el}}>
-    <el.control class="code-textarea" disabled={{@changeset.isParameter}} />
+    <el.control
+      class="code-textarea"
+      disabled={{@changeset.dataProxy.isParameter}}
+    />
   </NodeFormFields::Formula>
 </@form.element>
 

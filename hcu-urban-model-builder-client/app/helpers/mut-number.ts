@@ -6,8 +6,8 @@ import {
 import { setInternalHelperManager } from '@glimmer/manager';
 import { assert } from '@ember/debug';
 
-type InvokableReference = Reference<number> & {
-  update: (input: number) => void;
+type InvokableReference = Reference<string | number> & {
+  update: (input: number | number) => void;
 };
 
 export default setInternalHelperManager(({ positional }) => {
@@ -19,7 +19,7 @@ export default setInternalHelperManager(({ positional }) => {
   const invokableRef = createInvokableRef(ref) as InvokableReference;
 
   const update = invokableRef.update;
-  invokableRef.update = (input: number) => {
+  invokableRef.update = (input: string | number) => {
     if (input) {
       update(Number(input));
     }

@@ -84,6 +84,10 @@ export default class FormComponent extends Component<FormSignature> {
     return this.changeset?._errors;
   }
 
+  get hasErrors() {
+    return Object.keys(this.errors || {}).length > 0;
+  }
+
   @action
   async initialize() {
     this.record = await this.getRecord();
@@ -107,6 +111,18 @@ export default class FormComponent extends Component<FormSignature> {
   onIsDirtyChanged() {
     if (this.changeset?.isDirty) {
       this.changeset.saveTask.perform();
+    }
+  }
+
+  @action
+  deleteNode() {
+    if (this.record instanceof Node) {
+      const yesNo = confirm('Are you sure you want to delete this node?');
+      if (yesNo) {
+        this.record.deleteRecord();
+        this.record.save();
+        this.args.close();
+      }
     }
   }
 }
