@@ -5,7 +5,6 @@ import {
   useEffect,
   DragEvent,
   useContext,
-  createContext,
 } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -54,7 +53,6 @@ type FlowOptions = {
   disabled?: boolean;
 };
 
-// TODO: use enum instead of string if not possible solve if more dynamically
 const nodeTypes = {
   [ReactFlowNodeType.Stock]: BaseNode,
   [ReactFlowNodeType.Variable]: BaseNode,
