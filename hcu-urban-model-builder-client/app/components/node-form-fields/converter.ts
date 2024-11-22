@@ -71,6 +71,12 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
   }
 
   @action
+  updateInterpolation(interpolation: 'Linear' | 'Discrete') {
+    this.args.changeset.dataProxy.data.interpolation = interpolation;
+    this.updateChart();
+  }
+
+  @action
   updateValue(index: number, key: 'x' | 'y', val: number | string) {
     this.args.changeset.dataProxy.data.values![index]![key] = Number(val);
     this.updateChart();
@@ -88,6 +94,7 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
         {
           data: this.chartData,
           type: 'line',
+          step: this.chartStepData,
         },
       ],
     });
@@ -115,6 +122,7 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
         {
           data: this.chartData,
           type: 'line',
+          step: this.chartStepData,
         },
       ],
     });
@@ -128,5 +136,11 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
       seriesData.push([value.x, value.y]);
     }
     return seriesData;
+  }
+
+  get chartStepData() {
+    return this.args.changeset.dataProxy.data.interpolation == 'Discrete'
+      ? 'end'
+      : undefined;
   }
 }

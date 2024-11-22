@@ -70,7 +70,7 @@
     class="button-group__full-width"
     @value={{@changeset.dataProxy.data.interpolation}}
     @type="radio"
-    @onChange={{fn (mut @changeset.dataProxy.data.interpolation)}} as |bg|
+    @onChange={{this.updateInterpolation}} as |bg|
   >
     {{#each this.interpolationOptions as |option|}}
       <bg.button @type="light" @value={{option}}>
