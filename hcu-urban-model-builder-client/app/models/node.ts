@@ -36,6 +36,7 @@ export default class Node extends Model {
   @attr('number') declare parameterMin: number;
   @attr('number') declare parameterMax: number;
   @attr('number') declare parameterStep: number;
+  @attr('boolean') declare isOutputParameter: boolean;
 
   @belongsTo('modelsVersion', { async: true, inverse: 'nodes' })
   declare modelsVersions: ModelsVersion;

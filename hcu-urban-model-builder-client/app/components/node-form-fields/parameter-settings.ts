@@ -7,6 +7,8 @@ export interface NodeFormFieldsParameterSettingsSignature {
   Args: {
     changeset: TrackedChangeset<Node>;
     type: string;
+    inputVisible: boolean;
+    outputVisible: boolean;
   };
   // Any blocks yielded by the component
   Blocks: {

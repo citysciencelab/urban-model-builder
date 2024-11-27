@@ -130,6 +130,7 @@ export const nodesSchema = Type.Object(
         )
       })
     ),
+    isOutputParameter: Type.Boolean(),
     ghostParentId: Nullable(Type.Number())
   },
   { $id: 'Nodes', additionalProperties: false }
@@ -159,6 +160,7 @@ export const nodesDataSchema = Type.Pick(
     'parameterMax',
     'parameterStep',
     'parameterOptions',
+    'isOutputParameter',
     'ghostParentId'
   ],
   {
