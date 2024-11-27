@@ -256,6 +256,9 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
           }
         });
       }
+      // manually create the change event to trigger the autosave
+      const event = new Event('change');
+      this.inputEl.dispatchEvent(event);
     }
   }
 }

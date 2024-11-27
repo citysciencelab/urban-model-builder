@@ -11,7 +11,6 @@ import type { FormModelClone, FormModelPublish } from 'global';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
 import { inject as service } from '@ember/service';
 import type ModelsUser from './models-user';
-import { TrackedAsyncData } from 'ember-async-data';
 import type UserModel from './user';
 import { Roles } from 'hcu-urban-model-builder-backend';
 
@@ -21,6 +20,7 @@ export default class ModelModel extends Model {
   @service declare feathers: FeathersService;
 
   @attr('string') declare internalName: string;
+  @attr('string') declare description: string;
 
   @attr('number', { readOnly: true })
   declare currentMajorVersion: number;

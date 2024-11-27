@@ -5,7 +5,6 @@ import {
   useEffect,
   DragEvent,
   useContext,
-  createContext,
 } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -54,7 +53,6 @@ type FlowOptions = {
   disabled?: boolean;
 };
 
-// TODO: use enum instead of string if not possible solve if more dynamically
 const nodeTypes = {
   [ReactFlowNodeType.Stock]: BaseNode,
   [ReactFlowNodeType.Variable]: BaseNode,
@@ -105,9 +103,9 @@ function Flow({
       for (const change of changes) {
         if (change.type === "select") {
           if (change.selected) {
-            nodeActions.select("node", change.id);
+            nodeActions.pushSelection("node", change.id);
           } else {
-            nodeActions.unselect("node", change.id);
+            nodeActions.removeSelection("node", change.id);
           }
         }
         if (change.type === "position" && !change.dragging) {
@@ -244,6 +242,18 @@ function Flow({
     [rfInstance],
   );
 
+  const selectNode = useCallback(
+    (selectNodeId: string) => {
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          selected: n.id === selectNodeId,
+        })),
+      );
+    },
+    [rfInstance],
+  );
+
   const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
@@ -271,18 +281,14 @@ function Flow({
   useEffect(() => {
     nodeActions.storeEventEmitter.on("node", "created", addNode);
     nodeActions.storeEventEmitter.on("node", "deleted", removeNode);
+    nodeActions.eventBus.on("node:selected", selectNode);
 
     return () => {
       nodeActions.storeEventEmitter.off("node", "created", addNode);
       nodeActions.storeEventEmitter.off("node", "deleted", removeNode);
+      nodeActions.eventBus.off("node:selected", selectNode);
     };
-  }, [addNode]);
-
-  useEffect(() => {
-    if (rfInstance) {
-      nodeActions.setRfInstance(rfInstance);
-    }
-  }, [rfInstance]);
+  }, [addNode, removeNode]);
 
   useEffect(() => {
     if (sidebarContainerRef.current) {

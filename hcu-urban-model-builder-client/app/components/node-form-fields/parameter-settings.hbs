@@ -6,12 +6,12 @@
   <@form.element
     @controlType="switch"
     @label="Is Parameter?"
-    @onChange={{fn this.toggleParameter}}
+    @onChange={{this.toggleParameter}}
     @property="isParameter" as |el|
   >
     <el.control />
   </@form.element>
-  {{#if (and @changeset.isParameter (eq @type "numeric"))}}
+  {{#if (and @changeset.dataProxy.isParameter (eq @type "numeric"))}}
     <div class="row">
       {{! MIN Value }}
       <@form.element
@@ -31,7 +31,7 @@
         @customError={{get @errors "parameterStep"}}
         @property="parameterStep" as |el|
       >
-        <el.control step={{0.001}} />
+        <el.control step={{0.001}} min={{0.001}} />
       </@form.element>
       {{! MAX Value }}
       <@form.element

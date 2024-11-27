@@ -6,6 +6,7 @@ general:
   createdAt_-1: Neuestes zuerst
   createdAt_1: Ältestes zuerst
   updatedAt_-1: Zuletzt geändert zuerst
+  demo: Demo
 
 pagination:
   meta: Zeige {start} - {end} von {total}
@@ -31,6 +32,7 @@ models:
     plural: Modelle
     attributes:
       name: Name
+      description: Beschreibung
     states:
       published: Veröffentlicht
       draft: Entwurf

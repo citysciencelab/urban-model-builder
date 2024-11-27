@@ -4,6 +4,7 @@
   @onHide={{@onHide}}
   @backdrop={{false}}
   @backdropClose={{true}}
+  @onShow={{this.onShow}}
   @size="lg" as |modal|
 >
   <modal.header>
@@ -26,14 +27,29 @@
       <BsAlert @type="danger" @visible={{this.hasError}}>
         <strong>
           {{#if this.simulationErrorNode}}
-            Error in Node [{{this.simulationErrorNode.name}}]:
+            Error in Node
+            <a
+              href="javascript:void(0)"
+              class="simulate-model__error-node__select-link"
+              {{on
+                "click"
+                (fn
+                  this.emberReactConnector.select
+                  "node"
+                  this.simulationErrorNode.id
+                )
+              }}
+            >
+              [{{this.simulationErrorNode.name}}]
+            </a>
+            :
           {{else}}
             Error:
           {{/if}}
         </strong>
         {{this.simulationError.message}}
       </BsAlert>
-      {{#if (and this.chart (not this.hasError))}}
+      {{#if (and this.currentDataset (not this.hasError))}}
         <BsNav @type="tabs" as |nav|>
           {{#each this.tabNames as |tabName|}}
             <nav.item>
@@ -48,7 +64,7 @@
           {{/each}}
         </BsNav>
       {{/if}}
-      {{#if (and (not this.chart) (not this.simulationError))}}
+      {{#if this.simulationTask.isRunning}}
         <BsSpinner>
           {{t "actions.loading"}}
         </BsSpinner>
@@ -57,7 +73,7 @@
         class="simulate-model__chart-container"
         {{did-insert this.didInsertChartContainer}}
       ></div>
-      {{#if (and this.chart (not this.hasError))}}
+      {{#if (and this.currentDataset (not this.hasError))}}
         <div class="simulate-model__range__wrapper">
           <div class="simulate-model__range">
             <label for="time-range" class="form-label">

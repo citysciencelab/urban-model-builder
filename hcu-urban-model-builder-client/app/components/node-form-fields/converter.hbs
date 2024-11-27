@@ -31,7 +31,7 @@
     <div class="col-2">
     </div>
   </div>
-  {{#each @changeset.data.values as |value i|}}
+  {{#each @changeset.dataProxy.data.values as |value i|}}
     <div class="row converter__values__row">
       <@form.element
         class="col-5"
@@ -68,9 +68,9 @@
 <@form.element @label="Interpolation">
   <BsButtonGroup
     class="button-group__full-width"
-    @value={{@changeset.data.interpolation}}
+    @value={{@changeset.dataProxy.data.interpolation}}
     @type="radio"
-    @onChange={{fn (mut @changeset.data.interpolation)}} as |bg|
+    @onChange={{this.updateInterpolation}} as |bg|
   >
     {{#each this.interpolationOptions as |option|}}
       <bg.button @type="light" @value={{option}}>

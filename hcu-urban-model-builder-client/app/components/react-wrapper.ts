@@ -47,6 +47,11 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
   }
 
   @action
+  closeForm() {
+    this.emberReactConnector.selected = [];
+  }
+
+  @action
   async didInsert(element: HTMLElement) {
     this.emberReactConnector.currentModel = this.args.model;
 

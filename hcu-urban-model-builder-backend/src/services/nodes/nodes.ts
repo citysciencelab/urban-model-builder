@@ -22,7 +22,7 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
 import { manageDefaultScenariosValues } from './hooks/manage-default-scenarios-values.js'
-import { emitRemovedForGhostChildren } from '../../hooks/nodes/emit-removed-for-ghost-children.js'
+import { emitRemovedEventsForCascadingRemove } from '../../hooks/nodes/emit-removed-events-for-cascading-remove.js'
 
 export * from './nodes.class.js'
 export * from './nodes.schema.js'
@@ -41,7 +41,7 @@ export const nodes = (app: Application) => {
   app.service(nodesPath).hooks({
     around: {
       all: [schemaHooks.resolveExternal(nodesExternalResolver), schemaHooks.resolveResult(nodesResolver)],
-      remove: [emitRemovedForGhostChildren()]
+      remove: [emitRemovedEventsForCascadingRemove()]
     },
     before: {
       all: [schemaHooks.validateQuery(nodesQueryValidator), schemaHooks.resolveQuery(nodesQueryResolver)],
@@ -75,7 +75,8 @@ export const nodes = (app: Application) => {
     },
     after: {
       all: [],
-      patch: [iff(isProvider('external'), manageDefaultScenariosValues)]
+      patch: [iff(isProvider('external'), manageDefaultScenariosValues)],
+      remove: [iff(isProvider('external'), manageDefaultScenariosValues)]
     },
     error: {
       all: []

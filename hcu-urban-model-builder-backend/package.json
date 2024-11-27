@@ -1,7 +1,7 @@
 {
   "name": "hcu-urban-model-builder-backend",
   "description": "",
-  "version": "0.0.0",
+  "version": "1.0.0-1",
   "homepage": "",
   "private": true,
   "keywords": [
@@ -49,7 +49,8 @@
     "migrate": "npm run knex -- migrate:latest",
     "migrate:make": "npm run knex -- migrate:make",
     "migrate:revert": "npm run knex migrate:down",
-    "knex": "node --enable-source-maps  --import ./ts-node.register.mjs ./node_modules/.bin/knex"
+    "knex": "node --enable-source-maps  --import ./ts-node.register.mjs ./node_modules/.bin/knex",
+    "postversion": "npm run bundle:client"
   },
   "dependencies": {
     "@feathersjs/adapter-commons": "^5.0.29",

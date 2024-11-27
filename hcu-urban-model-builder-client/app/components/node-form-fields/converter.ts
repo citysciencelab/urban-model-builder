@@ -5,12 +5,13 @@ import { TrackedAsyncData } from 'ember-async-data';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import { tracked } from '@glimmer/tracking';
 import * as echarts from 'echarts';
+import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
 
 export interface NodeFormFieldsConverterSignature {
   // The arguments accepted by the component
   Args: {
     node: Node;
-    changeset: Node;
+    changeset: TrackedChangeset<Node>;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -58,11 +59,11 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
   }
 
   @action addNewValue() {
-    if (!this.args.changeset.data.values) {
-      this.args.changeset.data.values = [{ x: 0, y: 0 }];
+    if (!this.args.changeset.dataProxy.data.values) {
+      this.args.changeset.dataProxy.data.values = [{ x: 0, y: 0 }];
     } else {
-      const len = this.args.changeset.data.values.length;
-      this.args.changeset.data.values.push({
+      const len = this.args.changeset.dataProxy.data.values.length;
+      this.args.changeset.dataProxy.data.values.push({
         x: len,
         y: len,
       });
@@ -70,14 +71,20 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
   }
 
   @action
+  updateInterpolation(interpolation: 'Linear' | 'Discrete') {
+    this.args.changeset.dataProxy.data.interpolation = interpolation;
+    this.updateChart();
+  }
+
+  @action
   updateValue(index: number, key: 'x' | 'y', val: number | string) {
-    this.args.changeset.data.values![index]![key] = Number(val);
+    this.args.changeset.dataProxy.data.values![index]![key] = Number(val);
     this.updateChart();
   }
 
   @action
   removeValue(index: number) {
-    this.args.changeset.data.values!.splice(index, 1);
+    this.args.changeset.dataProxy.data.values!.splice(index, 1);
     this.updateChart();
   }
 
@@ -87,6 +94,7 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
         {
           data: this.chartData,
           type: 'line',
+          step: this.chartStepData,
         },
       ],
     });
@@ -102,7 +110,7 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
     this.chart.setOption({
       grid: {
         top: 5,
-        bottom: 32
+        bottom: 32,
       },
       xAxis: {
         type: 'value',
@@ -114,6 +122,7 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
         {
           data: this.chartData,
           type: 'line',
+          step: this.chartStepData,
         },
       ],
     });
@@ -121,9 +130,17 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
 
   get chartData() {
     const seriesData = [];
-    for (const value of Object.values(this.args.changeset.data.values || [])) {
+    for (const value of Object.values(
+      this.args.changeset.dataProxy.data.values || [],
+    )) {
       seriesData.push([value.x, value.y]);
     }
     return seriesData;
+  }
+
+  get chartStepData() {
+    return this.args.changeset.dataProxy.data.interpolation == 'Discrete'
+      ? 'end'
+      : undefined;
   }
 }

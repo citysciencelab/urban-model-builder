@@ -269,6 +269,7 @@
       @model={{this.changeset}}
       @onSubmit={{this.submitModel}} as |form|
     >
+      {{! name }}
       <form.element
         @controlType="text"
         @label={{t "models.model.attributes.name"}}
@@ -280,6 +281,13 @@
           required
         />
       </form.element>
+      {{! description }}
+      <form.element
+        @controlType="textarea"
+        @label={{t "models.model.attributes.description"}}
+        @property="description"
+        @rows="3"
+      />
     </BsForm>
   </modal.body>
   <modal.footer>

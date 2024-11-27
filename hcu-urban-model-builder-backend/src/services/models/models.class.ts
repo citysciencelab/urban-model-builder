@@ -22,6 +22,9 @@ import { ModelsVersions, modelsVersionsDataSchema } from '../models-versions/mod
 import { nodesDataSchema } from '../nodes/nodes.schema.js'
 import { edgesDataSchema } from '../edges/edges.schema.js'
 import { isServerCall } from '../../utils/is-server-call.js'
+import { scenariosDataSchema } from '../scenarios/scenarios.schema.js'
+import { scenarioValuesDataSchema } from '../scenarios-values/scenarios-values.schema.js'
+import { Roles } from '../../client.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
@@ -212,6 +215,16 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       { user: params?.user }
     )
 
+    // create a new models-users with created = current user
+    await this.app.service('models-users').create(
+      {
+        modelId: newModel.id,
+        userId: params?.user?.id as number,
+        role: Roles.owner
+      },
+      { user: params?.user }
+    )
+
     currentModelVersion.modelId = newModel.id
     const newModelVersion = await this.cloneModelVersion(currentModelVersion, null, 0, 0, 1, params)
 
@@ -309,6 +322,52 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         },
         { user: params?.user }
       )
+    }
+
+    // clone scenarios with all scenarios-values
+    const originalScenario = await this.app.service('scenarios').find({
+      query: {
+        modelsVersionsId: currentModelVersion.id
+      },
+      user: params?.user
+    })
+
+    for (const scenario of originalScenario.data) {
+      const createScenarioData = _.pick(scenario, Object.keys(scenariosDataSchema.properties))
+
+      const newScenario = await this.app.service('scenarios').create(
+        {
+          ...createScenarioData,
+          modelsVersionsId: newDraftModelVersion.id
+        },
+        {
+          user: params?.user
+        }
+      )
+
+      const scenarioValues = await this.app.service('scenarios-values').find({
+        query: {
+          scenariosId: scenario.id
+        },
+        user: params?.user
+      })
+
+      for (const scenarioValue of scenarioValues.data) {
+        const createScenarioValueData = _.pick(
+          scenarioValue,
+          Object.keys(scenarioValuesDataSchema.properties)
+        )
+
+        await this.app.service('scenarios-values').create(
+          {
+            ...createScenarioValueData,
+            scenariosId: newScenario.id
+          },
+          {
+            user: params?.user
+          }
+        )
+      }
     }
 
     return newDraftModelVersion

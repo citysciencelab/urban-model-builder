@@ -25,15 +25,15 @@ $node-color-map: (
   "agent":
     rgba(
       $color: #574f7e,
-      $alpha: 0.2
+      $alpha: 0.2,
     ),
-  "folder": #8f8d8d71
+  "folder": #8f8d8d71,
 );
 
 $edge-color-map: (
   "flow": map.get($node-color-map, "flow"),
   "transition": #030303,
-  "agent-population": #aba3d2
+  "agent-population": #aba3d2,
 );
 
 @import "./react-canvas";
@@ -436,6 +436,10 @@ a.disabled,
   flex: 1;
 }
 
+.simulate-model__error-node__select-link {
+  text-decoration: none;
+}
+
 .btn-round {
   border-radius: 50%;
 }
@@ -590,4 +594,12 @@ fieldset {
 .button-group__full-width {
   width: 100%;
   display: flex;
+}
+
+.node__delete-button-wrapper {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
 }

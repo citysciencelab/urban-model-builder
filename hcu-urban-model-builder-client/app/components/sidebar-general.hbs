@@ -25,6 +25,17 @@
           </h3>
         </div>
         <div class="sidebar__content">
+          {{#if modelVersion.model.description}}
+            <div class="">
+              <strong>
+                Description:
+              </strong>
+              <br />
+              {{modelVersion.model.description}}
+            </div>
+            <hr />
+          {{/if}}
+          {{! SCENARIO ERROR }}
           {{! ERROR }}
           <BsAlert @type="danger" @visible={{isError}}>
             <strong>
@@ -88,14 +99,11 @@
                       <BsAlert
                         @type="warning"
                         @visible={{
-                          not-eq
-                          0
-                          (mod
-                            (div
-                              (sub scenarioValue.value node.parameterMin)
-                              node.parameterStep
-                            )
-                            1
+                          not
+                          (check-step-in-range
+                            node.parameterMin
+                            node.parameterStep
+                            scenarioValue.value
                           )
                         }}
                         @dismissible={{false}}
