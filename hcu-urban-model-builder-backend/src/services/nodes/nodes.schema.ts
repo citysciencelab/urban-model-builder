@@ -9,6 +9,7 @@ import { dataValidator, queryValidator } from '../../validators.js'
 import type { NodesService } from './nodes.class.js'
 import { Literals, Nullable } from '../../utils/schema.js'
 import { NodeType } from './nodes.shared.js'
+import { ParameterTypes } from '../../client.js'
 
 const constraintsSchema = Type.Partial(
   Type.Object({
@@ -118,6 +119,17 @@ export const nodesSchema = Type.Object(
     parameterMin: Nullable(Type.Number()),
     parameterMax: Nullable(Type.Number()),
     parameterStep: Nullable(Type.Number()),
+    parameterType: Nullable(Literals<ParameterTypes>('boolean', 'slider', 'select')),
+    parameterOptions: Nullable(
+      Type.Object({
+        data: Type.Array(
+          Type.Object({
+            value: Type.Number(),
+            label: Type.String()
+          })
+        )
+      })
+    ),
     ghostParentId: Nullable(Type.Number())
   },
   { $id: 'Nodes', additionalProperties: false }
@@ -142,9 +154,11 @@ export const nodesDataSchema = Type.Pick(
     'width',
     'parentId',
     'isParameter',
+    'parameterType',
     'parameterMin',
     'parameterMax',
     'parameterStep',
+    'parameterOptions',
     'ghostParentId'
   ],
   {

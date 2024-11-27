@@ -1,0 +1,11 @@
+<div class="form-check form-switch">
+  <label>
+    <Input
+      @type="checkbox"
+      class="form-check-input"
+      @checked={{@scenarioValue.value}}
+      {{on "change" @onChange}}
+    />
+    On
+  </label>
+</div>

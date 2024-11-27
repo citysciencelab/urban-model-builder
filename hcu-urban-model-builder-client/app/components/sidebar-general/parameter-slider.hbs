@@ -1,0 +1,63 @@
+<div class="range-input__min-max">
+  {{! Error: Out of bounds - MIN }}
+  <BsAlert
+    @type="warning"
+    @visible={{gt @min @scenarioValue.value}}
+    @dismissible={{false}}
+  >
+    <strong>
+      Warning:
+    </strong>
+    The current value is below the minimum value.
+  </BsAlert>
+  {{! Error: Out of bounds - Max }}
+  <BsAlert
+    @type="warning"
+    @visible={{lt @max @scenarioValue.value}}
+    @dismissible={{false}}
+  >
+    <strong>
+      Warning:
+    </strong>
+    The current value is above the maximum value.
+  </BsAlert>
+  {{! Error: Step size issue }}
+  <BsAlert
+    @type="warning"
+    @visible={{not (check-step-in-range @min @step @scenarioValue.value)}}
+    @dismissible={{false}}
+  >
+    <strong>
+      Warning:
+    </strong>
+    The current value is not a multiple of the step size.
+  </BsAlert>
+  {{! Slider }}
+  <div class="range-input__min-max__control">
+    <Input
+      @type="range"
+      @value={{@scenarioValue.value}}
+      min={{@min}}
+      max={{@max}}
+      step={{or @step 1}}
+      {{on "change" @onChange}}
+    />
+  </div>
+  {{! Slider-Meta: Min, Value, Max, Units }}
+  <div class="range-input__min_max__meta">
+    <div class="range-input__min_max__meta__min">
+      {{@min}}
+    </div>
+    <div class="range-input__min_max__meta__value">
+      {{@scenarioValue.value}}
+    </div>
+    <div class="range-input__min_max__meta__max">
+      {{@max}}
+    </div>
+    {{#if @units}}
+      <div class="range-input__min_max__meta__unit">
+        {{@units}}
+      </div>
+    {{/if}}
+  </div>
+</div>

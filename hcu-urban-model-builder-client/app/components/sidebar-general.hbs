@@ -52,103 +52,42 @@
                     {{node.name}}
                   </h5>
 
-                  {{#if (eq node.type 4)}}
-                    <div class="form-check form-switch">
-                      <label>
-                        <Input
-                          @type="checkbox"
-                          class="form-check-input"
-                          @checked={{scenarioValue.value}}
-                          {{on
-                            "change"
-                            (fn
-                              this.updateBoolParameter
-                              this.defaultScenario
-                              scenarioValue
-                            )
-                          }}
-                        />
-                        On
-                      </label>
-                    </div>
-                  {{else}}
-                    <div class="range-input__min-max">
-                      {{! Error: Out of bounds - MIN }}
-                      <BsAlert
-                        @type="warning"
-                        @visible={{gt node.parameterMin scenarioValue.value}}
-                        @dismissible={{false}}
-                      >
-                        <strong>
-                          Warning:
-                        </strong>
-                        The current value is below the minimum value.
-                      </BsAlert>
-                      {{! Error: Out of bounds - Max }}
-                      <BsAlert
-                        @type="warning"
-                        @visible={{lt node.parameterMax scenarioValue.value}}
-                        @dismissible={{false}}
-                      >
-                        <strong>
-                          Warning:
-                        </strong>
-                        The current value is above the maximum value.
-                      </BsAlert>
-                      {{! Error: Step size issue }}
-                      <BsAlert
-                        @type="warning"
-                        @visible={{
-                          not
-                          (check-step-in-range
-                            node.parameterMin
-                            node.parameterStep
-                            scenarioValue.value
-                          )
-                        }}
-                        @dismissible={{false}}
-                      >
-                        <strong>
-                          Warning:
-                        </strong>
-                        The current value is not a multiple of the step size.
-                      </BsAlert>
-                      {{! Slider }}
-                      <div class="range-input__min-max__control">
-                        <Input
-                          @type="range"
-                          @value={{scenarioValue.value}}
-                          min={{node.parameterMin}}
-                          max={{node.parameterMax}}
-                          step={{or node.parameterStep 1}}
-                          {{on
-                            "change"
-                            (fn
-                              this.handleScenarioValueChange
-                              this.defaultScenario
-                              scenarioValue
-                            )
-                          }}
-                        />
-                      </div>
-                      {{! Slider-Meta: Min, Value, Max, Units }}
-                      <div class="range-input__min_max__meta">
-                        <div class="range-input__min_max__meta__min">
-                          {{node.parameterMin}}
-                        </div>
-                        <div class="range-input__min_max__meta__value">
-                          {{scenarioValue.value}}
-                        </div>
-                        <div class="range-input__min_max__meta__max">
-                          {{node.parameterMax}}
-                        </div>
-                        {{#if node.data.units}}
-                          <div class="range-input__min_max__meta__unit">
-                            {{node.data.units}}
-                          </div>
-                        {{/if}}
-                      </div>
-                    </div>
+                  {{#if (or (eq node.parameterType "boolean") (eq node.type 4))
+                  }}
+                    <SidebarGeneral::ParameterBool
+                      @scenarioValue={{scenarioValue}}
+                      @onChange={{
+                        fn
+                        this.updateBoolParameter
+                        this.defaultScenario
+                        scenarioValue
+                      }}
+                    />
+                  {{else if (eq node.parameterType "slider")}}
+                    <SidebarGeneral::ParameterSlider
+                      @min={{node.parameterMin}}
+                      @max={{node.parameterMax}}
+                      @step={{node.parameterStep}}
+                      @units={{node.data.units}}
+                      @scenarioValue={{scenarioValue}}
+                      @onChange={{
+                        fn
+                        this.handleScenarioSliderValueChange
+                        this.defaultScenario
+                        scenarioValue
+                      }}
+                    />
+                  {{else if (eq node.parameterType "select")}}
+                    <SidebarGeneral::ParameterSelect
+                      @options={{node.parameterOptions.data}}
+                      @scenarioValue={{scenarioValue}}
+                      @onChange={{
+                        fn
+                        this.handleScenarioSelectValueChange
+                        this.defaultScenario
+                        scenarioValue
+                      }}
+                    />
                   {{/if}}
                 {{/let}}
               </div>
