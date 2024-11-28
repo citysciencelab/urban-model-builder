@@ -1,5 +1,7 @@
 import { Model } from 'simulation'
 import { Nodes, NodeType } from '../../client.js'
+import { OgcFeaturesApiClient } from './ogc-features-api-client.js'
+import { toSimulationVectorString } from './utils.js'
 
 const getUnitsDefault = (node: Nodes) => {
   return node.data.units || 'Unitless'
@@ -96,9 +98,18 @@ const simulationFactoryMap = {
   },
   [NodeType.Ghost]: (model: Model, node: Nodes) => {
     throw new Error('Ghost nodes are not supported. Can not create a primitive for a ghost node.')
+  },
+  [NodeType.OgcApiFeatures]: async (model: Model, node: Nodes) => {
+    const client = new OgcFeaturesApiClient()
+    const features = await client.fetchFeatures(node.data.apiId!, node.data.collectionId!)
+
+    return model.Variable({
+      name: node.name!,
+      value: toSimulationVectorString(features)
+    })
   }
 }
 
-export const primitiveFactory = (model: Model, node: Nodes) => {
+export const primitiveFactory = async (model: Model, node: Nodes) => {
   return simulationFactoryMap[node.type](model, node)
 }

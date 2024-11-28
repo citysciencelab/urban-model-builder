@@ -89,6 +89,11 @@ export const populationNodeSchema = Type.Object({
   networkFunction: Type.Optional(Type.String())
 })
 
+export const ogcFeatureNodeSchema = Type.Object({
+  apiId: Type.Optional(Type.String()),
+  collectionId: Type.Optional(Type.String())
+})
+
 // Main data model schema
 export const nodesSchema = Type.Object(
   {
@@ -105,7 +110,8 @@ export const nodesSchema = Type.Object(
       stateNodeSchema,
       actionNodeSchema,
       transitionNodeSchema,
-      populationNodeSchema
+      populationNodeSchema,
+      ogcFeatureNodeSchema
     ]),
     position: Type.Object({
       x: Type.Number(),

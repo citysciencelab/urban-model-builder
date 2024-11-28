@@ -103,7 +103,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     })
 
     for (const node of nodes.data) {
-      const simulationPrimitive = primitiveFactory(model, node)
+      const simulationPrimitive = await primitiveFactory(model, node)
 
       this.setParameter(node, simulationPrimitive)
 
