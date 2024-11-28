@@ -94,10 +94,22 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
     });
   }
 
-  @action handleScenarioValueChange(
+  @action handleScenarioSliderValueChange(
     scenario: Scenario,
     scenarioValue: ScenariosValue,
   ) {
+    this.eventBus.emit('scenario-value-changed', {
+      scenario,
+      scenarioValue,
+    });
+  }
+
+  @action handleScenarioSelectValueChange(
+    scenario: Scenario,
+    scenarioValue: ScenariosValue,
+    newValue: { value: number; label: string },
+  ) {
+    scenarioValue.value = newValue.value;
     this.eventBus.emit('scenario-value-changed', {
       scenario,
       scenarioValue,

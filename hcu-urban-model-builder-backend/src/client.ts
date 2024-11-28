@@ -75,6 +75,8 @@ export enum Roles {
   'owner' = 4
 }
 
+export type ParameterTypes = 'boolean' | 'slider' | 'select'
+
 /**
  * Returns a typed client for the hcu-urban-model-builder-backend app.
  *
