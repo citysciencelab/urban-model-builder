@@ -11,7 +11,7 @@ import { Params } from '@feathersjs/feathers'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-describe.only('models service', () => {
+describe('models service', () => {
   it('registered the service', () => {
     const service = app.service('models')
 
@@ -63,7 +63,8 @@ describe.only('models service', () => {
         height: null,
         width: null,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const childrenPerWomanVar = await app.service('nodes').create({
@@ -71,7 +72,8 @@ describe.only('models service', () => {
         type: NodeType.Variable,
         data: { value: '1.5' },
         position: { x: 100, y: 0 },
-        ...baseNodeData
+        ...baseNodeData,
+        isParameter: true
       })
 
       const totalPopulationVar = await app.service('nodes').create({
@@ -280,7 +282,8 @@ describe.only('models service', () => {
         height: null,
         width: null,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const initFlow = await app.service('nodes').create({
@@ -441,7 +444,8 @@ describe.only('models service', () => {
         height: null,
         width: null,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const initFlow = await app.service('nodes').create({
@@ -616,7 +620,8 @@ describe.only('models service', () => {
 
       const baseNodeData = {
         modelsVersionsId: modelVersion.id,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const personAgent = await app.service('nodes').create({
@@ -941,7 +946,8 @@ describe.only('models service', () => {
 
       const baseNodeData = {
         modelsVersionsId: modelVersion.id,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const personAgent = await app.service('nodes').create({
