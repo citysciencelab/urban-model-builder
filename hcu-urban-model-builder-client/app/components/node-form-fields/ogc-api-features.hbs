@@ -1,0 +1,21 @@
+<@form.element @label={{"APIs"}} @property="apiId">
+  <PowerSelect
+    @options={{this.availableApis.value}}
+    @selected={{this.selectedApi}}
+    @disabled={{not this.availableApis.isResolved}}
+    @onChange={{this.onApiSelected}} as |api|
+  >
+    {{api.title}}
+  </PowerSelect>
+</@form.element>
+
+<@form.element @label="Collection" @property="collectionId">
+  <PowerSelect
+    @options={{this.availableCollections.value}}
+    @selected={{this.selectedCollection}}
+    @disabled={{this.isCollectionSelectDisabled}}
+    @onChange={{this.onCollectionSelected}} as |collection|
+  >
+    {{collection.title}}
+  </PowerSelect>
+</@form.element>

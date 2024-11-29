@@ -13,7 +13,18 @@ type FeaturesResponse = {
   features: Feature[]
 }
 
-export class OgcFeaturesApiClient {
+type Api = {
+  id: string
+  title: string
+  description: string
+}
+
+type Collection = {
+  id: string
+  title: string
+}
+
+export class OgcApiFeaturesClient {
   client: AxiosInstance
 
   constructor() {
@@ -23,6 +34,16 @@ export class OgcFeaturesApiClient {
         Accept: 'application/json'
       }
     })
+  }
+
+  async getApis(): Promise<Api[]> {
+    const response = await this.client.get('/')
+    return response.data.apis
+  }
+
+  async getCollections(apiId: string): Promise<Collection[]> {
+    const response = await this.client.get(`${apiId}/collections`)
+    return response.data.collections
   }
 
   async fetchFeatures(apiId: string, collectionId: string) {
