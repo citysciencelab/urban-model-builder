@@ -4,33 +4,40 @@ import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
 
 import type { HookContext } from '../../../declarations.js'
-import { dataValidator, queryValidator } from '../../../validators.js'
+import { dataValidator } from '../../../validators.js'
 import type { ProcessesService } from './processes.class.js'
 
 // Main data model schema
+const processSchema = {
+  id: Type.Number(),
+  title: Type.String(),
+  description: Type.String(),
+  version: Type.String(),
+  links: Type.Array(
+    Type.Object({
+      href: Type.String()
+    })
+  )
+}
 export const processesSchema = Type.Object(
   {
-    id: Type.Number(),
-    text: Type.String()
+    processes: Type.Array(Type.Object(processSchema)),
+    links: Type.Array(Type.Object({ href: Type.String() }))
   },
   { $id: 'Processes', additionalProperties: false }
 )
+export const processesDetailSchema = Type.Object(
+  {
+    ...processSchema,
+    inputs: Type.Any(),
+    links: Type.Any()
+  },
+  { $id: 'ProcessesDetail', additionalProperties: false }
+)
+
 export type Processes = Static<typeof processesSchema>
+export type ProcessesDetails = Static<typeof processesDetailSchema>
 export const processesValidator = getValidator(processesSchema, dataValidator)
 export const processesResolver = resolve<Processes, HookContext<ProcessesService>>({})
 
 export const processesExternalResolver = resolve<Processes, HookContext<ProcessesService>>({})
-
-// Schema for allowed query properties
-export const processesQueryProperties = Type.Pick(processesSchema, ['id', 'text'])
-export const processesQuerySchema = Type.Intersect(
-  [
-    querySyntax(processesQueryProperties),
-    // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
-  ],
-  { additionalProperties: false }
-)
-export type ProcessesQuery = Static<typeof processesQuerySchema>
-export const processesQueryValidator = getValidator(processesQuerySchema, queryValidator)
-export const processesQueryResolver = resolve<ProcessesQuery, HookContext<ProcessesService>>({})

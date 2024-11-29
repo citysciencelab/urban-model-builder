@@ -2,12 +2,7 @@
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
-import {
-  processesQueryValidator,
-  processesResolver,
-  processesExternalResolver,
-  processesQueryResolver
-} from './processes.schema.js'
+import { processesResolver, processesExternalResolver } from './processes.schema.js'
 
 import type { Application } from '../../../declarations.js'
 import { ProcessesService, getOptions } from './processes.class.js'
@@ -34,12 +29,9 @@ export const processes = (app: Application) => {
       ]
     },
     before: {
-      all: [
-        schemaHooks.validateQuery(processesQueryValidator),
-        schemaHooks.resolveQuery(processesQueryResolver)
-      ],
+      all: [],
       find: [],
-      get: [],
+      get: []
     },
     after: {
       all: []
@@ -48,6 +40,10 @@ export const processes = (app: Application) => {
       all: []
     }
   })
+
+  // app.use(`${processesPath}/:processId/execute`, new ProcessesService(getOptions(app)), {
+  //   methods: ['create']
+  // })
 }
 
 // Add this service to the service type index

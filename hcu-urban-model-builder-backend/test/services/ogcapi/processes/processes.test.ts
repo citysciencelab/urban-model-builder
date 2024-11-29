@@ -42,7 +42,12 @@ describe.only('ogcapi/processes service', () => {
       type: NodeType.Variable,
       data: { value: '1.5' },
       position: { x: 100, y: 0 },
-      ...baseNodeData
+      ...baseNodeData,
+      isParameter: true,
+      parameterType: 'slider',
+      parameterMin: 1,
+      parameterMax: 5,
+      parameterStep: 0.1
     })
 
     const totalPopulationVar = await app.service('nodes').create({
@@ -100,7 +105,20 @@ describe.only('ogcapi/processes service', () => {
       type: NodeType.Flow,
       data: { rate: '[Population 19 plus]*0.05' },
       position: { x: 100, y: 600 },
-      ...baseNodeData
+      ...baseNodeData,
+      isParameter: true,
+      parameterType: 'select',
+      parameterMin: 0,
+      parameterMax: 1,
+      parameterStep: 0.01,
+      parameterOptions: {
+        data: [
+          { value: 0, label: '0%' },
+          { value: 0.05, label: '5%' },
+          { value: 0.1, label: '10%' },
+          { value: 0.2, label: '20%' }
+        ]
+      }
     })
 
     const baseEdgeData = {
@@ -186,6 +204,7 @@ describe.only('ogcapi/processes service', () => {
     const service = app.service('ogcapi/processes')
     const processes = await service.find()
     const process = await service.get(processes.processes[0].id)
+    console.dir(process, { depth: null })
     assert.ok(process, 'Process retrieved')
   })
 

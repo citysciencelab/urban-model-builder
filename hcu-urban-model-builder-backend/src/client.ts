@@ -11,7 +11,7 @@ import { jobsClient } from './services/ogcapi/jobs/jobs.shared.js'
 export type { Jobs, JobsQuery } from './services/ogcapi/jobs/jobs.shared.js'
 
 import { processesClient } from './services/ogcapi/processes/processes.shared.js'
-export type { Processes, ProcessesQuery } from './services/ogcapi/processes/processes.shared.js'
+export type { Processes } from './services/ogcapi/processes/processes.shared.js'
 
 import { scenarioValuesClient } from './services/scenarios-values/scenarios-values.shared.js'
 export type {
@@ -63,7 +63,7 @@ export interface Configuration {
   connection: TransportConnection<ServiceTypes>
 }
 
-export interface ServiceTypes { }
+export interface ServiceTypes {}
 
 export type ClientApplication = Application<ServiceTypes, Configuration>
 
@@ -85,7 +85,7 @@ export type ParameterTypes = 'boolean' | 'slider' | 'select'
  * @see https://dove.feathersjs.com/api/client.html
  * @returns The Feathers client application
  */
-export const createClient = <Configuration = any,>(
+export const createClient = <Configuration = any>(
   connection: TransportConnection<ServiceTypes>,
   authenticationOptions: Partial<AuthenticationClientOptions> = {}
 ) => {
