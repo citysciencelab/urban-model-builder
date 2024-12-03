@@ -194,14 +194,16 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       this.startAnimation();
       isCanceled = false;
     } catch (e: any) {
+      this.simulationError = e;
       if (e.name === 'SimulationError') {
-        this.simulationError = e;
         if (e.data?.nodeId) {
           this.simulationErrorNode = this.store.peekRecord<Node>(
             'node',
             e.data.nodeId,
           );
         }
+      } else {
+        console.error(e);
       }
       this.chart?.clear();
       return;

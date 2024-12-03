@@ -71,7 +71,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
       return this.serializeSimulationResult(simulationResult)
     } catch (error: any) {
       throw new SimulationError(error.message, {
-        nodeId: this.primitiveIdNodeIdMap.get(error.primitive.id) || null
+        nodeId: this.primitiveIdNodeIdMap.get(error.primitive?.id) || null
       })
     }
   }
