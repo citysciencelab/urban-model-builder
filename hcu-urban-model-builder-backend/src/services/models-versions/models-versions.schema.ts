@@ -26,6 +26,7 @@ export const modelsVersionsSchema = Type.Object(
     isLatest: Nullable(Type.Boolean()),
     algorithm: Nullable(Literals<AlgorithmType>('Euler', 'RK4')),
     globals: Nullable(Type.String()),
+    customUnits: Nullable(Type.Object({ data: Type.Record(Type.String(), Type.Array(Type.Number())) })),
     createdBy: Nullable(Type.Number()),
     publishedBy: Nullable(Type.Number()),
     publishedAt: Type.String({ format: 'date-time' }),
