@@ -281,6 +281,10 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
         node.type !== NodeType.OgcApiFeatures &&
         node.type !== NodeType.Population
       ) {
+        if (Array.isArray(value.series[0])) {
+          continue;
+        }
+
         series.push({
           type: 'line',
           name: node.name,
