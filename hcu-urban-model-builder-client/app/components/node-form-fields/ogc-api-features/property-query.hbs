@@ -3,12 +3,12 @@
     Selected Property Queries
   </legend>
 
-  {{#each-in this.currentPropertyQuery as |queryParamId queryParamValue|}}
+  {{#each this.selectedPropertyQuery as |property|}}
     <div>
-      {{concat queryParamId ": " queryParamValue}}
+      {{concat property.title ": " property.value}}
       <a
         href="javascript:void(0)"
-        {{on "click" (fn this.deleteQueryProperty queryParamId)}}
+        {{on "click" (fn this.deleteQueryProperty property.id)}}
       >
         <FaIcon @icon="trash" />
       </a>
@@ -17,21 +17,23 @@
     <div>
       No query params selected
     </div>
-  {{/each-in}}
+  {{/each}}
 
   <hr />
 
-  <PowerSelect
-    @options={{this.queryablePropertiesOptions}}
-    @selected={{this.selectedNewQueryProperty}}
-    @disabled={{this.isQueryBuildDisabled}}
-    @onChange={{fn (mut this.selectedNewQueryProperty)}} as |collection|
-  >
-    {{collection.title}}
-  </PowerSelect>
+  <@form.element @label="Query Property">
+    <PowerSelect
+      @options={{this.queryablePropertiesOptions}}
+      @selected={{this.selectedNewQueryProperty}}
+      @disabled={{this.isQueryBuildDisabled}}
+      @onChange={{fn (mut this.selectedNewQueryProperty)}} as |collection|
+    >
+      {{collection.title}}
+    </PowerSelect>
+  </@form.element>
 
   <@form.element
-    @label="Query Value"
+    @label="Query Property Value"
     @controlType={{this.newQueryValueControlType}}
     @value={{this.newQueryValue}}
     @onChange={{fn (mut this.newQueryValue)}} as |el|

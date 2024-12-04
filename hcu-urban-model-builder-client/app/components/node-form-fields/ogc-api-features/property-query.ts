@@ -56,13 +56,29 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
     return new TrackedAsyncData(fetch());
   }
 
-  get currentPropertyQuery() {
-    return this.args.changeset.dataProxy.data.query;
+  get query() {
+    return this.args.changeset.dataProxy.data.query as Record<string, any>;
+  }
+
+  set query(value) {
+    this.args.changeset.dataProxy.data.query = value;
+  }
+
+  get selectedPropertyQuery() {
+    return this.queryableProperties.value?.reduce((props, prop) => {
+      if (this.query?.[prop.id]) {
+        props.push({
+          ...prop,
+          value: this.query[prop.id],
+        });
+      }
+      return props;
+    }, [] as any[]);
   }
 
   get queryablePropertiesOptions() {
     return this.queryableProperties.value?.filter(
-      (property) => !this.currentPropertyQuery?.[property.id],
+      (property) => !this.query?.[property.id],
     );
   }
 
@@ -87,11 +103,9 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
   @action
   addNewQuery() {
     if (this.args.changeset.dataProxy.data.query) {
-      this.args.changeset.dataProxy.data.query[
-        this.selectedNewQueryProperty!.id
-      ] = this.newQueryValue!;
+      this.query[this.selectedNewQueryProperty!.id] = this.newQueryValue!;
     } else {
-      this.args.changeset.dataProxy.data.query = {
+      this.query = {
         [this.selectedNewQueryProperty!.id]: this.newQueryValue!,
       };
     }
@@ -101,8 +115,8 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
 
   @action
   deleteQueryProperty(propertyId: string) {
-    if (this.args.changeset.dataProxy.data.query) {
-      delete this.args.changeset.dataProxy.data.query[propertyId];
+    if (this.query) {
+      delete this.query[propertyId];
       this.args.changeset.dataProxy.data.query = {
         ...this.args.changeset.dataProxy.data.query,
       };
