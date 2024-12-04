@@ -1,7 +1,9 @@
 import { cached } from '@ember-data/tracking';
-import { action } from '@ember/object';
+import { action, set } from '@ember/object';
 import { service } from '@ember/service';
+import { isBlank } from '@ember/utils';
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import type OgcApiFeaturesService from 'hcu-urban-model-builder-client/services/ogc-api-features';
@@ -28,6 +30,14 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     return new TrackedAsyncData(this.ogcApiFeatures.getAvailableApis());
   }
 
+  get selectedApi() {
+    return (
+      this.availableApis.value?.find(
+        (api) => api.id === this.args.changeset.dataProxy.data.apiId,
+      ) ?? null
+    );
+  }
+
   @cached
   get availableCollections() {
     const apiId = this.args.changeset.dataProxy.data.apiId;
@@ -43,28 +53,20 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     return new TrackedAsyncData(fetch());
   }
 
-  @cached
-  get isCollectionSelectDisabled() {
-    return !(
-      this.args.changeset.dataProxy.data.apiId &&
-      this.availableCollections.isResolved
-    );
-  }
-
-  get selectedApi() {
-    return (
-      this.availableApis.value?.find(
-        (api) => api.id === this.args.changeset.dataProxy.data.apiId,
-      ) ?? null
-    );
-  }
-
   get selectedCollection() {
     return (
       this.availableCollections.value?.find(
         (collection) =>
           collection.id === this.args.changeset.dataProxy.data.collectionId,
       ) ?? null
+    );
+  }
+
+  @cached
+  get isCollectionSelectDisabled() {
+    return !(
+      this.args.changeset.dataProxy.data.apiId &&
+      this.availableCollections.isResolved
     );
   }
 
@@ -79,5 +81,16 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     console.log('collection selected', collection);
 
     this.args.changeset.dataProxy.data.collectionId = collection.id;
+    this.args.changeset.dataProxy.data.query = {};
+  }
+
+  @action
+  toggleSkipGeometry() {
+    const data = this.args.changeset.dataProxy.data;
+    if (!data.options) {
+      data.options = { skipGeometry: true };
+    } else {
+      data.options.skipGeometry = !data.options.skipGeometry;
+    }
   }
 }

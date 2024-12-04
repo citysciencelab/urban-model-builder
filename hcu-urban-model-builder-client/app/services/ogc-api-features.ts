@@ -11,6 +11,10 @@ export default class OgcApiFeaturesService extends Service {
   async getAvailableCollections(apiId: string) {
     return this.client.getCollections(apiId);
   }
+
+  async getQueryableProperties(apiId: string, collectionId: string) {
+    return this.client.getQueryableProperties(apiId, collectionId);
+  }
 }
 
 // Don't remove this declaration: this is what enables TypeScript to resolve

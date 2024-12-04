@@ -2,6 +2,8 @@
   <PowerSelect
     @options={{this.availableApis.value}}
     @selected={{this.selectedApi}}
+    @searchEnabled={{true}}
+    @searchField="title"
     @disabled={{not this.availableApis.isResolved}}
     @onChange={{this.onApiSelected}} as |api|
   >
@@ -19,3 +21,15 @@
     {{collection.title}}
   </PowerSelect>
 </@form.element>
+
+<@form.element
+  @controlType="switch"
+  @label="Skip geometry Data?"
+  @property="data.options.skipGeometry"
+  @onChange={{this.toggleSkipGeometry}}
+/>
+
+<NodeFormFields::OgcApiFeatures::PropertyQuery
+  @form={{@form}}
+  @changeset={{@changeset}}
+/>
