@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from 'axios'
 type Feature = {
   id: number
   type: 'Feature'
-  geometry: { type: string; coordinates: any }
+  geometry?: { type: string; coordinates: any }
   properties: Record<string, any> | null
 }
 
@@ -22,6 +22,20 @@ type Api = {
 type Collection = {
   id: string
   title: string
+}
+
+type Property = {
+  type: string
+  title: string
+}
+
+type FilterProperties = Record<string, any>
+
+type FetchFeatureOptions = {
+  // limit?: number
+  // offset?: number
+  skipGeometry?: boolean
+  selectedProperties?: string[]
 }
 
 export class OgcApiFeaturesClient {
@@ -46,11 +60,16 @@ export class OgcApiFeaturesClient {
     return response.data.collections
   }
 
-  async fetchFeatures(apiId: string, collectionId: string) {
+  async fetchFeatures(
+    apiId: string,
+    collectionId: string,
+    query: FilterProperties = {},
+    options: FetchFeatureOptions = {}
+  ): Promise<Feature[]> {
     let offset = 0
     let numberReturned = 0
     let numberMatched = 0
-    const limit = 100
+    const limit = 1000
     const allFeatures: any[] = []
     do {
       const collectionData = await this.client.get<FeaturesResponse>(
@@ -58,7 +77,9 @@ export class OgcApiFeaturesClient {
         {
           params: {
             limit: limit,
-            offset: offset
+            offset: offset,
+            skipGeometry: options.skipGeometry,
+            ...query
           },
           headers: {
             Accept: 'application/geo+json'
@@ -71,10 +92,25 @@ export class OgcApiFeaturesClient {
 
       numberMatched = collectionData.data.numberMatched
 
-      const currentFeature = collectionData.data.features
+      const currentFeature = collectionData.data.features.map((feature: any) => {
+        if (options.skipGeometry) {
+          delete feature.geometry
+        }
+        return feature
+      })
       allFeatures.push(...currentFeature)
     } while (numberReturned < numberMatched)
 
     return allFeatures
+  }
+
+  async getQueryableProperties(apiId: string, collectionId: string): Promise<Record<string, Property>> {
+    const response = await this.client.get(`${apiId}/collections/${collectionId}/queryables`, {
+      headers: {
+        Accept: 'application/schema+json'
+      }
+    })
+
+    return response.data.properties
   }
 }

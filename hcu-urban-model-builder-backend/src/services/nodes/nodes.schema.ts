@@ -91,7 +91,9 @@ export const populationNodeSchema = Type.Object({
 
 export const ogcFeatureNodeSchema = Type.Object({
   apiId: Type.Optional(Type.String()),
-  collectionId: Type.Optional(Type.String())
+  collectionId: Type.Optional(Type.String()),
+  query: Type.Optional(Type.Record(Type.String(), Type.Union([Type.String(), Type.Number()]))),
+  options: Type.Optional(Type.Object({ skipGeometry: Type.Optional(Type.Boolean()) }))
 })
 
 // Main data model schema
