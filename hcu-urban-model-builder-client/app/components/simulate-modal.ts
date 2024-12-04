@@ -276,7 +276,11 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
 
-      if (node.type !== NodeType.Flow && node.type !== NodeType.Population) {
+      if (
+        node.type !== NodeType.Flow &&
+        node.type !== NodeType.OgcApiFeatures &&
+        node.type !== NodeType.Population
+      ) {
         series.push({
           type: 'line',
           name: node.name,
