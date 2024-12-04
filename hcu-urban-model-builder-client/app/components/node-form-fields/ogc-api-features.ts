@@ -70,6 +70,40 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     );
   }
 
+  @cached
+  get propertiesSchema() {
+    const apiId = this.args.changeset.dataProxy.data.apiId;
+    const collectionId = this.args.changeset.dataProxy.data.collectionId;
+
+    const fetch = async () => {
+      if (!apiId || !collectionId) {
+        return null;
+      }
+
+      const properties = await this.ogcApiFeatures.getPropertiesSchema(
+        apiId,
+        collectionId,
+      );
+
+      return Object.entries(properties).map(([id, property]) => ({
+        id: id,
+        ...property,
+      }));
+    };
+    return new TrackedAsyncData(fetch());
+  }
+
+  get selectedProperties() {
+    if (!this.propertiesSchema.value) {
+      return [];
+    }
+    return (
+      this.args.changeset.dataProxy.data.query?.['properties']?.map((id) =>
+        this.propertiesSchema.value!.find((property) => property.id === id),
+      ) ?? []
+    );
+  }
+
   @action
   onApiSelected(api: NonNullable<this['availableApis']['value']>[number]) {
     this.args.changeset.dataProxy.data.apiId = api.id;
@@ -87,10 +121,17 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   @action
   toggleSkipGeometry() {
     const data = this.args.changeset.dataProxy.data;
-    if (!data.options) {
-      data.options = { skipGeometry: true };
+    if (!data.query) {
+      data.query = { skipGeometry: true };
     } else {
-      data.options.skipGeometry = !data.options.skipGeometry;
+      data.query.skipGeometry = !data.query.skipGeometry;
     }
+  }
+
+  @action
+  onPropertiesSelected(property: { id: string }[]) {
+    this.args.changeset.dataProxy.data.query!.properties = property.map(
+      (p) => p.id,
+    );
   }
 }

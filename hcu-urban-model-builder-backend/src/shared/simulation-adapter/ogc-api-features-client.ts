@@ -29,11 +29,9 @@ type Property = {
   title: string
 }
 
-type FilterProperties = Record<string, any>
-
-type FetchFeatureOptions = {
-  // limit?: number
-  // offset?: number
+type FilterProperties = Record<string, any> & {
+  limit?: number
+  offset?: number
   skipGeometry?: boolean
   selectedProperties?: string[]
 }
@@ -60,52 +58,43 @@ export class OgcApiFeaturesClient {
     return response.data.collections
   }
 
-  async fetchFeatures(
-    apiId: string,
-    collectionId: string,
-    query: FilterProperties = {},
-    options: FetchFeatureOptions = {}
-  ): Promise<Feature[]> {
-    let offset = 0
-    let numberReturned = 0
-    let numberMatched = 0
-    const limit = 1000
-    const allFeatures: any[] = []
-    do {
-      const collectionData = await this.client.get<FeaturesResponse>(
-        `${apiId}/collections/${collectionId}/items`,
-        {
-          params: {
-            limit: limit,
-            offset: offset,
-            skipGeometry: options.skipGeometry,
-            ...query
-          },
-          headers: {
-            Accept: 'application/geo+json'
-          }
+  async fetchFeatures(apiId: string, collectionId: string, query: FilterProperties = {}): Promise<Feature[]> {
+    const collectionData = await this.client.get<FeaturesResponse>(
+      `${apiId}/collections/${collectionId}/items`,
+      {
+        params: {
+          ...query,
+          properties: query.properties?.join(',')
+        },
+        headers: {
+          Accept: 'application/geo+json'
         }
-      )
+      }
+    )
 
-      offset += limit
-      numberReturned += collectionData.data.numberReturned
-
-      numberMatched = collectionData.data.numberMatched
-
-      const currentFeature = collectionData.data.features.map((feature: any) => {
-        if (options.skipGeometry) {
-          delete feature.geometry
-        }
-        return feature
-      })
-      allFeatures.push(...currentFeature)
-    } while (numberReturned < numberMatched)
-
-    return allFeatures
+    return collectionData.data.features.map((feature: any) => {
+      if (query.skipGeometry) {
+        delete feature.geometry
+      }
+      if (feature.properties === null) {
+        delete feature.properties
+      }
+      return feature
+    })
   }
 
   async getQueryableProperties(apiId: string, collectionId: string): Promise<Record<string, Property>> {
     const response = await this.client.get(`${apiId}/collections/${collectionId}/queryables`, {
+      headers: {
+        Accept: 'application/schema+json'
+      }
+    })
+
+    return response.data.properties
+  }
+
+  async getPropertiesSchema(apiId: string, collectionId: string): Promise<Record<string, Property>> {
+    const response = await this.client.get(`${apiId}/collections/${collectionId}/schema`, {
       headers: {
         Accept: 'application/schema+json'
       }

@@ -101,12 +101,7 @@ const simulationFactoryMap = {
   },
   [NodeType.OgcApiFeatures]: async (model: Model, node: Nodes) => {
     const client = new OgcApiFeaturesClient()
-    const features = await client.fetchFeatures(
-      node.data.apiId!,
-      node.data.collectionId!,
-      node.data.query,
-      node.data.options
-    )
+    const features = await client.fetchFeatures(node.data.apiId!, node.data.collectionId!, node.data.query)
 
     return model.Variable({
       name: node.name!,
