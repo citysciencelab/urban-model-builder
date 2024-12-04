@@ -47,11 +47,23 @@ app.hooks({
     all: [logError]
   },
   before: {
-    all: [iff((context) => !['authentication', 'ogcapi/processes', 'ogcapi/jobs'].includes(context.path), authenticate('oidc'))],
+    all: [
+      iff(
+        (context) =>
+          ![
+            'authentication',
+            'ogcapi/processes',
+            'ogcapi/jobs',
+            'ogcapi/processes/:processId/execution',
+            'ogcapi/jobs/:jobId/results'
+          ].includes(context.path),
+        authenticate('oidc')
+      )
+    ],
     create: [
       (context) => {
-        delete context.data.createdAt
-        delete context.data.updatedAt
+        delete context.data?.createdAt
+        delete context.data?.updatedAt
       }
     ],
     patch: [

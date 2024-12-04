@@ -1,30 +1,28 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.html
 
-import type { Application } from '../../../declarations.js'
-import { JobsService, getOptions } from './jobs.class.js'
-import { jobsPath, jobsMethods } from './jobs.shared.js'
+import type { Application } from '../../../../declarations.js'
+import { ProcessesExecutionService, getOptions } from './execution.class.js'
+import { processesExecutionPath, processesExecutionMethods } from './execution.shared.js'
 
-export * from './jobs.class.js'
+export * from './execution.class.js'
 
 // A configure function that registers the service and its hooks via `app.configure`
-export const jobs = (app: Application) => {
+export const processesExecution = (app: Application) => {
   // Register our service on the Feathers application
-  app.use(jobsPath, new JobsService(getOptions(app)), {
+  app.use(processesExecutionPath, new ProcessesExecutionService(getOptions(app)), {
     // A list of all methods this service exposes externally
-    methods: jobsMethods,
+    methods: processesExecutionMethods,
     // You can add additional custom events to be sent to clients here
     events: []
   })
   // Initialize hooks
-  app.service(jobsPath).hooks({
+  app.service(processesExecutionPath).hooks({
     around: {
       all: []
     },
     before: {
       all: [],
-      find: [],
-      get: [],
-      remove: []
+      create: []
     },
     after: {
       all: []
@@ -36,8 +34,8 @@ export const jobs = (app: Application) => {
 }
 
 // Add this service to the service type index
-declare module '../../../declarations.js' {
+declare module '../../../../declarations.js' {
   interface ServiceTypes {
-    [jobsPath]: JobsService
+    [processesExecutionPath]: ProcessesExecutionService
   }
 }

@@ -208,10 +208,15 @@ describe.only('ogcapi/processes service', () => {
     assert.ok(process, 'Process retrieved')
   })
 
-  it('should execute a process and create a job', async () => {
-    const service = app.service('ogcapi/processes')
-    const processes = await service.find()
-    const process = await service.execute(0)
+  it.only('should execute a process and create a job', async () => {
+    const processes = await app.service('ogcapi/processes').find()
+
+    const executeService = await app
+      .service('ogcapi/processes/:processId/execution')
+      .create({ children_per_woman: 6.1 }, { route: { processId: processes.processes[0].id } })
+    // const processes = await service.find()
+    // const process = await service.execute(0)
+    console.dir(executeService, { depth: null })
   })
 
   it('should not be possible to execute a process without required parameters', async () => {

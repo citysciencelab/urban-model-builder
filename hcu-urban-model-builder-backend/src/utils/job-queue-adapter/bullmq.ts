@@ -1,15 +1,14 @@
-import { DefaultJobOptions, JobsOptions, Queue, Worker } from 'bullmq';
-import { Logger } from 'winston';
-import { JobQueueAdapter } from './base.js';
-import { Redis } from 'ioredis';
+import { DefaultJobOptions, Job, JobsOptions, Queue, Worker } from 'bullmq'
+import { Logger } from 'winston'
+import { JobQueueAdapter } from './base.js'
+import { Redis } from 'ioredis'
 
-interface BullMqJobQueueAdapterConfig {
-}
+interface BullMqJobQueueAdapterConfig {}
 
 export class BullMqJobQueueAdapter extends JobQueueAdapter<BullMqJobQueueAdapterConfig> {
-  private connection: Redis;
+  private connection: Redis
 
-  private workers: { [queueName: string]: Worker } = {};
+  private workers: { [queueName: string]: Worker } = {}
 
   readonly defaultJobOptions: DefaultJobOptions = {
     attempts: 3,
@@ -18,17 +17,17 @@ export class BullMqJobQueueAdapter extends JobQueueAdapter<BullMqJobQueueAdapter
       count: 1000 // keep up to 1000 jobs
     },
     removeOnFail: {
-      age: 24 * 3600, // keep up to 24 hours
-    },
-  };
+      age: 24 * 3600 // keep up to 24 hours
+    }
+  }
 
   constructor(logger: Logger, config: BullMqJobQueueAdapterConfig) {
-    super(logger, config);
+    super(logger, config)
     this.connection = new Redis({
       host: 'localhost',
       port: 6379,
       maxRetriesPerRequest: null
-    });
+    })
   }
 
   async start() {
@@ -36,59 +35,69 @@ export class BullMqJobQueueAdapter extends JobQueueAdapter<BullMqJobQueueAdapter
   }
 
   async stop() {
-    await Promise.all(Object.values(this.workers).map(worker => {
-      return worker.close();
-    }));
+    await Promise.all(
+      Object.values(this.workers).map((worker) => {
+        return worker.close()
+      })
+    )
   }
 
-  async receive(queueName: string, callback: (data: any) => Promise<void>) {
-
+  async receive(queueName: string, callback: (data: any) => Promise<any>) {
     if (this.workers[queueName]) {
-      throw new Error(`receiver for '${queueName}' already exits`);
+      throw new Error(`receiver for '${queueName}' already exits`)
     }
 
-    const worker = new Worker(queueName, async (job) => {
-      this.logger.verbose(`Job '${queueName}' started`);
-      await callback(job.data);
-      this.logger.verbose(`Job '${queueName}' done`);
-    }, { connection: this.connection });
+    const worker = new Worker(
+      queueName,
+      async (job) => {
+        this.logger.verbose(`Job '${queueName}' started`)
+        const result = await callback(job.data)
+        this.logger.verbose(`Job '${queueName}' done`)
+        return result
+      },
+      { connection: this.connection }
+    )
 
-    this.workers[queueName] = worker;
+    this.workers[queueName] = worker
 
     worker.on('error', (error) => {
-      this.logger.error(`Job '${queueName}' has an error`);
-      this.logger.error(error);
-    });
+      this.logger.error(`Job '${queueName}' has an error`)
+      this.logger.error(error)
+    })
 
     worker.on('failed', (job, error) => {
-      this.logger.error(`Job '${queueName}' has an error`);
-      this.logger.error(error);
-    });
+      this.logger.error(`Job '${queueName}' has an error`)
+      this.logger.error(error)
+    })
   }
 
   async send(queueName: string, data: any) {
-    await this.addNewJob(queueName, data);
+    return this.addNewJob(queueName, data)
   }
 
   async schedule(queueName: string, cronPattern: string) {
-    await this.unscheduleAllExceptForCurrentCron(queueName, cronPattern);
-    await this.addNewJob(queueName, {}, {
-      repeat: {
-        pattern: cronPattern
+    await this.unscheduleAllExceptForCurrentCron(queueName, cronPattern)
+    await this.addNewJob(
+      queueName,
+      {},
+      {
+        repeat: {
+          pattern: cronPattern
+        }
       }
-    });
+    )
   }
 
   private async unscheduleAllExceptForCurrentCron(queueName: string, currentCronPattern: string) {
     const queue = new Queue(queueName, {
       connection: this.connection,
       defaultJobOptions: this.defaultJobOptions
-    });
-    const repeatableJobs = await queue.getRepeatableJobs();
+    })
+    const repeatableJobs = await queue.getRepeatableJobs()
 
     for (const job of repeatableJobs) {
       if (job.pattern !== currentCronPattern) {
-        await queue.removeRepeatableByKey(job.key);
+        await queue.removeRepeatableByKey(job.key)
       }
     }
   }
@@ -97,8 +106,25 @@ export class BullMqJobQueueAdapter extends JobQueueAdapter<BullMqJobQueueAdapter
     const myQueue = new Queue(queueName, {
       connection: this.connection,
       defaultJobOptions: this.defaultJobOptions
-    });
+    })
 
-    await myQueue.add(queueName, data, opts);
+    const job = await myQueue.add(queueName, data, opts)
+    return job.id
+  }
+
+  async getJobs(queueName: string): Promise<Job[]> {
+    const queue = new Queue(queueName, {
+      connection: this.connection,
+      defaultJobOptions: this.defaultJobOptions
+    })
+    return queue.getJobs()
+  }
+
+  async getJob(queueName: string, jobId: string) {
+    const queue = new Queue(queueName, {
+      connection: this.connection,
+      defaultJobOptions: this.defaultJobOptions
+    })
+    return queue.getJob(jobId)
   }
 }

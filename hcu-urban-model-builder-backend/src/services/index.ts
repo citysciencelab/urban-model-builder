@@ -1,3 +1,5 @@
+import { jobResults } from './ogcapi/jobs/results/results.js'
+import { processesExecution } from './ogcapi/processes/execution/execution.js'
 import { jobs } from './ogcapi/jobs/jobs.js'
 import { processes } from './ogcapi/processes/processes.js'
 import { scenarioValues } from './scenarios-values/scenarios-values.js'
@@ -13,7 +15,9 @@ import type { Application } from '../declarations.js'
 import { touchParent } from '../utils/touch-parent.js'
 
 export const services = (app: Application) => {
+  app.configure(jobResults)
   app.configure(jobs)
+  app.configure(processesExecution)
   app.configure(processes)
   app.configure(scenarioValues)
   app.configure(scenarios)
