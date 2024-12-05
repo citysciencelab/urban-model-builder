@@ -22,26 +22,34 @@
   </PowerSelect>
 </@form.element>
 
-<@form.element
-  @label="Limit"
-  @controlType="number"
-  @value={{@changeset.dataProxy.data.query.limit}}
-  @onChange={{fn (mut-number @changeset.dataProxy.data.query.limit)}}
-/>
+{{#let (not @changeset.dataProxy.data.collectionId) as |isDisabled|}}
+  <@form.element
+    @label="Limit"
+    @controlType="number"
+    @value={{@changeset.dataProxy.data.query.limit}}
+    @onChange={{fn (mut-number @changeset.dataProxy.data.query.limit)}} as |el|
+  >
+    <el.control disabled={{isDisabled}} />
+  </@form.element>
 
-<@form.element
-  @label="Offset"
-  @controlType="number"
-  @value={{@changeset.dataProxy.data.query.offset}}
-  @onChange={{fn (mut-number @changeset.dataProxy.data.query.offset)}}
-/>
+  <@form.element
+    @label="Offset"
+    @controlType="number"
+    @value={{@changeset.dataProxy.data.query.offset}}
+    @onChange={{fn (mut-number @changeset.dataProxy.data.query.offset)}} as |el|
+  >
+    <el.control disabled={{isDisabled}} />
+  </@form.element>
 
-<@form.element
-  @controlType="switch"
-  @label="Skip geometry Data?"
-  @property="data.query.skipGeometry"
-  @onChange={{this.toggleSkipGeometry}}
-/>
+  <@form.element
+    @controlType="switch"
+    @label="Skip geometry Data?"
+    @property="data.query.skipGeometry"
+    @onChange={{this.toggleSkipGeometry}} as |el|
+  >
+    <el.control disabled={{isDisabled}} />
+  </@form.element>
+{{/let}}
 
 <@form.element @label="Selected Properties">
   <PowerSelectMultiple

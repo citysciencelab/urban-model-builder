@@ -115,7 +115,13 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     console.log('collection selected', collection);
 
     this.args.changeset.dataProxy.data.collectionId = collection.id;
-    this.args.changeset.dataProxy.data.query = {};
+    const { limit, offset, skipGeometry } =
+      this.args.changeset.dataProxy.data.query ?? {};
+    this.args.changeset.dataProxy.data.query = {
+      limit,
+      offset,
+      skipGeometry,
+    };
   }
 
   @action
