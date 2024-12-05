@@ -3,8 +3,9 @@ import { Logger } from 'winston'
 import { JobQueueAdapter } from './base.js'
 import { Redis } from 'ioredis'
 import { randomUUID } from 'crypto'
+import configuration from '@feathersjs/configuration'
 
-interface BullMqJobQueueAdapterConfig {}
+interface BullMqJobQueueAdapterConfig { }
 
 export class BullMqJobQueueAdapter extends JobQueueAdapter<BullMqJobQueueAdapterConfig> {
   private connection: Redis
@@ -24,9 +25,10 @@ export class BullMqJobQueueAdapter extends JobQueueAdapter<BullMqJobQueueAdapter
 
   constructor(logger: Logger, config: BullMqJobQueueAdapterConfig) {
     super(logger, config)
+    const { redisPort, redisHost } = (configuration() as any).get('redis')
     this.connection = new Redis({
-      host: 'localhost',
-      port: 6379,
+      host: redisHost,
+      port: redisPort,
       maxRetriesPerRequest: null
     })
   }
