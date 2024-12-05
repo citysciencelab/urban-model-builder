@@ -83,7 +83,7 @@ export class ProcessesExecutionService<
     }
 
     const jobQueue: BullMqJobQueueAdapter = this.app.get('jobQueue')
-    const jobId = await jobQueue.send('process_simulation', simulationData)
+    const jobId = await jobQueue.send('process_simulation', { ...simulationData, inputs: data })
 
     return {
       processId: processId,

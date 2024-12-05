@@ -18,7 +18,7 @@ export default async function (app: Application) {
 }
 
 function runSimulation(app: Application) {
-  return async (data: ModelsSimulate) => {
+  return async (data: any) => {
     return await app
       .service('models')
       .simulate(

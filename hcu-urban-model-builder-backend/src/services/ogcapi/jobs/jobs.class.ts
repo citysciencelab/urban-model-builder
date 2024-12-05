@@ -34,6 +34,7 @@ export class JobsService<ServiceParams extends JobsParams = JobsParams> {
       started: job.processedOn ? new Date(job.processedOn).toISOString() : null,
       finished: job.finishedOn ? new Date(job.finishedOn).toISOString() : null,
       message: message,
+      inputs: job.data.inputs,
       links: [
         { href: `/ogcapi/jobs/${job.id}`, rel: 'self' },
         { href: '/ogcapi/jobs', rel: 'collection' },
