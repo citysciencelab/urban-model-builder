@@ -194,14 +194,16 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
       this.startAnimation();
       isCanceled = false;
     } catch (e: any) {
+      this.simulationError = e;
       if (e.name === 'SimulationError') {
-        this.simulationError = e;
         if (e.data?.nodeId) {
           this.simulationErrorNode = this.store.peekRecord<Node>(
             'node',
             e.data.nodeId,
           );
         }
+      } else {
+        console.error(e);
       }
       this.chart?.clear();
       return;
@@ -274,7 +276,15 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
 
-      if (node.type !== NodeType.Flow && node.type !== NodeType.Population) {
+      if (
+        node.type !== NodeType.Flow &&
+        node.type !== NodeType.OgcApiFeatures &&
+        node.type !== NodeType.Population
+      ) {
+        if (Array.isArray(value.series[0])) {
+          continue;
+        }
+
         series.push({
           type: 'line',
           name: node.name,

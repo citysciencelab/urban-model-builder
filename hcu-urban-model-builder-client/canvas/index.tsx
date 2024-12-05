@@ -48,6 +48,7 @@ import {
   NodeActions,
 } from "./lib/context/ember-react-connector.ts";
 import { GhostNode } from "./lib/nodes/ghost-node.tsx";
+import { OgcApiFeaturesNode } from "./lib/nodes/ogc-api-features-node.tsx";
 
 type FlowOptions = {
   disabled?: boolean;
@@ -65,6 +66,7 @@ const nodeTypes = {
   [ReactFlowNodeType.Population]: BaseNode,
   [ReactFlowNodeType.Action]: BaseNode,
   [ReactFlowNodeType.Ghost]: GhostNode,
+  [ReactFlowNodeType.OgcApiFeatures]: OgcApiFeaturesNode,
 } as const;
 
 const edgesTypes = {

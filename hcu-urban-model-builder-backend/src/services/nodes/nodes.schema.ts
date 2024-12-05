@@ -9,6 +9,7 @@ import { dataValidator, queryValidator } from '../../validators.js'
 import type { NodesService } from './nodes.class.js'
 import { Literals, Nullable } from '../../utils/schema.js'
 import { NodeType } from './nodes.shared.js'
+import { nodeDataResolver } from './resolvers/data.js'
 import { ParameterTypes } from '../../client.js'
 
 const constraintsSchema = Type.Partial(
@@ -90,6 +91,25 @@ export const populationNodeSchema = Type.Object({
   networkFunction: Type.Optional(Type.String())
 })
 
+export const ogcFeatureNodeSchema = Type.Object(
+  {
+    apiId: Type.Optional(Type.String()),
+    collectionId: Type.Optional(Type.String()),
+    query: Type.Optional(
+      Type.Object(
+        {
+          limit: Type.Optional(Type.Number()),
+          offset: Type.Optional(Type.Number()),
+          skipGeometry: Type.Optional(Type.Boolean()),
+          properties: Type.Optional(Type.Array(Type.String()))
+        },
+        { additionalProperties: true }
+      )
+    )
+  },
+  { additionalProperties: false }
+)
+
 // Main data model schema
 export const nodesSchema = Type.Object(
   {
@@ -106,7 +126,8 @@ export const nodesSchema = Type.Object(
       stateNodeSchema,
       actionNodeSchema,
       transitionNodeSchema,
-      populationNodeSchema
+      populationNodeSchema,
+      ogcFeatureNodeSchema
     ]),
     position: Type.Object({
       x: Type.Number(),
@@ -137,7 +158,9 @@ export const nodesSchema = Type.Object(
 )
 export type Nodes = Static<typeof nodesSchema>
 export const nodesValidator = getValidator(nodesSchema, dataValidator)
-export const nodesResolver = resolve<Nodes, HookContext<NodesService>>({})
+export const nodesResolver = resolve<Nodes, HookContext<NodesService>>({
+  data: nodeDataResolver
+})
 
 export const nodesExternalResolver = resolve<Nodes, HookContext<NodesService>>({})
 

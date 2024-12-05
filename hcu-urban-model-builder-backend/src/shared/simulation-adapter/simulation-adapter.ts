@@ -71,7 +71,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
       return this.serializeSimulationResult(simulationResult)
     } catch (error: any) {
       throw new SimulationError(error.message, {
-        nodeId: this.primitiveIdNodeIdMap.get(error.primitive.id) || null
+        nodeId: this.primitiveIdNodeIdMap.get(error.primitive?.id) || null
       })
     }
   }
@@ -103,7 +103,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     })
 
     for (const node of nodes.data) {
-      const simulationPrimitive = primitiveFactory(model, node)
+      const simulationPrimitive = await primitiveFactory(model, node)
 
       this.setParameter(node, simulationPrimitive)
 
