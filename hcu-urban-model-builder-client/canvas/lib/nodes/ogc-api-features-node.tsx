@@ -11,7 +11,7 @@ export const OgcApiFeaturesNode = memo(({ data, isConnectable }: NodeProps) => {
 
   return (
     <div className={`react-flow__node-default content`}>
-      <DefaultNodeHandles isConnectable={isConnectable} />
+      <DefaultNodeHandles type="source" isConnectable={isConnectable} />
 
       {name}
     </div>
