@@ -9,6 +9,7 @@ import { dataValidator, queryValidator } from '../../validators.js'
 import type { NodesService } from './nodes.class.js'
 import { Literals, Nullable } from '../../utils/schema.js'
 import { NodeType } from './nodes.shared.js'
+import { nodeDataResolver } from './resolvers/data.js'
 
 const constraintsSchema = Type.Partial(
   Type.Object({
@@ -144,7 +145,9 @@ export const nodesSchema = Type.Object(
 )
 export type Nodes = Static<typeof nodesSchema>
 export const nodesValidator = getValidator(nodesSchema, dataValidator)
-export const nodesResolver = resolve<Nodes, HookContext<NodesService>>({})
+export const nodesResolver = resolve<Nodes, HookContext<NodesService>>({
+  data: nodeDataResolver
+})
 
 export const nodesExternalResolver = resolve<Nodes, HookContext<NodesService>>({})
 
