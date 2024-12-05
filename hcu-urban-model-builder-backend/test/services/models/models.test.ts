@@ -211,7 +211,7 @@ describe('models service', () => {
         nodeNameToIdMap.set(node.name!, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -368,7 +368,7 @@ describe('models service', () => {
         nodeNameToIdMap.set(node.name!, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -544,7 +544,7 @@ describe('models service', () => {
         nodeNameToIdMap.set(node.name!, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -827,7 +827,7 @@ describe('models service', () => {
         nodeIdToNameMap.set(node.id, node.name!)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       const file = await readFile(join(__dirname, 'agent-based.xml'), 'utf8')
 

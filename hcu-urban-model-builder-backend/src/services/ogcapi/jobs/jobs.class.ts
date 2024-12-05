@@ -23,15 +23,22 @@ export class JobsService<ServiceParams extends JobsParams = JobsParams> {
   constructor(public options: JobsServiceOptions) {}
 
   private async prepareJobData(job: Job) {
+    const jobState = await job.getState()
+    const message = jobState === 'failed' ? job.failedReason : ''
     return {
       type: 'process',
       jobId: job.id,
       processID: job.data.id,
-      state: this.mapStatus(await job.getState()),
+      state: this.mapStatus(jobState),
       created: new Date(job.timestamp).toISOString(),
       started: job.processedOn ? new Date(job.processedOn).toISOString() : null,
       finished: job.finishedOn ? new Date(job.finishedOn).toISOString() : null,
-      links: [{ href: `/ogcapi/jobs/${job.id}` }]
+      message: message,
+      links: [
+        { href: `/ogcapi/jobs/${job.id}`, rel: 'self' },
+        { href: '/ogcapi/jobs', rel: 'collection' },
+        { href: `/ogcapi/jobs/${job.id}/results`, rel: 'results' }
+      ]
     }
   }
   private mapStatus(status: string) {

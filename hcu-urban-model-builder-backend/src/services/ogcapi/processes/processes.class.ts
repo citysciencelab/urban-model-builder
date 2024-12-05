@@ -29,8 +29,9 @@ export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesP
         id: model.id,
         title: model.modelName,
         description: model.modelDescription,
+        jobControlOptions: ['async-execute'],
         version: `${model.majorVersion}.${model.minorVersion}.${model.draftVersion}`,
-        links: [{ href: `/ogcapi/processes/${model.id}` }]
+        links: [{ href: `/ogcapi/processes/${model.id}`, rel: 'self' }]
       }
     })
     return { processes: mappedModels, links: [{ href: '/ogcapi/processes' }] }
@@ -66,13 +67,34 @@ export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesP
       return acc
     }, {})
 
+    const outputParameterData = outputNodes.data.reduce((acc: any, node: any) => {
+      acc[_.snakeCase(node.name)] = {
+        title: node.name,
+        description: node.description,
+        schema: {
+          type: 'array',
+          description: node.description,
+          items: {
+            type: 'number'
+          }
+        }
+      }
+      return acc
+    }, {})
+
     return {
       id: model.id,
       title: model.modelName,
       description: model.modelDescription,
+      jobControlOptions: ['async-execute'],
       version: `${model.majorVersion}.${model.minorVersion}.${model.draftVersion}`,
       inputs: inputParameterData,
-      links: []
+      outputs: outputParameterData,
+      links: [
+        { href: `/ogcapi/processes/${model.id}`, rel: 'self' },
+        { href: `/ogcapi/processes/${model.id}/execution`, rel: 'execute' },
+        { href: `/ogcapi/processes/`, rel: 'collection' }
+      ]
     }
   }
 

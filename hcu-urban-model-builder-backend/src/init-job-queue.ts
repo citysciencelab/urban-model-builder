@@ -21,7 +21,10 @@ function runSimulation(app: Application) {
   return async (data: ModelsSimulate) => {
     return await app
       .service('models')
-      .simulate({ id: +data.id, nodeIdToParameterValueMap: data.nodeIdToParameterValueMap })
+      .simulate(
+        { id: +data.id, nodeIdToParameterValueMap: data.nodeIdToParameterValueMap },
+        { serializeForUMP: true }
+      )
   }
 }
 async function registerJobFunction(app: Application, jobQueueAdapter: JobQueueAdapter<any>) {

@@ -89,7 +89,11 @@ export class ProcessesExecutionService<
       processId: processId,
       jobId: jobId,
       state: 'accepted',
-      links: [{ href: `/ogcapi/jobs/${jobId}` }]
+      links: [
+        { href: `/ogcapi/jobs/${jobId}`, rel: 'self' },
+        { href: `/ogcapi/jobs`, rel: 'collection' },
+        { href: `/ogcapi/jobs/${jobId}/results`, rel: 'results' }
+      ]
     }
   }
 }

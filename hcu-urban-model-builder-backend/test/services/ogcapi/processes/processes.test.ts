@@ -3,12 +3,14 @@ import assert from 'assert'
 import { app } from '../../../../src/app.js'
 import { Params } from '@feathersjs/feathers'
 import { EdgesData, EdgeType, NodeType } from '../../../../src/client.js'
+import initJobQueue from '../../../../src/init-job-queue.js'
 
 describe.only('ogcapi/processes service', () => {
   let params: Params
 
   before(async () => {
     await app.get('postgresqlClient').table('models').del()
+    await initJobQueue(app)
 
     const model = await app.service('models').create(
       {
@@ -57,7 +59,8 @@ describe.only('ogcapi/processes service', () => {
         value: '[Population 19 plus]+[Population 0-18]'
       },
       position: { x: 100, y: 100 },
-      ...baseNodeData
+      ...baseNodeData,
+      isOutputParameter: true
     })
 
     const population0_18Stock = await app.service('nodes').create({
@@ -211,12 +214,20 @@ describe.only('ogcapi/processes service', () => {
   it.only('should execute a process and create a job', async () => {
     const processes = await app.service('ogcapi/processes').find()
 
-    const executeService = await app
+    const job = await app
       .service('ogcapi/processes/:processId/execution')
       .create({ children_per_woman: 6.1 }, { route: { processId: processes.processes[0].id } })
-    // const processes = await service.find()
-    // const process = await service.execute(0)
-    console.dir(executeService, { depth: null })
+    assert.ok(job, 'Job created')
+    assert.ok(job.jobId, 'Job ID returned')
+    assert.equal(job.state, 'accepted', 'Job state is accepted')
+    const jobDetails = await app.service('ogcapi/jobs').get(job.jobId)
+    assert.ok(jobDetails, 'Job details retrieved')
+    console.dir(jobDetails, { depth: null })
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    const jobResults = await app.service('ogcapi/jobs/:jobId/results').find({ route: { jobId: job.jobId } })
+
+    console.dir(jobResults, { depth: null })
   })
 
   it('should not be possible to execute a process without required parameters', async () => {

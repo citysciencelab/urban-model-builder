@@ -13,6 +13,7 @@ const processSchema = {
   title: Type.String(),
   description: Type.String(),
   version: Type.String(),
+  jobControlOptions: Type.Array(Type.String()),
   links: Type.Array(
     Type.Object({
       href: Type.String()
@@ -30,6 +31,7 @@ export const processesDetailSchema = Type.Object(
   {
     ...processSchema,
     inputs: Type.Any(),
+    outputs: Type.Any(),
     links: Type.Any()
   },
   { $id: 'ProcessesDetail', additionalProperties: false }

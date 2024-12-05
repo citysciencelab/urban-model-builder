@@ -18,8 +18,8 @@ import { Results } from 'simulation/Results'
 import { Logger } from 'winston'
 import { ClientApplication } from '../../client.js'
 import { Application } from '../../declarations.js'
-import { Unprocessable } from '@feathersjs/errors'
 import { SimulationError } from './simulation-error.js'
+import _ from 'lodash'
 
 type PopulationNodeResult = {
   id: string
@@ -53,7 +53,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     this.app = app as ClientApplication
   }
 
-  public async simulate() {
+  public async simulate(serializeForUMP: boolean = false) {
     const model = await this.createSimulationModel()
 
     await this.createModelPrimitives(model)
@@ -68,7 +68,9 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     try {
       const simulationResult = model.simulate()
 
-      return this.serializeSimulationResult(simulationResult)
+      return serializeForUMP
+        ? this.serializeSimulationResultForUMP(simulationResult, model)
+        : this.serializeSimulationResult(simulationResult)
     } catch (error: any) {
       throw new SimulationError(error.message, {
         nodeId: this.primitiveIdNodeIdMap.get(error.primitive.id) || null
@@ -258,6 +260,31 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
       }
     }
 
+    return resultData
+  }
+
+  private async serializeSimulationResultForUMP(simulationResult: Results, model: Model) {
+    const resultData: Record<string, any> = {
+      periods: simulationResult._data.periods,
+      timeUnits: simulationResult.timeUnits,
+      timeStep: model.timeStep,
+      timeStart: model.timeStart,
+      timeLength: model.timeLength
+    }
+    const outPutParameters = await this.app.service('nodes').find({
+      query: {
+        modelsVersionsId: this.modelVersionId,
+        isOutputParameter: true
+      }
+    })
+    for (const [nodeId, primitive] of this.nodeIdPrimitiveMapWithoutGhosts) {
+      if (primitive.id in (simulationResult._data.children || {})) {
+        const primitiveResult = simulationResult.series(primitive)
+        if (outPutParameters.data.some((node: Nodes) => node.id === nodeId)) {
+          resultData[_.snakeCase(primitive.name)] = primitiveResult
+        }
+      }
+    }
     return resultData
   }
 
