@@ -123,6 +123,7 @@ main {
 .toolbar__container {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: get-spacer(3);
   width: 100%;
 }
