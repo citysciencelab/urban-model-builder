@@ -64,7 +64,9 @@ export class OgcApiFeaturesClient {
       {
         params: {
           ...query,
-          properties: query.properties?.join(',')
+          ...(query.properties && query.properties.length > 0
+            ? { properties: query.properties?.join(',') }
+            : {})
         },
         headers: {
           Accept: 'application/geo+json'
