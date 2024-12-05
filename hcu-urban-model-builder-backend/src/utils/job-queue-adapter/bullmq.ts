@@ -2,6 +2,7 @@ import { DefaultJobOptions, Job, JobsOptions, Queue, Worker } from 'bullmq'
 import { Logger } from 'winston'
 import { JobQueueAdapter } from './base.js'
 import { Redis } from 'ioredis'
+import { randomUUID } from 'crypto'
 
 interface BullMqJobQueueAdapterConfig {}
 
@@ -108,7 +109,7 @@ export class BullMqJobQueueAdapter extends JobQueueAdapter<BullMqJobQueueAdapter
       defaultJobOptions: this.defaultJobOptions
     })
 
-    const job = await myQueue.add(queueName, data, opts)
+    const job = await myQueue.add(queueName, data, { ...opts, jobId: randomUUID() })
     return job.id
   }
 
