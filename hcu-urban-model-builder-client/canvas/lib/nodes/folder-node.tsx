@@ -8,6 +8,7 @@ import {
 import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo } from "react";
 import { ReactFlowNodeType } from "../declarations.ts";
+import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 
 const positions = [
   Position.Top,
@@ -39,6 +40,7 @@ export const FolderNode = memo(
           )}
         <NodeResizer color="#ff0071" isVisible={!!selected} />
         <div className="content">{name}</div>
+        <DefaultNodeToolbar nodeId={id} isNodeSelected={selected} />
       </>
     );
   },
