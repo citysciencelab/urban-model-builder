@@ -3,6 +3,9 @@ export const unitsCollection = [
     Unitless: null,
   },
   {
+    Custom: ['Add New'],
+  },
+  {
     'Distance, Area and Volume': {
       Metric: [
         'Millimeters',

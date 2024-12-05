@@ -31,9 +31,12 @@ export default class Node extends Model {
   @attr('number') declare width: number;
 
   @attr('boolean') declare isParameter: boolean;
+  @attr('string') declare parameterType: string | null;
+  @attr() declare parameterOptions: any;
   @attr('number') declare parameterMin: number;
   @attr('number') declare parameterMax: number;
   @attr('number') declare parameterStep: number;
+  @attr('boolean') declare isOutputParameter: boolean;
 
   @belongsTo('modelsVersion', { async: true, inverse: 'nodes' })
   declare modelsVersions: ModelsVersion;
