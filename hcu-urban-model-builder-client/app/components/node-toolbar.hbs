@@ -6,7 +6,7 @@
       {{on "dragstart" (fn this.onDragStart nodeTypeConfig)}}
       {{on "dragend" this.onDragEnd}}
     >
-      {{nodeTypeConfig.label}}
+      {{uppercase (humanize nodeTypeConfig.label)}}
     </div>
   {{/each}}
 {{/unless}}

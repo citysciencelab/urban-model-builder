@@ -16,7 +16,8 @@ export enum NodeType {
   Population,
   Agent,
   Folder,
-  Ghost
+  Ghost,
+  OgcApiFeatures
 }
 
 export type NodesClientService = Pick<NodesService<Params<NodesQuery>>, (typeof nodesMethods)[number]>

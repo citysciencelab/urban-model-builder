@@ -1,10 +1,10 @@
 import { NodeProps } from "@xyflow/react";
 import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo } from "react";
-import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
+import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 
-export const BaseNode = memo(
+export const OgcApiFeaturesNode = memo(
   ({ id, data, isConnectable, selected }: NodeProps) => {
     const name = useModelPropState({
       emberModel: data.emberModel as any,
@@ -13,7 +13,7 @@ export const BaseNode = memo(
 
     return (
       <div className={`react-flow__node-default content`}>
-        <DefaultNodeHandles isConnectable={isConnectable} />
+        <DefaultNodeHandles type="source" isConnectable={isConnectable} />
 
         {name}
 

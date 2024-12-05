@@ -8,6 +8,7 @@ export type NodeActions = {
   removeSelection: (type: 'edge' | 'node', id: string) => void;
   onSidebarInserted: (element: HTMLElement) => void;
   onToolbarInserted: (element: HTMLElement) => void;
+  confirmDeleteNodes: (nodeIds: string[]) => boolean;
   draggedNodeConfig: any;
   storeEventEmitter: {
     on: (

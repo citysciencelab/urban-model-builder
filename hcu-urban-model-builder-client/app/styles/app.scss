@@ -18,7 +18,7 @@ $node-color-map: (
   "flow": #a3c4ff,
   "stock": cadetblue,
   "variable": coral,
-  "population": #974a5d,
+  "population": #b75b72,
   "state": #52d48a,
   "action": #f5a623,
   "converter": #84f5ff,
@@ -28,6 +28,7 @@ $node-color-map: (
       $alpha: 0.2,
     ),
   "folder": #8f8d8d71,
+  "ogc-api-features": #479180,
 );
 
 $edge-color-map: (
@@ -122,7 +123,9 @@ main {
 .toolbar__container {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: get-spacer(3);
+  width: 100%;
 }
 
 .node-toolbar__node {
@@ -130,6 +133,7 @@ main {
   border-radius: $border-radius;
   border: ($border-width * 2) $border-style $black;
   cursor: grab;
+  white-space: nowrap;
 
   @each $name, $color in $node-color-map {
     &.--#{$name} {

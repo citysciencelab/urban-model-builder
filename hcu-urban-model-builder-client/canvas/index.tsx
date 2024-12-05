@@ -48,6 +48,7 @@ import {
   NodeActions,
 } from "./lib/context/ember-react-connector.ts";
 import { GhostNode } from "./lib/nodes/ghost-node.tsx";
+import { OgcApiFeaturesNode } from "./lib/nodes/ogc-api-features-node.tsx";
 
 type FlowOptions = {
   disabled?: boolean;
@@ -65,6 +66,7 @@ const nodeTypes = {
   [ReactFlowNodeType.Population]: BaseNode,
   [ReactFlowNodeType.Action]: BaseNode,
   [ReactFlowNodeType.Ghost]: GhostNode,
+  [ReactFlowNodeType.OgcApiFeatures]: OgcApiFeaturesNode,
 } as const;
 
 const edgesTypes = {
@@ -278,6 +280,18 @@ function Flow({
     [rfInstance, nodes],
   );
 
+  const onBeforeDelete = useCallback(
+    async (toBeDeleted: { nodes: Node[]; edges: Edge[] }) => {
+      if (toBeDeleted.nodes.length > 0) {
+        return nodeActions.confirmDeleteNodes(
+          toBeDeleted.nodes.map((n) => n.id),
+        );
+      }
+      return true;
+    },
+    [],
+  );
+
   useEffect(() => {
     nodeActions.storeEventEmitter.on("node", "created", addNode);
     nodeActions.storeEventEmitter.on("node", "deleted", removeNode);
@@ -393,6 +407,7 @@ function Flow({
       onNodeDragStop={onNodeDragStop}
       onDrop={onDrop}
       onDragOver={onDragOver}
+      onBeforeDelete={onBeforeDelete}
       isValidConnection={isValidConnection}
       nodeTypes={nodeTypes}
       edgeTypes={edgesTypes}

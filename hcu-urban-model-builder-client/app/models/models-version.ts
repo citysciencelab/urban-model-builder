@@ -36,6 +36,8 @@ export default class ModelsVersion extends Model {
   @attr('string') declare algorithm: string;
   @attr('string') declare globals: string;
 
+  @attr() declare customUnits: { data: { [key: string]: number[] } };
+
   @belongsTo('model', { async: true, inverse: 'modelsVersions' })
   declare model: AsyncBelongsTo<ModelModel>;
 
@@ -122,6 +124,87 @@ export default class ModelsVersion extends Model {
       return parentModel.cloneVersion(this, formModel);
     }
     return null;
+  }
+
+  /**
+   * Add a new custom unit to the model version and the reference to the node
+   * @param newUnit
+   * @param nodeId
+   */
+  async addCustomUnit(newUnit: string, nodeId: number) {
+    if (!this.customUnits) {
+      this.customUnits = { data: {} };
+    }
+    this.customUnits.data = {
+      ...this.customUnits.data,
+      [newUnit]: [nodeId],
+    };
+    await this.save();
+  }
+
+  /**
+   * Add a reference to a custom unit
+   * @param unit
+   * @param nodeId
+   */
+  async addCustomUnitReference(unit: string, nodeId: number) {
+    if (
+      this.customUnits?.data &&
+      unit in this.customUnits.data &&
+      this.customUnits.data[unit]
+    ) {
+      if (!this.customUnits.data[unit].includes(nodeId)) {
+        this.customUnits.data[unit].push(nodeId);
+      }
+      await this.save();
+    }
+  }
+
+  /**
+   * Remove old custom unit references
+   * @param unit
+   * @param nodeId
+   */
+  async removeOldUnitReferences(unit: string, nodeId: number) {
+    if (this.customUnits?.data) {
+      for (const customUnit in this.customUnits.data) {
+        const nodeIds = this.customUnits.data[customUnit];
+        if (customUnit != unit && nodeIds) {
+          const index = nodeIds.indexOf(nodeId);
+          if (index > -1) {
+            nodeIds.splice(index, 1);
+            if (nodeIds.length == 0) {
+              delete this.customUnits.data[customUnit];
+            }
+          }
+        }
+      }
+      await this.save();
+    }
+  }
+
+  async removeCustomUnit(unit: string, nodeId: number) {
+    if (this.customUnits?.data) {
+      if (unit in this.customUnits.data && this.customUnits.data[unit]) {
+        // remove the nodeId from the customUnit
+        const index = this.customUnits.data[unit].indexOf(nodeId);
+        if (index > -1) {
+          this.customUnits.data[unit].splice(index, 1);
+        }
+        // no more nodes reference this customUnit, remove it
+        if (this.customUnits.data[unit].length == 0) {
+          delete this.customUnits.data[unit];
+        }
+        await this.save();
+      }
+    }
+  }
+
+  isCustomUnit(unit: string) {
+    if (this.customUnits?.data) {
+      return unit in this.customUnits.data;
+    }
+    return false;
   }
 
   @cached

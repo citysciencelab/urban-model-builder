@@ -1,29 +1,45 @@
 import { NodeProps } from "@xyflow/react";
 import { useModelPropState } from "../utils/use-model-prop-state.tsx";
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
+import { NodeType } from "hcu-urban-model-builder-backend";
+import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 
-export const GhostNode = memo(({ data, isConnectable }: NodeProps) => {
-  const [ghostNodeModel, setGhostNodeModel] = useState(null);
+export const GhostNode = memo(
+  ({ id, data, isConnectable, selected }: NodeProps) => {
+    const [ghostNodeModel, setGhostNodeModel] = useState(null);
 
-  useEffect(() => {
-    const load = async () => {
-      setGhostNodeModel(await (data.emberModel as any).ghostParent);
-    };
+    useEffect(() => {
+      const load = async () => {
+        setGhostNodeModel(await (data.emberModel as any).ghostParent);
+      };
 
-    load().catch(console.error);
-  }, [data]);
+      load().catch(console.error);
+    }, [data]);
 
-  let ghostName = useModelPropState({
-    emberModel: ghostNodeModel,
-    propertyName: "name",
-  });
+    const handelType = useMemo((): "source" | undefined => {
+      if (!ghostNodeModel) {
+        return undefined;
+      }
 
-  return (
-    <div className={`react-flow__node-default content`}>
-      <DefaultNodeHandles isConnectable={isConnectable} />
+      return ghostNodeModel.type === NodeType.OgcApiFeatures
+        ? "source"
+        : undefined;
+    }, [ghostNodeModel]);
 
-      {ghostName}
-    </div>
-  );
-});
+    let ghostName = useModelPropState({
+      emberModel: ghostNodeModel,
+      propertyName: "name",
+    });
+
+    return (
+      <div className={`react-flow__node-default content`}>
+        <DefaultNodeHandles isConnectable={isConnectable} type={handelType} />
+
+        {ghostName}
+
+        <DefaultNodeToolbar nodeId={id} isNodeSelected={selected} />
+      </div>
+    );
+  },
+);

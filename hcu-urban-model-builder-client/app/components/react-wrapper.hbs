@@ -15,6 +15,7 @@
         {{#if this.selectedSingleItem}}
           <Form
             @record={{this.selectedSingleItem}}
+            @modelsVersion={{@model}}
             @disabled={{not @model.canEdit}}
             @close={{this.closeForm}}
           />

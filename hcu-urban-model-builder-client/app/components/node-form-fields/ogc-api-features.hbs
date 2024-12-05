@@ -1,0 +1,87 @@
+<@form.element @label={{"APIs"}} @property="apiId">
+  <PowerSelect
+    @options={{this.availableApis.value}}
+    @selected={{this.selectedApi}}
+    @searchEnabled={{true}}
+    @searchField="title"
+    @disabled={{not this.availableApis.isResolved}}
+    @onChange={{this.onApiSelected}} as |api|
+  >
+    {{api.title}}
+  </PowerSelect>
+</@form.element>
+
+<@form.element @label="Collection" @property="collectionId">
+  <PowerSelect
+    @options={{this.availableCollections.value}}
+    @selected={{this.selectedCollection}}
+    @disabled={{this.isCollectionSelectDisabled}}
+    @onChange={{this.onCollectionSelected}} as |collection|
+  >
+    {{collection.title}}
+  </PowerSelect>
+</@form.element>
+
+{{#let (not @changeset.dataProxy.data.collectionId) as |isDisabled|}}
+  <@form.element
+    @label="Limit"
+    @controlType="number"
+    @value={{@changeset.dataProxy.data.query.limit}}
+    @onChange={{fn (mut-number @changeset.dataProxy.data.query.limit)}} as |el|
+  >
+    <el.control disabled={{isDisabled}} />
+  </@form.element>
+
+  <@form.element
+    @label="Offset"
+    @controlType="number"
+    @value={{@changeset.dataProxy.data.query.offset}}
+    @onChange={{fn (mut-number @changeset.dataProxy.data.query.offset)}} as |el|
+  >
+    <el.control disabled={{isDisabled}} />
+  </@form.element>
+
+  <@form.element
+    @controlType="switch"
+    @label="Skip geometry Data?"
+    @property="data.query.skipGeometry"
+    @onChange={{this.toggleSkipGeometry}} as |el|
+  >
+    <el.control disabled={{isDisabled}} />
+  </@form.element>
+{{/let}}
+
+<@form.element @label="Selected Properties">
+  <PowerSelectMultiple
+    @options={{this.propertiesSchema.value}}
+    @selected={{this.selectedProperties}}
+    @disabled={{not this.propertiesSchema.isResolved}}
+    @onChange={{this.onPropertiesSelected}} as |property|
+  >
+    {{property.title}}
+  </PowerSelectMultiple>
+</@form.element>
+
+<NodeFormFields::OgcApiFeatures::PropertyQuery
+  @form={{@form}}
+  @changeset={{@changeset}}
+/>
+
+<div>
+  <strong>
+    Number of items in the current collection:
+  </strong>
+  {{this.selectedCollection.itemCount}}
+</div>
+<div>
+  <strong>
+    Number of matching items for current query:
+  </strong>
+  {{this.numberOfAllMatchingFeatures}}
+</div>
+<div>
+  <strong>
+    Number of match items within the limit for current query:
+  </strong>
+  {{this.numberOfCurrentMatchingFeatures}}
+</div>

@@ -32,6 +32,7 @@ models:
     plural: Models
     attributes:
       name: Name
+      description: Description
     states:
       published: Published
       draft: Draft
