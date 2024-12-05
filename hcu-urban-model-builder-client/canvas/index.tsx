@@ -280,6 +280,18 @@ function Flow({
     [rfInstance, nodes],
   );
 
+  const onBeforeDelete = useCallback(
+    async (toBeDeleted: { nodes: Node[]; edges: Edge[] }) => {
+      if (toBeDeleted.nodes.length > 0) {
+        return nodeActions.confirmDeleteNodes(
+          toBeDeleted.nodes.map((n) => n.id),
+        );
+      }
+      return true;
+    },
+    [],
+  );
+
   useEffect(() => {
     nodeActions.storeEventEmitter.on("node", "created", addNode);
     nodeActions.storeEventEmitter.on("node", "deleted", removeNode);
@@ -395,6 +407,7 @@ function Flow({
       onNodeDragStop={onNodeDragStop}
       onDrop={onDrop}
       onDragOver={onDragOver}
+      onBeforeDelete={onBeforeDelete}
       isValidConnection={isValidConnection}
       nodeTypes={nodeTypes}
       edgeTypes={edgesTypes}

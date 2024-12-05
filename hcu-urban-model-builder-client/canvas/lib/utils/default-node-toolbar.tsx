@@ -13,7 +13,6 @@ export const DefaultNodeToolbar = memo(
     const rfInstance = useReactFlow();
 
     const createGhost = async () => {
-      console.log("Creating ghost node", rfInstance);
       const node = rfInstance.getNode(props.nodeId);
 
       await emberReactConnector.create("node", {
@@ -27,7 +26,11 @@ export const DefaultNodeToolbar = memo(
       });
     };
 
-    const deleteNode = () => emberReactConnector.delete("node", props.nodeId);
+    const deleteNode = async () => {
+      if (emberReactConnector.confirmDeleteNodes([props.nodeId])) {
+        await emberReactConnector.delete("node", props.nodeId);
+      }
+    };
 
     return (
       <NodeToolbar isVisible={props.isNodeSelected} position={Position.Top}>
