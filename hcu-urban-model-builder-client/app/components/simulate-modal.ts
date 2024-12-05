@@ -17,7 +17,7 @@ import type Scenario from 'hcu-urban-model-builder-client/models/scenario';
 import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
 import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
 import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
-import { task } from 'ember-concurrency';
+import { task, timeout } from 'ember-concurrency';
 
 export interface SimulateModalSignature {
   // The arguments accepted by the component
@@ -51,6 +51,8 @@ type ScatterPlotDataset = Awaited<
 const BASE_SPEED = 20;
 
 export default class SimulateModalComponent extends Component<SimulateModalSignature> {
+  readonly DEBOUNCE_MS = 250;
+
   @service declare feathers: FeathersService;
   @service declare store: Store;
   @service declare storeEventEmitter: StoreEventEmitterService;
@@ -171,6 +173,8 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
         isCanceled = false;
         return;
       }
+      await timeout(this.DEBOUNCE_MS);
+
       this.simulationError = undefined;
       this.simulationErrorNode = null;
       this.currentDataset = null;
