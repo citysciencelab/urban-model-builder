@@ -14,7 +14,7 @@ export class BullMqJobQueueAdapter extends JobQueueAdapter<BullMqJobQueueAdapter
   readonly defaultJobOptions: DefaultJobOptions = {
     attempts: 3,
     removeOnComplete: {
-      age: 3600, // 1 hour
+      //age: 3600, // 1 hour
       count: 1000 // keep up to 1000 jobs
     },
     removeOnFail: {
