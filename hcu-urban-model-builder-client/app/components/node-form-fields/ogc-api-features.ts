@@ -104,10 +104,52 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     );
   }
 
+  @cached
+  get currentQueryResult() {
+    const fetch = async () => {
+      const apiId = this.args.changeset.dataProxy.data.apiId;
+      const collectionId = this.args.changeset.dataProxy.data.collectionId;
+      const query = this.args.changeset.dataProxy.data.query;
+
+      if (!apiId || !collectionId || !query) {
+        return null;
+      }
+
+      return this.ogcApiFeatures.fetchFeatures(apiId, collectionId, {
+        ...query,
+        limit: 1,
+      });
+    };
+
+    return new TrackedAsyncData(fetch());
+  }
+
+  get numberOfAllMatchingFeatures() {
+    return this.currentQueryResult.value?.numberMatched ?? null;
+  }
+
+  get numberOfCurrentMatchingFeatures() {
+    if (
+      this.numberOfAllMatchingFeatures === null ||
+      this.args.changeset.dataProxy.data.query?.limit === undefined
+    ) {
+      return null;
+    }
+
+    return Math.min(
+      this.numberOfAllMatchingFeatures,
+      this.args.changeset.dataProxy.data.query?.limit,
+    );
+  }
+
   @action
   onApiSelected(api: NonNullable<this['availableApis']['value']>[number]) {
     this.args.changeset.dataProxy.data.apiId = api.id;
     delete this.args.changeset.dataProxy.data.collectionId;
+    this.args.changeset.dataProxy.data = {
+      ...this.args.changeset.dataProxy.data,
+    };
+    this.resetQuery();
   }
 
   @action
@@ -115,13 +157,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     console.log('collection selected', collection);
 
     this.args.changeset.dataProxy.data.collectionId = collection.id;
-    const { limit, offset, skipGeometry } =
-      this.args.changeset.dataProxy.data.query ?? {};
-    this.args.changeset.dataProxy.data.query = {
-      limit,
-      offset,
-      skipGeometry,
-    };
+    this.resetQuery();
   }
 
   @action
@@ -139,5 +175,16 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     this.args.changeset.dataProxy.data.query!.properties = property.map(
       (p) => p.id,
     );
+  }
+
+  @action
+  resetQuery() {
+    const { limit, offset, skipGeometry } =
+      this.args.changeset.dataProxy.data.query ?? {};
+    this.args.changeset.dataProxy.data.query = {
+      limit,
+      offset,
+      skipGeometry,
+    };
   }
 }

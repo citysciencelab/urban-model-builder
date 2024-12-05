@@ -58,7 +58,11 @@ export class OgcApiFeaturesClient {
     return response.data.collections
   }
 
-  async fetchFeatures(apiId: string, collectionId: string, query: FilterProperties = {}): Promise<Feature[]> {
+  async fetchFeatures(
+    apiId: string,
+    collectionId: string,
+    query: FilterProperties = {}
+  ): Promise<FeaturesResponse> {
     const collectionData = await this.client.get<FeaturesResponse>(
       `${apiId}/collections/${collectionId}/items`,
       {
@@ -73,8 +77,8 @@ export class OgcApiFeaturesClient {
         }
       }
     )
-
-    return collectionData.data.features.map((feature: any) => {
+    const data = collectionData.data
+    data.features = data.features.map((feature: any) => {
       if (query.skipGeometry) {
         delete feature.geometry
       }
@@ -83,6 +87,7 @@ export class OgcApiFeaturesClient {
       }
       return feature
     })
+    return data
   }
 
   async getQueryableProperties(apiId: string, collectionId: string): Promise<Record<string, Property>> {

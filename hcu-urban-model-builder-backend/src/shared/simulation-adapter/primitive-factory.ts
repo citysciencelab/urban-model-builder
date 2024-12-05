@@ -105,7 +105,7 @@ const simulationFactoryMap = {
 
     return model.Variable({
       name: node.name!,
-      value: toSimulationVectorString(features)
+      value: toSimulationVectorString(features.features)
     })
   }
 }

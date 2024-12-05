@@ -66,3 +66,22 @@
   @form={{@form}}
   @changeset={{@changeset}}
 />
+
+<div>
+  <strong>
+    Number of items in the current collection:
+  </strong>
+  {{this.selectedCollection.itemCount}}
+</div>
+<div>
+  <strong>
+    Number of matching items for current query:
+  </strong>
+  {{this.numberOfAllMatchingFeatures}}
+</div>
+<div>
+  <strong>
+    Number of match items within the limit for current query:
+  </strong>
+  {{this.numberOfCurrentMatchingFeatures}}
+</div>
