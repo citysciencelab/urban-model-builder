@@ -551,6 +551,24 @@ fieldset {
   margin-bottom: get-spacer(3);
 }
 
+.react-flow__node-toolbar {
+  border-radius: calc(1rem + 1px);
+  background-color: $dark;
+
+  button {
+    background: transparent;
+    border: none;
+    height: 2rem;
+    width: 2rem;
+    border-radius: 50%;
+    margin: 2px;
+    text-align: center;
+    &:hover {
+      background-color: lighten($dark, 20%);
+    }
+  }
+}
+
 .react-wrapper .react-flow__controls {
   flex-direction: row;
 }

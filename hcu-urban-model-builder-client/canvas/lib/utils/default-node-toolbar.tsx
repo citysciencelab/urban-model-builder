@@ -35,7 +35,7 @@ export const DefaultNodeToolbar = memo(
     return (
       <NodeToolbar isVisible={props.isNodeSelected} position={Position.Top}>
         {props.allowGhost && <button onClick={createGhost}>👻</button>}
-        {<button onClick={deleteNode}>❌</button>}
+        <button onClick={deleteNode}>❌</button>
       </NodeToolbar>
     );
   },
