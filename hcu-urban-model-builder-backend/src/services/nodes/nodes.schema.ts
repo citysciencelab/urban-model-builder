@@ -213,7 +213,9 @@ export const nodesQueryProperties = Type.Pick(nodesSchema, [
   'height',
   'width',
   'parentId',
-  'ghostParentId'
+  'ghostParentId',
+  'isParameter',
+  'isOutputParameter'
 ])
 export const nodesQuerySchema = Type.Intersect(
   [

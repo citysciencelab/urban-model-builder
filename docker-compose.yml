@@ -64,3 +64,14 @@ services:
       default:
         aliases:
           - keycloak
+
+  redis:
+    image: redis:7.0.5
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data/redis:/var/lib/redis
+    networks:
+      default:
+        aliases:
+          - redis

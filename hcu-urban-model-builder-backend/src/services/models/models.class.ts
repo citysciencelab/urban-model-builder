@@ -28,7 +28,9 @@ import { Roles } from '../../client.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
-export interface ModelsParams extends KnexAdapterParams<ModelsQuery> {}
+export interface ModelsParams extends KnexAdapterParams<ModelsQuery> {
+  serializeForUMP?: boolean
+}
 
 export interface ModelsServiceOptions extends KnexAdapterOptions {
   app: Application
@@ -72,11 +74,13 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     return this.options.app
   }
 
-  async simulate(data: ModelsSimulate, params?: ServiceParams) {
+  async simulate(data: ModelsSimulate, params?: ModelsParams) {
     const nodeIdToParamValueMap = data.nodeIdToParameterValueMap
       ? new Map(Object.entries(data.nodeIdToParameterValueMap).map(([key, value]) => [parseInt(key), value]))
       : new Map<number, number>()
-    return new SimulationAdapter(this.app, data.id, nodeIdToParamValueMap, logger).simulate()
+    return new SimulationAdapter(this.app, data.id, nodeIdToParamValueMap, logger).simulate(
+      params?.serializeForUMP
+    )
   }
 
   async newDraft(data: ModelsNewDraft, params?: ServiceParams) {

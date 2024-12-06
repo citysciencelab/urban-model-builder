@@ -12,5 +12,9 @@
     "oidc": {
       "issuer": "OIDC_ISSUER"
     }
+  },
+  "redis":{
+    "host": "REDIS_HOST",
+    "port": "REDIS_PORT"
   }
 }

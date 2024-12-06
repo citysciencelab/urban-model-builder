@@ -63,7 +63,8 @@ describe('models service', () => {
         height: null,
         width: null,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const childrenPerWomanVar = await app.service('nodes').create({
@@ -71,7 +72,8 @@ describe('models service', () => {
         type: NodeType.Variable,
         data: { value: '1.5' },
         position: { x: 100, y: 0 },
-        ...baseNodeData
+        ...baseNodeData,
+        isParameter: true
       })
 
       const totalPopulationVar = await app.service('nodes').create({
@@ -209,7 +211,7 @@ describe('models service', () => {
         nodeNameToIdMap.set(node.name!, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -280,7 +282,8 @@ describe('models service', () => {
         height: null,
         width: null,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const initFlow = await app.service('nodes').create({
@@ -365,7 +368,7 @@ describe('models service', () => {
         nodeNameToIdMap.set(node.name!, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -441,7 +444,8 @@ describe('models service', () => {
         height: null,
         width: null,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const initFlow = await app.service('nodes').create({
@@ -540,7 +544,7 @@ describe('models service', () => {
         nodeNameToIdMap.set(node.name!, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -616,7 +620,8 @@ describe('models service', () => {
 
       const baseNodeData = {
         modelsVersionsId: modelVersion.id,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const personAgent = await app.service('nodes').create({
@@ -822,7 +827,7 @@ describe('models service', () => {
         nodeIdToNameMap.set(node.id, node.name!)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       const file = await readFile(join(__dirname, 'agent-based.xml'), 'utf8')
 
@@ -941,7 +946,8 @@ describe('models service', () => {
 
       const baseNodeData = {
         modelsVersionsId: modelVersion.id,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const personAgent = await app.service('nodes').create({
