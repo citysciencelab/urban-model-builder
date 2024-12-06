@@ -25,7 +25,7 @@ export class BullMqJobQueueAdapter extends JobQueueAdapter<BullMqJobQueueAdapter
 
   constructor(logger: Logger, config: BullMqJobQueueAdapterConfig) {
     super(logger, config)
-    const { redisPort, redisHost } = (configuration()() as any).redis
+    const { port: redisPort, host: redisHost } = (configuration()() as any).redis
     this.connection = new Redis({
       host: redisHost,
       port: redisPort,
