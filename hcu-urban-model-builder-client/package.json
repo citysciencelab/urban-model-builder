@@ -81,6 +81,7 @@
     "ember-cli-inject-live-reload": "^2.1.0",
     "ember-cli-sass": "^11.0.1",
     "ember-cli-string-helpers": "^6.1.0",
+    "ember-click-outside-modifier": "^4.1.0",
     "ember-concurrency": "^4.0.2",
     "ember-data": "~5.3.8",
     "ember-data-types": "^5.4.0-alpha.99",

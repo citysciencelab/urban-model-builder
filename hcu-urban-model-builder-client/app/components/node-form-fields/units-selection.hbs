@@ -1,11 +1,19 @@
-<div class="units__selection">
+<div
+  class="units__selection"
+  {{did-insert this.didInsert}}
+  {{click-outside this.onClickOutside}}
+>
   <@form.element
     class="units__selection__input"
     @controlType="text"
     @label="Unit"
-    @property={{@property}} as |el|
+    @value={{this._value}}
+    @onChange={{this.onInputChange}} as |el|
   >
-    <el.control readonly {{on "click" this.toggleUnitsVisibility}} />
+    <el.control
+      {{on "focus" this.onInputFocus}}
+      {{on "keyup" this.onInputEnter}}
+    />
     <span class="units__selection__caret btn btn_link">
       <FaIcon @icon="caret-down" />
     </span>
@@ -26,7 +34,7 @@
                     <ListGroup.item>
                       <a
                         href="javascript:void(0)"
-                        {{on "click" (fn this.setUnit item)}}
+                        {{on "click" (fn this.onItemClick item)}}
                       >
                         {{item}}
                       </a>
@@ -45,7 +53,7 @@
                           <ListGroup.item>
                             <a
                               href="javascript:void(0)"
-                              {{on "click" (fn this.setUnit item)}}
+                              {{on "click" (fn this.onItemClick item)}}
                             >
                               {{item}}
                             </a>
@@ -62,7 +70,7 @@
               <ListGroup.item>
                 <a
                   href="javascript:void(0)"
-                  {{on "click" (fn this.setUnit "Unitless")}}
+                  {{on "click" (fn this.onItemClick "Unitless")}}
                 >
                   Unitless
                 </a>
