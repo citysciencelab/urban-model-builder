@@ -2,7 +2,7 @@
   @controlType="number"
   @label="Population Size"
   @property="data.populationSize"
-  @onChange={{fn (mut-number @node.data.populationSize)}}
+  @onChange={{fn (mut-number @changeset.dataProxy.data.populationSize)}}
 />
 
 <NodeFormFields::UnitsSelection

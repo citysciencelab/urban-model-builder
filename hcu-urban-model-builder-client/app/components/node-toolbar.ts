@@ -6,6 +6,7 @@ import { NodeType } from 'hcu-urban-model-builder-backend';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
 import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
+import { decamelize, dasherize } from '@ember/string';
 
 export interface NodeToolbarSignature {
   // The arguments accepted by the component
@@ -32,8 +33,8 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
       if (typeof type === 'number' && type !== NodeType.Ghost) {
         const typeStr = NodeType[type];
         acc.push({
-          label: typeStr.toLocaleUpperCase(),
-          className: typeStr.toLowerCase(),
+          label: decamelize(typeStr),
+          className: dasherize(typeStr),
           value: type,
         });
       }

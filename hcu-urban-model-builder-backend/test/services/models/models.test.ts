@@ -11,7 +11,7 @@ import { Params } from '@feathersjs/feathers'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-describe.only('models service', () => {
+describe('models service', () => {
   it('registered the service', () => {
     const service = app.service('models')
 
@@ -63,7 +63,8 @@ describe.only('models service', () => {
         height: null,
         width: null,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const childrenPerWomanVar = await app.service('nodes').create({
@@ -71,7 +72,8 @@ describe.only('models service', () => {
         type: NodeType.Variable,
         data: { value: '1.5' },
         position: { x: 100, y: 0 },
-        ...baseNodeData
+        ...baseNodeData,
+        isParameter: true
       })
 
       const totalPopulationVar = await app.service('nodes').create({
@@ -209,7 +211,7 @@ describe.only('models service', () => {
         nodeNameToIdMap.set(node.name!, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -280,7 +282,8 @@ describe.only('models service', () => {
         height: null,
         width: null,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const initFlow = await app.service('nodes').create({
@@ -365,7 +368,7 @@ describe.only('models service', () => {
         nodeNameToIdMap.set(node.name!, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -441,7 +444,8 @@ describe.only('models service', () => {
         height: null,
         width: null,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const initFlow = await app.service('nodes').create({
@@ -540,7 +544,7 @@ describe.only('models service', () => {
         nodeNameToIdMap.set(node.name!, node.id)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       assert.ok(actual.nodes)
 
@@ -616,7 +620,8 @@ describe.only('models service', () => {
 
       const baseNodeData = {
         modelsVersionsId: modelVersion.id,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const personAgent = await app.service('nodes').create({
@@ -822,7 +827,7 @@ describe.only('models service', () => {
         nodeIdToNameMap.set(node.id, node.name!)
       }
 
-      const actual = await app.service('models').simulate({ id: modelVersion.id })
+      const actual: Record<any, any> = await app.service('models').simulate({ id: modelVersion.id })
 
       const file = await readFile(join(__dirname, 'agent-based.xml'), 'utf8')
 
@@ -941,7 +946,8 @@ describe.only('models service', () => {
 
       const baseNodeData = {
         modelsVersionsId: modelVersion.id,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const personAgent = await app.service('nodes').create({
@@ -1038,6 +1044,95 @@ describe.only('models service', () => {
       )
 
       const actual = await app.service('models').simulate({ id: modelVersion.id })
+    })
+
+    it('simulate with ogc features api node', async () => {
+      const model = await app.service('models').create(
+        {
+          internalName: 'OGC Features API Model'
+        },
+        params
+      )
+
+      const modelVersion = await app.service('models-versions').create({
+        modelId: model.id,
+        draftVersion: 1,
+        minorVersion: 0,
+        majorVersion: 0,
+        timeUnits: 'Years',
+        timeStart: 0,
+        timeLength: 10,
+        algorithm: 'Euler'
+      })
+
+      const baseNodeData = {
+        modelsVersionsId: modelVersion.id,
+        parentId: null,
+        isParameter: false
+      }
+
+      const ogcFeaturesApiNode = await app.service('nodes').create({
+        ...baseNodeData,
+        type: NodeType.OgcApiFeatures,
+        name: 'OGC Features',
+        position: { x: 100, y: 0 },
+        data: {
+          apiId: 'escooter',
+          collectionId: 'abstellflaechen_e_scooter'
+        }
+      })
+
+      const accessVar = await app.service('nodes').create({
+        ...baseNodeData,
+        type: NodeType.Variable,
+        name: 'My Variable',
+        position: { x: 100, y: 100 },
+        data: {
+          value: '[OGC Features].Length()'
+        }
+      })
+
+      const baseEdgeData = {
+        modelsVersionsId: modelVersion.id,
+        sourceHandle: '0',
+        targetHandle: '0'
+      }
+
+      const modelEdges: (Omit<EdgesData, 'modelsVersionsId' | 'sourceHandle' | 'targetHandle'> & {
+        sourceHandle?: string
+        targetHandle?: string
+      })[] = [
+        {
+          type: EdgeType.Link,
+          sourceId: ogcFeaturesApiNode.id,
+          targetId: accessVar.id
+        }
+      ]
+
+      await Promise.all(
+        modelEdges.map(async (edge) => {
+          return app.service('edges').create({
+            ...baseEdgeData,
+            ...edge
+          })
+        })
+      )
+
+      const actual = await app.service('models').simulate({ id: modelVersion.id })
+
+      const hamburgApiResult = await fetch(
+        'https://api.hamburg.de/datasets/v1/escooter/collections/abstellflaechen_e_scooter/items?limit=100'
+      )
+      const hamburgApiData = await hamburgApiResult.json()
+      const actualNumberOfFeatures = hamburgApiData.features.length
+      assert.ok(actualNumberOfFeatures > 10)
+
+      assert.ok(actual.nodes)
+      const actualNodeData = actual.nodes
+      assert.ok(accessVar.id in actualNodeData)
+      for (const series of actualNodeData[accessVar.id].series) {
+        assert.strictEqual(series, actualNumberOfFeatures)
+      }
     })
   })
 })

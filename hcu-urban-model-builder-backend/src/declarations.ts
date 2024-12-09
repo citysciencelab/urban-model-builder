@@ -4,16 +4,19 @@ import { Application as FeathersApplication } from '@feathersjs/koa'
 import { ApplicationConfiguration } from './configuration.js'
 
 import { User } from './services/users/users.js'
+import { JobQueueAdapter } from './utils/job-queue-adapter/base.js'
 
 export type { NextFunction }
 
 // The types for app.get(name) and app.set(name)
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Configuration extends ApplicationConfiguration {}
+export interface Configuration extends ApplicationConfiguration {
+  jobQueue: any
+}
 
 // A mapping of service names to types. Will be extended in service files.
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ServiceTypes {}
+export interface ServiceTypes { }
 
 // The application instance type that will be used everywhere else
 export type Application = FeathersApplication<ServiceTypes, Configuration>

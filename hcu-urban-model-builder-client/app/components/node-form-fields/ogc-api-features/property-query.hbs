@@ -1,0 +1,51 @@
+<fieldset {{did-update this.onCollectionIdChanged this.collectionId}}>
+  <legend>
+    Selected Property Queries
+  </legend>
+
+  {{#each this.selectedPropertyQuery as |property|}}
+    <div>
+      {{concat property.title ": " property.value}}
+      <a
+        href="javascript:void(0)"
+        {{on "click" (fn this.deleteQueryProperty property.id)}}
+      >
+        <FaIcon @icon="trash" />
+      </a>
+    </div>
+  {{else}}
+    <div>
+      No query params selected
+    </div>
+  {{/each}}
+
+  <hr />
+
+  <@form.element @label="Query Property">
+    <PowerSelect
+      @options={{this.queryablePropertiesOptions}}
+      @selected={{this.selectedNewQueryProperty}}
+      @disabled={{this.isQueryBuildDisabled}}
+      @onChange={{fn (mut this.selectedNewQueryProperty)}} as |collection|
+    >
+      {{collection.title}}
+    </PowerSelect>
+  </@form.element>
+
+  <@form.element
+    @label="Query Property Value"
+    @controlType={{this.newQueryValueControlType}}
+    @value={{this.newQueryValue}}
+    @onChange={{fn (mut this.newQueryValue)}} as |el|
+  >
+    <el.control disabled={{not this.selectedNewQueryProperty}} />
+  </@form.element>
+
+  <BsButton
+    @type="primary"
+    @onClick={{this.addNewQuery}}
+    disabled={{this.isAddNewQueryPropertyDisabled}}
+  >
+    Add
+  </BsButton>
+</fieldset>

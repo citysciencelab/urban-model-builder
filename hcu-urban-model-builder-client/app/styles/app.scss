@@ -18,7 +18,7 @@ $node-color-map: (
   "flow": #a3c4ff,
   "stock": cadetblue,
   "variable": coral,
-  "population": #974a5d,
+  "population": #b75b72,
   "state": #52d48a,
   "action": #f5a623,
   "converter": #84f5ff,
@@ -27,7 +27,8 @@ $node-color-map: (
       $color: #574f7e,
       $alpha: 0.2
     ),
-  "folder": #8f8d8d71
+  "folder": #8f8d8d71,
+  "ogc-api-features": #479180
 );
 
 $edge-color-map: (
@@ -122,6 +123,7 @@ main {
 .toolbar__container {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: get-spacer(3);
   overflow: auto;
 }
@@ -131,6 +133,7 @@ main {
   border-radius: $border-radius;
   border: ($border-width * 2) $border-style $black;
   cursor: grab;
+  white-space: nowrap;
 
   @each $name, $color in $node-color-map {
     &.--#{$name} {
@@ -546,6 +549,24 @@ fieldset {
 .scenario__value {
   width: 100%;
   margin-bottom: get-spacer(3);
+}
+
+.react-flow__node-toolbar {
+  border-radius: calc(1rem + 1px);
+  background-color: $dark;
+
+  button {
+    background: transparent;
+    border: none;
+    height: 2rem;
+    width: 2rem;
+    border-radius: 50%;
+    margin: 2px;
+    text-align: center;
+    &:hover {
+      background-color: lighten($dark, 20%);
+    }
+  }
 }
 
 .react-wrapper .react-flow__controls {
