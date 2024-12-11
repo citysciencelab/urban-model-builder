@@ -4,7 +4,7 @@ import { NodeType } from '../nodes.shared.js'
 const defaultNodeDataByType = {
   [NodeType.OgcApiFeatures]: {
     query: {
-      limit: 100,
+      limit: 1000,
       offset: 0,
       properties: [],
       skipGeometry: true
