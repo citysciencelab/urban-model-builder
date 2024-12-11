@@ -43,8 +43,8 @@
 
   <@form.element
     @controlType="switch"
-    @label="Skip geometry Data?"
-    @property="data.query.skipGeometry"
+    @label="Include Geometry Data?"
+    @value={{not @changeset.dataProxy.data.query.skipGeometry}}
     @onChange={{this.toggleSkipGeometry}} as |el|
   >
     <el.control disabled={{isDisabled}} />
