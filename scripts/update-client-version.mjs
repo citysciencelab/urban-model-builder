@@ -17,3 +17,4 @@ clientCanvasPackageJson.peerDependencies['hcu-urban-model-builder-backend'] = `^
 await fs.writeJson('./hcu-urban-model-builder-client/package.json', clientPackageJson, { spaces: 2 });
 await fs.writeJson('./hcu-urban-model-builder-client/canvas/package.json', clientCanvasPackageJson, { spaces: 2 });
 
+await $`cd hcu-urban-model-builder-client && npm i`
