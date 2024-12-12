@@ -8,10 +8,15 @@
   }}
   @property="data.value" as |el|
 >
-  <NodeFormFields::Formula @form={{@form}} @node={{@node}} @el={{el}}>
+  <NodeFormFields::Formula
+    @form={{@form}}
+    @node={{@node}}
+    @el={{el}}
+    @disabled={{@disabled}}
+  >
     <el.control
       class="code-textarea"
-      disabled={{@changeset.dataProxy.isParameter}}
+      disabled={{or @changeset.dataProxy.isParameter @disabled}}
     />
   </NodeFormFields::Formula>
 </@form.element>
@@ -24,6 +29,7 @@
   @type="numeric"
   @inputVisible={{true}}
   @outputVisible={{true}}
+  @disabled={{@disabled}}
 />
 
 <NodeFormFields::Validation

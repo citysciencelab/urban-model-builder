@@ -8,7 +8,12 @@
   }}
   @property="data.startActive" as |el|
 >
-  <NodeFormFields::Formula @form={{@form}} @node={{@node}} @el={{el}}>
+  <NodeFormFields::Formula
+    @form={{@form}}
+    @node={{@node}}
+    @el={{el}}
+    @disabled={{@disabled}}
+  >
     <el.control
       class="code-textarea"
       disabled={{@changeset.dataProxy.isParameter}}
@@ -21,7 +26,12 @@
   @label="Residency"
   @property="data.residency" as |el|
 >
-  <NodeFormFields::Formula @form={{@form}} @node={{@node}} @el={{el}}>
+  <NodeFormFields::Formula
+    @form={{@form}}
+    @node={{@node}}
+    @el={{el}}
+    @disabled={{@disabled}}
+  >
     <el.control class="code-textarea" />
   </NodeFormFields::Formula>
 </@form.element>
@@ -34,4 +44,5 @@
   @type="boolean"
   @inputVisible={{true}}
   @outputVisible={{true}}
+  @disabled={{@disabled}}
 />

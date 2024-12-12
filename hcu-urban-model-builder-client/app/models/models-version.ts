@@ -200,7 +200,7 @@ export default class ModelsVersion extends Model {
     }
   }
 
-  isCustomUnit(unit: string) {
+  existsInCustomUnits(unit: string) {
     if (this.customUnits?.data) {
       return unit in this.customUnits.data;
     }

@@ -25,16 +25,16 @@ $node-color-map: (
   "agent":
     rgba(
       $color: #574f7e,
-      $alpha: 0.2,
+      $alpha: 0.2
     ),
   "folder": #8f8d8d71,
-  "ogc-api-features": #479180,
+  "ogc-api-features": #479180
 );
 
 $edge-color-map: (
   "flow": map.get($node-color-map, "flow"),
   "transition": #030303,
-  "agent-population": #aba3d2,
+  "agent-population": #aba3d2
 );
 
 @import "./react-canvas";
@@ -123,9 +123,8 @@ main {
 .toolbar__container {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: get-spacer(3);
-  width: 100%;
+  overflow: auto;
 }
 
 .node-toolbar__node {
@@ -581,7 +580,7 @@ fieldset {
 .react-wrapper .react-flow__panel.center {
   margin-left: 140px;
   margin-right: 140px;
-  overflow: auto;
+  // overflow: auto;
   width: calc(100% - 280px);
   display: flex;
   justify-content: center;

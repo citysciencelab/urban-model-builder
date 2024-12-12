@@ -1,10 +1,9 @@
 import { cached } from '@ember-data/tracking';
-import { action, set } from '@ember/object';
+import { action } from '@ember/object';
 import { service } from '@ember/service';
-import { isBlank } from '@ember/utils';
 import Component from '@glimmer/component';
-import { tracked } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
+import { task, timeout } from 'ember-concurrency';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import type OgcApiFeaturesService from 'hcu-urban-model-builder-client/services/ogc-api-features';
 import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
@@ -23,6 +22,8 @@ export interface NodeFormFieldsOgcApiFeaturesSignature {
 }
 
 export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<NodeFormFieldsOgcApiFeaturesSignature> {
+  readonly DEBOUNCE_MS = 250;
+
   @service declare ogcApiFeatures: OgcApiFeaturesService;
 
   @cached
@@ -115,7 +116,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
         return null;
       }
 
-      return this.ogcApiFeatures.fetchFeatures(apiId, collectionId, {
+      return this.queryTask.perform(apiId, collectionId, {
         ...query,
         limit: 1,
       });
@@ -187,4 +188,13 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
       skipGeometry,
     };
   }
+
+  queryTask = task(
+    { restartable: true },
+    async (apiId: string, collectionId: string, query: any) => {
+      await timeout(this.DEBOUNCE_MS);
+
+      return this.ogcApiFeatures.fetchFeatures(apiId, collectionId, query);
+    },
+  );
 }

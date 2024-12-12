@@ -29,11 +29,18 @@ type Property = {
   title: string
 }
 
-type FilterProperties = Record<string, any> & {
+type PropertyFilter = {
+  operator?: string
+  value: string
+}
+
+type FilterQuery = {
   limit?: number
   offset?: number
   skipGeometry?: boolean
   selectedProperties?: string[]
+  propertyFilters?: Record<string, PropertyFilter>
+  [key: string]: any
 }
 
 export class OgcApiFeaturesClient {
@@ -61,17 +68,12 @@ export class OgcApiFeaturesClient {
   async fetchFeatures(
     apiId: string,
     collectionId: string,
-    query: FilterProperties = {}
+    query: FilterQuery = {}
   ): Promise<FeaturesResponse> {
     const collectionData = await this.client.get<FeaturesResponse>(
       `${apiId}/collections/${collectionId}/items`,
       {
-        params: {
-          ...query,
-          ...(query.properties && query.properties.length > 0
-            ? { properties: query.properties?.join(',') }
-            : {})
-        },
+        params: this.serializeFeatureQuery(query),
         headers: {
           Accept: 'application/geo+json'
         }
@@ -108,5 +110,40 @@ export class OgcApiFeaturesClient {
     })
 
     return response.data.properties
+  }
+
+  private serializeFeatureQuery(query: FilterQuery) {
+    const { propertyFilters = {}, filter, properties, ...rest } = query
+    const propertyQueryParams: Record<string, any> = {}
+    let filtersFromProperties = ''
+
+    for (const [key, filter] of Object.entries(propertyFilters)) {
+      if (!filter.operator || filter.operator === '=') {
+        propertyQueryParams[key] = filter.value
+      } else {
+        const subFilter = `${key} ${filter.operator} ${filter.value}`
+        if (filtersFromProperties) {
+          filtersFromProperties += ` AND ${subFilter}`
+        } else {
+          filtersFromProperties += subFilter
+        }
+      }
+    }
+
+    if (properties && properties.length > 0) {
+      rest.properties = properties.join(',')
+    }
+    if (filter && filtersFromProperties) {
+      rest.filter = `(${filter}) AND ${filtersFromProperties}`
+    } else if (filter) {
+      rest.filter = filter
+    } else if (filtersFromProperties) {
+      rest.filter = filtersFromProperties
+    }
+
+    return {
+      ...propertyQueryParams,
+      ...rest
+    }
   }
 }

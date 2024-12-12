@@ -5,7 +5,13 @@
 
   {{#each this.selectedPropertyQuery as |property|}}
     <div>
-      {{concat property.title ": " property.value}}
+      {{concat
+        property.title
+        " "
+        property.filter.operator
+        " "
+        property.filter.value
+      }}
       <a
         href="javascript:void(0)"
         {{on "click" (fn this.deleteQueryProperty property.id)}}
@@ -26,9 +32,22 @@
       @options={{this.queryablePropertiesOptions}}
       @selected={{this.selectedNewQueryProperty}}
       @disabled={{this.isQueryBuildDisabled}}
+      @searchEnabled={{true}}
+      @searchField="title"
       @onChange={{fn (mut this.selectedNewQueryProperty)}} as |collection|
     >
       {{collection.title}}
+    </PowerSelect>
+  </@form.element>
+
+  <@form.element @label="Query Property Operator">
+    <PowerSelect
+      @options={{this.currentQueryOperatorOptions}}
+      @selected={{this.newQueryOperator}}
+      @disabled={{not this.selectedNewQueryProperty}}
+      @onChange={{fn (mut this.newQueryOperator)}} as |operator|
+    >
+      {{operator}}
     </PowerSelect>
   </@form.element>
 
