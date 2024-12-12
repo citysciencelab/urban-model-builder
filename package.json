@@ -4,9 +4,13 @@
   "main": "index.js",
   "scripts": {
     "setup": "./scripts/setup.sh",
-    "deploy:latest": "./scripts/deploy.sh"
+    "deploy:latest": "./scripts/deploy.sh",
+    "feathers-client:version": "npx zx ./scripts/update-client-version.mjs"
   },
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "zx": "^8.2.4"
+  }
 }

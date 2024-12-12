@@ -22,11 +22,10 @@ Start the client:
 cd hcu-urban-model-builder-client && npm run start
 ```
 
-Create first model:
+## Publish New Feathers Client Version
+
+Publish a new Feathers Client Version:
 ```
-curl --location 'http://localhost:3030/models' \
---header 'Content-Type: application/json' \
---data '{
-    "name": "My first model"
-}'
+npm run feathers-client:version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease | from-git]
 ```
+The Arguments for the npm script `feathers-client:version` are the same as [npm version](https://docs.npmjs.com/cli/v8/commands/npm-version).
