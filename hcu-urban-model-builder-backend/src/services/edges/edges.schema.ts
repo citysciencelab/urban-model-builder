@@ -7,6 +7,7 @@ import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { EdgesService } from './edges.class.js'
 import { EdgeType } from './edges.shared.js'
+import { Nullable } from '../../utils/schema.js'
 
 // Main data model schema
 export const edgesSchema = Type.Object(
@@ -17,7 +18,18 @@ export const edgesSchema = Type.Object(
     sourceId: Type.Number(),
     targetId: Type.Number(),
     sourceHandle: Type.String(),
-    targetHandle: Type.String()
+    targetHandle: Type.String(),
+    points: Nullable(
+      Type.Object({
+        data: Type.Array(
+          Type.Object({
+            id: Type.String(),
+            x: Type.Number(),
+            y: Type.Number()
+          })
+        )
+      })
+    )
   },
   { $id: 'Edges', additionalProperties: false }
 )
@@ -30,7 +42,7 @@ export const edgesExternalResolver = resolve<Edges, HookContext<EdgesService>>({
 // Schema for creating new entries
 export const edgesDataSchema = Type.Pick(
   edgesSchema,
-  ['modelsVersionsId', 'type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle'],
+  ['modelsVersionsId', 'type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle', 'points'],
   {
     $id: 'EdgesData'
   }
