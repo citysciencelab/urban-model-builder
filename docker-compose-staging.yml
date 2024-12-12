@@ -33,8 +33,9 @@ services:
           - postgres
   redis:
     image: redis:7.0.5
+    restart: always
     volumes:
-      - ./data/redis:/var/lib/redis
+      - ./data/redis:/data
     networks:
       default:
         aliases:
