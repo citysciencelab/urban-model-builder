@@ -19,6 +19,7 @@ import {
   ReactFlowInstance,
   MarkerType,
   SmoothStepEdge,
+  BezierEdge,
   ConnectionLineType,
   EdgeChange,
   reconnectEdge,
@@ -49,6 +50,7 @@ import {
 } from "./lib/context/ember-react-connector.ts";
 import { GhostNode } from "./lib/nodes/ghost-node.tsx";
 import { OgcApiFeaturesNode } from "./lib/nodes/ogc-api-features-node.tsx";
+import { EditableEdge } from "./lib/edges/editable.tsx";
 
 type FlowOptions = {
   disabled?: boolean;
@@ -70,10 +72,10 @@ const nodeTypes = {
 } as const;
 
 const edgesTypes = {
-  [ReactFlowEdgeType.Link]: SmoothStepEdge,
+  [ReactFlowEdgeType.Link]: EditableEdge,
   [ReactFlowEdgeType.Flow]: FlowTransitionEdge,
   [ReactFlowEdgeType.Transition]: FlowTransitionEdge,
-  [ReactFlowEdgeType.AgentPopulation]: SmoothStepEdge,
+  [ReactFlowEdgeType.AgentPopulation]: EditableEdge,
 };
 
 function Flow({

@@ -23,6 +23,8 @@ export default class Edge extends Model {
 
   @attr('string') declare targetHandle: string;
 
+  @attr() declare points: { data: { id: string; x: number; y: number }[] };
+
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;
 
@@ -35,6 +37,12 @@ export default class Edge extends Model {
       sourceHandle: this.sourceHandle,
       targetHandle: this.targetHandle,
       reconnectable: this.reconnectable,
+      data: {
+        points: (this.points?.data || []).map((point) => ({
+          ...point,
+          active: true,
+        })),
+      },
     };
   }
 
