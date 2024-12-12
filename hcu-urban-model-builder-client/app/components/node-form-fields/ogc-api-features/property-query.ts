@@ -23,10 +23,12 @@ export interface NodeFormFieldsOgcApiFeaturesPropertyQuerySignature {
 }
 
 export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends Component<NodeFormFieldsOgcApiFeaturesPropertyQuerySignature> {
+  readonly queryPropertyOperationOptions = [`=`, `!=`, `>`, `<`, `>=`, `<=`];
   @service declare ogcApiFeatures: OgcApiFeaturesService;
 
   @tracked selectedNewQueryProperty: { id: string; type: string } | null = null;
   @tracked newQueryValue: string | number | null = null;
+  @tracked newQueryOperator: string = '=';
 
   @cached
   get collectionId() {
@@ -56,20 +58,25 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
     return new TrackedAsyncData(fetch());
   }
 
-  get query() {
-    return this.args.changeset.dataProxy.data.query as Record<string, any>;
+  get propertyFilters() {
+    return this.args.changeset.dataProxy.data.query!.propertyFilters as Record<
+      string,
+      any
+    >;
   }
 
-  set query(value) {
-    this.args.changeset.dataProxy.data.query = value;
+  set propertyFilters(value) {
+    console.log('setting propertyFilters', value);
+
+    this.args.changeset.dataProxy.data.query!.propertyFilters = value;
   }
 
   get selectedPropertyQuery() {
     return this.queryableProperties.value?.reduce((props, prop) => {
-      if (this.query?.[prop.id]) {
+      if (this.propertyFilters?.[prop.id]) {
         props.push({
           ...prop,
-          value: this.query[prop.id],
+          filter: this.propertyFilters[prop.id],
         });
       }
       return props;
@@ -78,7 +85,7 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
 
   get queryablePropertiesOptions() {
     return this.queryableProperties.value?.filter(
-      (property) => !this.query?.[property.id],
+      (property) => !this.propertyFilters?.[property.id],
     );
   }
 
@@ -96,17 +103,32 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
     return !this.selectedNewQueryProperty || isBlank(this.newQueryValue);
   }
 
+  get currentQueryOperatorOptions() {
+    if (
+      this.selectedNewQueryProperty?.id === 'id' ||
+      this.selectedNewQueryProperty?.type !== 'integer'
+    ) {
+      return ['='];
+    } else {
+      return this.queryPropertyOperationOptions;
+    }
+  }
+
   @action onCollectionIdChanged() {
     this.resetNewQueryProperty();
   }
 
   @action
   addNewQuery() {
-    if (this.args.changeset.dataProxy.data.query) {
-      this.query[this.selectedNewQueryProperty!.id] = this.newQueryValue!;
+    const newFilter = {
+      operator: this.newQueryOperator,
+      value: this.newQueryValue,
+    };
+    if (this.propertyFilters) {
+      this.propertyFilters[this.selectedNewQueryProperty!.id] = newFilter;
     } else {
-      this.query = {
-        [this.selectedNewQueryProperty!.id]: this.newQueryValue!,
+      this.propertyFilters = {
+        [this.selectedNewQueryProperty!.id]: newFilter,
       };
     }
 
@@ -115,10 +137,10 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
 
   @action
   deleteQueryProperty(propertyId: string) {
-    if (this.query) {
-      delete this.query[propertyId];
-      this.args.changeset.dataProxy.data.query = {
-        ...this.args.changeset.dataProxy.data.query,
+    if (this.propertyFilters) {
+      delete this.propertyFilters[propertyId];
+      this.args.changeset.dataProxy.data.query!.propertyFilters = {
+        ...this.args.changeset.dataProxy.data.query?.propertyFilters,
       };
     }
   }
@@ -126,5 +148,6 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
   resetNewQueryProperty() {
     this.selectedNewQueryProperty = null;
     this.newQueryValue = null;
+    this.newQueryOperator = '=';
   }
 }

@@ -5,18 +5,29 @@
     @searchEnabled={{true}}
     @searchField="title"
     @disabled={{not this.availableApis.isResolved}}
-    @onChange={{this.onApiSelected}} as |api|
+    @onChange={{this.onApiSelected}}
+    as |api|
   >
     {{api.title}}
   </PowerSelect>
 </@form.element>
+
+<div>
+  Mehr Informationen zur API
+  <a
+    href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
+  >
+    {{this.selectedApi.title}}
+  </a>
+</div>
 
 <@form.element @label="Collection" @property="collectionId">
   <PowerSelect
     @options={{this.availableCollections.value}}
     @selected={{this.selectedCollection}}
     @disabled={{this.isCollectionSelectDisabled}}
-    @onChange={{this.onCollectionSelected}} as |collection|
+    @onChange={{this.onCollectionSelected}}
+    as |collection|
   >
     {{collection.title}}
   </PowerSelect>
@@ -27,7 +38,8 @@
     @label="Limit"
     @controlType="number"
     @value={{@changeset.dataProxy.data.query.limit}}
-    @onChange={{fn (mut-number @changeset.dataProxy.data.query.limit)}} as |el|
+    @onChange={{fn (mut-number @changeset.dataProxy.data.query.limit)}}
+    as |el|
   >
     <el.control disabled={{isDisabled}} />
   </@form.element>
@@ -36,7 +48,8 @@
     @label="Offset"
     @controlType="number"
     @value={{@changeset.dataProxy.data.query.offset}}
-    @onChange={{fn (mut-number @changeset.dataProxy.data.query.offset)}} as |el|
+    @onChange={{fn (mut-number @changeset.dataProxy.data.query.offset)}}
+    as |el|
   >
     <el.control disabled={{isDisabled}} />
   </@form.element>
@@ -45,7 +58,8 @@
     @controlType="switch"
     @label="Include Geometry Data?"
     @value={{not @changeset.dataProxy.data.query.skipGeometry}}
-    @onChange={{this.toggleSkipGeometry}} as |el|
+    @onChange={{this.toggleSkipGeometry}}
+    as |el|
   >
     <el.control disabled={{isDisabled}} />
   </@form.element>
@@ -56,7 +70,10 @@
     @options={{this.propertiesSchema.value}}
     @selected={{this.selectedProperties}}
     @disabled={{not this.propertiesSchema.isResolved}}
-    @onChange={{this.onPropertiesSelected}} as |property|
+    @searchEnabled={{true}}
+    @searchField="title"
+    @onChange={{this.onPropertiesSelected}}
+    as |property|
   >
     {{property.title}}
   </PowerSelectMultiple>
@@ -66,6 +83,16 @@
   @form={{@form}}
   @changeset={{@changeset}}
 />
+
+<@form.element
+  @label="Advanced Filter"
+  @controlType="textarea"
+  @helpText="Enter a valid CQL2 filter expression"
+  @property="data.query.filter"
+  as |el|
+>
+  <el.control disabled={{not this.selectedCollection}} />
+</@form.element>
 
 <div>
   <strong>

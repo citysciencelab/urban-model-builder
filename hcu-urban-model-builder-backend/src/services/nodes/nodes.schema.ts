@@ -101,7 +101,16 @@ export const ogcFeatureNodeSchema = Type.Object(
           limit: Type.Optional(Type.Number()),
           offset: Type.Optional(Type.Number()),
           skipGeometry: Type.Optional(Type.Boolean()),
-          properties: Type.Optional(Type.Array(Type.String()))
+          properties: Type.Optional(Type.Array(Type.String())),
+          propertyFilters: Type.Optional(
+            Type.Record(
+              Type.String(),
+              Type.Object({
+                value: Type.String(),
+                operator: Type.Optional(Type.String())
+              })
+            )
+          )
         },
         { additionalProperties: true }
       )
