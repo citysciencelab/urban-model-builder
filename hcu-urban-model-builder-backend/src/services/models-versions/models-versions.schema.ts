@@ -33,7 +33,8 @@ export const modelsVersionsSchema = Type.Object(
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Nullable(Type.String({ format: 'date-time' })),
     deletedAt: Nullable(Type.String({ format: 'date-time' })),
-    role: Nullable(Type.Number())
+    role: Nullable(Type.Number()),
+    publishedToUMPAt: Nullable(Type.String({ format: 'date-time' }))
   },
   { $id: 'ModelsVersions', additionalProperties: false }
 )
@@ -61,7 +62,8 @@ export const modelsVersionsDataSchema = Type.Pick(
     'timeLength',
     'timeStep',
     'algorithm',
-    'globals'
+    'globals',
+    'publishedToUMPAt',
   ],
   {
     $id: 'ModelsVersionsData'
@@ -89,7 +91,8 @@ export const modelsVersionsQueryProperties = Type.Pick(modelsVersionsSchema, [
   'timeLength',
   'algorithm',
   'globals',
-  'createdAt'
+  'createdAt',
+  'publishedToUMPAt'
 ])
 export const modelsVersionsQuerySchema = Type.Intersect(
   [

@@ -9,7 +9,7 @@ export type ProcessesClientService = Pick<ProcessesService<Params>, (typeof proc
 
 export const processesPath = 'ogcapi/processes'
 
-export const processesMethods: Array<keyof ProcessesService> = ['find', 'get', 'execute']
+export const processesMethods: Array<keyof ProcessesService> = ['find', 'get']
 
 export const processesClient = (client: ClientApplication) => {
   const connection = client.get('connection')

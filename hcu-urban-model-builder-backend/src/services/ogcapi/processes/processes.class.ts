@@ -9,7 +9,7 @@ export interface ProcessesServiceOptions {
   app: Application
 }
 
-export interface ProcessesParams extends Params {}
+export interface ProcessesParams extends Params { }
 
 // This is a skeleton for a custom service class. Remove or add the methods you need here
 export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesParams> {
@@ -20,6 +20,7 @@ export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesP
 
   async find(_params?: ServiceParams): Promise<Processes> {
     const query = this.app.service('models-versions').createQuery({})
+    query.where('publishedToUMPAt', 'IS NOT', null)
     // join on models to get the model name
     query.leftJoin('models as models', 'models.id', 'models_versions.modelId')
     query.select('models.internalName as modelName', 'models.description as modelDescription')
@@ -39,6 +40,7 @@ export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesP
 
   async get(id: number, _params?: ServiceParams): Promise<ProcessesDetails> {
     const modelQuery = this.app.service('models-versions').createQuery({})
+    modelQuery.where('publishedToUMPAt', 'IS NOT', null)
     modelQuery.leftJoin('models as models', 'models.id', 'models_versions.modelId')
     modelQuery.select('models.internalName as modelName', 'models.description as modelDescription')
 
@@ -95,14 +97,6 @@ export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesP
         { href: `/ogcapi/processes/${model.id}/execution`, rel: 'execute' },
         { href: `/ogcapi/processes/`, rel: 'collection' }
       ]
-    }
-  }
-
-  async execute(id: number, _params?: ServiceParams): Promise<Record<any, any>> {
-    return {
-      id: 0,
-      text: `A new message with ID: ${id}!`,
-      description: 'A new description'
     }
   }
 }

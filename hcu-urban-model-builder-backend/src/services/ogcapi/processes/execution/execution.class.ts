@@ -18,13 +18,12 @@ export interface ProcessesExecutionServiceOptions {
   app: Application
 }
 
-export interface ProcessesExecutionParams extends Params {}
+export interface ProcessesExecutionParams extends Params { }
 
 // This is a skeleton for a custom service class. Remove or add the methods you need here
 export class ProcessesExecutionService<
   ServiceParams extends ProcessesExecutionParams = ProcessesExecutionParams
-> implements ServiceInterface<ProcessesExecution, ProcessesExecutionData, ServiceParams>
-{
+> implements ServiceInterface<ProcessesExecution, ProcessesExecutionData, ServiceParams> {
   app: Application
   constructor(public options: ProcessesExecutionServiceOptions) {
     this.app = options.app
@@ -43,7 +42,7 @@ export class ProcessesExecutionService<
   async create(data: ProcessesExecutionData, params?: ServiceParams): Promise<ProcessesExecution> {
     const processId = this.getProcessId(params)
     const process = await this.app.service('models-versions').get(processId)
-    if (!process) {
+    if (!process || !process.publishedToUMPAt) {
       throw new NotFound('Process not found')
     }
     const inputNodes = await this.app.service('nodes').find({
