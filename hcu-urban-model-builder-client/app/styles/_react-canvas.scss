@@ -82,3 +82,13 @@ $group-nodes: "folder", "agent";
     fill: var(--xy-edge-stroke-selected-default);
   }
 }
+
+.react-flow__node {
+  .react-flow__node-arrow__handle__target,
+  .react-flow__node-arrow__handle__source {
+    height: 8px;
+    width: 8px;
+    border-color: $black;
+    background-color: $white;
+  }
+}
