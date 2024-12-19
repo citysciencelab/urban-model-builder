@@ -24,6 +24,10 @@ const unitsAndConstraintsSchema = Type.Object({
   constraints: Type.Optional(constraintsSchema)
 })
 
+const handlePositionSchema = Type.Union(
+  (['left', 'top', 'right', 'bottom'] as const).map((pos) => Type.Literal(pos))
+)
+
 export const variableNodeSchema = Type.Object({
   value: Type.Optional(Type.String()),
   ...unitsAndConstraintsSchema.properties
@@ -40,6 +44,7 @@ export const stockNodeSchema = Type.Object({
 export const flowNodeSchema = Type.Object({
   rate: Type.Optional(Type.String()),
   nonNegative: Type.Optional(Type.Boolean()),
+  direction: Type.Optional(handlePositionSchema),
   ...unitsAndConstraintsSchema.properties
 })
 
@@ -74,6 +79,7 @@ export const transitionNodeSchema = Type.Object({
   recalculate: Type.Optional(Type.Boolean()),
   repeat: Type.Optional(Type.Boolean()),
   trigger: Type.Optional(Literals<TriggerType>('Condition', 'Probability', 'Timeout')),
+  direction: Type.Optional(handlePositionSchema),
   constraints: Type.Optional(constraintsSchema)
 })
 
