@@ -14,6 +14,11 @@
   z-index: 1055;
 }
 
+$color-fiord: #465166;
+$color-anakiwa: #a3c4ff;
+$color-rose: #ff0071;
+$node-selected-color: $color-rose;
+
 $node-color-map: (
   "flow": #a3c4ff,
   "stock": cadetblue,

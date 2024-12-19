@@ -25,7 +25,7 @@ export const FolderNode = memo(
     });
 
     return (
-      <>
+      <div className="react-flow__node-folder__content">
         {type === ReactFlowNodeType.Agent &&
           ["source"].map((handleType: HandleType) =>
             positions.map((position) => (
@@ -38,10 +38,10 @@ export const FolderNode = memo(
               />
             )),
           )}
-        <NodeResizer color="#ff0071" isVisible={!!selected} />
-        <div className="content">{name}</div>
+        <NodeResizer isVisible={!!selected} />
+        <div>{name}</div>
         <DefaultNodeToolbar nodeId={id} isNodeSelected={selected} />
-      </>
+      </div>
     );
   },
 );
