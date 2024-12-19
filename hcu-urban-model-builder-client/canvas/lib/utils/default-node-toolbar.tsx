@@ -8,6 +8,7 @@ export const DefaultNodeToolbar = memo(
     nodeId: string;
     isNodeSelected: boolean;
     allowGhost?: boolean;
+    children?: React.ReactNode;
   }) => {
     const emberReactConnector = useContext(EmberReactConnectorContext);
     const rfInstance = useReactFlow();
@@ -34,6 +35,7 @@ export const DefaultNodeToolbar = memo(
 
     return (
       <NodeToolbar isVisible={props.isNodeSelected} position={Position.Top}>
+        {props.children}
         {props.allowGhost && <button onClick={createGhost}>👻</button>}
         <button onClick={deleteNode}>❌</button>
       </NodeToolbar>
