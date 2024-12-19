@@ -67,7 +67,7 @@ export const ArrowNode = memo(
     }, [direction, rfInstance]);
 
     return (
-      <div>
+      <div className="react-flow__node-arrow__content">
         {normalTargetHandles.map((position) => (
           <Handle
             type={"target"}
@@ -95,7 +95,7 @@ export const ArrowNode = memo(
           isConnectable={isConnectable}
         />
 
-        <div className="react-flow__node-flow__label --{direction}">{name}</div>
+        <div className="react-flow__node-flow__label">{name}</div>
         <DefaultNodeToolbar nodeId={id} isNodeSelected={selected}>
           <button onClick={onChangeDirection}>🔁</button>
         </DefaultNodeToolbar>

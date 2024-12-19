@@ -62,6 +62,16 @@ $group-nodes: "folder", "agent";
   }
 }
 
+.react-flow__node-arrow__content {
+  border: var(--xy-node-border-default);
+  border-radius: var(--xy-node-border-radius-default);
+  border-color: transparent;
+}
+
+.selected > .react-flow__node-arrow__content {
+  border-color: $node-selected-color;
+}
+
 .react-wrapper .react-flow__controls {
   flex-direction: row;
 }
