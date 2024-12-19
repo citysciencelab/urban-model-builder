@@ -1,21 +1,26 @@
-import { NodeProps } from "@xyflow/react";
+import { NodeProps, NodeResizer } from "@xyflow/react";
 import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo } from "react";
 import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
+import { ReactFlowNodeType } from "../declarations.ts";
 
 export const BaseNode = memo(
-  ({ id, data, isConnectable, selected }: NodeProps) => {
+  ({ id, data, isConnectable, selected, type }: NodeProps) => {
     const name = useModelPropState({
       emberModel: data.emberModel as any,
       propertyName: "name",
     });
 
-    return (
-      <div className={`react-flow__node-default content`}>
-        <DefaultNodeHandles isConnectable={isConnectable} />
+    const handleType =
+      type === ReactFlowNodeType.OgcApiFeatures ? "source" : undefined;
 
-        {name}
+    return (
+      <div className="react-flow__node-base__content">
+        <DefaultNodeHandles type={handleType} isConnectable={isConnectable} />
+        <NodeResizer isVisible={!!selected} />
+
+        <div className="react-flow__node-base__name">{name}</div>
 
         <DefaultNodeToolbar
           nodeId={id}
