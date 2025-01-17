@@ -1,4 +1,4 @@
-import { Node, useReactFlow } from '@xyflow/react';
+import { MarkerType, Node, useReactFlow } from '@xyflow/react';
 import {
   EmberReactConnectorContext,
   StoreEventSenderTransport,
@@ -17,51 +17,54 @@ const nodeHasChanged = (node1: Node, node2: any) => {
 export const useEmberEventListeners = () => {
   const emberReactConnector = useContext(EmberReactConnectorContext);
   const rfInstance = useReactFlow();
-  const { setNodes } = rfInstance;
+  const { setNodes, setEdges } = rfInstance;
 
   const addNode = useCallback(
-    async (result: any) => {
+    async (newNode: any) => {
       if (
-        result.modelsVersions.id !== emberReactConnector.currentModelVersionId
+        newNode.modelsVersions.id !== emberReactConnector.currentModelVersionId
       ) {
         return;
       }
 
       setNodes((nds) =>
         nds.concat({
-          ...result.raw,
+          ...newNode.raw,
         }),
       );
     },
     [rfInstance, emberReactConnector],
   );
 
-  const updateNode = useCallback((updatedNode: any, sender: number) => {
-    if (
-      sender === StoreEventSenderTransport.LOCAL ||
-      updatedNode.modelsVersions.id !==
-        emberReactConnector.currentModelVersionId
-    ) {
-      return;
-    }
+  const updateNode = useCallback(
+    (updatedNode: any, sender: StoreEventSenderTransport) => {
+      if (
+        sender === StoreEventSenderTransport.LOCAL ||
+        updatedNode.modelsVersions.id !==
+          emberReactConnector.currentModelVersionId
+      ) {
+        return;
+      }
 
-    setNodes((nds) =>
-      nds.map((n) => {
-        if (n.id === updatedNode.id && nodeHasChanged(n, updatedNode.raw)) {
-          return {
-            ...n,
-            ...updatedNode.raw,
-          };
-        }
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id === updatedNode.id && nodeHasChanged(n, updatedNode.raw)) {
+            return {
+              ...n,
+              ...updatedNode.raw,
+            };
+          }
 
-        return n;
-      }),
-    );
-  }, []);
+          return n;
+        }),
+      );
+    },
+    [],
+  );
 
   const removeNode = useCallback(
-    (result: any) => {
-      setNodes((nds) => nds.filter((n) => n.id !== result.id));
+    (deletedNode: { id: string }) => {
+      setNodes((nds) => nds.filter((n) => n.id !== deletedNode.id));
     },
     [rfInstance],
   );
@@ -78,17 +81,74 @@ export const useEmberEventListeners = () => {
     [rfInstance],
   );
 
+  const addEdge = useCallback(
+    (newEdge: any, sender: StoreEventSenderTransport) => {
+      if (
+        sender === StoreEventSenderTransport.LOCAL ||
+        newEdge.modelsVersions.id !== emberReactConnector.currentModelVersionId
+      ) {
+        return;
+      }
+
+      setEdges((eds) =>
+        eds.concat({
+          ...newEdge.raw,
+          markerEnd: { type: MarkerType.Arrow },
+        }),
+      );
+    },
+    [],
+  );
+
+  const updateEdge = useCallback(
+    (updateEdge: any, sender: StoreEventSenderTransport) => {
+      if (
+        sender === StoreEventSenderTransport.LOCAL ||
+        updateEdge.modelsVersions.id !==
+          emberReactConnector.currentModelVersionId
+      ) {
+        return;
+      }
+
+      setEdges((eds) =>
+        eds.map((e) => {
+          if (e.id === updateEdge.id) {
+            return {
+              ...e,
+              ...updateEdge.raw,
+            };
+          }
+
+          return e;
+        }),
+      );
+    },
+    [],
+  );
+
+  const removeEdge = useCallback((deletedEdge: { id: string }) => {
+    setEdges((eds) => eds.filter((e) => e.id !== deletedEdge.id));
+  }, []);
+
   useEffect(() => {
     emberReactConnector.storeEventEmitter.on('node', 'created', addNode);
     emberReactConnector.storeEventEmitter.on('node', 'updated', updateNode);
     emberReactConnector.storeEventEmitter.on('node', 'deleted', removeNode);
     emberReactConnector.eventBus.on('node:selected', selectNode);
 
+    emberReactConnector.storeEventEmitter.on('edge', 'created', addEdge);
+    emberReactConnector.storeEventEmitter.on('edge', 'updated', updateEdge);
+    emberReactConnector.storeEventEmitter.on('edge', 'deleted', removeEdge);
+
     return () => {
       emberReactConnector.storeEventEmitter.off('node', 'created', addNode);
       emberReactConnector.storeEventEmitter.off('node', 'updated', updateNode);
       emberReactConnector.storeEventEmitter.off('node', 'deleted', removeNode);
       emberReactConnector.eventBus.off('node:selected', selectNode);
+
+      emberReactConnector.storeEventEmitter.off('edge', 'created', addEdge);
+      emberReactConnector.storeEventEmitter.off('edge', 'updated', updateEdge);
+      emberReactConnector.storeEventEmitter.off('edge', 'deleted', removeEdge);
     };
   }, [addNode, removeNode]);
 };
