@@ -9,9 +9,13 @@ import { pluralize, singularize } from '@ember-data/request-utils/string';
 import { service } from '@ember/service';
 import type Store from '@ember-data/store';
 import type StoreEventEmitterService from './store-event-emitter';
-import type { DataModelsNames } from './store-event-emitter';
+import {
+  StoreEventSenderTransport,
+  type DataModelsNames,
+} from './store-event-emitter';
 import createDefaultFeathersApp from 'hcu-urban-model-builder-client/utils/create-default-feathers-app';
 import { createDemoFeathersApp } from 'hcu-urban-model-builder-client/utils/create-demo-feathers-app';
+
 export default class FeathersService extends Service {
   declare app: ClientApplication;
 
@@ -93,7 +97,12 @@ export default class FeathersService extends Service {
     if (!recordInStore) {
       const modelInstance: any = this.pushRecordIntoStore(modelName, record);
       if (modelInstance) {
-        this.storeEventEmitter.emit(modelName, 'created', modelInstance);
+        this.storeEventEmitter.emit(
+          modelName,
+          'created',
+          modelInstance,
+          StoreEventSenderTransport.REMOTE,
+        );
       }
     }
   }
@@ -110,7 +119,12 @@ export default class FeathersService extends Service {
     ) {
       const modelInstance: any = this.pushRecordIntoStore(modelName, record);
       if (modelInstance) {
-        this.storeEventEmitter.emit(modelName, 'updated', modelInstance);
+        this.storeEventEmitter.emit(
+          modelName,
+          'updated',
+          modelInstance,
+          StoreEventSenderTransport.REMOTE,
+        );
       }
     }
   }
@@ -122,7 +136,12 @@ export default class FeathersService extends Service {
     const recordInStore: any = this.store.peekRecord(modelName, record.id);
     if (recordInStore && !recordInStore.isDeleted) {
       recordInStore.unloadRecord();
-      this.storeEventEmitter.emit(modelName, 'deleted', recordInStore);
+      this.storeEventEmitter.emit(
+        modelName,
+        'deleted',
+        recordInStore,
+        StoreEventSenderTransport.REMOTE,
+      );
     }
   }
 
