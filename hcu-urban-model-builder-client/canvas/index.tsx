@@ -18,8 +18,6 @@ import {
   addEdge,
   ReactFlowInstance,
   MarkerType,
-  SmoothStepEdge,
-  BezierEdge,
   ConnectionLineType,
   EdgeChange,
   reconnectEdge,
@@ -27,6 +25,7 @@ import {
   Edge,
   Node,
   ReactFlowProvider,
+  NodeDimensionChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
@@ -50,6 +49,7 @@ import {
 } from "./lib/context/ember-react-connector.ts";
 import { GhostNode } from "./lib/nodes/ghost-node.tsx";
 import { EditableEdge } from "./lib/edges/editable.tsx";
+import { useEmberEventListeners } from "./lib/utils/use-ember-event-listeners.ts";
 
 type FlowOptions = {
   disabled?: boolean;
@@ -84,6 +84,7 @@ function Flow({
 }: AppProps) {
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const nodeActions = useContext(EmberReactConnectorContext);
+  useEmberEventListeners();
 
   const [nodes, setNodes] = useState(() =>
     [...initialNodes]?.sort(sortNodeModels).map((n) => ({ ...n.raw })),
@@ -112,15 +113,28 @@ function Flow({
           }
         }
         if (change.type === "position" && !change.dragging) {
+          console.log("save after move", changes);
+          if (
+            (
+              changes.find(
+                (c) => c.type === "dimensions" && c.id === change.id,
+              ) as NodeDimensionChange
+            )?.resizing
+          ) {
+            continue;
+          }
+
           nodeActions.save("node", change.id, {
             position: change.position,
           });
         }
         if (change.type === "dimensions" && change.resizing === false) {
           const node = rfInstance.getNode(change.id);
+
           nodeActions.save("node", change.id, {
             height: node.height,
             width: node.width,
+            position: node.position,
           });
         }
         if (change.type === "remove") {
@@ -227,36 +241,6 @@ function Flow({
     [],
   );
 
-  const addNode = useCallback(
-    async (result: any) => {
-      setNodes((nds) =>
-        nds.concat({
-          ...result.raw,
-        }),
-      );
-    },
-    [rfInstance],
-  );
-
-  const removeNode = useCallback(
-    (result: any) => {
-      setNodes((nds) => nds.filter((n) => n.id !== result.id));
-    },
-    [rfInstance],
-  );
-
-  const selectNode = useCallback(
-    (selectNodeId: string) => {
-      setNodes((nds) =>
-        nds.map((n) => ({
-          ...n,
-          selected: n.id === selectNodeId,
-        })),
-      );
-    },
-    [rfInstance],
-  );
-
   const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
@@ -292,18 +276,6 @@ function Flow({
     },
     [],
   );
-
-  useEffect(() => {
-    nodeActions.storeEventEmitter.on("node", "created", addNode);
-    nodeActions.storeEventEmitter.on("node", "deleted", removeNode);
-    nodeActions.eventBus.on("node:selected", selectNode);
-
-    return () => {
-      nodeActions.storeEventEmitter.off("node", "created", addNode);
-      nodeActions.storeEventEmitter.off("node", "deleted", removeNode);
-      nodeActions.eventBus.off("node:selected", selectNode);
-    };
-  }, [addNode, removeNode]);
 
   useEffect(() => {
     if (sidebarContainerRef.current) {
