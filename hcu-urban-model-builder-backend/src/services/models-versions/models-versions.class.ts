@@ -7,15 +7,20 @@ import type { Application } from '../../declarations.js'
 import type {
   ModelsVersions,
   ModelsVersionsData,
+  ModelsVersionsJoinChannelData,
+  ModelsVersionsLeaveChannelData,
   ModelsVersionsPatch,
   ModelsVersionsQuery
 } from './models-versions.schema.js'
-import { AlgorithmType } from 'simulation'
 import { isServerCall } from '../../utils/is-server-call.js'
 
 export type { ModelsVersions, ModelsVersionsData, ModelsVersionsPatch, ModelsVersionsQuery }
 
 export interface ModelsVersionsParams extends KnexAdapterParams<ModelsVersionsQuery> {}
+
+export interface ModelsVersionsServiceOptions extends KnexAdapterOptions {
+  app: Application
+}
 
 // By default calls the standard Knex adapter service methods but can be customized with your own functionality.
 export class ModelsVersionsService<ServiceParams extends Params = ModelsVersionsParams> extends KnexService<
@@ -24,6 +29,13 @@ export class ModelsVersionsService<ServiceParams extends Params = ModelsVersions
   ModelsVersionsParams,
   ModelsVersionsPatch
 > {
+  app: Application
+
+  constructor(options: ModelsVersionsServiceOptions) {
+    super(options)
+    this.app = options.app
+  }
+
   createQuery(params: KnexAdapterParams<ModelsVersionsQuery>) {
     const query = super.createQuery(params as any)
     // ignore when isTouch is true, because then we only patch the updatedAt field, no need to join
@@ -54,12 +66,31 @@ export class ModelsVersionsService<ServiceParams extends Params = ModelsVersions
   _get(id: Id, params?: ModelsVersionsParams | undefined) {
     return super._get(id, params)
   }
+
+  async joinChannel(data: ModelsVersionsJoinChannelData, params?: ModelsVersionsParams) {
+    if (!params?.connection) {
+      throw new Error('Can not join channel because params.connection is required but not set.')
+    }
+
+    this.app.channel(`model-versions:${data.id}`).join(params.connection)
+    return { id: data.id }
+  }
+
+  async leaveChannel(data: ModelsVersionsLeaveChannelData, params?: ModelsVersionsParams) {
+    if (!params?.connection) {
+      throw new Error('Can not leave channel because params.connection is required but not set.')
+    }
+
+    this.app.channel(`model-versions:${data.id}`).leave(params.connection)
+    return { id: data.id }
+  }
 }
 
-export const getOptions = (app: Application): KnexAdapterOptions => {
+export const getOptions = (app: Application): ModelsVersionsServiceOptions => {
   return {
     paginate: app.get('paginate'),
     Model: app.get('postgresqlClient'),
-    name: 'models_versions'
+    name: 'models_versions',
+    app
   }
 }
