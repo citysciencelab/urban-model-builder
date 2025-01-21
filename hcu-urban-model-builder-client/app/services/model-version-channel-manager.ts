@@ -30,7 +30,6 @@ export default class ModelVersionChannelManagerService extends Service {
   }
 
   private async onAuthenticated() {
-    console.log('Authenticated', this.router.currentRoute);
     if (this.isModelVersionRoute(this.router.currentRoute)) {
       await this.joinChannel(this.router.currentRoute);
     }

@@ -113,7 +113,6 @@ function Flow({
           }
         }
         if (change.type === "position" && !change.dragging) {
-          console.log("save after move", changes);
           if (
             (
               changes.find(
