@@ -35,12 +35,6 @@ export default class ModelVersionChannelManagerService extends Service {
     }
   }
 
-  isModelVersionRoute(
-    routeInfo: RouteInfo | RouteInfoWithAttributes | null | void | undefined,
-  ): routeInfo is RouteInfo | RouteInfoWithAttributes {
-    return !!(routeInfo && routeInfo.name === 'models.versions.show');
-  }
-
   private getModelVersionId(routeInfo: RouteInfo | RouteInfoWithAttributes) {
     return Number(
       'attributes' in routeInfo
@@ -63,6 +57,12 @@ export default class ModelVersionChannelManagerService extends Service {
     await this.feathers.app
       .service('models-versions')
       .leaveChannel({ id: modelVersionId });
+  }
+
+  private isModelVersionRoute(
+    routeInfo: RouteInfo | RouteInfoWithAttributes | null | void | undefined,
+  ): routeInfo is RouteInfo | RouteInfoWithAttributes {
+    return !!(routeInfo && routeInfo.name === 'models.versions.show');
   }
 
   willDestroy(): void {
