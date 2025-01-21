@@ -1,5 +1,10 @@
 import { createContext } from 'react';
 
+export enum StoreEventSenderTransport {
+  LOCAL,
+  REMOTE,
+}
+
 export type NodeActions = {
   create: (type: 'edge' | 'node', data: any) => Promise<any>;
   save: (type: 'edge' | 'node', id: string, data: any) => Promise<any>;
@@ -10,6 +15,7 @@ export type NodeActions = {
   onToolbarInserted: (element: HTMLElement) => void;
   confirmDeleteNodes: (nodeIds: string[]) => boolean;
   draggedNodeConfig: any;
+  currentModelVersionId: string;
   storeEventEmitter: {
     on: (
       dataModelName:
@@ -22,7 +28,7 @@ export type NodeActions = {
         | 'scenario'
         | 'scenarios-value',
       event: 'created' | 'updated' | 'deleted',
-      callback: (data: any) => void,
+      callback: (data: any, sender: StoreEventSenderTransport) => void,
     ) => void;
     off: (
       dataModelName:
@@ -35,7 +41,7 @@ export type NodeActions = {
         | 'scenario'
         | 'scenarios-value',
       event: 'created' | 'updated' | 'deleted',
-      callback: (data: any) => void,
+      callback: (data: any, sender: StoreEventSenderTransport) => void,
     ) => void;
   };
   eventBus: {

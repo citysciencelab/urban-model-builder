@@ -63,7 +63,7 @@ export const modelsVersionsDataSchema = Type.Pick(
     'timeStep',
     'algorithm',
     'globals',
-    'publishedToUMPAt',
+    'publishedToUMPAt'
   ],
   {
     $id: 'ModelsVersionsData'
@@ -106,4 +106,22 @@ export type ModelsVersionsQuery = Static<typeof modelsVersionsQuerySchema>
 export const modelsVersionsQueryValidator = getValidator(modelsVersionsQuerySchema, queryValidator)
 export const modelsVersionsQueryResolver = resolve<ModelsVersionsQuery, HookContext<ModelsVersionsService>>(
   {}
+)
+
+export const modelsVersionsJoinChannelDataSchema = Type.Pick(modelsVersionsSchema, ['id'], {
+  $id: 'ModelsVersionsJoinChannelData'
+})
+export type ModelsVersionsJoinChannelData = Static<typeof modelsVersionsJoinChannelDataSchema>
+export const modelsVersionsJoinChannelDataValidator = getValidator(
+  modelsVersionsJoinChannelDataSchema,
+  dataValidator
+)
+
+export const modelsVersionsLeaveChannelDataSchema = Type.Pick(modelsVersionsSchema, ['id'], {
+  $id: 'ModelsVersionsLeaveChannelData'
+})
+export type ModelsVersionsLeaveChannelData = Static<typeof modelsVersionsLeaveChannelDataSchema>
+export const modelsVersionsLeaveChannelDataValidator = getValidator(
+  modelsVersionsLeaveChannelDataSchema,
+  dataValidator
 )

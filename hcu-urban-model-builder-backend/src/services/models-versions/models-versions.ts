@@ -11,7 +11,9 @@ import {
   modelsVersionsExternalResolver,
   modelsVersionsDataResolver,
   modelsVersionsPatchResolver,
-  modelsVersionsQueryResolver
+  modelsVersionsQueryResolver,
+  modelsVersionsJoinChannelDataValidator,
+  modelsVersionsLeaveChannelDataValidator
 } from './models-versions.schema.js'
 
 import type { Application } from '../../declarations.js'
@@ -20,6 +22,8 @@ import { modelsVersionsPath, modelsVersionsMethods } from './models-versions.sha
 import { setCreatedBy } from '../../hooks/set-created-by.js'
 import { discard, iff, isProvider } from 'feathers-hooks-common'
 import _ from 'lodash'
+import { checkModelPermission } from '../../hooks/check-model-permission.js'
+import { Roles } from '../../client.js'
 
 export * from './models-versions.class.js'
 export * from './models-versions.schema.js'
@@ -75,7 +79,15 @@ export const modelsVersions = (app: Application) => {
         schemaHooks.validateData(modelsVersionsPatchValidator),
         schemaHooks.resolveData(modelsVersionsPatchResolver)
       ],
-      remove: []
+      remove: [],
+      joinChannel: [
+        schemaHooks.validateData(modelsVersionsJoinChannelDataValidator),
+        checkModelPermission('data.id', 'models-versions', Roles.viewer)
+      ],
+      leaveChannel: [
+        schemaHooks.validateData(modelsVersionsLeaveChannelDataValidator),
+        checkModelPermission('data.id', 'models-versions', Roles.viewer)
+      ]
     },
     after: {
       all: []

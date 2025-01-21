@@ -1,6 +1,7 @@
 // eslint-disable-next-line ember/use-ember-data-rfc-395-imports
 import Store from 'ember-data/store';
 import { service } from '@ember/service';
+import { StoreEventSenderTransport } from 'hcu-urban-model-builder-client/services/store-event-emitter';
 
 export default class StoreService extends Store {
   @service storeEventEmitter;
@@ -14,6 +15,7 @@ export default class StoreService extends Store {
       record.constructor.modelName,
       event,
       savedRecord,
+      StoreEventSenderTransport.LOCAL,
     );
 
     return savedRecord;

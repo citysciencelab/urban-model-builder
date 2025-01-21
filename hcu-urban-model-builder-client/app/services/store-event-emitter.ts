@@ -20,6 +20,11 @@ type DataModels =
   | Scenario
   | ScenariosValue;
 
+export enum StoreEventSenderTransport {
+  LOCAL,
+  REMOTE,
+}
+
 export type DataModelsNames = DataModels[typeof Type];
 
 export type DataModel<T extends DataModelsNames> = Extract<
@@ -30,7 +35,10 @@ export type DataModel<T extends DataModelsNames> = Extract<
 type EventNames = 'created' | 'updated' | 'deleted';
 
 type Listeners = {
-  [K in DataModelsNames]: Map<EventNames, Set<(model: DataModels) => void>>;
+  [K in DataModelsNames]: Map<
+    EventNames,
+    Set<(model: DataModels, sender: StoreEventSenderTransport) => void>
+  >;
 };
 
 export default class StoreEventEmitterService extends Service {
@@ -50,10 +58,11 @@ export default class StoreEventEmitterService extends Service {
     dataModelName: K,
     event: EventNames,
     model: DataModel<K>,
+    transport: StoreEventSenderTransport,
   ) {
     if (this.listeners[dataModelName].has(event)) {
       this.listeners[dataModelName].get(event)!.forEach((callback) => {
-        callback(model);
+        callback(model, transport);
       });
     }
     if ('emitSave' in model) {

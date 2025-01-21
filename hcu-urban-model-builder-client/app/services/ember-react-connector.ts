@@ -27,6 +27,10 @@ export default class EmberReactConnectorService extends Service {
     value: NodeType;
   } | null = null;
 
+  get currentModelVersionId() {
+    return this.currentModel!.id;
+  }
+
   @action
   async save(type: 'node' | 'edge', id: string, rawData: any) {
     const record = this.store.peekRecord<Node | Edge>(type, id);

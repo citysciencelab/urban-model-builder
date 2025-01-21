@@ -10,4 +10,7 @@ export default class ScenariosValue extends Model {
   declare nodes: Node;
   @belongsTo('scenario', { async: true, inverse: 'scenariosValues' })
   declare scenarios: Scenario;
+
+  @attr('date') declare createdAt: Date;
+  @attr('date') declare updatedAt: Date;
 }

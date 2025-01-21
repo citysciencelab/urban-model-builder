@@ -23,7 +23,9 @@ export const modelsVersionsMethods: Array<keyof ModelsVersionsService> = [
   'get',
   'create',
   'patch',
-  'remove'
+  'remove',
+  'joinChannel',
+  'leaveChannel'
 ]
 
 export const modelsVersionsClient = (client: ClientApplication) => {
