@@ -9,7 +9,9 @@ declare const config: {
   locationType: 'history' | 'hash' | 'none';
   rootURL: string;
   apiURL: string;
-  APP: Record<string, unknown>;
+  APP: {
+    ALLOW_SERVER_SIDE_SIMULATION: boolean;
+  } & Record<string, unknown>;
   'ember-simple-auth-oidc': Record<string, unknown>;
   'ember-simple-auth': Record<string, unknown>;
 };

@@ -40,6 +40,23 @@ describe('models service', () => {
       await app.get('postgresqlClient').table('models').del()
     })
 
+    it('should not call simulate from external', async () => {
+      const currentParams = {
+        ...params,
+        provider: 'external'
+      }
+
+      let hasError = true
+      try {
+        await app.service('models').simulate({ id: 1 }, currentParams)
+        hasError = false
+      } catch (error: any) {
+        assert.strictEqual(error.code, 405)
+        assert.strictEqual(error.name, 'MethodNotAllowed')
+      }
+      assert.ok(hasError)
+    })
+
     it('should create a basic system dynamic model', async () => {
       const model = await app.service('models').create(
         {
@@ -1068,7 +1085,8 @@ describe('models service', () => {
       const baseNodeData = {
         modelsVersionsId: modelVersion.id,
         parentId: null,
-        isParameter: false
+        isParameter: false,
+        isOutputParameter: false
       }
 
       const ogcFeaturesApiNode = await app.service('nodes').create({

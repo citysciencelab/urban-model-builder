@@ -17,12 +17,14 @@
   </modal.header>
   <modal.body>
     <BsForm as |form|>
-      <form.element
-        @controlType="switch"
-        @label={{t "components.simulate_modal.is_client_side"}}
-        @value={{this.isClientSideCalculation}}
-        @onChange={{this.toggleClientSideCalculation}}
-      />
+      {{#if this.ALLOW_SERVER_SIDE_SIMULATION}}
+        <form.element
+          @controlType="switch"
+          @label={{t "components.simulate_modal.is_client_side"}}
+          @value={{this.isClientSideCalculation}}
+          @onChange={{this.toggleClientSideCalculation}}
+        />
+      {{/if}}
       {{! ERROR }}
       <BsAlert @type="danger" @visible={{this.hasError}}>
         <strong>

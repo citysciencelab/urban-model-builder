@@ -18,6 +18,7 @@ import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios
 import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
 import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import { task, timeout } from 'ember-concurrency';
+import config from 'hcu-urban-model-builder-client/config/environment';
 
 export interface SimulateModalSignature {
   // The arguments accepted by the component
@@ -99,6 +100,10 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     this.storeEventEmitter.on('edge', 'created', this.restartSimulation);
     this.storeEventEmitter.on('edge', 'updated', this.restartSimulation);
     this.storeEventEmitter.on('edge', 'deleted', this.restartSimulation);
+  }
+
+  get ALLOW_SERVER_SIDE_SIMULATION() {
+    return config.APP.ALLOW_SERVER_SIDE_SIMULATION;
   }
 
   get isAnimationFinished() {

@@ -30,8 +30,7 @@ import { authenticate } from '@feathersjs/authentication'
 import customSoftDelete from '../../hooks/custom-soft-delete.js'
 import { setCreatedBy } from '../../hooks/set-created-by.js'
 import { permissionFilter } from '../../hooks/permission-filter.js'
-import { ensureCreatedBy } from '../../hooks/ensure-created-by.js'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { initModelDefaults } from './hooks/init-model-defaults.js'
 import { initModelVersion } from './hooks/init-model-version.js'
 import { initModelsUsers } from '../../hooks/init-models-users.js'
@@ -90,6 +89,7 @@ export const models = (app: Application) => {
         customSoftDelete()
       ],
       simulate: [
+        disallow('external'),
         schemaHooks.validateData(modelsSimulateValidator),
         schemaHooks.resolveData(modelsSimulateResolver)
       ],
