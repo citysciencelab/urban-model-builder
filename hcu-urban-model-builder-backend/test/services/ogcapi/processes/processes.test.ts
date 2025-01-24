@@ -5,7 +5,7 @@ import { Params } from '@feathersjs/feathers'
 import { EdgesData, EdgeType, NodeType } from '../../../../src/client.js'
 import initJobQueue from '../../../../src/init-job-queue.js'
 
-describe.only('ogcapi/processes service', () => {
+describe('ogcapi/processes service', () => {
   let params: Params
 
   before(async () => {
@@ -203,7 +203,7 @@ describe.only('ogcapi/processes service', () => {
     assert.ok(processes, 'Processes listed')
   })
 
-  it.only('should get a process by id', async () => {
+  it('should get a process by id', async () => {
     const service = app.service('ogcapi/processes')
     const processes = await service.find()
     const process = await service.get(processes.processes[0].id)
@@ -211,7 +211,7 @@ describe.only('ogcapi/processes service', () => {
     assert.ok(process, 'Process retrieved')
   })
 
-  it.only('should execute a process and create a job', async () => {
+  it('should execute a process and create a job', async () => {
     const processes = await app.service('ogcapi/processes').find()
 
     const job = await app
@@ -231,10 +231,9 @@ describe.only('ogcapi/processes service', () => {
   })
 
   it('should not be possible to execute a process without required parameters', async () => {
-    const service = app.service('ogcapi/processes')
-    const processes = await service.find()
+    const service = app.service('ogcapi/processes/:processId/execution')
     try {
-      await service.execute(0)
+      await service.create({}, { route: { processId: '1' } })
     } catch (error) {
       assert.ok(error, 'Error thrown')
     }
