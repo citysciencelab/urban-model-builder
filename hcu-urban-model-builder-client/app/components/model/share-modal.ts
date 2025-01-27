@@ -12,11 +12,15 @@ import UserModel from 'hcu-urban-model-builder-client/models/user';
 import type IntlService from 'ember-intl/services/intl';
 import type ModelsUser from 'hcu-urban-model-builder-client/models/models-user';
 import { Roles } from 'hcu-urban-model-builder-backend';
+import type UserService from 'hcu-urban-model-builder-client/services/user';
+import type ModelModel from 'hcu-urban-model-builder-client/models/model';
+import type RouterService from '@ember/routing/router-service';
 
 export interface ModelShareModalSignature {
   // The arguments accepted by the component
   Args: {
-    model: ModelsVersion;
+    model: ModelModel;
+    modelVersion: ModelsVersion;
     onClose: () => void;
   };
   // Any blocks yielded by the component
@@ -30,6 +34,9 @@ export interface ModelShareModalSignature {
 export default class ModelShareModalComponent extends Component<ModelShareModalSignature> {
   @service declare store: Store;
   @service declare intl: IntlService;
+  @service declare user: UserService;
+  @service declare router: RouterService;
+
   @tracked changeset!: EmberChangeset;
   @tracked formModel!: FormModelShare;
 
@@ -53,17 +60,13 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
       label: 'Co-Owner',
       value: Roles.co_owner,
     },
-    {
-      label: 'Owner',
-      value: Roles.owner,
-    },
   ];
 
   async initChangeset() {
     this.formModel = {
       selectedUser: null,
       selectedRole: null,
-      model: await this.args.model.model,
+      model: await this.args.model,
     };
 
     this.changeset = Changeset(
@@ -74,11 +77,34 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
   }
 
   async loadPermissions() {
-    const model = await this.args.model.model;
+    const model = await this.args.model;
     const permissions = await model?.permissions;
     if (permissions) {
       this.currentPermissions = permissions;
     }
+  }
+
+  @action canBeChanged(permission: ModelsUser) {
+    // ---
+    // Scenario: Owner can never be deleted
+    if (permission.role == Roles.owner) {
+      return false;
+    }
+
+    // ---
+    // Scenario: Co-Owner
+    // co-owner cant delete other co-owners or owners
+    if (
+      this.args.model.get('role') == Roles.co_owner && // I'm a co-owner
+      permission.role >= Roles.co_owner // I'm trying to delete a co-owner or owner
+    ) {
+      // I can only remove myself
+      return permission.user.id == this.user.currentUserId;
+      // return this.user.currentUserId != permission.user.id;
+    }
+
+    // default: is allowed
+    return true;
   }
 
   @action async prepare() {
@@ -140,6 +166,45 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
   }
 
   @action async removePermission(permission: ModelsUser) {
-    await permission.destroyRecord();
+    let shouldBeRemoved = true;
+
+    let userRemovedOwnPermissions = false;
+    if (permission.user.id == this.user.currentUserId) {
+      shouldBeRemoved = confirm(
+        'You are about to remove your permissions. Are you sure you want to continue?',
+      );
+      userRemovedOwnPermissions = true;
+    }
+    if (shouldBeRemoved) {
+      await permission.destroyRecord();
+      if (userRemovedOwnPermissions) {
+        // user removed themselves -> redirect start page
+        return this.router.transitionTo('models');
+      }
+    }
+  }
+
+  @action async updatePermission(
+    permission: ModelsUser,
+    newRole: number,
+    dd: { actions: { close: () => void } },
+  ) {
+    let shouldBeUpdated = true;
+    let userChangedOwnPermissions = false;
+    if (permission.user.id == this.user.currentUserId) {
+      shouldBeUpdated = confirm(
+        'You are about to change your permissions. Are you sure you want to continue?',
+      );
+      userChangedOwnPermissions = true;
+    }
+    if (shouldBeUpdated) {
+      permission.role = newRole;
+      await permission.save();
+      if (userChangedOwnPermissions && permission.role < Roles.co_owner) {
+        // user changed their role to viewer or collaborator -> reload page
+        location.reload();
+      }
+    }
+    dd.actions.close();
   }
 }

@@ -30,16 +30,16 @@ $node-color-map: (
   "agent":
     rgba(
       $color: #574f7e,
-      $alpha: 0.2,
+      $alpha: 0.2
     ),
   "folder": #8f8d8d71,
-  "ogc-api-features": #479180,
+  "ogc-api-features": #479180
 );
 
 $edge-color-map: (
   "flow": map.get($node-color-map, "flow"),
   "transition": #030303,
-  "agent-population": #aba3d2,
+  "agent-population": #aba3d2
 );
 
 @import "./react-canvas";
@@ -594,4 +594,12 @@ fieldset {
   align-items: flex-end;
   justify-content: center;
   width: 100%;
+}
+
+.share-modal__permissions__badge__trigger {
+  gap: 0.5rem;
+}
+
+.ember-basic-dropdown-content a.list-group-item:hover {
+  background-color: var(--bs-tertiary-bg);
 }

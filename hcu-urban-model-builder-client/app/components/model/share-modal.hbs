@@ -63,24 +63,68 @@
       {{#each this.currentPermissions as |permission|}}
         <li class="list-group-item list-group-with-actions">
           <div class="list-group-body">
+            {{! Email adress  }}
             <div class="list-group-body-content">
               {{permission.userEmail}}
             </div>
             <div class="list-group-meta">
-              <span
-                class="badge rounded-pill badge-success text-bg-secondary text-light"
-              >
-                {{t (concat "permissions." permission.role)}}
-              </span>
+              {{! Badge: Current Role }}
+
+              {{#if (compute (action this.canBeChanged) permission)}}
+                {{! Action: Badge + Change Role Dropdown }}
+                <BasicDropdown @renderInPlace={{false}} as |dd|>
+                  <dd.Trigger
+                    class="share-modal__permissions__badge__trigger badge rounded-pill badge-success text-bg-secondary text-light"
+                  >
+                    <FaIcon @icon="user-tag" @fixedWidth={{true}} />
+                    {{t (concat "permissions." permission.role)}}
+                    <FaIcon @icon="chevron-down" @fixedWidth={{true}} />
+                  </dd.Trigger>
+                  <dd.Content @overlay={{true}}>
+                    <div class="list-group">
+                      {{#each this.roles as |role|}}
+                        <a
+                          class="list-group-item"
+                          href="javascript:void(0)"
+                          {{on
+                            "click"
+                            (fn this.updatePermission permission role.value dd)
+                          }}
+                        >
+                          {{role.label}}
+                        </a>
+                      {{/each}}
+                    </div>
+                  </dd.Content>
+                </BasicDropdown>
+              {{else}}
+                <span
+                  class="share-modal__permissions__badge__trigger badge rounded-pill badge-success text-bg-secondary text-light"
+                >
+                  <FaIcon @icon="user-tag" @fixedWidth={{true}} />
+                  {{t (concat "permissions." permission.role)}}
+                </span>
+              {{/if}}
+              {{! Badge: You (conditionally) }}
+              {{#if (eq this.user.currentUserId permission.user.id)}}
+                <span
+                  class="badge rounded-pill badge-primary text-bg-primary text-light"
+                >
+                  {{t "permissions.you"}}
+                </span>
+              {{/if}}
             </div>
           </div>
           <div class="list-group-actions">
-            <a
-              href="javascript:void(0)"
-              {{on "click" (fn this.removePermission permission)}}
-            >
-              <FaIcon @icon="trash" />
-            </a>
+            {{! Action: Remove Permission }}
+            {{#if (compute (action this.canBeChanged) permission)}}
+              <a
+                href="javascript:void(0)"
+                {{on "click" (fn this.removePermission permission)}}
+              >
+                <FaIcon @icon="trash" />
+              </a>
+            {{/if}}
           </div>
         </li>
       {{else}}

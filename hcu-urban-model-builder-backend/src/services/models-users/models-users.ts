@@ -75,10 +75,15 @@ export const modelsUsers = (app: Application) => {
           // user must have role >= co-owner to be able to create a permission for this model
           if (context.data) {
             const permissionData = context.data as ModelsUsersData
+            // Scenario: Permission is added, but it should be an owner role, but only one owner is allowed
+            if (permissionData.role > Roles.co_owner) {
+              throw new Error('There can only be one owner')
+            }
             // get the model with current users permissions
             const model = await context.app
               .service('models')
               .get(permissionData.modelId, { user: context.params.user })
+            // Scenario: Permission is added, the user must have role >= co-owner
             if (model.role == null || model.role < Roles.co_owner) {
               throw new Error("You don't have the permission to add a user to this model")
             }
@@ -87,18 +92,56 @@ export const modelsUsers = (app: Application) => {
       ],
       patch: [
         schemaHooks.validateData(modelsUsersPatchValidator),
-        schemaHooks.resolveData(modelsUsersPatchResolver)
+        schemaHooks.resolveData(modelsUsersPatchResolver),
+        async (context) => {
+          if (context.id) {
+            // fetch relevant data to make decisions
+            const permission = await context.app.service('models-users').get(context.id)
+            const model = await context.app
+              .service('models')
+              .get(permission.modelId, { user: context.params.user })
+
+            const usersRole = model.role
+
+            // only owner and co-owner can change a user's role
+            if (usersRole == null || usersRole < Roles.co_owner) {
+              throw new Error("You don't have the permission to change a user's role for this model")
+            }
+
+            // a user cannot change to roles "higher" than their own
+            if (usersRole < permission.role) {
+              throw new Error("You don't have the permission to change a user's role for this model")
+            }
+          }
+        }
       ],
       remove: [
         async (context) => {
-          // user must have role >= co-owner to be able to change a permission for this model
           if (context.id) {
-            const modelsUsers = await context.app.service('models-users').get(context.id)
+            // fetch relevant data to make decisions
+            const permission = await context.app.service('models-users').get(context.id)
             const model = await context.app
               .service('models')
-              .get(modelsUsers.modelId, { user: context.params.user })
+              .get(permission.modelId, { user: context.params.user })
+
+            // Scenario: Owners cannot be deleted (there is only one owner)
+            // TODO: specialised custom method to transfer ownership
+            if (permission.role == Roles.owner) {
+              throw new Error('Owners cannot be removed')
+            }
+
+            // Scenario: Permission is changed, the user must have role >= co-owner
             if (model.role == null || model.role < Roles.co_owner) {
               throw new Error("You don't have the permission to change a user's role for this model")
+            }
+
+            // Scenario: Co-Owners cannot delete other Co-Owners or Owners
+            if (
+              model.role == Roles.co_owner &&
+              permission.role >= Roles.co_owner &&
+              permission.userId != context.params!.user!.id
+            ) {
+              throw new Error("You don't have the permission to remove the other users permission")
             }
           }
         }

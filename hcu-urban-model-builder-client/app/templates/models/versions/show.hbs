@@ -145,7 +145,8 @@
 
 <Model::ShareModal
   @open={{this.showShareModal}}
-  @model={{this.model}}
+  @model={{this.model.model}}
+  @modelVersion={{this.model}}
   @onClose={{this.hideShareDialog}}
 />
 

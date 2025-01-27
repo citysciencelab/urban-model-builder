@@ -40,7 +40,7 @@ export const modelsUsersPatchValidator = getValidator(modelsUsersPatchSchema, da
 export const modelsUsersPatchResolver = resolve<ModelsUsers, HookContext<ModelsUsersService>>({})
 
 // Schema for allowed query properties
-export const modelsUsersQueryProperties = Type.Pick(modelsUsersSchema, ['id', 'modelId'])
+export const modelsUsersQueryProperties = Type.Pick(modelsUsersSchema, ['id', 'modelId', 'role', 'userId'])
 export const modelsUsersQuerySchema = Type.Intersect(
   [
     querySyntax(modelsUsersQueryProperties),
