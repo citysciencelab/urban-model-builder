@@ -9,7 +9,7 @@ export interface ProcessesServiceOptions {
   app: Application
 }
 
-export interface ProcessesParams extends Params { }
+export interface ProcessesParams extends Params {}
 
 // This is a skeleton for a custom service class. Remove or add the methods you need here
 export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesParams> {
@@ -38,7 +38,7 @@ export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesP
     return { processes: mappedModels, links: [{ href: '/ogcapi/processes' }] }
   }
 
-  async get(id: number, _params?: ServiceParams): Promise<ProcessesDetails> {
+  async get(id: string, _params?: ServiceParams): Promise<ProcessesDetails> {
     const modelQuery = this.app.service('models-versions').createQuery({})
     modelQuery.where('publishedToUMPAt', 'IS NOT', null)
     modelQuery.leftJoin('models as models', 'models.id', 'models_versions.modelId')

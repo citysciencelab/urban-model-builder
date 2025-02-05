@@ -11,18 +11,18 @@ import { Nullable } from '../../utils/schema.js'
 // Main data model schema
 export const modelsSchema = Type.Object(
   {
-    id: Type.Number(),
+    id: Type.String(),
     internalName: Type.String(),
     publicName: Type.String(),
     description: Type.Optional(Type.String()),
-    latestPublishedVersionId: Nullable(Type.Number()),
-    latestDraftVersionId: Nullable(Type.Number()),
+    latestPublishedVersionId: Nullable(Type.String()),
+    latestDraftVersionId: Nullable(Type.String()),
     currentMinorVersion: Type.Number(),
     currentMajorVersion: Type.Number(),
     currentDraftVersion: Type.Number(),
     globalUuid: Nullable(Type.String()),
-    forkedFromVersionId: Nullable(Type.Number()),
-    createdBy: Type.Optional(Type.Number()),
+    forkedFromVersionId: Nullable(Type.String()),
+    createdBy: Type.Optional(Type.String()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Nullable(Type.String({ format: 'date-time' })),
     deletedAt: Nullable(Type.String({ format: 'date-time' })),
@@ -87,8 +87,8 @@ export const modelsQueryResolver = resolve<ModelsQuery, HookContext<ModelsServic
 // Schema for custom method: simulate
 export const modelsSimulateSchema = Type.Object(
   {
-    id: Type.Number(),
-    nodeIdToParameterValueMap: Type.Optional(Type.Record(Type.Number(), Type.Number()))
+    id: Type.String(),
+    nodeIdToParameterValueMap: Type.Optional(Type.Record(Type.String(), Type.Number()))
   },
   { $id: 'ModelsSimulate', additionalProperties: false }
 )
@@ -99,7 +99,7 @@ export const modelsSimulateResolver = resolve<ModelsSimulate, HookContext<Models
 // Schema for custom method: newDraft
 export const modelsNewDraftSchema = Type.Object(
   {
-    id: Type.Number()
+    id: Type.String()
   },
   { $id: 'ModelsNewDraft', additionalProperties: false }
 )
@@ -111,9 +111,9 @@ export const modelsNewDraftSimulateResolver = resolve<ModelsNewDraft, HookContex
 // Schema for custom method: publishMinor
 export const modelsPublishSchema = Type.Object(
   {
-    id: Type.Number(),
+    id: Type.String(),
     notes: Type.String(),
-    modelsVersionsId: Type.Number()
+    modelsVersionsId: Type.String()
   },
   { $id: 'ModelsPublish', additionalProperties: false }
 )
@@ -124,7 +124,7 @@ export const modelsPublishResolver = resolve<ModelsPublish, HookContext<ModelsSe
 // Schema for custom method: cloneVersion
 export const modelsCloneVersionSchema = Type.Object(
   {
-    id: Type.Number(),
+    id: Type.String(),
     internalName: Type.String()
   },
   { $id: 'ModelsCloneVersion', additionalProperties: false }

@@ -128,8 +128,8 @@ export const ogcFeatureNodeSchema = Type.Object(
 // Main data model schema
 export const nodesSchema = Type.Object(
   {
-    id: Type.Number(),
-    modelsVersionsId: Type.Number(),
+    id: Type.String(),
+    modelsVersionsId: Type.String(),
     type: Type.Enum(NodeType),
     name: Nullable(Type.String()),
     description: Nullable(Type.String()),
@@ -150,7 +150,7 @@ export const nodesSchema = Type.Object(
     }),
     height: Nullable(Type.Number()),
     width: Nullable(Type.Number()),
-    parentId: Nullable(Type.Number()),
+    parentId: Nullable(Type.String()),
     isParameter: Type.Boolean(),
     parameterMin: Nullable(Type.Number()),
     parameterMax: Nullable(Type.Number()),
@@ -167,7 +167,7 @@ export const nodesSchema = Type.Object(
       })
     ),
     isOutputParameter: Type.Boolean(),
-    ghostParentId: Nullable(Type.Number())
+    ghostParentId: Nullable(Type.String())
   },
   { $id: 'Nodes', additionalProperties: false }
 )

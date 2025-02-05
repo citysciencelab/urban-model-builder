@@ -25,6 +25,7 @@ import { isServerCall } from '../../utils/is-server-call.js'
 import { scenariosDataSchema } from '../scenarios/scenarios.schema.js'
 import { scenarioValuesDataSchema } from '../scenarios-values/scenarios-values.schema.js'
 import { Roles } from '../../client.js'
+import { QueryBuilder } from 'knex'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
@@ -57,12 +58,13 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         'ModelsService:createQuery: params.user.id is required but not set. Probably missing authentication.'
       )
     }
+    const raw = query.client.raw
     // join on models_users to get the role of the user
     query.leftJoin('models_users as models_users', function () {
       this.on('models.id', '=', 'models_users.modelId').andOn(
         'models_users.userId',
         '=',
-        params?.user?.id as unknown as any
+        raw('?', [params?.user?.id])
       )
     })
 
@@ -76,8 +78,8 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
 
   async simulate(data: ModelsSimulate, params?: ModelsParams) {
     const nodeIdToParamValueMap = data.nodeIdToParameterValueMap
-      ? new Map(Object.entries(data.nodeIdToParameterValueMap).map(([key, value]) => [parseInt(key), value]))
-      : new Map<number, number>()
+      ? new Map(Object.entries(data.nodeIdToParameterValueMap).map(([key, value]) => [key, value]))
+      : new Map<string, number>()
     return new SimulationAdapter(this.app, data.id, nodeIdToParamValueMap, logger).simulate(
       params?.serializeForUMP
     )
@@ -223,7 +225,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     await this.app.service('models-users').create(
       {
         modelId: newModel.id,
-        userId: params?.user?.id as number,
+        userId: params?.user?.id as string,
         role: Roles.owner
       },
       { user: params?.user }
@@ -237,7 +239,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
 
   private async cloneModelVersion(
     currentModelVersion: ModelsVersions,
-    parentId: number | null,
+    parentId: string | null,
     major: number,
     minor: number,
     draft: number,
@@ -281,7 +283,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       user: params?.user
     })
 
-    const nodeMigrationMap = new Map<number, number>()
+    const nodeMigrationMap = new Map<string, string>()
     for (const node of nodes.data) {
       const createNodeData = _.pick(node, Object.keys(nodesDataSchema.properties))
 
@@ -308,13 +310,13 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       const createEdgeData = _.pick(edge, Object.keys(edgesDataSchema.properties))
 
       if (nodeMigrationMap.has(edge.sourceId)) {
-        createEdgeData.sourceId = nodeMigrationMap.get(edge.sourceId) as number
+        createEdgeData.sourceId = nodeMigrationMap.get(edge.sourceId)!
       } else {
         throw new Error('SourceId node not found')
       }
 
       if (nodeMigrationMap.has(edge.targetId)) {
-        createEdgeData.targetId = nodeMigrationMap.get(edge.targetId) as number
+        createEdgeData.targetId = nodeMigrationMap.get(edge.targetId)!
       } else {
         throw new Error('TargetId node not found')
       }

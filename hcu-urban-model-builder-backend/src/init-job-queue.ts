@@ -22,7 +22,7 @@ function runSimulation(app: Application) {
     return await app
       .service('models')
       .simulate(
-        { id: +data.id, nodeIdToParameterValueMap: data.nodeIdToParameterValueMap },
+        { id: data.id, nodeIdToParameterValueMap: data.nodeIdToParameterValueMap },
         { serializeForUMP: true }
       )
   }
