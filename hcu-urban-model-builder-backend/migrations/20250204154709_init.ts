@@ -40,6 +40,7 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('publishedAt')
     table.boolean('isLatest')
     table.jsonb('customUnits')
+    table.timestamp('publishedToUMPAt').nullable().defaultTo(null)
 
     table.timestamps(true, true, true)
     table.timestamp('deletedAt')

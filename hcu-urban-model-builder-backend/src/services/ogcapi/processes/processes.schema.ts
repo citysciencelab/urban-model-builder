@@ -9,7 +9,7 @@ import type { ProcessesService } from './processes.class.js'
 
 // Main data model schema
 const processSchema = {
-  id: Type.Number(),
+  id: Type.String(),
   title: Type.String(),
   description: Type.String(),
   version: Type.String(),
