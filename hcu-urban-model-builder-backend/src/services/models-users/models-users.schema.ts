@@ -11,9 +11,9 @@ import { Roles } from '../../client.js'
 // Main data model schema
 export const modelsUsersSchema = Type.Object(
   {
-    id: Type.String(),
-    userId: Type.String(),
-    modelId: Type.String(),
+    id: Type.String({ format: 'uuid' }),
+    userId: Type.String({ format: 'uuid' }),
+    modelId: Type.String({ format: 'uuid' }),
     role: Type.Enum(Roles)
   },
   { $id: 'ModelsUsers', additionalProperties: false }

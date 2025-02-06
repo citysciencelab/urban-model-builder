@@ -12,11 +12,11 @@ import { Nullable } from '../../utils/schema.js'
 // Main data model schema
 export const edgesSchema = Type.Object(
   {
-    id: Type.String(),
-    modelsVersionsId: Type.String(),
+    id: Type.String({ format: 'uuid' }),
+    modelsVersionsId: Type.String({ format: 'uuid' }),
     type: Type.Enum(EdgeType),
-    sourceId: Type.String(),
-    targetId: Type.String(),
+    sourceId: Type.String({ format: 'uuid' }),
+    targetId: Type.String({ format: 'uuid' }),
     sourceHandle: Type.String(),
     targetHandle: Type.String(),
     points: Nullable(

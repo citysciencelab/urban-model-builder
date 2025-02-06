@@ -4,9 +4,8 @@ import { app } from '../../../../src/app.js'
 import { Params } from '@feathersjs/feathers'
 import { EdgesData, EdgeType, NodeType } from '../../../../src/client.js'
 import initJobQueue from '../../../../src/init-job-queue.js'
-import { has } from 'lodash'
 
-describe.only('ogcapi/processes service', () => {
+describe('ogcapi/processes service', () => {
   let params: Params
 
   before(async () => {

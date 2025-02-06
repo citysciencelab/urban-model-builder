@@ -13,8 +13,8 @@ import { Literals, Nullable } from '../../utils/schema.js'
 export const modelsVersionsSchema = Type.Object(
   {
     id: Type.String(),
-    modelId: Type.String(),
-    parentId: Nullable(Type.String()),
+    modelId: Type.String({ format: 'uuid' }),
+    parentId: Nullable(Type.String({ format: 'uuid' })),
     majorVersion: Type.Number(),
     minorVersion: Type.Number(),
     draftVersion: Type.Number(),
@@ -27,8 +27,8 @@ export const modelsVersionsSchema = Type.Object(
     algorithm: Nullable(Literals<AlgorithmType>('Euler', 'RK4')),
     globals: Nullable(Type.String()),
     customUnits: Nullable(Type.Object({ data: Type.Record(Type.String(), Type.Array(Type.Number())) })),
-    createdBy: Nullable(Type.String()),
-    publishedBy: Nullable(Type.String()),
+    createdBy: Nullable(Type.String({ format: 'uuid' })),
+    publishedBy: Nullable(Type.String({ format: 'uuid' })),
     publishedAt: Type.String({ format: 'date-time' }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Nullable(Type.String({ format: 'date-time' })),
