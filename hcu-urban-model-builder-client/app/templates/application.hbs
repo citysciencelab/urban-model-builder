@@ -9,6 +9,10 @@
   <div class="navbar-header">
     <navbar.toggle />
     <LinkTo @route="models.index" class="navbar-brand">
+      <img
+        src="/assets/images/urban-model-builder-logo.svg"
+        alt="urban-model-builder-logo"
+      />
       {{t "general.brand"}}
     </LinkTo>
   </div>
@@ -18,6 +22,11 @@
         <nav.item>
           <nav.linkTo @route="models.index">
             {{t "models.model.plural"}}
+          </nav.linkTo>
+        </nav.item>
+        <nav.item>
+          <nav.linkTo @route="public-models">
+            {{t "public_models.model.plural"}}
           </nav.linkTo>
         </nav.item>
       </navbar.nav>
