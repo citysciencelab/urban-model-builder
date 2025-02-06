@@ -45,30 +45,6 @@
     {{/if}}
   </ul>
 </BsNavbar>
-
-{{#if this.hasSecondaryNav}}
-  <BsNavbar @type="dark" @backgroundColor="secondary" @fluid={{false}}>
-    {{#if this.session.isAuthenticated}}
-      <BreadcrumbsContainer
-        @itemClass="breadcrumbs__item"
-        @linkClass="breadcrumbs__link"
-        class="breadcrumbs"
-      />
-    {{else if this.isDemoRoute}}
-      <div>
-        ⚠️
-        <strong>
-          Achtung Demo-Modus:
-        </strong>
-        Alle Änderungen werden nicht gespeichert!
-      </div>
-    {{/if}}
-    <div id="navbar-secondary"></div>
-  </BsNavbar>
-  <BreadcrumbsItem>
-    {{t "general.home"}}
-  </BreadcrumbsItem>
-{{/if}}
 <div id="ember-bootstrap-wormhole"></div>
 <BasicDropdownWormhole />
 

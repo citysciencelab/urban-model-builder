@@ -5,42 +5,20 @@
 @import "ember-power-select/themes/bootstrap";
 @import "node_modules/bootstrap/scss/bootstrap";
 @import "./custom-functions";
-@import "./header";
-@import "./breadcrumbs";
+
 @import "ember-basic-dropdown";
 @import "ember-power-select";
+
+@import "lib/colors";
+@import "lib/fonts";
+@import "lib/typography";
+
+@import "./header";
+@import "./breadcrumbs";
 
 .ember-basic-dropdown-content {
   z-index: 1055;
 }
-
-$color-fiord: #465166;
-$color-anakiwa: #a3c4ff;
-$color-rose: #ff0071;
-$node-selected-color: $color-rose;
-
-$node-color-map: (
-  "flow": #a3c4ff,
-  "stock": cadetblue,
-  "variable": coral,
-  "population": #b75b72,
-  "state": #52d48a,
-  "action": #f5a623,
-  "converter": #84f5ff,
-  "agent":
-    rgba(
-      $color: #574f7e,
-      $alpha: 0.2
-    ),
-  "folder": #8f8d8d71,
-  "ogc-api-features": #479180
-);
-
-$edge-color-map: (
-  "flow": map.get($node-color-map, "flow"),
-  "transition": #030303,
-  "agent-population": #aba3d2
-);
 
 @import "./react-canvas";
 
@@ -83,7 +61,8 @@ main {
 
 .sidebar {
   width: 400px;
-  height: 100%;
+  height: calc(100vh - 144px);
+
   background-color: $white;
   box-shadow: $box-shadow-lg;
   border-color: $border-color;
@@ -92,10 +71,9 @@ main {
   border-radius: $border-radius;
 
   display: flex;
-  flex-direction: column;
 }
 
-.sidebar__header {
+.sidebar__minimized {
   position: relative;
   min-height: 80px;
   display: flex;
@@ -501,6 +479,7 @@ fieldset {
   left: 0;
   right: auto;
   bottom: calc(60px + #{get-spacer(3)});
+  height: calc(100vh - 144px);
   // z-index: 1055;
   .sidebar__content {
     align-items: initial;
@@ -510,9 +489,6 @@ fieldset {
   }
   &.sidebar__container--minimized {
     bottom: auto;
-    .sidebar__content {
-      display: none;
-    }
   }
 }
 
