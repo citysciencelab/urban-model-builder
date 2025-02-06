@@ -16,10 +16,6 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
   @tracked showShareModal = false;
   @tracked showSettingsModal = false;
 
-  get navbar() {
-    return document.querySelector('#version-settings');
-  }
-
   @action async onCreateNewDraftVersion() {
     const currentModel = (await this.model).model;
 
@@ -48,6 +44,14 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
 
   @action onStartClone() {
     this.showCloneModal = true;
+  }
+
+  @action onShowSimulateDialog(value: boolean) {
+    this.showSimulateModal = value;
+  }
+
+  @action onShowSettingsDialog() {
+    this.showSettingsModal = true;
   }
 
   @action hideCloneDialog() {

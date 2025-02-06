@@ -1,0 +1,91 @@
+<div class="sidebar__header">
+  <h4 class="mb-0">
+    {{t "models.model.version_settings.title"}}
+  </h4>
+
+  <div class="sidebar__header__row">
+    <Model::VersionSelect
+      @model={{@modelVersion.model}}
+      @currentVersion={{@modelVersion}}
+    />
+    {{! Badget: Latest }}
+    {{#if @modelVersion.isLatest}}
+      &nbsp;
+      <span class="badge rounded-pill badge-success text-bg-light">
+        Latest
+      </span>
+    {{/if}}
+  </div>
+</div>
+<div class="sidebar__content">
+  <div id="version-settings">
+    {{#in-element this.navbar}}
+      {{! Button: Simulate }}
+      <BsButton
+        @type="primary"
+        @size="sm"
+        @onClick={{this.onShowSimulateDialog}}
+      >
+        Simulate
+      </BsButton>
+
+      <h5>
+        {{t "models.model.version_settings.actions"}}
+      </h5>
+      {{! Action: New Draft }}
+      <div class="actions">
+        <a
+          href="javascript:void(0)"
+          class="action-item
+          {{if @modelVersion.canCreateNewDraft "" "disabled"}}"
+          {{on "click" @onCreateNewDraftVersion}}
+        >
+          <SvgJar @icon="edit" @size="md" />
+
+          New Draft
+        </a>
+        {{! Action: Publish -> Dialog }}
+        <a
+          href="javascript:void(0)"
+          class="action-item
+          {{if @modelVersion.canPublish "" "disabled"}}"
+          {{on "click" @onStartPublish}}
+        >
+          <SvgJar @icon="upload" @size="md" />
+
+          Publish
+        </a>
+        {{! Action: Share -> Dialog }}
+        <a
+          href="javascript:void(0)"
+          class="action-item {{if @modelVersion.canShare "" "disabled"}}"
+          {{on "click" @onStartShare}}
+        >
+          <SvgJar @icon="share" @size="md" />
+
+          Share
+        </a>
+        {{! Action: Clone -> Dialog }}
+        <a
+          href="javascript:void(0)"
+          class="action-item"
+          {{on "click" @onStartClone}}
+        >
+          <SvgJar @icon="content_copy" @size="md" />
+
+          Clone
+        </a>
+
+        {{! Action: Settings }}
+        <a
+          href="javascript:void(0)"
+          class="action-item"
+          {{on "click" this.onShowSettingsDialog}}
+        >
+          <SvgJar @icon="settings" @size="md" />
+          Settings
+        </a>
+      </div>
+    {{/in-element}}
+  </div>
+</div>

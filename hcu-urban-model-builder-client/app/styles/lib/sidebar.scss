@@ -1,0 +1,113 @@
+.sidebar__container {
+  z-index: 1050;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: calc(60px + #{get-spacer(3)});
+  margin: get-spacer(3);
+  display: flex;
+  align-items: center;
+
+  .animated-container {
+    height: 100%;
+  }
+}
+
+.sidebar {
+  min-width: 400px;
+  min-height: 50vh;
+  max-height: calc(100vh - 144px);
+
+  background-color: $white;
+  box-shadow: $box-shadow-lg;
+  border-color: $border-color;
+  border-width: $border-width;
+  border-style: $border-style;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "bar header" "bar content";
+}
+
+.sidebar__bar {
+  grid-area: bar;
+  border-right: $border-width $border-style $border-color;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .nav-link {
+    padding: get-spacer(3);
+    color: $black;
+    text-align: center;
+    border-bottom: $border-width $border-style $border-color;
+
+    &.active,
+    &:hover {
+      background-color: $color-secondary;
+      color: $white;
+      fill: $white;
+    }
+  }
+
+  .nav-link.toggle-minimize {
+    border-bottom: 0;
+    border-top: $border-width $border-style $border-color;
+  }
+}
+
+.sidebar__header {
+  grid-area: header;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: get-spacer(3);
+  flex-direction: column;
+  gap: get-spacer(1);
+  .sidebar__header__row {
+    display: flex;
+    align-items: center;
+    gap: get-spacer(1);
+  }
+}
+
+.sidebar__content {
+  grid-area: content;
+  flex-grow: 1;
+  padding: get-spacer(3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow-y: auto;
+  form {
+    width: 100%;
+  }
+}
+
+.sidebar__container--left {
+  left: 0;
+  right: auto;
+  bottom: calc(60px + #{get-spacer(3)});
+  height: calc(100vh - 144px);
+  // z-index: 1055;
+  .sidebar__content {
+    align-items: initial;
+  }
+  .sidebar__header {
+    padding-right: 46px;
+  }
+  &.sidebar__container--minimized {
+    bottom: auto;
+
+    .sidebar {
+      min-width: 0;
+      width: fit-content;
+      .sidebar__bar {
+        border-right: 0;
+      }
+    }
+  }
+}

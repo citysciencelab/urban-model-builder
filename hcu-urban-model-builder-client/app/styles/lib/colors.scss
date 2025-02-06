@@ -2,6 +2,7 @@ $color-fiord: #465166;
 $color-anakiwa: #a3c4ff;
 $color-rose: #ff0071;
 $node-selected-color: $color-rose;
+$grey: #ececec;
 
 $color-primary: $color-anakiwa;
 $color-secondary: $color-fiord;
@@ -28,3 +29,13 @@ $edge-color-map: (
   "transition": #030303,
   "agent-population": #aba3d2,
 );
+
+.text-bg-secondary {
+  background-color: $color-secondary !important;
+  color: $white;
+}
+
+.text-bg-light {
+  background-color: $grey !important;
+  color: $black;
+}

@@ -1,0 +1,112 @@
+<div class="sidebar__header">
+  <h4 class="mb-0">
+    {{@modelVersion.model.internalName}}
+  </h4>
+  <div class="sidebar__header__row">
+    <Model::VersionSelect
+      @model={{@modelVersion.model}}
+      @currentVersion={{@modelVersion}}
+    />
+    {{! Badge: Public }}
+    {{#if @modelVersion.isPublished}}
+      &nbsp;
+      <span class="badge rounded-pill badge-success text-bg-light">
+        Public
+      </span>
+    {{/if}}
+
+    {{! Badge: Edit Mode / View Mode }}
+    {{#if @modelVersion.canEdit}}
+      &nbsp;
+      <span class="badge rounded-pill badge-warning text-bg-light">
+        Edit Mode
+      </span>
+    {{else}}
+      &nbsp;
+      <span class="badge rounded-pill badge-warning text-bg-light">
+        View Mode
+      </span>
+    {{/if}}
+    {{#if @modelVersion.model.description}}
+      <div class="">
+        <strong>
+          Description:
+        </strong>
+        <br />
+        {{@modelVersion.model.description}}
+      </div>
+      <hr />
+    {{/if}}
+  </div>
+</div>
+<div class="sidebar__content">
+  {{! SCENARIO ERROR }}
+  {{! ERROR }}
+  <BsAlert @type="danger" @visible={{@isError}}>
+    <strong>
+      Error:
+    </strong>
+    Please try again. If the problem persists, please contact support.
+  </BsAlert>
+  {{!-- {{! DEFAULT SCENARIO }}
+  {{#if @defaultScenario}}
+    {{#each @defaultScenario.scenariosValues as |scenarioValue|}}
+      <div class="scenario__value">
+        {{#let scenarioValue.nodes as |node|}}
+          <h5>
+            {{node.name}}
+          </h5>
+
+          {{#if (or (eq node.parameterType "boolean") (eq node.type 4))}}
+            <SidebarGeneral::ParameterBool
+              @scenarioValue={{scenarioValue}}
+              @onChange={{
+                fn @updateBoolParameter @defaultScenario scenarioValue
+              }}
+            />
+          {{else if (eq node.parameterType "slider")}}
+            <SidebarGeneral::ParameterSlider
+              @min={{node.parameterMin}}
+              @max={{node.parameterMax}}
+              @step={{node.parameterStep}}
+              @units={{node.data.units}}
+              @scenarioValue={{scenarioValue}}
+              @onChange={{
+                fn
+                @handleScenarioSliderValueChange
+                @defaultScenario
+                scenarioValue
+              }}
+            />
+          {{else if (eq node.parameterType "select")}}
+            <SidebarGeneral::ParameterSelect
+              @options={{node.parameterOptions.data}}
+              @scenarioValue={{scenarioValue}}
+              @onChange={{
+                fn
+                @handleScenarioSelectValueChange
+                @defaultScenario
+                scenarioValue
+              }}
+            />
+          {{/if}}
+        {{/let}}
+      </div>
+    {{/each}}
+    <hr />
+    <div class="text-center">
+      <a
+        href="javascript:void(0)"
+        class="btn btn-primary"
+        {{on "click" (fn @saveDefaultScenario @defaultScenario @saveAction)}}
+      >
+        {{#if @isSaving}}
+          <FaIcon @icon="spinner" @spin={{true}} @fixedWidth={{true}} />
+        {{/if}}
+        Save Scenario
+      </a>
+    </div>
+  {{else}}
+    No Parameters
+  {{/if}} --}}
+</div>

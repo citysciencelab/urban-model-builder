@@ -5,12 +5,13 @@
 <SidebarGeneral
   @model={{this.model}}
   @navbar={{this.navbar}}
-  @showSettingsModal={{this.showSettingsModal}}
   @onToggleSettingsModal={{this.hideSettingsDialog}}
   @onCreateNewDraftVersion={{this.onCreateNewDraftVersion}}
   @onStartPublish={{this.onStartPublish}}
   @onStartClone={{this.onStartClone}}
   @onStartShare={{this.onStartShare}}
+  @onShowSimulateDialog={{this.onShowSimulateDialog}}
+  @onShowSettingsDialog={{this.onShowSettingsDialog}}
 />
 
 <SimulateModal

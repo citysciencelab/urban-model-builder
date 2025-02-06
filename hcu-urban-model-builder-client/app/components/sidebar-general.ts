@@ -30,6 +30,7 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
 
   @tracked defaultScenario: Scenario | null = null;
   @tracked isMinimized = false;
+  @tracked activeView = 'modelInfo';
 
   @action async loadDefaultScenario(modelsVersion: ModelsVersion) {
     const defaultScenarios = (await this.store.query('scenario', {

@@ -12,9 +12,40 @@
 @import "lib/colors";
 @import "lib/fonts";
 @import "lib/typography";
+@import "lib/sidebar";
 
 @import "./header";
 @import "./breadcrumbs";
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: get-spacer(2);
+  img {
+    height: get-spacer(4);
+  }
+}
+
+.badge {
+  padding: get-spacer(1) get-spacer(3);
+  @include font-size($h6-font-size);
+  font-weight: $font-weight-base;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: get-spacer(2);
+  margin-top: get-spacer(2);
+
+  .action-item {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: get-spacer(1);
+    color: $black;
+  }
+}
 
 .ember-basic-dropdown-content {
   z-index: 1055;
@@ -44,54 +75,6 @@ main {
   flex-grow: 1;
   position: relative;
   height: 100%;
-}
-
-.sidebar__container {
-  z-index: 1050;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: calc(60px + #{get-spacer(3)});
-  margin: get-spacer(3);
-
-  .animated-container {
-    height: 100%;
-  }
-}
-
-.sidebar {
-  width: 400px;
-  height: calc(100vh - 144px);
-
-  background-color: $white;
-  box-shadow: $box-shadow-lg;
-  border-color: $border-color;
-  border-width: $border-width;
-  border-style: $border-style;
-  border-radius: $border-radius;
-
-  display: flex;
-}
-
-.sidebar__header {
-  position: relative;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-  // padding: get-spacer(3);
-  border-bottom: $border-width $border-style $border-color;
-}
-
-.sidebar__content {
-  flex-grow: 1;
-  padding: get-spacer(3);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  overflow-y: auto;
-  form {
-    width: 100%;
-  }
 }
 
 .navbar h3 {
@@ -475,26 +458,6 @@ fieldset {
   }
 }
 
-.sidebar__container--left {
-  left: 0;
-  right: auto;
-  bottom: calc(60px + #{get-spacer(3)});
-  height: calc(100vh - 144px);
-  // z-index: 1055;
-  .sidebar__content {
-    align-items: initial;
-  }
-  .sidebar__header {
-    padding-right: 46px;
-  }
-  &.sidebar__container--minimized {
-    bottom: auto;
-    .sidebar {
-      width: fit-content;
-    }
-  }
-}
-
 .range-input__min-max {
   width: 100%;
   input {
@@ -532,11 +495,6 @@ fieldset {
 .scenario__value {
   width: 100%;
   margin-bottom: get-spacer(3);
-}
-
-.toggle-minimize {
-  position: absolute;
-  right: 0px;
 }
 
 .modal--no-backdrop {
