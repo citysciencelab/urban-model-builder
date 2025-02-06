@@ -73,12 +73,12 @@ main {
   display: flex;
 }
 
-.sidebar__minimized {
+.sidebar__header {
   position: relative;
   min-height: 80px;
   display: flex;
   align-items: center;
-  padding: get-spacer(3);
+  // padding: get-spacer(3);
   border-bottom: $border-width $border-style $border-color;
 }
 
@@ -489,6 +489,9 @@ fieldset {
   }
   &.sidebar__container--minimized {
     bottom: auto;
+    .sidebar {
+      width: fit-content;
+    }
   }
 }
 

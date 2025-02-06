@@ -17,7 +17,7 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
   @tracked showSettingsModal = false;
 
   get navbar() {
-    return document.querySelector('#navbar-secondary');
+    return document.querySelector('#version-settings');
   }
 
   @action async onCreateNewDraftVersion() {

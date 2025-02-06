@@ -1,117 +1,216 @@
 <SaveStateManager as |saveAction isSaving isError|>
   {{#let @model as |modelVersion|}}
     <div
-      class="sidebar__container sidebar__container--left {{
-        if this.isMinimized "sidebar__container--minimized"
-      }}"
+      class="sidebar__container sidebar__container--left
+        {{if this.isMinimized 'sidebar__container--minimized'}}"
       {{did-insert this.addEventListeners}}
       {{did-insert (fn this.loadDefaultScenario modelVersion)}}
       {{will-destroy this.removeEventListeners}}
     >
       <div class="sidebar">
         <div class="sidebar__header">
-          <h3 class="mb-0">
-            {{modelVersion.model.internalName}}
-            <a
-              href="javascript:void(0)"
-              class="btn btn-link toggle-minimize"
-              {{on "click" this.minimize}}
-            >
-              <FaIcon
-                @icon={{if this.isMinimized "expand" "compress"}}
-                @fixedWidth={{true}}
-              />
-            </a>
-          </h3>
+          <a
+            href="javascript:void(0)"
+            class="btn btn-link toggle-minimize"
+            {{on "click" this.minimize}}
+          >
+            <FaIcon
+              @icon={{if this.isMinimized "chevron-right" "chevron-left"}}
+              @fixedWidth={{true}}
+            />
+          </a>
         </div>
-        <div class="sidebar__content">
-          {{#if modelVersion.model.description}}
-            <div class="">
-              <strong>
-                Description:
-              </strong>
-              <br />
-              {{modelVersion.model.description}}
-            </div>
-            <hr />
-          {{/if}}
-          {{! SCENARIO ERROR }}
-          {{! ERROR }}
-          <BsAlert @type="danger" @visible={{isError}}>
-            <strong>
-              Error:
-            </strong>
-            Please try again. If the problem persists, please contact support.
-          </BsAlert>
-          {{! DEFAULT SCENARIO }}
-          {{#if this.defaultScenario}}
-            {{#each this.defaultScenario.scenariosValues as |scenarioValue|}}
-              <div class="scenario__value">
-                {{#let scenarioValue.nodes as |node|}}
-                  <h5>
-                    {{node.name}}
-                  </h5>
+        {{#unless this.isMinimized}}
+          <div class="sidebar__content">
+            <h3 class="mb-0">
+              {{modelVersion.model.internalName}}
+            </h3>
+            <Model::VersionSelect
+              @model={{modelVersion.model}}
+              @currentVersion={{modelVersion}}
+            />
+            {{! Badge: Public }}
+            {{#if modelVersion.isPublished}}
+              &nbsp;
+              <span class="badge rounded-pill badge-success text-bg-light">
+                Public
+              </span>
+            {{/if}}
+            {{! Badget: Latest }}
+            {{#if modelVersion.isLatest}}
+              &nbsp;
+              <span class="badge rounded-pill badge-success text-bg-light">
+                Latest
+              </span>
+            {{/if}}
+            {{! Badge: Edit Mode / View Mode }}
+            {{#if modelVersion.canEdit}}
+              &nbsp;
+              <span class="badge rounded-pill badge-warning text-bg-light">
+                Edit Mode
+              </span>
+            {{else}}
+              &nbsp;
+              <span class="badge rounded-pill badge-warning text-bg-light">
+                View Mode
+              </span>
+            {{/if}}
+            {{#if modelVersion.model.description}}
+              <div class="">
+                <strong>
+                  Description:
+                </strong>
+                <br />
+                {{modelVersion.model.description}}
+              </div>
+              <hr />
+            {{/if}}
 
-                  {{#if (or (eq node.parameterType "boolean") (eq node.type 4))
+            {{! SCENARIO ERROR }}
+            {{! ERROR }}
+            <BsAlert @type="danger" @visible={{isError}}>
+              <strong>
+                Error:
+              </strong>
+              Please try again. If the problem persists, please contact support.
+            </BsAlert>
+            {{! DEFAULT SCENARIO }}
+            {{#if this.defaultScenario}}
+              {{#each this.defaultScenario.scenariosValues as |scenarioValue|}}
+                <div class="scenario__value">
+                  {{#let scenarioValue.nodes as |node|}}
+                    <h5>
+                      {{node.name}}
+                    </h5>
+
+                    {{#if
+                      (or (eq node.parameterType "boolean") (eq node.type 4))
+                    }}
+                      <SidebarGeneral::ParameterBool
+                        @scenarioValue={{scenarioValue}}
+                        @onChange={{fn
+                          this.updateBoolParameter
+                          this.defaultScenario
+                          scenarioValue
+                        }}
+                      />
+                    {{else if (eq node.parameterType "slider")}}
+                      <SidebarGeneral::ParameterSlider
+                        @min={{node.parameterMin}}
+                        @max={{node.parameterMax}}
+                        @step={{node.parameterStep}}
+                        @units={{node.data.units}}
+                        @scenarioValue={{scenarioValue}}
+                        @onChange={{fn
+                          this.handleScenarioSliderValueChange
+                          this.defaultScenario
+                          scenarioValue
+                        }}
+                      />
+                    {{else if (eq node.parameterType "select")}}
+                      <SidebarGeneral::ParameterSelect
+                        @options={{node.parameterOptions.data}}
+                        @scenarioValue={{scenarioValue}}
+                        @onChange={{fn
+                          this.handleScenarioSelectValueChange
+                          this.defaultScenario
+                          scenarioValue
+                        }}
+                      />
+                    {{/if}}
+                  {{/let}}
+                </div>
+              {{/each}}
+              <hr />
+              <div class="text-center">
+                <a
+                  href="javascript:void(0)"
+                  class="btn btn-primary"
+                  {{on
+                    "click"
+                    (fn
+                      this.saveDefaultScenario this.defaultScenario saveAction
+                    )
                   }}
-                    <SidebarGeneral::ParameterBool
-                      @scenarioValue={{scenarioValue}}
-                      @onChange={{
-                        fn
-                        this.updateBoolParameter
-                        this.defaultScenario
-                        scenarioValue
-                      }}
-                    />
-                  {{else if (eq node.parameterType "slider")}}
-                    <SidebarGeneral::ParameterSlider
-                      @min={{node.parameterMin}}
-                      @max={{node.parameterMax}}
-                      @step={{node.parameterStep}}
-                      @units={{node.data.units}}
-                      @scenarioValue={{scenarioValue}}
-                      @onChange={{
-                        fn
-                        this.handleScenarioSliderValueChange
-                        this.defaultScenario
-                        scenarioValue
-                      }}
-                    />
-                  {{else if (eq node.parameterType "select")}}
-                    <SidebarGeneral::ParameterSelect
-                      @options={{node.parameterOptions.data}}
-                      @scenarioValue={{scenarioValue}}
-                      @onChange={{
-                        fn
-                        this.handleScenarioSelectValueChange
-                        this.defaultScenario
-                        scenarioValue
-                      }}
+                >
+                  {{#if isSaving}}
+                    <FaIcon
+                      @icon="spinner"
+                      @spin={{true}}
+                      @fixedWidth={{true}}
                     />
                   {{/if}}
-                {{/let}}
+                  Save Scenario
+                </a>
               </div>
-            {{/each}}
-            <hr />
-            <div class="text-center">
-              <a
-                href="javascript:void(0)"
-                class="btn btn-primary"
-                {{on
-                  "click"
-                  (fn this.saveDefaultScenario this.defaultScenario saveAction)
-                }}
-              >
-                {{#if isSaving}}
-                  <FaIcon @icon="spinner" @spin={{true}} @fixedWidth={{true}} />
-                {{/if}}
-                Save Scenario
-              </a>
+            {{else}}
+              No Parameters
+            {{/if}}
+
+            <div id="version-settings">
+              {{#in-element @navbar}}
+                {{! Button: Simulate }}
+                <BsButton
+                  @type="primary"
+                  @size="sm"
+                  @onClick={{fn (mut this.showSimulateModal) true}}
+                >
+                  Simulate
+                </BsButton>
+                {{! Action: New Draft }}
+                <a
+                  href="javascript:void(0)"
+                  class="dropdown-item
+                    {{if modelVersion.canCreateNewDraft '' 'disabled'}}"
+                  {{on "click" @onCreateNewDraftVersion}}
+                >
+                  <FaIcon @icon="pencil" @fixedWidth={{true}} />
+                  New Draft
+                </a>
+                {{! Action: Publish -> Dialog }}
+                <a
+                  href="javascript:void(0)"
+                  class="dropdown-item
+                    {{if modelVersion.canPublish '' 'disabled'}}"
+                  {{on "click" @onStartPublish}}
+                >
+                  <FaIcon @icon="upload" @fixedWidth={{true}} />
+                  Publish
+                </a>
+                {{! Action: Share -> Dialog }}
+                <a
+                  href="javascript:void(0)"
+                  class="dropdown-item
+                    {{if modelVersion.canShare '' 'disabled'}}"
+                  {{on "click" @onStartShare}}
+                >
+                  <FaIcon @icon="share-alt" @fixedWidth={{true}} />
+                  Share
+                </a>
+                {{! Action: Clone -> Dialog }}
+                <a
+                  href="javascript:void(0)"
+                  class="dropdown-item"
+                  {{on "click" @onStartClone}}
+                >
+                  <FaIcon @icon="copy" @fixedWidth={{true}} />
+                  Clone
+                </a>
+
+                {{! Action: Settings }}
+                <a
+                  href="javascript:void(0)"
+                  class="dropdown-item"
+                  {{on "click" (fn (mut @showSettingsModal) true)}}
+                >
+                  <FaIcon @icon="cog" @fixedWidth={{true}} />
+                  Settings
+                </a>
+              {{/in-element}}
             </div>
-          {{else}}
-            No Parameters
-          {{/if}}
-        </div>
+          </div>
+
+        {{/unless}}
       </div>
     </div>
   {{/let}}
