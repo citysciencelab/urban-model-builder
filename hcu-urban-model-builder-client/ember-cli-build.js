@@ -23,6 +23,9 @@ module.exports = function (defaults) {
     'ember-fetch': {
       nativePromise: true,
     },
+    svgJar: {
+      sourceDirs: ['node_modules/@material-design-icons/svg/sharp'],
+    },
   });
 
   let additionalFolder = new Funnel('canvas', {
