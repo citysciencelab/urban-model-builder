@@ -8,74 +8,14 @@
       {{will-destroy this.removeEventListeners}}
     >
       <div class="sidebar">
-        <div class="sidebar__bar">
-          <ul class="nav nav-flush flex-column mb-auto text-center">
-            <li class="nav-item">
-              <a
-                href="javascript:void(0)"
-                class="{{
-                  if
-                  (eq this.activeView "modelInfo")
-                  "nav-link active"
-                  "nav-link"
-                }}"
-                {{on "click" (fn (mut this.activeView) "modelInfo")}}
-              >
-                <SvgJar @icon="info" @size="md" />
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                href="javascript:void(0)"
-                class="{{
-                  if (eq this.activeView "flows") "nav-link active" "nav-link"
-                }}"
-                {{on "click" (fn (mut this.activeView) "flows")}}
-              >
-                <SvgJar @icon="tune" @size="md" />
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                href="javascript:void(0)"
-                class="{{
-                  if
-                  (eq this.activeView "settings")
-                  "nav-link active"
-                  "nav-link"
-                }}"
-                {{on "click" (fn (mut this.activeView) "settings")}}
-              >
-                <SvgJar @icon="settings" @size="md" />
-              </a>
-            </li>
-            <li class="nav-item">
-              <a
-                href="javascript:void(0)"
-                class="{{
-                  if (eq this.activeView "share") "nav-link active" "nav-link"
-                }}"
-                {{on "click" (fn (mut this.activeView) "share")}}
-              >
-                <SvgJar @icon="share" @size="md" />
-              </a>
-            </li>
-          </ul>
-
-          <a
-            href="javascript:void(0)"
-            class="nav-link toggle-minimize"
-            {{on "click" this.minimize}}
-          >
-            <SvgJar
-              @icon={{if this.isMinimized "chevron_right" "chevron_left"}}
-              @size="md"
-            />
-          </a>
-        </div>
+        <SidebarGeneral::Nav
+          @activeView={{this.activeView}}
+          @isMinimized={{this.isMinimized}}
+          @minimize={{this.minimize}}
+        />
         {{#unless this.isMinimized}}
-          {{#if (eq this.activeView "modelInfo")}}
-            <SidebarGeneral::Views::ModelInfo
+          {{#if this.sidebarViewComponent}}
+            <this.sidebarViewComponent
               @modelVersion={{modelVersion}}
               @scenarioValue={{this.defaultScenario}}
               @updateBoolParameter={{this.updateBoolParameter}}
@@ -90,11 +30,6 @@
               @isError={{isError}}
               @saveAction={{saveAction}}
               @defaultScenario={{this.defaultScenario}}
-            />
-          {{/if}}
-          {{#if (eq this.activeView "share")}}
-            <SidebarGeneral::Views::Share
-              @modelVersion={{modelVersion}}
               @onCreateNewDraftVersion={{@onCreateNewDraftVersion}}
               @onStartPublish={{@onStartPublish}}
               @onStartShare={{@onStartShare}}

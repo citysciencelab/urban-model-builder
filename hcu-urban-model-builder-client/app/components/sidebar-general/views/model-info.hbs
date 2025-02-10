@@ -48,7 +48,7 @@
     </strong>
     Please try again. If the problem persists, please contact support.
   </BsAlert>
-  {{!-- {{! DEFAULT SCENARIO }}
+  {{! DEFAULT SCENARIO }}
   {{#if @defaultScenario}}
     {{#each @defaultScenario.scenariosValues as |scenarioValue|}}
       <div class="scenario__value">
@@ -60,8 +60,10 @@
           {{#if (or (eq node.parameterType "boolean") (eq node.type 4))}}
             <SidebarGeneral::ParameterBool
               @scenarioValue={{scenarioValue}}
-              @onChange={{
-                fn @updateBoolParameter @defaultScenario scenarioValue
+              @onChange={{fn
+                @updateBoolParameter
+                @defaultScenario
+                scenarioValue
               }}
             />
           {{else if (eq node.parameterType "slider")}}
@@ -71,8 +73,7 @@
               @step={{node.parameterStep}}
               @units={{node.data.units}}
               @scenarioValue={{scenarioValue}}
-              @onChange={{
-                fn
+              @onChange={{fn
                 @handleScenarioSliderValueChange
                 @defaultScenario
                 scenarioValue
@@ -82,8 +83,7 @@
             <SidebarGeneral::ParameterSelect
               @options={{node.parameterOptions.data}}
               @scenarioValue={{scenarioValue}}
-              @onChange={{
-                fn
+              @onChange={{fn
                 @handleScenarioSelectValueChange
                 @defaultScenario
                 scenarioValue
@@ -108,5 +108,5 @@
     </div>
   {{else}}
     No Parameters
-  {{/if}} --}}
+  {{/if}}
 </div>

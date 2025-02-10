@@ -40,7 +40,7 @@
           {{if @modelVersion.canCreateNewDraft "" "disabled"}}"
           {{on "click" @onCreateNewDraftVersion}}
         >
-          <SvgJar @icon="edit" @size="md" />
+          <SvgIcon @icon="edit" @size="md" />
 
           New Draft
         </a>
@@ -51,7 +51,7 @@
           {{if @modelVersion.canPublish "" "disabled"}}"
           {{on "click" @onStartPublish}}
         >
-          <SvgJar @icon="upload" @size="md" />
+          <SvgIcon @icon="upload" @size="md" />
 
           Publish
         </a>
@@ -61,7 +61,7 @@
           class="action-item {{if @modelVersion.canShare "" "disabled"}}"
           {{on "click" @onStartShare}}
         >
-          <SvgJar @icon="share" @size="md" />
+          <SvgIcon @icon="share" @size="md" />
 
           Share
         </a>
@@ -71,7 +71,7 @@
           class="action-item"
           {{on "click" @onStartClone}}
         >
-          <SvgJar @icon="content_copy" @size="md" />
+          <SvgIcon @icon="content_copy" @size="md" />
 
           Clone
         </a>
@@ -82,7 +82,7 @@
           class="action-item"
           {{on "click" this.onShowSettingsDialog}}
         >
-          <SvgJar @icon="settings" @size="md" />
+          <SvgIcon @icon="settings" @size="md" />
           Settings
         </a>
       </div>

@@ -9,6 +9,9 @@ import { tracked } from '@glimmer/tracking';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 import { load } from 'ember-async-data';
 import type Store from '@ember-data/store';
+import { ensureSafeComponent } from '@embroider/util';
+import { importSync } from '@embroider/macros';
+import { dasherize } from '@ember/string';
 
 export interface SidebarGeneralSignature {
   // The arguments accepted by the component
@@ -31,6 +34,21 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
   @tracked defaultScenario: Scenario | null = null;
   @tracked isMinimized = false;
   @tracked activeView = 'modelInfo';
+
+  get sidebarViewComponent() {
+    if (!this.activeView) {
+      return null;
+    }
+    try {
+      const fileName = dasherize(this.activeView);
+      const module = importSync(`./sidebar-general/views/${fileName}`) as any;
+
+      return ensureSafeComponent(module.default, this);
+    } catch (e) {
+      console.debug(e);
+      return null;
+    }
+  }
 
   @action async loadDefaultScenario(modelsVersion: ModelsVersion) {
     const defaultScenarios = (await this.store.query('scenario', {
