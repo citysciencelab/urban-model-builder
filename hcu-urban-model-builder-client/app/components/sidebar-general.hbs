@@ -17,19 +17,11 @@
           {{#if this.sidebarViewComponent}}
             <this.sidebarViewComponent
               @modelVersion={{modelVersion}}
-              @scenarioValue={{this.defaultScenario}}
-              @updateBoolParameter={{this.updateBoolParameter}}
-              @handleScenarioSliderValueChange={{
-                this.handleScenarioSliderValueChange
-              }}
-              @handleScenarioSelectValueChange={{
-                this.handleScenarioSelectValueChange
-              }}
-              @saveDefaultScenario={{this.saveDefaultScenario}}
-              @isSaving={{isSaving}}
               @isError={{isError}}
-              @saveAction={{saveAction}}
               @defaultScenario={{this.defaultScenario}}
+              @scenarioValue={{this.defaultScenario}}
+              @isSaving={{isSaving}}
+              @saveAction={{saveAction}}
               @onCreateNewDraftVersion={{@onCreateNewDraftVersion}}
               @onStartPublish={{@onStartPublish}}
               @onStartShare={{@onStartShare}}

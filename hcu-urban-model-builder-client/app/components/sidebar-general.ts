@@ -101,52 +101,7 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
     );
   }
 
-  @action async saveDefaultScenario(
-    defaultScenario: Scenario,
-    saveAction: any,
-  ) {
-    const values = await defaultScenario.scenariosValues;
-    await saveAction(async () => {
-      for (const value of values) {
-        await value.save();
-      }
-    });
-  }
-
-  @action handleScenarioSliderValueChange(
-    scenario: Scenario,
-    scenarioValue: ScenariosValue,
-  ) {
-    this.eventBus.emit('scenario-value-changed', {
-      scenario,
-      scenarioValue,
-    });
-  }
-
-  @action handleScenarioSelectValueChange(
-    scenario: Scenario,
-    scenarioValue: ScenariosValue,
-    newValue: { value: number; label: string },
-  ) {
-    scenarioValue.value = newValue.value;
-    this.eventBus.emit('scenario-value-changed', {
-      scenario,
-      scenarioValue,
-    });
-  }
-
   @action minimize() {
     this.isMinimized = !this.isMinimized;
-  }
-
-  @action updateBoolParameter(
-    scenario: Scenario,
-    boolScenarioValue: ScenariosValue,
-  ) {
-    boolScenarioValue.value = boolScenarioValue.value == 0 ? 1 : 0;
-    this.eventBus.emit('scenario-value-changed', {
-      scenario,
-      boolScenarioValue,
-    });
   }
 }
