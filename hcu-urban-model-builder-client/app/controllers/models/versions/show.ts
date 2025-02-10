@@ -25,7 +25,7 @@ export default class ModelsVersionsShowController extends Controller<ModelsVersi
 
     const newDraftModelVersion = await this.feathers.app
       .service('models')
-      .newDraft({ id: Number(currentModel.id) });
+      .newDraft({ id: currentModel.id });
 
     const newDraftModelVersionModel = this.feathers.pushRecordIntoStore(
       'models-version',

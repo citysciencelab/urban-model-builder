@@ -1,6 +1,7 @@
 import Model, { attr, belongsTo, hasMany } from '@ember-data/model';
 import { Type } from '@warp-drive/core-types/symbols';
 import type Scenario from './scenario';
+import type Node from './node';
 
 export default class ScenariosValue extends Model {
   [Type] = 'scenarios-value' as const;

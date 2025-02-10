@@ -1,6 +1,6 @@
 import { Node } from '@xyflow/react';
 
-export const compareParentId = (a: number, b: number) => {
+export const compareParentId = (a: string, b: string) => {
   if (a === b) {
     return 0;
   }
@@ -11,7 +11,7 @@ export const compareParentId = (a: number, b: number) => {
     return 1;
   }
 
-  return a - b;
+  return a < b ? -1 : 1;
 };
 
 export const sortNodeModels = (a: any, b: any) => {
@@ -22,7 +22,7 @@ export const sortNodeModels = (a: any, b: any) => {
 };
 
 export const sortNodes = (a: Node, b: Node): number => {
-  return compareParentId(Number(a.parentId), Number(b.parentId));
+  return compareParentId(a.parentId, b.parentId);
 };
 
 export const getNodePositionInsideParent = (
