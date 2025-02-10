@@ -19,7 +19,7 @@ export default class SidebarGeneralNavComponent extends Component<SidebarGeneral
         icon: 'info',
       },
       {
-        id: 'flows',
+        id: 'scenarios',
         icon: 'tune',
       },
       {
