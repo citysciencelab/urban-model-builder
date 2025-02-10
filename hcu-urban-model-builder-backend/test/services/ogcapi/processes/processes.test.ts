@@ -222,12 +222,9 @@ describe('ogcapi/processes service', () => {
     assert.equal(job.state, 'accepted', 'Job state is accepted')
     const jobDetails = await app.service('ogcapi/jobs').get(job.jobId)
     assert.ok(jobDetails, 'Job details retrieved')
-    console.dir(jobDetails, { depth: null })
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     const jobResults = await app.service('ogcapi/jobs/:jobId/results').find({ route: { jobId: job.jobId } })
-
-    console.dir(jobResults, { depth: null })
   })
 
   it('should not be possible to execute a process without required parameters', async () => {
