@@ -18,19 +18,20 @@ export interface ProcessesExecutionServiceOptions {
   app: Application
 }
 
-export interface ProcessesExecutionParams extends Params { }
+export interface ProcessesExecutionParams extends Params {}
 
 // This is a skeleton for a custom service class. Remove or add the methods you need here
 export class ProcessesExecutionService<
   ServiceParams extends ProcessesExecutionParams = ProcessesExecutionParams
-> implements ServiceInterface<ProcessesExecution, ProcessesExecutionData, ServiceParams> {
+> implements ServiceInterface<ProcessesExecution, ProcessesExecutionData, ServiceParams>
+{
   app: Application
   constructor(public options: ProcessesExecutionServiceOptions) {
     this.app = options.app
   }
 
-  protected getProcessId(params?: ServiceParams): number {
-    const { processId } = params?.route as { processId: number }
+  protected getProcessId(params?: ServiceParams): string {
+    const { processId } = params?.route as { processId: string }
     if (!processId) {
       throw new Unprocessable('Missing processId')
     }
@@ -54,7 +55,7 @@ export class ProcessesExecutionService<
         isParameter: true
       }
     })
-    const inputNodeNameToIdMap = new Map<string, number>()
+    const inputNodeNameToIdMap = new Map<string, string>()
     for (const node of inputNodes.data) {
       inputNodeNameToIdMap.set(_.snakeCase(node.name!), node.id)
     }
@@ -67,7 +68,7 @@ export class ProcessesExecutionService<
         isOutputParameter: true
       }
     })
-    const outputNodeNameToIdMap = new Map<string, number>()
+    const outputNodeNameToIdMap = new Map<string, string>()
     for (const node of outputNodes.data) {
       outputNodeNameToIdMap.set(_.snakeCase(node.name!), node.id)
     }

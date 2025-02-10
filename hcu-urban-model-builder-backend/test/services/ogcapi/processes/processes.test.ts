@@ -16,8 +16,8 @@ describe('ogcapi/processes service', () => {
       {
         internalName: 'Basic SD Model',
         description: 'A basic model with stocks and flows'
-      },
-      params
+      }
+      // params
     )
 
     const modelVersion = await app.service('models-versions').create({
@@ -27,7 +27,8 @@ describe('ogcapi/processes service', () => {
       majorVersion: 0,
       timeUnits: 'Years',
       timeStart: 0,
-      timeLength: 200
+      timeLength: 200,
+      publishedToUMPAt: new Date().toISOString()
     })
 
     const baseNodeData = {
@@ -207,7 +208,6 @@ describe('ogcapi/processes service', () => {
     const service = app.service('ogcapi/processes')
     const processes = await service.find()
     const process = await service.get(processes.processes[0].id)
-    console.dir(process, { depth: null })
     assert.ok(process, 'Process retrieved')
   })
 
@@ -232,10 +232,14 @@ describe('ogcapi/processes service', () => {
 
   it('should not be possible to execute a process without required parameters', async () => {
     const service = app.service('ogcapi/processes/:processId/execution')
+    let hasError = true
     try {
       await service.create({}, { route: { processId: '1' } })
-    } catch (error) {
+      hasError = false
+    } catch (error: any) {
       assert.ok(error, 'Error thrown')
+      assert.strictEqual(error.code, 404)
     }
+    assert.ok(hasError)
   })
 })

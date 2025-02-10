@@ -11,7 +11,7 @@ import type { UserService } from './users.class.js'
 // Main data model schema
 export const userSchema = Type.Object(
   {
-    id: Type.Number(),
+    id: Type.String({ format: 'uuid' }),
     email: Type.String(),
     password: Type.Optional(Type.String()),
     oidcId: Type.Optional(Type.String())

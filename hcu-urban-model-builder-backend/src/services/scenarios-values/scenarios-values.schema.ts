@@ -11,10 +11,10 @@ import { Nullable } from '../../utils/schema.js'
 // Main data model schema
 export const scenarioValuesSchema = Type.Object(
   {
-    id: Type.Number(),
+    id: Type.String({ format: 'uuid' }),
     value: Type.Number(),
-    nodesId: Type.Number(),
-    scenariosId: Type.Number(),
+    nodesId: Type.String({ format: 'uuid' }),
+    scenariosId: Type.String({ format: 'uuid' }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Nullable(Type.String({ format: 'date-time' })),
     deletedAt: Nullable(Type.String({ format: 'date-time' }))

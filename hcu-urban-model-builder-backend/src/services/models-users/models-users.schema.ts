@@ -6,14 +6,15 @@ import type { Static } from '@feathersjs/typebox'
 import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { ModelsUsersService } from './models-users.class.js'
+import { Roles } from '../../client.js'
 
 // Main data model schema
 export const modelsUsersSchema = Type.Object(
   {
-    id: Type.Number(),
-    userId: Type.Number(),
-    modelId: Type.Number(),
-    role: Type.Number() // TODO: Add role type
+    id: Type.String({ format: 'uuid' }),
+    userId: Type.String({ format: 'uuid' }),
+    modelId: Type.String({ format: 'uuid' }),
+    role: Type.Enum(Roles)
   },
   { $id: 'ModelsUsers', additionalProperties: false }
 )
