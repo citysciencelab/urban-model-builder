@@ -1,12 +1,52 @@
 {{#unless @disabled}}
-  {{#each this.nodeTypeConfigs as |nodeTypeConfig|}}
-    <div
-      class="node-toolbar__node --{{nodeTypeConfig.className}}"
-      draggable="true"
-      {{on "dragstart" (fn this.onDragStart nodeTypeConfig)}}
-      {{on "dragend" this.onDragEnd}}
-    >
-      {{uppercase (humanize nodeTypeConfig.label)}}
-    </div>
-  {{/each}}
+  <BasicDropdown
+    @horizontalPosition="center"
+    @verticalPosition="above"
+    @renderInPlace={{true}} as |dd|
+  >
+    <dd.Trigger>
+      <SvgJar @icon="add" @size="md" />
+    </dd.Trigger>
+    <dd.Content>
+      <div class="primitives-card">
+        <h6>
+          Allgemein
+        </h6>
+        <div class="node-toolbar__section">
+          {{#each this.nodeTypeConfigs.allgemein as |nodeTypeConfig|}}
+            <NodeToolbar::Node
+              @config={{nodeTypeConfig}}
+              @onDragStart={{this.onDragStart}}
+              @onDragEnd={{this.onDragEnd}}
+            />
+          {{/each}}
+        </div>
+
+        <h6>
+          System Dynamics
+        </h6>
+        <div class="node-toolbar__section">
+          {{#each this.nodeTypeConfigs.systemDynamics as |nodeTypeConfig|}}
+            <NodeToolbar::Node
+              @config={{nodeTypeConfig}}
+              @onDragStart={{this.onDragStart}}
+              @onDragEnd={{this.onDragEnd}}
+            />
+          {{/each}}
+        </div>
+        <h6>
+          Agent-based Modelling
+        </h6>
+        <div class="node-toolbar__section">
+          {{#each this.nodeTypeConfigs.agentBasedModelling as |nodeTypeConfig|}}
+            <NodeToolbar::Node
+              @config={{nodeTypeConfig}}
+              @onDragStart={{this.onDragStart}}
+              @onDragEnd={{this.onDragEnd}}
+            />
+          {{/each}}
+        </div>
+      </div>
+    </dd.Content>
+  </BasicDropdown>
 {{/unless}}

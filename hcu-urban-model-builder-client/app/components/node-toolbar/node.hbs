@@ -1,0 +1,13 @@
+<div
+  class="node-toolbar__node --{{@config.className}}"
+  draggable="true"
+  {{on "dragstart" (fn @onDragStart @config)}}
+  {{on "dragend" @onDragEnd}}
+>
+  <div class="node-toolbar__node__icon">
+    <SvgJar @icon="add" @size="xs" />
+  </div>
+  <span>
+    {{uppercase (humanize @config.label)}}
+  </span>
+</div>

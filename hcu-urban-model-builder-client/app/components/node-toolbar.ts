@@ -21,25 +21,57 @@ export interface NodeToolbarSignature {
   Element: null;
 }
 
-type NodeTypeConfig = { label: string; className: string; value: NodeType };
+type NodeTypeConfig = {
+  label: string;
+  className: string;
+  value: NodeType;
+};
 
 export default class NodeToolbarComponent extends Component<NodeToolbarSignature> {
   @service declare store: Store;
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare emberReactConnector: EmberReactConnectorService;
 
-  get nodeTypeConfigs() {
-    return Object.values(NodeType).reduce((acc, type) => {
+  get nodeTypeConfigs(): {
+    allgemein: NodeTypeConfig[];
+    systemDynamics: NodeTypeConfig[];
+    agentBasedModelling: NodeTypeConfig[];
+  } {
+    const groupedConfigs: {
+      allgemein: NodeTypeConfig[];
+      systemDynamics: NodeTypeConfig[];
+      agentBasedModelling: NodeTypeConfig[];
+    } = {
+      allgemein: [],
+      systemDynamics: [],
+      agentBasedModelling: [],
+    };
+
+    Object.values(NodeType).forEach((type) => {
       if (typeof type === 'number' && type !== NodeType.Ghost) {
         const typeStr = NodeType[type];
-        acc.push({
+        const config: NodeTypeConfig = {
           label: decamelize(typeStr),
           className: dasherize(typeStr),
           value: type,
-        });
+        };
+
+        // Zuweisung zur passenden Kategorie
+        if (
+          ['Variable', 'Folder', 'Converter', 'OgcApiFeatures'].includes(
+            typeStr,
+          )
+        ) {
+          groupedConfigs.allgemein.push(config);
+        } else if (['Stock', 'Flow'].includes(typeStr)) {
+          groupedConfigs.systemDynamics.push(config);
+        } else {
+          groupedConfigs.agentBasedModelling.push(config);
+        }
       }
-      return acc;
-    }, [] as NodeTypeConfig[]);
+    });
+
+    return groupedConfigs;
   }
 
   @action onDragStart(config: NodeTypeConfig) {
