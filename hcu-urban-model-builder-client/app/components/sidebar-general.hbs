@@ -1,37 +1,29 @@
-<SaveStateManager as |saveAction isSaving isError|>
-  {{#let @model as |modelVersion|}}
-    <div
-      class="sidebar__container sidebar__container--left
-      {{if this.isMinimized "sidebar__container--minimized"}}"
-      {{did-insert this.addEventListeners}}
-      {{did-insert (fn this.loadDefaultScenario modelVersion)}}
-      {{will-destroy this.removeEventListeners}}
-    >
-      <div class="sidebar">
-        <SidebarGeneral::Nav
-          @activeView={{this.activeView}}
-          @isMinimized={{this.isMinimized}}
-          @minimize={{this.minimize}}
-        />
-        {{#unless this.isMinimized}}
-          {{#if this.sidebarViewComponent}}
-            <this.sidebarViewComponent
-              @modelVersion={{modelVersion}}
-              @isError={{isError}}
-              @defaultScenario={{this.defaultScenario}}
-              @scenarioValue={{this.defaultScenario}}
-              @isSaving={{isSaving}}
-              @saveAction={{saveAction}}
-              @onCreateNewDraftVersion={{@onCreateNewDraftVersion}}
-              @onStartPublish={{@onStartPublish}}
-              @onStartShare={{@onStartShare}}
-              @onStartClone={{@onStartClone}}
-              @onShowSimulateDialog={{@onShowSimulateDialog}}
-              @onShowSettingsDialog={{@onShowSettingsDialog}}
-            />
-          {{/if}}
-        {{/unless}}
-      </div>
+{{#let @model as |modelVersion|}}
+  <div
+    class="sidebar__container sidebar__container--left
+    {{if this.isMinimized "sidebar__container--minimized"}}"
+    {{did-insert this.addEventListeners}}
+    {{will-destroy this.removeEventListeners}}
+  >
+    <div class="sidebar">
+      <SidebarGeneral::Nav
+        @activeView={{this.activeView}}
+        @isMinimized={{this.isMinimized}}
+        @minimize={{this.minimize}}
+      />
+      {{#unless this.isMinimized}}
+        {{#if this.sidebarViewComponent}}
+          <this.sidebarViewComponent
+            @modelVersion={{modelVersion}}
+            @onCreateNewDraftVersion={{@onCreateNewDraftVersion}}
+            @onStartPublish={{@onStartPublish}}
+            @onStartShare={{@onStartShare}}
+            @onStartClone={{@onStartClone}}
+            @onShowSimulateDialog={{@onShowSimulateDialog}}
+            @onShowSettingsDialog={{@onShowSettingsDialog}}
+          />
+        {{/if}}
+      {{/unless}}
     </div>
-  {{/let}}
-</SaveStateManager>
+  </div>
+{{/let}}

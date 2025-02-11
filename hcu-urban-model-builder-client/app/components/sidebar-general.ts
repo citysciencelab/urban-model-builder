@@ -27,11 +27,6 @@ export interface SidebarGeneralSignature {
 }
 
 export default class SidebarGeneralComponent extends Component<SidebarGeneralSignature> {
-  @service declare eventBus: EventBus;
-  @service() declare storeEventEmitter: StoreEventEmitterService;
-  @service declare store: Store;
-
-  @tracked defaultScenario: Scenario | null = null;
   @tracked isMinimized = false;
   @tracked activeView = 'modelInfo';
 
@@ -48,57 +43,6 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
       console.debug(e);
       return null;
     }
-  }
-
-  @action async loadDefaultScenario(modelsVersion: ModelsVersion) {
-    const defaultScenarios = (await this.store.query('scenario', {
-      modelsVersionsId: modelsVersion.id,
-      isDefault: true,
-    })) as Scenario[];
-    if (defaultScenarios.length === 0) {
-      this.defaultScenario = null;
-    }
-    this.defaultScenario = defaultScenarios[0] as Scenario;
-  }
-
-  @action scenarioValuesServiceChangeListener() {
-    this.loadDefaultScenario(this.args.model);
-  }
-
-  @action addEventListeners() {
-    this.storeEventEmitter.on(
-      'node',
-      'deleted',
-      this.scenarioValuesServiceChangeListener,
-    );
-    this.storeEventEmitter.on(
-      'scenarios-value',
-      'deleted',
-      this.scenarioValuesServiceChangeListener,
-    );
-    this.storeEventEmitter.on(
-      'scenarios-value',
-      'created',
-      this.scenarioValuesServiceChangeListener,
-    );
-  }
-
-  @action removeEventListeners() {
-    this.storeEventEmitter.off(
-      'node',
-      'deleted',
-      this.scenarioValuesServiceChangeListener,
-    );
-    this.storeEventEmitter.off(
-      'scenarios-value',
-      'deleted',
-      this.scenarioValuesServiceChangeListener,
-    );
-    this.storeEventEmitter.off(
-      'scenarios-value',
-      'created',
-      this.scenarioValuesServiceChangeListener,
-    );
   }
 
   @action minimize() {
