@@ -5,7 +5,7 @@
         <a
           href="javascript:void(0)"
           class="nav-link {{if (eq @activeView navItem.id) "active"}}"
-          {{on "click" (fn (mut @activeView) navItem.id)}}
+          {{on "click" (fn @selectActiveView navItem.id)}}
         >
           <SvgIcon @icon={{navItem.icon}} @size="md" />
         </a>

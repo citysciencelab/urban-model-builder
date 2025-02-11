@@ -48,4 +48,9 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
   @action minimize() {
     this.isMinimized = !this.isMinimized;
   }
+
+  @action selectActiveView(view: string) {
+    this.isMinimized = false;
+    this.activeView = view;
+  }
 }
