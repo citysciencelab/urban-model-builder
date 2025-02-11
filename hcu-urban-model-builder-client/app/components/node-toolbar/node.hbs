@@ -5,10 +5,10 @@
   {{on "dragend" @onDragEnd}}
 >
   <div class="node-toolbar__node__icon">
-    <SvgJar @icon="add" @size="xs" />
+    <SvgIcon @icon="add" @size="xs" />
   </div>
   <span>
-    <SvgJar @icon={{@config.icon}} @size="md" />
+    <SvgIcon @icon={{@config.icon}} @size="md" />
 
     {{uppercase (humanize @config.label)}}
   </span>
