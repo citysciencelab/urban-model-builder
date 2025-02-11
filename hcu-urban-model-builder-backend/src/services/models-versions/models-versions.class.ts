@@ -48,12 +48,13 @@ export class ModelsVersionsService<ServiceParams extends Params = ModelsVersions
         'ModelsVersionsService:createQuery: params.user.id is required but not set. Probably missing authentication.'
       )
     }
+    const raw = query.client.raw
     // join on models_users to get the role of the user
     query.leftJoin('models_users as models_users', function () {
       this.on('models_versions.modelId', '=', 'models_users.modelId').andOn(
         'models_users.userId',
         '=',
-        params?.user?.id as unknown as any
+        raw('?', [params?.user?.id])
       )
     })
     // join on models to get the model name

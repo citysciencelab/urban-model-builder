@@ -118,7 +118,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     return !!this.simulationError;
   }
 
-  get inMemoryScenario(): Map<number, number> {
+  get inMemoryScenario(): Map<string, number> {
     // from the store get the current default scenario
     const defaultScenario = this.store
       .peekAll<Scenario>('scenario')
@@ -134,13 +134,10 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
         return item.scenarios.id == defaultScenario.id;
       });
 
-    const scenarioNodeValueMap = scenarioValues.reduce(
-      (acc: Map<number, number>, item: ScenariosValue) => {
-        acc.set(Number((item.nodes as any).id), Number(item.value));
-        return acc;
-      },
-      new Map(),
-    );
+    const scenarioNodeValueMap = scenarioValues.reduce((acc, item) => {
+      acc.set(item.nodes.id!, Number(item.value));
+      return acc;
+    }, new Map<string, number>());
 
     return scenarioNodeValueMap;
   }
@@ -263,14 +260,14 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     if (this.isClientSideCalculation) {
       this.simulationResult = await new SimulationAdapter(
         this.feathers.app,
-        Number(this.args.model.id),
+        this.args.model.id!,
         nodeValuesMap,
       ).simulate();
     } else {
       this.simulationResult = await this.feathers.app
         .service('models')
         .simulate({
-          id: Number(this.args.model.id!),
+          id: this.args.model.id!,
           nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
         });
     }
@@ -340,7 +337,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
               populationData.push(location);
               for (const states of allStates) {
-                if (stateLocation.state.includes(Number(states.id!))) {
+                if (stateLocation.state.includes(states.id!)) {
                   stateLocationsMap.get(states)!.push(location);
                 } else {
                   stateLocationsMap

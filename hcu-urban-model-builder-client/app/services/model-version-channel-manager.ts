@@ -36,15 +36,15 @@ export default class ModelVersionChannelManagerService extends Service {
   }
 
   private getModelVersionId(routeInfo: RouteInfo | RouteInfoWithAttributes) {
-    return Number(
-      'attributes' in routeInfo
-        ? routeInfo.attributes.id
-        : routeInfo.params?.['version_id'],
-    );
+    return 'attributes' in routeInfo
+      ? routeInfo.attributes.id
+      : routeInfo.params?.['version_id'];
   }
 
   private async joinChannel(routeInfo: RouteInfo | RouteInfoWithAttributes) {
     const modelVersionId = this.getModelVersionId(routeInfo);
+
+    console.log('Joining channel for model version', modelVersionId);
 
     await this.feathers.app
       .service('models-versions')

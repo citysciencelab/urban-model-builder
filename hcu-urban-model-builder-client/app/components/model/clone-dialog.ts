@@ -42,15 +42,15 @@ export default class ModelCloneDialogComponent extends Component<ModelCloneDialo
     if (this.changeset.isValid) {
       this.changeset.execute();
       // Assuming some action like cloning happens here with this.formModel.internalName
-      const newModelVersion = (await this.args.model.cloneVersion(
+      const newModelVersion = await this.args.model.cloneVersion(
         this.formModel,
-      )) as any;
+      );
 
       // transition to the new clone
       this.router.transitionTo(
         'models.versions.show',
-        newModelVersion.modelId,
-        newModelVersion.id,
+        newModelVersion!.modelId,
+        newModelVersion!.id,
       );
 
       this.args.onClose();

@@ -48,7 +48,7 @@ describe('models service', () => {
 
       let hasError = true
       try {
-        await app.service('models').simulate({ id: 1 }, currentParams)
+        await app.service('models').simulate({ id: '1' }, currentParams)
         hasError = false
       } catch (error: any) {
         assert.strictEqual(error.code, 405)
@@ -223,7 +223,7 @@ describe('models service', () => {
           }
         }
       })
-      const nodeNameToIdMap = new Map<string, number>()
+      const nodeNameToIdMap = new Map<string, string>()
       for (const node of nodes.data) {
         nodeNameToIdMap.set(node.name!, node.id)
       }
@@ -380,7 +380,7 @@ describe('models service', () => {
       )
 
       const nodes = await app.service('nodes').find()
-      const nodeNameToIdMap = new Map<string, number>()
+      const nodeNameToIdMap = new Map<string, string>()
       for (const node of nodes.data) {
         nodeNameToIdMap.set(node.name!, node.id)
       }
@@ -556,7 +556,7 @@ describe('models service', () => {
           }
         }
       })
-      const nodeNameToIdMap = new Map<string, number>()
+      const nodeNameToIdMap = new Map<string, string>()
       for (const node of nodes.data) {
         nodeNameToIdMap.set(node.name!, node.id)
       }
@@ -837,8 +837,8 @@ describe('models service', () => {
       )
 
       const nodes = await app.service('nodes').find()
-      const nodeNameToIdMap = new Map<string, number>()
-      const nodeIdToNameMap = new Map<number, string>()
+      const nodeNameToIdMap = new Map<string, string>()
+      const nodeIdToNameMap = new Map<string, string>()
       for (const node of nodes.data) {
         nodeNameToIdMap.set(node.name!, node.id)
         nodeIdToNameMap.set(node.id, node.name!)
@@ -928,7 +928,7 @@ describe('models service', () => {
               const expectedStates = expectedPosition.state.map(
                 (s: { id: string }) => imModelNameIdMapping[s.id]
               )
-              const actualStates = actualValue[locationIndex].state.map((s: number) =>
+              const actualStates = actualValue[locationIndex].state.map((s: string) =>
                 nodeIdToNameMap.get(s)
               ) as string[]
               assert.deepStrictEqual(expectedStates, actualStates)
@@ -1155,7 +1155,7 @@ describe('models service', () => {
   })
 })
 
-function createTransitionEdgeObjs(transitionId: number, sourceId: number, targetId: number) {
+function createTransitionEdgeObjs(transitionId: string, sourceId: string, targetId: string) {
   return [
     {
       type: EdgeType.Transition,

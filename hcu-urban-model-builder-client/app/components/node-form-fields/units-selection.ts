@@ -35,7 +35,7 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
     // potentially remove old custom unit references
     await this.args.modelsVersion.removeOldUnitReferences(
       unit,
-      Number(this.args.changeset.model.id),
+      this.args.changeset.model.id!,
     );
 
     // check if this is a custom unit
@@ -46,7 +46,7 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
       // add new unit to custom units
       await this.args.modelsVersion.addCustomUnitReference(
         unit,
-        Number(this.args.changeset.model.id),
+        this.args.changeset.model.id!,
       );
     }
 
@@ -125,7 +125,7 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
         isAdd = true;
         this.args.modelsVersion.addCustomUnit(
           unit,
-          Number(this.args.changeset.model.id),
+          this.args.changeset.model.id!,
         );
       }
 
@@ -143,7 +143,7 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
       if (newUnit) {
         this.args.modelsVersion.addCustomUnit(
           newUnit,
-          Number(this.args.changeset.model.id),
+          this.args.changeset.model.id!,
         );
         unit = newUnit as string;
       }

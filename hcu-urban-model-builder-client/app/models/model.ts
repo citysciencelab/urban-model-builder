@@ -93,30 +93,25 @@ export default class ModelModel extends Model {
     return this.role >= Roles.co_owner;
   }
 
-  // TODO: version currently unused - remove or use
   async publishMinor(version: ModelsVersion, formModel: FormModelPublish) {
     await this.feathers.app.service('models').publishMinor({
-      id: Number(this.id),
-      modelsVersionsId: Number(version.id),
+      id: this.id,
+      modelsVersionsId: version.id,
       notes: formModel.notes,
     });
   }
 
-  // TODO: version currently unused - remove or use
   async publishMajor(version: ModelsVersion, formModel: FormModelPublish) {
     await this.feathers.app.service('models').publishMajor({
-      id: Number(this.id),
-      modelsVersionsId: Number(version.id),
+      id: this.id,
+      modelsVersionsId: version.id,
       notes: formModel.notes,
     });
   }
 
-  async cloneVersion(
-    version: ModelsVersion,
-    formModel: FormModelClone,
-  ): Promise<ModelsVersion | null> {
-    return await this.feathers.app.service('models').cloneVersion({
-      id: Number(version.id),
+  async cloneVersion(version: ModelsVersion, formModel: FormModelClone) {
+    return this.feathers.app.service('models').cloneVersion({
+      id: version.id,
       internalName: formModel.internalName,
     });
   }

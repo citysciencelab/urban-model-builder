@@ -15,12 +15,12 @@ export function emitRemovedEventsForCascadingRemove() {
 
     const ghostChildNodes = await nodesService.find({
       query: {
-        ghostParentId: context.id as number
+        ghostParentId: context.id as string
       }
     })
     const scenarioValues = await scenariosValuesService.find({
       query: {
-        nodesId: context.id as number
+        nodesId: context.id as string
       }
     })
 

@@ -14,6 +14,7 @@ import { channels } from './channels.js'
 import { BadRequest } from '@feathersjs/errors'
 import { iff } from 'feathers-hooks-common'
 import { authenticate } from '@feathersjs/authentication'
+import { errorHandler as errorHandlerHook } from './hooks/error-handler.js'
 
 const app: Application = koa(feathers())
 
@@ -44,7 +45,7 @@ app.configure(channels)
 // Register hooks that run on all service methods
 app.hooks({
   around: {
-    all: [logError]
+    all: [errorHandlerHook, logError]
   },
   before: {
     all: [
