@@ -1,0 +1,26 @@
+<div class="sidebar__bar">
+  <ul class="nav nav-flush flex-column mb-auto text-center">
+    {{#each this.navItems as |navItem|}}
+      <li class="nav-item">
+        <a
+          href="javascript:void(0)"
+          class="nav-link {{if (eq @activeView navItem.id) "active"}}"
+          {{on "click" (fn @selectActiveView navItem.id)}}
+        >
+          <SvgIcon @icon={{navItem.icon}} @size="md" />
+        </a>
+      </li>
+    {{/each}}
+  </ul>
+
+  <a
+    href="javascript:void(0)"
+    class="nav-link toggle-minimize"
+    {{on "click" @minimize}}
+  >
+    <SvgIcon
+      @icon={{if @isMinimized "chevron_right" "chevron_left"}}
+      @size="md"
+    />
+  </a>
+</div>

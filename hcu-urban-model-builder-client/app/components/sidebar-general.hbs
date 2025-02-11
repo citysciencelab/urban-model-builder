@@ -1,118 +1,20 @@
-<SaveStateManager as |saveAction isSaving isError|>
-  {{#let @model as |modelVersion|}}
-    <div
-      class="sidebar__container sidebar__container--left {{
-        if this.isMinimized "sidebar__container--minimized"
-      }}"
-      {{did-insert this.addEventListeners}}
-      {{did-insert (fn this.loadDefaultScenario modelVersion)}}
-      {{will-destroy this.removeEventListeners}}
-    >
-      <div class="sidebar">
-        <div class="sidebar__header">
-          <h3 class="mb-0">
-            {{modelVersion.model.internalName}}
-            <a
-              href="javascript:void(0)"
-              class="btn btn-link toggle-minimize"
-              {{on "click" this.minimize}}
-            >
-              <FaIcon
-                @icon={{if this.isMinimized "expand" "compress"}}
-                @fixedWidth={{true}}
-              />
-            </a>
-          </h3>
-        </div>
-        <div class="sidebar__content">
-          {{#if modelVersion.model.description}}
-            <div class="">
-              <strong>
-                Description:
-              </strong>
-              <br />
-              {{modelVersion.model.description}}
-            </div>
-            <hr />
-          {{/if}}
-          {{! SCENARIO ERROR }}
-          {{! ERROR }}
-          <BsAlert @type="danger" @visible={{isError}}>
-            <strong>
-              Error:
-            </strong>
-            Please try again. If the problem persists, please contact support.
-          </BsAlert>
-          {{! DEFAULT SCENARIO }}
-          {{#if this.defaultScenario}}
-            {{#each this.defaultScenario.scenariosValues as |scenarioValue|}}
-              <div class="scenario__value">
-                {{#let scenarioValue.nodes as |node|}}
-                  <h5>
-                    {{node.name}}
-                  </h5>
-
-                  {{#if (or (eq node.parameterType "boolean") (eq node.type 4))
-                  }}
-                    <SidebarGeneral::ParameterBool
-                      @scenarioValue={{scenarioValue}}
-                      @onChange={{
-                        fn
-                        this.updateBoolParameter
-                        this.defaultScenario
-                        scenarioValue
-                      }}
-                    />
-                  {{else if (eq node.parameterType "slider")}}
-                    <SidebarGeneral::ParameterSlider
-                      @min={{node.parameterMin}}
-                      @max={{node.parameterMax}}
-                      @step={{node.parameterStep}}
-                      @units={{node.data.units}}
-                      @scenarioValue={{scenarioValue}}
-                      @onChange={{
-                        fn
-                        this.handleScenarioSliderValueChange
-                        this.defaultScenario
-                        scenarioValue
-                      }}
-                    />
-                  {{else if (eq node.parameterType "select")}}
-                    <SidebarGeneral::ParameterSelect
-                      @options={{node.parameterOptions.data}}
-                      @scenarioValue={{scenarioValue}}
-                      @onChange={{
-                        fn
-                        this.handleScenarioSelectValueChange
-                        this.defaultScenario
-                        scenarioValue
-                      }}
-                    />
-                  {{/if}}
-                {{/let}}
-              </div>
-            {{/each}}
-            <hr />
-            <div class="text-center">
-              <a
-                href="javascript:void(0)"
-                class="btn btn-primary"
-                {{on
-                  "click"
-                  (fn this.saveDefaultScenario this.defaultScenario saveAction)
-                }}
-              >
-                {{#if isSaving}}
-                  <FaIcon @icon="spinner" @spin={{true}} @fixedWidth={{true}} />
-                {{/if}}
-                Save Scenario
-              </a>
-            </div>
-          {{else}}
-            No Parameters
-          {{/if}}
-        </div>
-      </div>
+{{#let @model as |modelVersion|}}
+  <div
+    class="sidebar__container sidebar__container--left
+    {{if this.isMinimized "sidebar__container--minimized"}}"
+  >
+    <div class="sidebar">
+      <SidebarGeneral::Nav
+        @activeView={{this.activeView}}
+        @isMinimized={{this.isMinimized}}
+        @minimize={{this.minimize}}
+        @selectActiveView={{this.selectActiveView}}
+      />
+      {{#unless this.isMinimized}}
+        {{#if this.sidebarViewComponent}}
+          <this.sidebarViewComponent @modelVersion={{modelVersion}} />
+        {{/if}}
+      {{/unless}}
     </div>
-  {{/let}}
-</SaveStateManager>
+  </div>
+{{/let}}

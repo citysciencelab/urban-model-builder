@@ -36,6 +36,9 @@ models:
     states:
       published: Veröffentlicht
       draft: Entwurf
+    version_settings:
+      title: Versionseinstellungen
+      actions: Aktionen
   models_version:
     attributes:
       notes: Notizen
@@ -46,6 +49,9 @@ models:
       timeStep: Intervall
       algorithm: Algorithmus
       globals: Globals & Makros
+public_models:
+  model:
+    plural: Öffentliche Modelle
 
 routes:
   models:

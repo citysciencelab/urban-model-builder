@@ -9,6 +9,10 @@
   <div class="navbar-header">
     <navbar.toggle />
     <LinkTo @route="models.index" class="navbar-brand">
+      <img
+        src="/assets/images/urban-model-builder-logo.svg"
+        alt="urban-model-builder-logo"
+      />
       {{t "general.brand"}}
     </LinkTo>
   </div>
@@ -16,8 +20,13 @@
     <navbar.content>
       <navbar.nav as |nav|>
         <nav.item>
-          <nav.linkTo @route="models.index">
+          <nav.linkTo @route="models">
             {{t "models.model.plural"}}
+          </nav.linkTo>
+        </nav.item>
+        <nav.item>
+          <nav.linkTo @route="public-models">
+            {{t "public_models.model.plural"}}
           </nav.linkTo>
         </nav.item>
       </navbar.nav>
@@ -45,30 +54,6 @@
     {{/if}}
   </ul>
 </BsNavbar>
-
-{{#if this.hasSecondaryNav}}
-  <BsNavbar @type="dark" @backgroundColor="secondary" @fluid={{false}}>
-    {{#if this.session.isAuthenticated}}
-      <BreadcrumbsContainer
-        @itemClass="breadcrumbs__item"
-        @linkClass="breadcrumbs__link"
-        class="breadcrumbs"
-      />
-    {{else if this.isDemoRoute}}
-      <div>
-        ⚠️
-        <strong>
-          Achtung Demo-Modus:
-        </strong>
-        Alle Änderungen werden nicht gespeichert!
-      </div>
-    {{/if}}
-    <div id="navbar-secondary"></div>
-  </BsNavbar>
-  <BreadcrumbsItem>
-    {{t "general.home"}}
-  </BreadcrumbsItem>
-{{/if}}
 <div id="ember-bootstrap-wormhole"></div>
 <BasicDropdownWormhole />
 

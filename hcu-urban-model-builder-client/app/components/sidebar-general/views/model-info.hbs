@@ -1,0 +1,54 @@
+<div class="sidebar__header">
+  <h4 class="mb-0">
+    {{@modelVersion.model.internalName}}
+  </h4>
+  <div class="sidebar__header__row">
+    <Model::VersionSelect
+      @model={{@modelVersion.model}}
+      @currentVersion={{@modelVersion}}
+    />
+    {{! Badge: Public }}
+    {{#if @modelVersion.isPublished}}
+      &nbsp;
+      <span class="badge rounded-pill badge-success text-bg-light">
+        Public
+      </span>
+    {{/if}}
+
+    {{! Badge: Edit Mode / View Mode }}
+    {{#if @modelVersion.canEdit}}
+      &nbsp;
+      <span class="badge rounded-pill badge-warning text-bg-light">
+        Edit Mode
+      </span>
+    {{else}}
+      &nbsp;
+      <span class="badge rounded-pill badge-warning text-bg-light">
+        View Mode
+      </span>
+    {{/if}}
+  </div>
+</div>
+<div class="sidebar__content">
+  {{#if @modelVersion.model.description}}
+    <div class="">
+      <strong>
+        Description:
+      </strong>
+      <br />
+      {{@modelVersion.model.description}}
+    </div>
+    <hr />
+  {{/if}}
+  <div class="actions">
+    {{! Action: Settings }}
+    <a
+      href="javascript:void(0)"
+      class="action-item"
+      {{on "click" this.modelDialogs.onShowSettingsDialog}}
+    >
+      <SvgIcon @icon="settings" @size="md" />
+      Settings
+    </a>
+  </div>
+</div>
