@@ -2,50 +2,30 @@
   <BasicDropdown
     @horizontalPosition="center"
     @verticalPosition="above"
-    @renderInPlace={{true}} as |dd|
+    @renderInPlace={{true}}
+    as |dd|
   >
     <dd.Trigger>
       <SvgIcon @icon="add" @size="md" />
     </dd.Trigger>
     <dd.Content>
       <div class="primitives-card">
-        <h6>
-          Allgemein
-        </h6>
-        <div class="node-toolbar__section">
-          {{#each this.nodeTypeConfigs.allgemein as |nodeTypeConfig|}}
-            <NodeToolbar::Node
-              @config={{nodeTypeConfig}}
-              @onDragStart={{this.onDragStart}}
-              @onDragEnd={{this.onDragEnd}}
-            />
-          {{/each}}
-        </div>
 
-        <h6>
-          System Dynamics
-        </h6>
-        <div class="node-toolbar__section">
-          {{#each this.nodeTypeConfigs.systemDynamics as |nodeTypeConfig|}}
-            <NodeToolbar::Node
-              @config={{nodeTypeConfig}}
-              @onDragStart={{this.onDragStart}}
-              @onDragEnd={{this.onDragEnd}}
-            />
-          {{/each}}
-        </div>
-        <h6>
-          Agent-based Modelling
-        </h6>
-        <div class="node-toolbar__section">
-          {{#each this.nodeTypeConfigs.agentBasedModelling as |nodeTypeConfig|}}
-            <NodeToolbar::Node
-              @config={{nodeTypeConfig}}
-              @onDragStart={{this.onDragStart}}
-              @onDragEnd={{this.onDragEnd}}
-            />
-          {{/each}}
-        </div>
+        {{#each this.nodeGroups as |nodeGroup|}}
+          <h6>
+            {{titleize nodeGroup.name}}
+
+          </h6>
+          <div class="node-toolbar__section">
+            {{#each nodeGroup.nodeTypes as |nodeType|}}
+              <NodeToolbar::Node
+                @config={{this.getNodeTypeConfig nodeType}}
+                @onDragStart={{this.onDragStart}}
+                @onDragEnd={{this.onDragEnd}}
+              />
+            {{/each}}
+          </div>
+        {{/each}}
       </div>
     </dd.Content>
   </BasicDropdown>

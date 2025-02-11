@@ -48,48 +48,41 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare emberReactConnector: EmberReactConnectorService;
 
-  get nodeTypeConfigs(): {
-    allgemein: NodeTypeConfig[];
-    systemDynamics: NodeTypeConfig[];
-    agentBasedModelling: NodeTypeConfig[];
-  } {
-    const groupedConfigs: {
-      allgemein: NodeTypeConfig[];
-      systemDynamics: NodeTypeConfig[];
-      agentBasedModelling: NodeTypeConfig[];
-    } = {
-      allgemein: [],
-      systemDynamics: [],
-      agentBasedModelling: [],
+  readonly nodeGroups = [
+    {
+      name: 'common',
+      nodeTypes: [
+        NodeType.Variable,
+        NodeType.Folder,
+        NodeType.Converter,
+        NodeType.OgcApiFeatures,
+      ],
+    },
+    {
+      name: 'system-dynamics',
+      nodeTypes: [NodeType.Stock, NodeType.Flow],
+    },
+    {
+      name: 'agent-based-modelling',
+      nodeTypes: [
+        NodeType.State,
+        NodeType.Transition,
+        NodeType.Action,
+        NodeType.Population,
+        NodeType.Agent,
+      ],
+    },
+  ];
+
+  @action getNodeTypeConfig(nodeType: NodeType): NodeTypeConfig {
+    const typeStr = NodeType[nodeType];
+
+    return {
+      label: decamelize(typeStr),
+      className: dasherize(typeStr),
+      value: nodeType,
+      icon: NodeIconMap[typeStr] || 'question-circle',
     };
-
-    Object.values(NodeType).forEach((type) => {
-      if (typeof type === 'number' && type !== NodeType.Ghost) {
-        const typeStr = NodeType[type];
-
-        const config: NodeTypeConfig = {
-          label: decamelize(typeStr),
-          className: dasherize(typeStr),
-          value: type,
-          icon: NodeIconMap[type] || 'question-circle',
-        };
-
-        // Zuweisung zur passenden Kategorie
-        if (
-          ['Variable', 'Folder', 'Converter', 'OgcApiFeatures'].includes(
-            typeStr,
-          )
-        ) {
-          groupedConfigs.allgemein.push(config);
-        } else if (['Stock', 'Flow'].includes(typeStr)) {
-          groupedConfigs.systemDynamics.push(config);
-        } else {
-          groupedConfigs.agentBasedModelling.push(config);
-        }
-      }
-    });
-
-    return groupedConfigs;
   }
 
   @action onDragStart(config: NodeTypeConfig) {

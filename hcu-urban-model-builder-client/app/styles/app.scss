@@ -157,7 +157,7 @@ main {
 
 .node-toolbar__node {
   background-color: $white;
-  border-radius: $border-radius-xl;
+  border-radius: $border-radius-lg;
   border: ($border-width * 2) $border-style $black;
   cursor: grab;
   white-space: nowrap;
@@ -166,7 +166,7 @@ main {
   overflow: hidden;
 
   span {
-    padding: get-spacer(2);
+    padding: get-spacer(1) get-spacer(2);
     display: flex;
     gap: get-spacer(2);
   }
