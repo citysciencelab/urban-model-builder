@@ -24,7 +24,10 @@ module.exports = function (defaults) {
       nativePromise: true,
     },
     svgJar: {
-      sourceDirs: ['node_modules/@material-design-icons/svg/sharp'],
+      sourceDirs: [
+        'node_modules/@material-design-icons/svg/sharp',
+        'public/assets/icons',
+      ],
     },
   });
 

@@ -21,10 +21,26 @@ export interface NodeToolbarSignature {
   Element: null;
 }
 
+const NodeIconMap: Record<string, string> = {
+  Stock: 'inventory',
+  Variable: 'category',
+  Flow: 'flow-icon',
+  Converter: 'autorenew',
+  State: 'toggle_off',
+  Transition: 'transition_push',
+  Action: 'play_pause',
+  Population: 'groups',
+  Agent: 'person',
+  Folder: 'folder',
+  Ghost: 'ghost',
+  OgcApiFeatures: 'storage',
+};
+
 type NodeTypeConfig = {
   label: string;
   className: string;
   value: NodeType;
+  icon: keyof typeof NodeIconMap | 'question-circle';
 };
 
 export default class NodeToolbarComponent extends Component<NodeToolbarSignature> {
@@ -50,10 +66,12 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
     Object.values(NodeType).forEach((type) => {
       if (typeof type === 'number' && type !== NodeType.Ghost) {
         const typeStr = NodeType[type];
+
         const config: NodeTypeConfig = {
           label: decamelize(typeStr),
           className: dasherize(typeStr),
           value: type,
+          icon: NodeIconMap[typeStr] || 'question-circle',
         };
 
         // Zuweisung zur passenden Kategorie

@@ -8,6 +8,8 @@
     <SvgJar @icon="add" @size="xs" />
   </div>
   <span>
+    <SvgJar @icon={{@config.icon}} @size="md" />
+
     {{uppercase (humanize @config.label)}}
   </span>
 </div>

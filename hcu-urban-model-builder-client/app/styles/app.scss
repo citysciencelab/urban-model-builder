@@ -167,6 +167,8 @@ main {
 
   span {
     padding: get-spacer(2);
+    display: flex;
+    gap: get-spacer(2);
   }
 
   .node-toolbar__node__icon {
