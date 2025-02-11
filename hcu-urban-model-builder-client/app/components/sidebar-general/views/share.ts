@@ -1,9 +1,15 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
+import { service } from '@ember/service';
+import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
+import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
+import type RouterService from '@ember/routing/router-service';
+import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
 
 export interface SidebarGeneralViewsShareSignature {
   // The arguments accepted by the component
   Args: {
+    modelVersion: ModelsVersion;
     onShowSimulateDialog: (value: boolean) => void;
   };
   // Any blocks yielded by the component
@@ -15,11 +21,25 @@ export interface SidebarGeneralViewsShareSignature {
 }
 
 export default class SidebarGeneralViewsShareComponent extends Component<SidebarGeneralViewsShareSignature> {
-  get navbar() {
-    return document.querySelector('#version-settings');
-  }
+  @service declare modelDialogs: ModelDialogsService;
+  @service declare feathers: FeathersService;
+  @service declare router: RouterService;
 
-  @action onShowSimulateDialog() {
-    this.args.onShowSimulateDialog(true);
+  @action async onCreateNewDraftVersion() {
+    const currentModel = await this.args.modelVersion.model;
+
+    const newDraftModelVersion = await this.feathers.app
+      .service('models')
+      .newDraft({ id: currentModel!.id! });
+
+    const newDraftModelVersionModel = this.feathers.pushRecordIntoStore(
+      'models-version',
+      newDraftModelVersion,
+    );
+
+    await this.router.transitionTo(
+      'models.versions.show',
+      newDraftModelVersionModel,
+    );
   }
 }

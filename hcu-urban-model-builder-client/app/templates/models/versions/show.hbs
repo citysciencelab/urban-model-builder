@@ -2,45 +2,35 @@
 
 <ReactWrapper @model={{this.model}} />
 
-<SidebarGeneral
-  @model={{this.model}}
-  @navbar={{this.navbar}}
-  @onToggleSettingsModal={{this.hideSettingsDialog}}
-  @onCreateNewDraftVersion={{this.onCreateNewDraftVersion}}
-  @onStartPublish={{this.onStartPublish}}
-  @onStartClone={{this.onStartClone}}
-  @onStartShare={{this.onStartShare}}
-  @onShowSimulateDialog={{this.onShowSimulateDialog}}
-  @onShowSettingsDialog={{this.onShowSettingsDialog}}
-/>
+<SidebarGeneral @model={{this.model}} />
 
 <SimulateModal
   @model={{this.model}}
-  @show={{this.showSimulateModal}}
-  @onHide={{fn (mut this.showSimulateModal) false}}
+  @show={{this.modelDialogs.showSimulateModal}}
+  @onHide={{fn (mut this.modelDialogs.showSimulateModal) false}}
 />
 
 <Model::PublishDialog
-  @open={{this.showPublishModal}}
+  @open={{this.modelDialogs.showPublishModal}}
   @model={{this.model}}
-  @onClose={{this.hidePublishingDialog}}
+  @onClose={{this.modelDialogs.hidePublishingDialog}}
 />
 
 <Model::CloneDialog
-  @open={{this.showCloneModal}}
+  @open={{this.modelDialogs.showCloneModal}}
   @model={{this.model}}
-  @onClose={{this.hideCloneDialog}}
+  @onClose={{this.modelDialogs.hideCloneDialog}}
 />
 
 <Model::ShareModal
-  @open={{this.showShareModal}}
+  @open={{this.modelDialogs.showShareModal}}
   @model={{this.model.model}}
   @modelVersion={{this.model}}
-  @onClose={{this.hideShareDialog}}
+  @onClose={{this.modelDialogs.hideShareDialog}}
 />
 
 <Model::SettingsDialog
-  @open={{this.showSettingsModal}}
+  @open={{this.modelDialogs.showSettingsModal}}
   @model={{this.model}}
-  @onClose={{this.hideSettingsDialog}}
+  @onClose={{this.modelDialogs.hideSettingsDialog}}
 />

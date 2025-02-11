@@ -27,11 +27,9 @@
         View Mode
       </span>
     {{/if}}
-
   </div>
 </div>
 <div class="sidebar__content">
-
   {{#if @modelVersion.model.description}}
     <div class="">
       <strong>
@@ -47,7 +45,7 @@
     <a
       href="javascript:void(0)"
       class="action-item"
-      {{on "click" this.onShowSettingsDialog}}
+      {{on "click" this.modelDialogs.onShowSettingsDialog}}
     >
       <SvgIcon @icon="settings" @size="md" />
       Settings

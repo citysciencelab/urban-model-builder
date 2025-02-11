@@ -145,7 +145,7 @@ export default class FeathersService extends Service {
     }
   }
 
-  private pushRecordIntoStore(modelName: DataModelsNames, record: any) {
+  pushRecordIntoStore(modelName: DataModelsNames, record: any) {
     const normalizedRecord = (this.store as any).normalize(modelName, record);
     return this.store.push(normalizedRecord);
   }

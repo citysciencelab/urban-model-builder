@@ -2,26 +2,17 @@
   <div
     class="sidebar__container sidebar__container--left
     {{if this.isMinimized "sidebar__container--minimized"}}"
-    {{did-insert this.addEventListeners}}
-    {{will-destroy this.removeEventListeners}}
   >
     <div class="sidebar">
       <SidebarGeneral::Nav
         @activeView={{this.activeView}}
         @isMinimized={{this.isMinimized}}
         @minimize={{this.minimize}}
+        @selectActiveView={{this.selectActiveView}}
       />
       {{#unless this.isMinimized}}
         {{#if this.sidebarViewComponent}}
-          <this.sidebarViewComponent
-            @modelVersion={{modelVersion}}
-            @onCreateNewDraftVersion={{@onCreateNewDraftVersion}}
-            @onStartPublish={{@onStartPublish}}
-            @onStartShare={{@onStartShare}}
-            @onStartClone={{@onStartClone}}
-            @onShowSimulateDialog={{@onShowSimulateDialog}}
-            @onShowSettingsDialog={{@onShowSettingsDialog}}
-          />
+          <this.sidebarViewComponent @modelVersion={{modelVersion}} />
         {{/if}}
       {{/unless}}
     </div>

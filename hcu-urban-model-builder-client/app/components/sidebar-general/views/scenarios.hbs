@@ -1,6 +1,8 @@
 <div
   class="sidebar__header"
   {{did-insert (fn this.loadDefaultScenario @modelVersion)}}
+  {{did-insert this.addEventListeners}}
+  {{will-destroy this.removeEventListeners}}
 >
   <h4 class="mb-0">
     Scenarios
