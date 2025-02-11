@@ -37,7 +37,7 @@
         <a
           href="javascript:void(0)"
           class="action-item
-          {{if @modelVersion.canCreateNewDraft "" "disabled"}}"
+            {{if @modelVersion.canCreateNewDraft '' 'disabled'}}"
           {{on "click" @onCreateNewDraftVersion}}
         >
           <SvgIcon @icon="edit" @size="md" />
@@ -47,8 +47,7 @@
         {{! Action: Publish -> Dialog }}
         <a
           href="javascript:void(0)"
-          class="action-item
-          {{if @modelVersion.canPublish "" "disabled"}}"
+          class="action-item {{if @modelVersion.canPublish '' 'disabled'}}"
           {{on "click" @onStartPublish}}
         >
           <SvgIcon @icon="upload" @size="md" />
@@ -58,7 +57,7 @@
         {{! Action: Share -> Dialog }}
         <a
           href="javascript:void(0)"
-          class="action-item {{if @modelVersion.canShare "" "disabled"}}"
+          class="action-item {{if @modelVersion.canShare '' 'disabled'}}"
           {{on "click" @onStartShare}}
         >
           <SvgIcon @icon="share" @size="md" />
@@ -76,15 +75,6 @@
           Clone
         </a>
 
-        {{! Action: Settings }}
-        <a
-          href="javascript:void(0)"
-          class="action-item"
-          {{on "click" this.onShowSettingsDialog}}
-        >
-          <SvgIcon @icon="settings" @size="md" />
-          Settings
-        </a>
       </div>
     {{/in-element}}
   </div>
