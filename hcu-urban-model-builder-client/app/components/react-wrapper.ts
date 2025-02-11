@@ -1,4 +1,4 @@
-import { initReact } from 'hcu-urban-model-builder-react-canvas/index.tsx';
+import { createReact } from 'hcu-urban-model-builder-react-canvas/index.tsx';
 import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import { service } from '@ember/service';
@@ -20,6 +20,7 @@ export interface ReactWrapperSignature {
 }
 
 export default class ReactWrapperComponent extends Component<ReactWrapperSignature> {
+  private reactRoot: any | null = null;
   readonly transition = fade;
 
   @service declare emberReactConnector: EmberReactConnectorService;
@@ -55,7 +56,11 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
   async didInsert(element: HTMLElement) {
     this.emberReactConnector.currentModel = this.args.model;
 
-    initReact(
+    if (this.reactRoot) {
+      this.reactRoot.unmount();
+    }
+
+    this.reactRoot = createReact(
       element,
       await this.args.model.nodes,
       await this.args.model.edges,
