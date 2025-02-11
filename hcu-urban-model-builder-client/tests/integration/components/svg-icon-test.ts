@@ -3,22 +3,22 @@ import { setupRenderingTest } from 'hcu-urban-model-builder-client/tests/helpers
 import { render } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
-module('Integration | Component | svg-jar', function (hooks) {
+module('Integration | Component | svg-icon', function (hooks) {
   setupRenderingTest(hooks);
 
   test('it renders', async function (assert) {
     // Set any properties with this.set('myProperty', 'value');
     // Handle any actions with this.set('myAction', function(val) { ... });
 
-    await render(hbs`<SvgJar />`);
+    await render(hbs`<SvgIcon />`);
 
     assert.dom().hasText('');
 
     // Template block usage:
     await render(hbs`
-      <SvgJar>
+      <SvgIcon>
         template block text
-      </SvgJar>
+      </SvgIcon>
     `);
 
     assert.dom().hasText('template block text');

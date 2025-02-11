@@ -1,8 +1,12 @@
 import Component from '@glimmer/component';
+import { service } from '@ember/service';
+import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 
 export interface SidebarGeneralViewsModelInfoSignature {
   // The arguments accepted by the component
-  Args: {};
+  Args: {
+    onShowSettingsDialog: (value: boolean) => void;
+  };
   // Any blocks yielded by the component
   Blocks: {
     default: [];
@@ -11,4 +15,6 @@ export interface SidebarGeneralViewsModelInfoSignature {
   Element: null;
 }
 
-export default class SidebarGeneralViewsModelInfoComponent extends Component<SidebarGeneralViewsModelInfoSignature> {}
+export default class SidebarGeneralViewsModelInfoComponent extends Component<SidebarGeneralViewsModelInfoSignature> {
+  @service declare modelDialogs: ModelDialogsService;
+}

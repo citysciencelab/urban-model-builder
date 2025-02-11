@@ -38,16 +38,16 @@ const NODE_TYPE_TO_PARAMETER_NAME_MAP = {
 
 export class SimulationAdapter<T extends ClientApplication | Application> {
   private app: ClientApplication
-  private nodeIdPrimitiveMapWithGhosts = new Map<number, Primitive>()
-  private nodeIdPrimitiveMapWithoutGhosts = new Map<number, Primitive>()
-  private ghostParentToChildIdMap = new Map<number, number[]>()
-  private primitiveIdNodeIdMap: Map<string, number> = new Map()
+  private nodeIdPrimitiveMapWithGhosts = new Map<string, Primitive>()
+  private nodeIdPrimitiveMapWithoutGhosts = new Map<string, Primitive>()
+  private ghostParentToChildIdMap = new Map<string, string[]>()
+  private primitiveIdNodeIdMap: Map<string, string> = new Map()
   private primitiveIdTypeMap = new Map<string, NodeType>()
 
   constructor(
     app: T,
-    private modelVersionId: number,
-    private nodeIdToParameterValueMap: Map<number, number>,
+    private modelVersionId: string,
+    private nodeIdToParameterValueMap: Map<string, number>,
     private logger: Logger | typeof console = console
   ) {
     this.app = app as ClientApplication
@@ -226,7 +226,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
   private serializeSimulationResult(simulationResult: Results) {
     const resultData = {
-      nodes: {} as Record<number, { series: number[] | PopulationNodeResult }>,
+      nodes: {} as Record<string, { series: number[] | PopulationNodeResult }>,
       times: simulationResult.times()
     }
     for (const [nodeId, primitive] of this.nodeIdPrimitiveMapWithoutGhosts) {

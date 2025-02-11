@@ -17,7 +17,7 @@ export class ScenariosService<ServiceParams extends Params = ScenariosParams> ex
   ScenariosParams,
   ScenariosPatch
 > {
-  async _findDefaultForModelVersion(modelsVersionsId: number) {
+  async _findDefaultForModelVersion(modelsVersionsId: string) {
     const result = await this._find({
       query: {
         modelsVersionsId,

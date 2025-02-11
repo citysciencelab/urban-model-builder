@@ -11,9 +11,9 @@ import { Nullable } from '../../utils/schema.js'
 // Main data model schema
 export const scenariosSchema = Type.Object(
   {
-    id: Type.Number(),
+    id: Type.String({ format: 'uuid' }),
     name: Type.String(),
-    modelsVersionsId: Type.Number(),
+    modelsVersionsId: Type.String({ format: 'uuid' }),
     isDefault: Type.Boolean(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Nullable(Type.String({ format: 'date-time' })),

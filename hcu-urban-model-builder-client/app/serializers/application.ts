@@ -86,7 +86,7 @@ export default class ApplicationSerializer extends JSONSerializer {
       if (isNone(belongsToId)) {
         json[payloadKey] = null;
       } else {
-        json[payloadKey] = Number(belongsToId);
+        json[payloadKey] = belongsToId;
       }
 
       if (relationship.options.polymorphic) {

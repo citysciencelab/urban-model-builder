@@ -10,7 +10,7 @@ export const manageDefaultScenariosValues = async (context: HookContext) => {
      * @param modelsVersionsId
      * @returns
      */
-    const getOrCreateDefaultScenario = async (modelsVersionsId: number) => {
+    const getOrCreateDefaultScenario = async (modelsVersionsId: string) => {
       let scenario = await context.app.service('scenarios')._findDefaultForModelVersion(modelsVersionsId)
       if (!scenario) {
         scenario = await context.app.service('scenarios').create({
@@ -27,7 +27,7 @@ export const manageDefaultScenariosValues = async (context: HookContext) => {
      * @param scenarioId
      * @param item
      */
-    const createScenarioValueIfNotExists = async (scenarioId: number, item: Nodes) => {
+    const createScenarioValueIfNotExists = async (scenarioId: string, item: Nodes) => {
       const scenarioValues = await context.app.service('scenarios-values').find({
         query: {
           scenariosId: scenarioId,
@@ -51,7 +51,7 @@ export const manageDefaultScenariosValues = async (context: HookContext) => {
      * @param scenarioId
      * @param item
      */
-    const removeScenarioValueIfExists = async (scenarioId: number, item: Nodes) => {
+    const removeScenarioValueIfExists = async (scenarioId: string, item: Nodes) => {
       const scenarioValues = await context.app.service('scenarios-values').find({
         query: {
           scenariosId: scenarioId,
@@ -67,7 +67,7 @@ export const manageDefaultScenariosValues = async (context: HookContext) => {
      * Remove default scenario if empty
      * @param scenarioId
      */
-    const removeDefaultScenarioIfEmpty = async (scenarioId: number) => {
+    const removeDefaultScenarioIfEmpty = async (scenarioId: string) => {
       const scenarioValues = await context.app.service('scenarios-values').find({
         query: {
           scenariosId: scenarioId

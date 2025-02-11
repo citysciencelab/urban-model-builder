@@ -36,7 +36,7 @@ export default class ModelsVersion extends Model {
   @attr('string') declare algorithm: string;
   @attr('string') declare globals: string;
 
-  @attr() declare customUnits: { data: { [key: string]: number[] } };
+  @attr() declare customUnits: { data: { [key: string]: string[] } };
 
   @belongsTo('model', { async: true, inverse: 'modelsVersions' })
   declare model: AsyncBelongsTo<ModelModel>;
@@ -118,7 +118,7 @@ export default class ModelsVersion extends Model {
     }
   }
 
-  async cloneVersion(formModel: FormModelClone): Promise<ModelsVersion | null> {
+  async cloneVersion(formModel: FormModelClone) {
     const parentModel = await this.model;
     if (parentModel) {
       return parentModel.cloneVersion(this, formModel);
@@ -131,7 +131,7 @@ export default class ModelsVersion extends Model {
    * @param newUnit
    * @param nodeId
    */
-  async addCustomUnit(newUnit: string, nodeId: number) {
+  async addCustomUnit(newUnit: string, nodeId: string) {
     if (!this.customUnits) {
       this.customUnits = { data: {} };
     }
@@ -147,7 +147,7 @@ export default class ModelsVersion extends Model {
    * @param unit
    * @param nodeId
    */
-  async addCustomUnitReference(unit: string, nodeId: number) {
+  async addCustomUnitReference(unit: string, nodeId: string) {
     if (
       this.customUnits?.data &&
       unit in this.customUnits.data &&
@@ -165,7 +165,7 @@ export default class ModelsVersion extends Model {
    * @param unit
    * @param nodeId
    */
-  async removeOldUnitReferences(unit: string, nodeId: number) {
+  async removeOldUnitReferences(unit: string, nodeId: string) {
     if (this.customUnits?.data) {
       for (const customUnit in this.customUnits.data) {
         const nodeIds = this.customUnits.data[customUnit];
@@ -183,7 +183,7 @@ export default class ModelsVersion extends Model {
     }
   }
 
-  async removeCustomUnit(unit: string, nodeId: number) {
+  async removeCustomUnit(unit: string, nodeId: string) {
     if (this.customUnits?.data) {
       if (unit in this.customUnits.data && this.customUnits.data[unit]) {
         // remove the nodeId from the customUnit

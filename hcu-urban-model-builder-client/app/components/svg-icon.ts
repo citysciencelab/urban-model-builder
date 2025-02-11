@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 
-export interface SvgJarSignature {
+export interface SvgIconSignature {
   // The arguments accepted by the component
   Args: {};
   // Any blocks yielded by the component
@@ -12,7 +12,7 @@ export interface SvgJarSignature {
   Element: null;
 }
 
-export default class SvgJarComponent extends Component<SvgJarSignature> {
+export default class SvgIconComponent extends Component<SvgIconSignature> {
   @action getSize(size: string) {
     switch (size) {
       case 'xs':
