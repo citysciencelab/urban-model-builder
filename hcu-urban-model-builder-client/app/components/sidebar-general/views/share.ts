@@ -5,7 +5,6 @@ export interface SidebarGeneralViewsShareSignature {
   // The arguments accepted by the component
   Args: {
     onShowSimulateDialog: (value: boolean) => void;
-    onShowSettingsDialog: (value: boolean) => void;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -22,9 +21,5 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
 
   @action onShowSimulateDialog() {
     this.args.onShowSimulateDialog(true);
-  }
-
-  @action onShowSettingsDialog() {
-    this.args.onShowSettingsDialog(true);
   }
 }

@@ -27,17 +27,30 @@
         View Mode
       </span>
     {{/if}}
-    {{#if @modelVersion.model.description}}
-      <div class="">
-        <strong>
-          Description:
-        </strong>
-        <br />
-        {{@modelVersion.model.description}}
-      </div>
-      <hr />
-    {{/if}}
+
   </div>
 </div>
 <div class="sidebar__content">
+
+  {{#if @modelVersion.model.description}}
+    <div class="">
+      <strong>
+        Description:
+      </strong>
+      <br />
+      {{@modelVersion.model.description}}
+    </div>
+    <hr />
+  {{/if}}
+  <div class="actions">
+    {{! Action: Settings }}
+    <a
+      href="javascript:void(0)"
+      class="action-item"
+      {{on "click" this.onShowSettingsDialog}}
+    >
+      <SvgIcon @icon="settings" @size="md" />
+      Settings
+    </a>
+  </div>
 </div>
