@@ -7,6 +7,7 @@ import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
 import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import { decamelize, dasherize } from '@ember/string';
+import { tracked } from '@glimmer/tracking';
 
 export interface NodeToolbarSignature {
   // The arguments accepted by the component
@@ -47,6 +48,7 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
   @service declare store: Store;
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare emberReactConnector: EmberReactConnectorService;
+  @tracked isPinned = false;
 
   readonly nodeGroups = [
     {
@@ -81,7 +83,7 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
       label: decamelize(typeStr),
       className: dasherize(typeStr),
       value: nodeType,
-      icon: NodeIconMap[typeStr] || 'question-circle',
+      icon: NodeIconMap[nodeType] || 'question-circle',
     };
   }
 
@@ -93,5 +95,9 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
   async onDragEnd(event: DragEvent) {
     event.preventDefault();
     this.emberReactConnector.draggedNodeConfig = null;
+  }
+
+  @action togglePin() {
+    this.isPinned = !this.isPinned;
   }
 }
