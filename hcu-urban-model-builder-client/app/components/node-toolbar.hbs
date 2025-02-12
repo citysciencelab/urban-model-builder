@@ -1,12 +1,32 @@
 {{#unless @disabled}}
-  {{#each this.nodeTypeConfigs as |nodeTypeConfig|}}
-    <div
-      class="node-toolbar__node --{{nodeTypeConfig.className}}"
-      draggable="true"
-      {{on "dragstart" (fn this.onDragStart nodeTypeConfig)}}
-      {{on "dragend" this.onDragEnd}}
-    >
-      {{uppercase (humanize nodeTypeConfig.label)}}
-    </div>
-  {{/each}}
+  <BasicDropdown
+    @horizontalPosition="center"
+    @verticalPosition="above"
+    @renderInPlace={{true}}
+    as |dd|
+  >
+    <dd.Trigger>
+      <SvgIcon @icon="add" @size="md" />
+    </dd.Trigger>
+    <dd.Content>
+      <div class="primitives-card">
+
+        {{#each this.nodeGroups as |nodeGroup|}}
+          <h6>
+            {{titleize nodeGroup.name}}
+
+          </h6>
+          <div class="node-toolbar__section">
+            {{#each nodeGroup.nodeTypes as |nodeType|}}
+              <NodeToolbar::Node
+                @config={{this.getNodeTypeConfig nodeType}}
+                @onDragStart={{this.onDragStart}}
+                @onDragEnd={{this.onDragEnd}}
+              />
+            {{/each}}
+          </div>
+        {{/each}}
+      </div>
+    </dd.Content>
+  </BasicDropdown>
 {{/unless}}

@@ -21,25 +21,68 @@ export interface NodeToolbarSignature {
   Element: null;
 }
 
-type NodeTypeConfig = { label: string; className: string; value: NodeType };
+const NodeIconMap: Record<string, string> = {
+  [NodeType.Stock]: 'inventory',
+  [NodeType.Variable]: 'category',
+  [NodeType.Flow]: 'flow-icon',
+  [NodeType.Converter]: 'autorenew',
+  [NodeType.State]: 'toggle_off',
+  [NodeType.Transition]: 'transition_push',
+  [NodeType.Action]: 'play_pause',
+  [NodeType.Population]: 'groups',
+  [NodeType.Agent]: 'person',
+  [NodeType.Folder]: 'folder',
+  [NodeType.Ghost]: 'ghost',
+  [NodeType.OgcApiFeatures]: 'storage',
+};
+
+type NodeTypeConfig = {
+  label: string;
+  className: string;
+  value: NodeType;
+  icon: keyof typeof NodeIconMap | 'question-circle';
+};
 
 export default class NodeToolbarComponent extends Component<NodeToolbarSignature> {
   @service declare store: Store;
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare emberReactConnector: EmberReactConnectorService;
 
-  get nodeTypeConfigs() {
-    return Object.values(NodeType).reduce((acc, type) => {
-      if (typeof type === 'number' && type !== NodeType.Ghost) {
-        const typeStr = NodeType[type];
-        acc.push({
-          label: decamelize(typeStr),
-          className: dasherize(typeStr),
-          value: type,
-        });
-      }
-      return acc;
-    }, [] as NodeTypeConfig[]);
+  readonly nodeGroups = [
+    {
+      name: 'common',
+      nodeTypes: [
+        NodeType.Variable,
+        NodeType.Folder,
+        NodeType.Converter,
+        NodeType.OgcApiFeatures,
+      ],
+    },
+    {
+      name: 'system-dynamics',
+      nodeTypes: [NodeType.Stock, NodeType.Flow],
+    },
+    {
+      name: 'agent-based-modelling',
+      nodeTypes: [
+        NodeType.State,
+        NodeType.Transition,
+        NodeType.Action,
+        NodeType.Population,
+        NodeType.Agent,
+      ],
+    },
+  ];
+
+  @action getNodeTypeConfig(nodeType: NodeType): NodeTypeConfig {
+    const typeStr = NodeType[nodeType];
+
+    return {
+      label: decamelize(typeStr),
+      className: dasherize(typeStr),
+      value: nodeType,
+      icon: NodeIconMap[typeStr] || 'question-circle',
+    };
   }
 
   @action onDragStart(config: NodeTypeConfig) {

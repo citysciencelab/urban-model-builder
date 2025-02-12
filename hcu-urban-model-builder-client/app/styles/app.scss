@@ -92,23 +92,102 @@ main {
   color: $white;
 }
 
+.primitives-card {
+  background-color: $white;
+  border-color: $border-color;
+  border-width: $border-width;
+  border-style: $border-style;
+  box-shadow: $box-shadow-lg;
+  border-radius: $border-radius-lg;
+  padding: get-spacer(3);
+  min-width: 400px;
+  margin-bottom: 3rem;
+
+  h6 {
+    padding-top: get-spacer(3);
+    &:first-child {
+      padding-top: 0;
+    }
+  }
+  .node-toolbar__section {
+    display: flex;
+    gap: get-spacer(2);
+    flex-wrap: wrap;
+    margin-top: get-spacer(2);
+    .node-toolbar__node {
+      min-width: calc(50% - calc(get-spacer(2) / 2));
+    }
+  }
+}
+.ember-basic-dropdown-content {
+  background-color: transparent;
+}
+
+.ember-basic-dropdown-trigger--above::after {
+  content: "";
+  position: absolute;
+  top: -3.2rem;
+  z-index: 999999;
+
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  border-width: 20px 15px 0 15px;
+  border-color: white transparent transparent transparent;
+  transform: rotate(0deg) translateX(-50%);
+  left: 50%;
+}
+
 .toolbar__container {
   display: flex;
   align-items: center;
   gap: get-spacer(3);
-  overflow: auto;
+  background-color: $white;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow-lg;
+  padding: get-spacer(3);
+  border: $border-width $border-style $border-color;
+
+  .ember-basic-dropdown {
+    border-radius: 100%;
+    background-color: $color-primary;
+    padding: get-spacer(2);
+  }
 }
 
 .node-toolbar__node {
-  padding: get-spacer(2) get-spacer(3);
-  border-radius: $border-radius;
+  background-color: $white;
+  border-radius: $border-radius-lg;
   border: ($border-width * 2) $border-style $black;
   cursor: grab;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+
+  span {
+    padding: get-spacer(1) get-spacer(2);
+    display: flex;
+    gap: get-spacer(2);
+  }
+
+  .node-toolbar__node__icon {
+    background-color: $primary;
+    color: $white;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 get-spacer(1);
+  }
 
   @each $name, $color in $node-color-map {
     &.--#{$name} {
-      background-color: $color;
+      border-color: $color;
+      .node-toolbar__node__icon {
+        background-color: $color;
+        color: contrast-color($color);
+      }
     }
   }
 }
