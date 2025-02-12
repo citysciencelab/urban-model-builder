@@ -3,7 +3,8 @@
     @horizontalPosition="center"
     @verticalPosition="above"
     @onClose={{this.isPinned}}
-    @renderInPlace={{true}} as |dd|
+    @renderInPlace={{true}}
+    as |dd|
   >
     <dd.Trigger>
       <SvgIcon @icon="add" @size="md" />
@@ -39,4 +40,12 @@
       </div>
     </dd.Content>
   </BasicDropdown>
+
+  {{! Button: Simulate }}
+  <BsButton
+    @type="secondary"
+    @onClick={{this.modelDialogs.onShowSimulateDialog}}
+  >
+    Simulate
+  </BsButton>
 {{/unless}}

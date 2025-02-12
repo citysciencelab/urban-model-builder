@@ -8,6 +8,7 @@ import type EmberReactConnectorService from 'hcu-urban-model-builder-client/serv
 import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import { decamelize, dasherize } from '@ember/string';
 import { tracked } from '@glimmer/tracking';
+import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 
 export interface NodeToolbarSignature {
   // The arguments accepted by the component
@@ -46,6 +47,7 @@ type NodeTypeConfig = {
 
 export default class NodeToolbarComponent extends Component<NodeToolbarSignature> {
   @service declare store: Store;
+  @service declare modelDialogs: ModelDialogsService;
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare emberReactConnector: EmberReactConnectorService;
   @tracked isPinned = false;
