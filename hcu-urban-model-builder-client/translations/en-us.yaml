@@ -25,6 +25,9 @@ actions:
   loading: Loading…
   share: Share
   close: Close
+
+node-toolbar:
+  title: Primitives
   
 models:
   model:
