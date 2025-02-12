@@ -1,0 +1,26 @@
+.accordion {
+  .accordion-item {
+    border: 0;
+    border-bottom: 1px solid $gray-200;
+    .accordion-header {
+      .accordion-button {
+        background-color: transparent;
+        padding: get-spacer(3) 0;
+        box-shadow: none;
+        @include font-size($h5-font-size);
+        font-weight: $font-weight-bold;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 8px;
+        text-decoration-color: $color-primary;
+        &.collapsed {
+          text-decoration: none;
+        }
+        &::after {
+          mask-image: var(--bs-accordion-btn-active-icon);
+          background-color: $color-primary;
+        }
+      }
+    }
+  }
+}
