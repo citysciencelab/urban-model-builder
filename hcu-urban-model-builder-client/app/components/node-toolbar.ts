@@ -81,7 +81,7 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
       label: decamelize(typeStr),
       className: dasherize(typeStr),
       value: nodeType,
-      icon: NodeIconMap[typeStr] || 'question-circle',
+      icon: NodeIconMap[nodeType] || 'question-circle',
     };
   }
 
