@@ -644,6 +644,7 @@ fieldset {
   align-items: flex-end;
   justify-content: center;
   width: 100%;
+  margin-top: get-spacer(3);
 }
 
 .share-modal__permissions__badge__trigger {

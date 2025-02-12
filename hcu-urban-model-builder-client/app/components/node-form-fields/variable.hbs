@@ -1,13 +1,13 @@
-<BsAccordion @selected="interface-scenario" as |acc|>
+<BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
   <@form.element
     @controlType="textarea"
     @label="Value"
-    @helpText={{
-      if
+    @helpText={{if
       @changeset.dataProxy.isParameter
       "Currently controlled as scenario parameter"
     }}
-    @property="data.value" as |el|
+    @property="data.value"
+    as |el|
   >
     <NodeFormFields::Formula
       @form={{@form}}

@@ -1,9 +1,9 @@
-.accordion {
-  .accordion-item {
+.accordion.sidebar-accordion {
+  > .accordion-item {
     border: 0;
     border-bottom: 1px solid $gray-200;
-    .accordion-header {
-      .accordion-button {
+    > .accordion-header {
+      > .accordion-button {
         background-color: transparent;
         padding: get-spacer(3) 0;
         box-shadow: none;
