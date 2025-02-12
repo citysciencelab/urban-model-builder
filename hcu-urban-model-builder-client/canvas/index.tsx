@@ -419,16 +419,19 @@ function App({ nodes, edges, flowOptions }: AppProps) {
   );
 }
 
-export function initReact(
-  root: HTMLElement,
+export function createReact(
+  container: HTMLElement,
   nodes: any[],
   edges: any[],
   nodeActions: NodeActions,
   flowOptions: FlowOptions,
 ) {
-  createRoot(root).render(
+  const root = createRoot(container);
+  root.render(
     <EmberReactConnectorContext.Provider value={nodeActions}>
       <App nodes={nodes} edges={edges} flowOptions={flowOptions} />
     </EmberReactConnectorContext.Provider>,
   );
+
+  return root;
 }
