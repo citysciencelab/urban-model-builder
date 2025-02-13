@@ -297,9 +297,19 @@ $cyans: (
 ) !default;
 // fusv-enable
 
+// HCU colors
+$color-fiord: #465166;
+$color-anakiwa: #a3c4ff;
+$color-rose: #ff0071;
+$node-selected-color: $color-rose;
+$grey: #ececec;
+
+$color-primary: $color-anakiwa;
+$color-secondary: $color-fiord;
+
 // scss-docs-start theme-color-variables
-$primary: #388adc;
-$secondary: #a0a0a0;
+$primary: $color-primary !default;
+$secondary: $color-secondary !default;
 $success: $green !default;
 $info: $cyan !default;
 $warning: $yellow !default;
@@ -563,7 +573,7 @@ $box-shadow-inset: inset 0 1px 2px rgba($black, 0.075) !default;
 // scss-docs-end box-shadow-variables
 
 $component-active-color: $white !default;
-$component-active-bg: $primary !default;
+$component-active-bg: $secondary !default;
 
 // scss-docs-start focus-ring-variables
 $focus-ring-width: 0.25rem !default;
@@ -1836,3 +1846,7 @@ $kbd-bg: var(--#{$prefix}body-color) !default;
 $nested-kbd-font-weight: null !default; // Deprecated in v5.2.0, removing in v6
 
 $pre-color: null !default;
+
+$ember-power-select-focus-box-shadow:
+  inset 0 1px 1px rgba($black, 0.075),
+  0 0 8px rgba($color-secondary, 0.6);

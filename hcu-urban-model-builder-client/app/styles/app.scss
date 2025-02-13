@@ -15,6 +15,7 @@
 @import "lib/sidebar";
 @import "lib/accordion";
 @import "lib/buttons";
+@import "lib/cards";
 
 @import "./header";
 @import "./breadcrumbs";
@@ -32,6 +33,7 @@
   padding: get-spacer(1) get-spacer(3);
   @include font-size($h6-font-size);
   font-weight: $font-weight-base;
+  text-decoration: none;
 }
 
 .actions {
@@ -46,6 +48,7 @@
     align-items: center;
     gap: get-spacer(1);
     color: $black;
+    fill: $black;
   }
 }
 

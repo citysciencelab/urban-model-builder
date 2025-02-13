@@ -1,3 +1,7 @@
+a {
+  color: var(--bs-link-color-rgb);
+}
+
 .btn-primary {
   --bs-btn-color: #{$black};
   --bs-btn-bg: #{$color-primary};
@@ -35,4 +39,8 @@
 .btn {
   padding: get-spacer(2) 2rem;
   border-radius: $border-radius-lg;
+}
+
+.btn-sm {
+  padding: get-spacer(1) get-spacer(3);
 }
