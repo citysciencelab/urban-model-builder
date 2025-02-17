@@ -22,8 +22,8 @@ export default class ModelDialogsService extends Service {
     this.showCloneModal = true;
   }
 
-  @action onShowSimulateDialog(value: boolean) {
-    this.showSimulateModal = value;
+  @action onShowSimulateDialog() {
+    this.showSimulateModal = true;
   }
 
   @action onShowSettingsDialog() {
