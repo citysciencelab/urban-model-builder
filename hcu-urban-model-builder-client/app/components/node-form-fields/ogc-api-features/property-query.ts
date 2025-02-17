@@ -66,8 +66,6 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
   }
 
   set propertyFilters(value) {
-    console.log('setting propertyFilters', value);
-
     this.args.changeset.dataProxy.data.query!.propertyFilters = value;
   }
 

@@ -101,4 +101,5 @@ export const createClient = <Configuration = any>(
 }
 
 export { SimulationAdapter } from './shared/simulation-adapter/simulation-adapter.js'
+export { transformFeatures } from './shared/simulation-adapter/utils.js'
 export { OgcApiFeaturesClient } from './shared/simulation-adapter/ogc-api-features-client.js'

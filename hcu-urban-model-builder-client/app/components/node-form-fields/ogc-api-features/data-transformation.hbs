@@ -1,0 +1,36 @@
+<fieldset>
+  <legend>
+    Data Transformations
+  </legend>
+
+  <@form.element @label="Data Key Field">
+    <PowerSelect
+      @options={{this.keyOptions}}
+      @selected={{this.selectedKeyProperty}}
+      @disabled={{not @propertiesSchema.isResolved}}
+      @searchEnabled={{true}}
+      @searchField="title"
+      @onChange={{this.onChangeKey}}
+      @allowClear={{true}}
+      as |property|
+    >
+      {{property.title}}
+    </PowerSelect>
+  </@form.element>
+
+  <@form.element @label="Data Value Field">
+    TODO: Checkbox/Action-Link: Select all props/fields
+    <PowerSelectMultiple
+      @options={{this.valueOptions}}
+      @selected={{this.selectedValueProperties}}
+      @disabled={{not @propertiesSchema.isResolved}}
+      @searchEnabled={{true}}
+      @searchField="title"
+      @onChange={{this.onChangeValue}}
+      @allowClear={{true}}
+      as |property|
+    >
+      {{property.title}}
+    </PowerSelectMultiple>
+  </@form.element>
+</fieldset>

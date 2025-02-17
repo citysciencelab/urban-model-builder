@@ -1,7 +1,7 @@
 import { Model } from 'simulation'
 import { Nodes, NodeType } from '../../client.js'
 import { OgcApiFeaturesClient } from './ogc-api-features-client.js'
-import { toSimulationVectorString } from './utils.js'
+import { transformFeatures } from './utils.js'
 
 const getUnitsDefault = (node: Nodes) => {
   return node.data.units || 'Unitless'
@@ -105,7 +105,11 @@ const simulationFactoryMap = {
 
     return model.Variable({
       name: node.name!,
-      value: toSimulationVectorString(features.features)
+      value: transformFeatures(
+        features.features,
+        node.data.dataTransform?.keyProperty,
+        node.data.dataTransform?.valueProperties
+      )
     })
   }
 }

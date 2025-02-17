@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 
-type Feature = {
+export type Feature = {
   id: number
   type: 'Feature'
   geometry?: { type: string; coordinates: any }

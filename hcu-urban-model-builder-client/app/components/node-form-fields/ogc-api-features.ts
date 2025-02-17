@@ -1,12 +1,15 @@
 import { cached } from '@ember-data/tracking';
-import { action } from '@ember/object';
+import { action, get } from '@ember/object';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
 import { task, timeout } from 'ember-concurrency';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import type OgcApiFeaturesService from 'hcu-urban-model-builder-client/services/ogc-api-features';
 import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
+import { transformFeatures } from 'hcu-urban-model-builder-backend';
+import { ValuePointer } from '@sinclair/typebox/value';
 
 export interface NodeFormFieldsOgcApiFeaturesSignature {
   // The arguments accepted by the component
@@ -25,6 +28,10 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   readonly DEBOUNCE_MS = 250;
 
   @service declare ogcApiFeatures: OgcApiFeaturesService;
+
+  @tracked showPreviewModal = false;
+  @tracked jsonPointer = '';
+  @tracked jsonPointerValue = '';
 
   @cached
   get availableApis() {
@@ -118,11 +125,22 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
 
       return this.queryTask.perform(apiId, collectionId, {
         ...query,
-        limit: 1,
+        limit: 2,
       });
     };
 
     return new TrackedAsyncData(fetch());
+  }
+
+  get previewFeatures() {
+    const features = this.currentQueryResult.value?.features ?? [];
+
+    return transformFeatures(
+      features,
+      this.args.changeset.dataProxy.data.dataTransform?.keyProperty,
+      this.args.changeset.dataProxy.data.dataTransform?.valueProperties,
+      true,
+    );
   }
 
   get numberOfAllMatchingFeatures() {

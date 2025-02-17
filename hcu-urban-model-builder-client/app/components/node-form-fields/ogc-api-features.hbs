@@ -94,6 +94,28 @@
   <el.control disabled={{not this.selectedCollection}} />
 </@form.element>
 
+<NodeFormFields::OgcApiFeatures::DataTransformation
+  @form={{@form}}
+  @changeset={{@changeset}}
+  @propertiesSchema={{this.propertiesSchema}}
+/>
+
+<BsButton
+  @onClick={{fn (mut this.showPreviewModal) true}}
+  @disabled={{not this.selectedCollection}}
+>
+  Preview
+</BsButton>
+
+<BsModalSimple
+  @title="Data Preview"
+  @open={{this.showPreviewModal}}
+  @onHide={{fn (mut this.showPreviewModal) false}}
+>
+  {{! prettier-ignore }}
+  <pre><code>{{this.previewFeatures}}</code></pre>
+</BsModalSimple>
+
 <div>
   <strong>
     Number of items in the current collection:
