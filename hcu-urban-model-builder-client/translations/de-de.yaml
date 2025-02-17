@@ -26,6 +26,9 @@ actions:
   share: Teilen
   close: Schließen
 
+node-toolbar:
+  title: Primitives
+
 models:
   model:
     singular: Modell

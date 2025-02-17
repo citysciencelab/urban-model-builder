@@ -13,6 +13,7 @@
 @import "lib/fonts";
 @import "lib/typography";
 @import "lib/sidebar";
+@import "lib/accordion";
 
 @import "./header";
 @import "./breadcrumbs";
@@ -48,7 +49,7 @@
 }
 
 .ember-basic-dropdown-content {
-  z-index: 1055;
+  z-index: 1054;
 }
 
 @import "./react-canvas";
@@ -102,8 +103,35 @@ main {
   padding: get-spacer(3);
   min-width: 400px;
   margin-bottom: 3rem;
+  .primitives-card__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    a {
+      background-color: $black;
+      opacity: 0.2;
+      border-radius: $border-radius-pill;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        fill: $white;
+      }
+
+      &.pinned {
+        background-color: $color-primary;
+        color: $black;
+        opacity: 1;
+      }
+    }
+  }
 
   h6 {
+    font-weight: $font-weight-base;
     padding-top: get-spacer(3);
     &:first-child {
       padding-top: 0;
@@ -119,7 +147,7 @@ main {
     }
   }
 }
-.ember-basic-dropdown-content {
+.ember-basic-dropdown-content:has(.primitives-card) {
   background-color: transparent;
 }
 
@@ -148,7 +176,7 @@ main {
   padding: get-spacer(3);
   border: $border-width $border-style $border-color;
 
-  .ember-basic-dropdown {
+  .ember-basic-dropdown-trigger {
     border-radius: 100%;
     background-color: $color-primary;
     padding: get-spacer(2);
@@ -527,9 +555,9 @@ a.disabled,
 }
 
 fieldset {
-  border: 1px solid $border-color;
-  background-color: $body-tertiary-bg;
-  padding: get-spacer(2);
+  // border: 1px solid $border-color;
+  // background-color: $body-tertiary-bg;
+  padding: get-spacer(2) get-spacer(1);
   margin-bottom: get-spacer(3);
   .mb-3:last-child {
     margin-bottom: 0 !important;
@@ -616,6 +644,7 @@ fieldset {
   align-items: flex-end;
   justify-content: center;
   width: 100%;
+  margin-top: get-spacer(3);
 }
 
 .share-modal__permissions__badge__trigger {

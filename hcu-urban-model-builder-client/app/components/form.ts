@@ -31,6 +31,7 @@ export default class FormComponent extends Component<FormSignature> {
   @tracked record: Node | Edge | null = null;
   @tracked changeset: TrackedChangeset<Edge | Node> | null = null;
   @tracked isGhostNode = false;
+  @tracked isEditMode = false;
 
   validator = lookupValidator(nodeValidator);
 
@@ -124,5 +125,10 @@ export default class FormComponent extends Component<FormSignature> {
         this.args.close();
       }
     }
+  }
+
+  @action
+  toggleEditMode() {
+    this.isEditMode = !this.isEditMode;
   }
 }
