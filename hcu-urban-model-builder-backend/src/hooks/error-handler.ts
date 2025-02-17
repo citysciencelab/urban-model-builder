@@ -6,8 +6,8 @@ export const errorHandler = async (context: HookContext, next: NextFunction) => 
   try {
     await next()
   } catch (error: any) {
-    if (!error.code || error.code >= 500) {
-      const newError = new GeneralError('server error')
+    if (!error.code || error.code <= 500) {
+      const newError = new GeneralError()
       context.error = newError
       throw newError
     }
