@@ -102,4 +102,8 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
   @action togglePin() {
     this.isPinned = !this.isPinned;
   }
+
+  @action onClose() {
+    return !this.isPinned;
+  }
 }

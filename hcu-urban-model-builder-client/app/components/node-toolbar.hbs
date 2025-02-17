@@ -2,9 +2,8 @@
   <BasicDropdown
     @horizontalPosition="center"
     @verticalPosition="above"
-    @onClose={{this.isPinned}}
-    @renderInPlace={{true}}
-    as |dd|
+    @onClose={{this.onClose}}
+    @renderInPlace={{true}} as |dd|
   >
     <dd.Trigger>
       <SvgIcon @icon="add" @size="md" />
