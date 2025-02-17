@@ -1,12 +1,3 @@
-$color-fiord: #465166;
-$color-anakiwa: #a3c4ff;
-$color-rose: #ff0071;
-$node-selected-color: $color-rose;
-$grey: #ececec;
-
-$color-primary: $color-anakiwa;
-$color-secondary: $color-fiord;
-
 // TODO: check colors
 $node-color-map: (
   "flow": #a3c4ff,
@@ -40,4 +31,10 @@ $edge-color-map: (
 .text-bg-light {
   background-color: $grey !important;
   color: $black;
+}
+
+body {
+  --bs-primary: #{$color-secondary};
+  --bs-link-color: #{$color-secondary};
+  --bs-link-color-rgb: #{$color-secondary};
 }

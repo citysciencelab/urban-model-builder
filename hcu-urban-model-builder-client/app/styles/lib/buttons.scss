@@ -1,0 +1,46 @@
+a {
+  color: var(--bs-link-color-rgb);
+}
+
+.btn-primary {
+  --bs-btn-color: #{$black};
+  --bs-btn-bg: #{$color-primary};
+  --bs-btn-border-color: #{$color-primary};
+  --bs-btn-hover-color: #{$black};
+  --bs-btn-hover-bg: #{darken($color-primary, 5%)};
+  --bs-btn-hover-border-color: #{darken($color-primary, 5%)};
+  --bs-btn-focus-shadow-rgb: 48, 117, 187;
+  --bs-btn-active-color: #{$black};
+  --bs-btn-active-bg: #{darken($color-primary, 5%)};
+  --bs-btn-active-border-color: #{darken($color-primary, 5%)};
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #{$black};
+  --bs-btn-disabled-bg: #{$color-primary};
+  --bs-btn-disabled-border-color: #{$color-primary};
+}
+
+.btn-secondary {
+  --bs-btn-color: #{$white};
+  --bs-btn-bg: #{$color-secondary};
+  --bs-btn-border-color: #{$color-secondary};
+  --bs-btn-hover-color: #{$white};
+  --bs-btn-hover-bg: #{darken($color-secondary, 5%)};
+  --bs-btn-hover-border-color: #{darken($color-secondary, 5%)};
+  --bs-btn-focus-shadow-rgb: 48, 117, 187;
+  --bs-btn-active-color: #{$white};
+  --bs-btn-active-bg: #{darken($color-secondary, 5%)};
+  --bs-btn-active-border-color: #{darken($color-secondary, 5%)};
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #{$white};
+  --bs-btn-disabled-bg: #{$color-secondary};
+  --bs-btn-disabled-border-color: #{$color-secondary};
+}
+
+.btn {
+  padding: get-spacer(2) 2rem;
+  border-radius: $border-radius-lg;
+}
+
+.btn-sm {
+  padding: get-spacer(1) get-spacer(3);
+}

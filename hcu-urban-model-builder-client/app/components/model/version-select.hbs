@@ -1,6 +1,6 @@
 {{#if @model.hasVersion}}
   <BsDropdown @tagName="span" as |dd|>
-    <dd.toggle class="badge rounded-pill text-bg-secondary text-white">
+    <dd.toggle class="badge rounded-pill text-bg-primary text-black">
       {{#if @currentVersion}}
         {{@currentVersion.versionString}}
       {{else}}

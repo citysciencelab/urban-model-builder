@@ -3,19 +3,12 @@
     <div class="sidebar">
       <div class="sidebar__header">
         <h3>
-          {{#if this.isEditMode}}
-            <form.element
-              @controlType="text"
-              @placeholder="Name"
-              @property="name"
-              @customError={{get this.errors "name"}}
-            />
-          {{else}}
-            {{this.name}}
-          {{/if}}
-          <a href="javascript:void(0)" {{on "click" this.toggleEditMode}}>
-            <SvgIcon @icon={{if this.isEditMode "save" "edit"}} />
-          </a>
+          <form.element
+            @controlType="text"
+            @placeholder="Name"
+            @property="name"
+            @customError={{get this.errors "name"}}
+          />
         </h3>
       </div>
       <div

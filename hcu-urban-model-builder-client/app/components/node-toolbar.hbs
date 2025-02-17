@@ -2,7 +2,7 @@
   <BasicDropdown
     @horizontalPosition="center"
     @verticalPosition="above"
-    @onClose={{this.isPinned}}
+    @onClose={{this.onClose}}
     @renderInPlace={{true}} as |dd|
   >
     <dd.Trigger>
@@ -39,4 +39,12 @@
       </div>
     </dd.Content>
   </BasicDropdown>
+
+  {{! Button: Simulate }}
+  <BsButton
+    @type="secondary"
+    @onClick={{this.modelDialogs.onShowSimulateDialog}}
+  >
+    Simulate
+  </BsButton>
 {{/unless}}

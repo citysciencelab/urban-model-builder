@@ -19,15 +19,11 @@
   </NodeFormFields::Formula>
 </@form.element>
 <@form.element
-  @controlType="checkbox"
+  @controlType="switch"
   @label="Recalculate"
   @property="data.recalculate"
 />
-<@form.element
-  @controlType="checkbox"
-  @label="Repeat"
-  @property="data.repeat"
-/>
+<@form.element @controlType="switch" @label="Repeat" @property="data.repeat" />
 
 <NodeFormFields::Validation
   @modelsVersion={{@modelsVersion}}

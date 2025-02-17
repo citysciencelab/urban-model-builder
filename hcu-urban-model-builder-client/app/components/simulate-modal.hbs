@@ -5,7 +5,8 @@
   @backdrop={{false}}
   @backdropClose={{true}}
   @onShow={{this.onShow}}
-  @size="lg" as |modal|
+  @size="lg"
+  as |modal|
 >
   <modal.header>
     <h4 class="modal-title">
@@ -57,7 +58,7 @@
             <nav.item>
               <a
                 href="javascript:void(0)"
-                class="nav-link {{if (this.isTabActive tabName) "active"}}"
+                class="nav-link {{if (this.isTabActive tabName) 'active'}}"
                 {{on "click" (fn this.switchTab tabName)}}
               >
                 {{titleize tabName}}
@@ -74,7 +75,8 @@
       <div
         class="simulate-model__chart-container"
         {{did-insert this.didInsertChartContainer}}
-      ></div>
+      >
+      </div>
       {{#if (and this.currentDataset (not this.hasError))}}
         <div class="simulate-model__range__wrapper">
           <div class="simulate-model__range">

@@ -1,0 +1,55 @@
+.card {
+  .card-header,
+  .card-footer {
+    background-color: transparent;
+    padding: get-spacer(3);
+  }
+
+  .list-group-item {
+    padding: get-spacer(3);
+    .list-group-actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .list-group-body-content {
+      display: flex;
+      align-items: center;
+      a {
+        @include font-size($h4-font-size);
+        font-weight: $font-weight-bold;
+        text-decoration: none;
+        color: $black;
+      }
+    }
+  }
+
+  .card-footer {
+    .btn-group {
+      border-radius: 0;
+      .btn {
+        border-radius: 0;
+        padding: get-spacer(2);
+      }
+      .btn-check:checked + .btn,
+      :not(.btn-check) + .btn:active,
+      .btn:first-child:active,
+      .btn.active,
+      .btn.show {
+        background-color: $color-secondary;
+        color: $white;
+      }
+    }
+
+    .pagination__nav {
+      .page-item a {
+        background: transparent;
+        border: none;
+      }
+
+      .page-item.active a {
+        color: $black;
+      }
+    }
+  }
+}
