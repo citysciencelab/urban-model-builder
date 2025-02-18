@@ -39,6 +39,21 @@ a {
 .btn {
   padding: get-spacer(2) 2rem;
   border-radius: $border-radius-lg;
+
+  &.btn-round {
+    padding: get-spacer(1);
+    aspect-ratio: 1;
+    width: 2rem;
+    &.btn-md {
+      padding: get-spacer(2);
+      width: unset;
+    }
+  }
+
+  &.btn-link {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 .btn-sm {

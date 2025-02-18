@@ -24,8 +24,6 @@ export interface SimulateModalSignature {
   // The arguments accepted by the component
   Args: {
     model: ModelsVersion;
-    show?: boolean;
-    onHide: () => void;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -59,6 +57,9 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare eventBus: EventBus;
   @service declare emberReactConnector: EmberReactConnectorService;
+
+  @tracked show = false;
+  @tracked isPinned = false;
 
   @tracked isClientSideCalculation = true;
   @tracked activeTab: TabName = TabName.TimeSeries;
@@ -144,7 +145,9 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   @action
   onShow() {
+    this.show = true;
     this.simulationTask.perform();
+    return this.show;
   }
 
   @action
@@ -171,7 +174,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   simulationTask = task({ restartable: true }, async () => {
     let isCanceled = true;
     try {
-      if (!this.args.show) {
+      if (!this.show) {
         isCanceled = false;
         return;
       }
@@ -458,5 +461,13 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     this.storeEventEmitter.off('edge', 'created', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'updated', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'deleted', this.restartSimulation);
+  }
+
+  @action onClose() {
+    return !this.isPinned;
+  }
+
+  @action togglePin() {
+    this.isPinned = !this.isPinned;
   }
 }

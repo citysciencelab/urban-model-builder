@@ -74,7 +74,7 @@ components:
     title: Publish model
     intro: A published model is visible to all users, the version can then no longer be published.
   simulate_modal:
-    title: Simulation Results for
+    title: Simulation Results
     is_client_side: Is client side calculation?
   share_modal:
     title: Share model
