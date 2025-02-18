@@ -8,8 +8,11 @@ import { task, timeout } from 'ember-concurrency';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import type OgcApiFeaturesService from 'hcu-urban-model-builder-client/services/ogc-api-features';
 import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
-import { transformFeatures } from 'hcu-urban-model-builder-backend';
-import { ValuePointer } from '@sinclair/typebox/value';
+import {
+  GEOMETRY_KEY,
+  transformFeatures,
+  type Nodes,
+} from 'hcu-urban-model-builder-backend';
 
 export interface NodeFormFieldsOgcApiFeaturesSignature {
   // The arguments accepted by the component
@@ -33,6 +36,14 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   @tracked jsonPointer = '';
   @tracked jsonPointerValue = '';
 
+  get nodeData() {
+    return this.args.changeset.dataProxy.data;
+  }
+
+  set nodeData(data: Nodes['data']) {
+    this.args.changeset.dataProxy.data = data;
+  }
+
   @cached
   get availableApis() {
     return new TrackedAsyncData(this.ogcApiFeatures.getAvailableApis());
@@ -40,16 +51,14 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
 
   get selectedApi() {
     return (
-      this.availableApis.value?.find(
-        (api) => api.id === this.args.changeset.dataProxy.data.apiId,
-      ) ?? null
+      this.availableApis.value?.find((api) => api.id === this.nodeData.apiId) ??
+      null
     );
   }
 
   @cached
   get availableCollections() {
-    const apiId = this.args.changeset.dataProxy.data.apiId;
-    console.log('fetching collections for apiId', apiId);
+    const apiId = this.nodeData.apiId;
 
     const fetch = async () => {
       if (!apiId) {
@@ -64,24 +73,20 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   get selectedCollection() {
     return (
       this.availableCollections.value?.find(
-        (collection) =>
-          collection.id === this.args.changeset.dataProxy.data.collectionId,
+        (collection) => collection.id === this.nodeData.collectionId,
       ) ?? null
     );
   }
 
   @cached
   get isCollectionSelectDisabled() {
-    return !(
-      this.args.changeset.dataProxy.data.apiId &&
-      this.availableCollections.isResolved
-    );
+    return !(this.nodeData.apiId && this.availableCollections.isResolved);
   }
 
   @cached
   get propertiesSchema() {
-    const apiId = this.args.changeset.dataProxy.data.apiId;
-    const collectionId = this.args.changeset.dataProxy.data.collectionId;
+    const apiId = this.nodeData.apiId;
+    const collectionId = this.nodeData.collectionId;
 
     const fetch = async () => {
       if (!apiId || !collectionId) {
@@ -106,7 +111,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
       return [];
     }
     return (
-      this.args.changeset.dataProxy.data.query?.['properties']?.map((id) =>
+      this.nodeData.query?.['properties']?.map((id) =>
         this.propertiesSchema.value!.find((property) => property.id === id),
       ) ?? []
     );
@@ -115,9 +120,9 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   @cached
   get currentQueryResult() {
     const fetch = async () => {
-      const apiId = this.args.changeset.dataProxy.data.apiId;
-      const collectionId = this.args.changeset.dataProxy.data.collectionId;
-      const query = this.args.changeset.dataProxy.data.query;
+      const apiId = this.nodeData.apiId;
+      const collectionId = this.nodeData.collectionId;
+      const query = this.nodeData.query;
 
       if (!apiId || !collectionId || !query) {
         return null;
@@ -137,8 +142,8 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
 
     return transformFeatures(
       features,
-      this.args.changeset.dataProxy.data.dataTransform?.keyProperty,
-      this.args.changeset.dataProxy.data.dataTransform?.valueProperties,
+      this.nodeData.dataTransform?.keyProperty,
+      this.nodeData.dataTransform?.valueProperties,
       true,
     );
   }
@@ -157,54 +162,72 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
 
     return Math.min(
       this.numberOfAllMatchingFeatures,
-      this.args.changeset.dataProxy.data.query?.limit,
+      this.nodeData.query?.limit ?? 0,
     );
   }
 
   @action
   onApiSelected(api: NonNullable<this['availableApis']['value']>[number]) {
-    this.args.changeset.dataProxy.data.apiId = api.id;
-    delete this.args.changeset.dataProxy.data.collectionId;
-    this.args.changeset.dataProxy.data = {
-      ...this.args.changeset.dataProxy.data,
+    this.nodeData.apiId = api.id;
+    delete this.nodeData.collectionId;
+    this.nodeData = {
+      ...this.nodeData,
     };
     this.resetQuery();
   }
 
   @action
   onCollectionSelected(collection: { id: string }) {
-    console.log('collection selected', collection);
-
-    this.args.changeset.dataProxy.data.collectionId = collection.id;
+    this.nodeData.collectionId = collection.id;
     this.resetQuery();
   }
 
   @action
   toggleSkipGeometry() {
-    const data = this.args.changeset.dataProxy.data;
+    const data = this.nodeData;
     if (!data.query) {
       data.query = { skipGeometry: true };
     } else {
       data.query.skipGeometry = !data.query.skipGeometry;
+      this.filterAfterPropertiesSelected();
     }
   }
 
   @action
   onPropertiesSelected(property: { id: string }[]) {
-    this.args.changeset.dataProxy.data.query!.properties = property.map(
-      (p) => p.id,
-    );
+    this.nodeData.query!.properties = property.map((p) => p.id);
+    this.filterAfterPropertiesSelected();
   }
 
   @action
   resetQuery() {
-    const { limit, offset, skipGeometry } =
-      this.args.changeset.dataProxy.data.query ?? {};
-    this.args.changeset.dataProxy.data.query = {
+    const { limit, offset, skipGeometry } = this.nodeData.query ?? {};
+    this.nodeData.query = {
       limit,
       offset,
       skipGeometry,
     };
+  }
+
+  filterAfterPropertiesSelected() {
+    const currentProperties = [...(this.nodeData.query?.properties ?? [])];
+    if (currentProperties.length > 0) {
+      if (
+        this.nodeData.dataTransform?.keyProperty &&
+        !currentProperties.includes(this.nodeData.dataTransform.keyProperty)
+      ) {
+        this.nodeData.dataTransform!.keyProperty = undefined;
+      }
+
+      if (!this.nodeData.query?.skipGeometry) {
+        currentProperties.push(GEOMETRY_KEY);
+      }
+
+      this.nodeData.dataTransform!.valueProperties =
+        this.nodeData.dataTransform!.valueProperties?.filter((id) =>
+          currentProperties.includes(id),
+        ) || [];
+    }
   }
 
   queryTask = task(

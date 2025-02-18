@@ -3,6 +3,7 @@ import Component from '@glimmer/component';
 import type { TrackedAsyncData } from 'ember-async-data';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
+import { GEOMETRY_KEY } from 'hcu-urban-model-builder-backend';
 
 export interface NodeFormFieldsOgcApiFeaturesDataTransformationSignature {
   // The arguments accepted by the component
@@ -36,14 +37,13 @@ export default class NodeFormFieldsOgcApiFeaturesDataTransformationComponent ext
       return null;
     }
 
-    // TODO: include __geometry__ property
     const options = this.filterBySelectProperties(
       this.args.propertiesSchema.value,
     );
 
     if (!this.args.changeset.dataProxy.data.query?.skipGeometry) {
       options.push({
-        id: '__geometry__',
+        id: GEOMETRY_KEY,
         title: 'Geometry',
         type: 'geometry',
       });
@@ -84,8 +84,6 @@ export default class NodeFormFieldsOgcApiFeaturesDataTransformationComponent ext
     }
     this.args.changeset.dataProxy.data.dataTransform.keyProperty =
       selectedProperty?.id || undefined;
-
-    console.log(this.args.changeset.dataProxy.data.dataTransform);
   }
 
   @action onChangeValue(selectedProperty: { id: string }[]) {
@@ -94,12 +92,13 @@ export default class NodeFormFieldsOgcApiFeaturesDataTransformationComponent ext
     }
     this.args.changeset.dataProxy.data.dataTransform.valueProperties =
       selectedProperty.map((property) => property.id);
-
-    console.log(this.args.changeset.dataProxy.data.dataTransform);
   }
 
   private filterBySelectProperties(properties: any[]) {
-    if (this.args.changeset.dataProxy.data.query?.properties) {
+    if (
+      this.args.changeset.dataProxy.data.query?.properties &&
+      this.args.changeset.dataProxy.data.query?.properties.length > 0
+    ) {
       return properties.filter((property) =>
         this.args.changeset.dataProxy.data.query!.properties!.includes(
           property.id,
