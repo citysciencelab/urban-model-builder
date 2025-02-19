@@ -1,8 +1,4 @@
-<fieldset>
-  <legend>
-    Data Transformations
-  </legend>
-
+<@acc.item @value={{"data-transformation"}} @title="Data Transformations">
   <@form.element @label="Data Key Field">
     <PowerSelect
       @options={{this.keyOptions}}
@@ -33,4 +29,4 @@
       {{property.title}}
     </PowerSelectMultiple>
   </@form.element>
-</fieldset>
+</@acc.item>

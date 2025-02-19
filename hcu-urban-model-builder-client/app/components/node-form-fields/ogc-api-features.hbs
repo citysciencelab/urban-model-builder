@@ -1,136 +1,143 @@
-<@form.element @label={{"APIs"}} @property="apiId">
-  <PowerSelect
-    @options={{this.availableApis.value}}
-    @selected={{this.selectedApi}}
-    @searchEnabled={{true}}
-    @searchField="title"
-    @disabled={{not this.availableApis.isResolved}}
-    @onChange={{this.onApiSelected}}
-    as |api|
-  >
-    {{api.title}}
-  </PowerSelect>
-</@form.element>
+<BsAccordion class="sidebar-accordion" @selected="property-query" as |acc|>
 
-<div>
-  Mehr Informationen zur API
-  <a
-    href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
-  >
-    {{this.selectedApi.title}}
-  </a>
-</div>
-
-<@form.element @label="Collection" @property="collectionId">
-  <PowerSelect
-    @options={{this.availableCollections.value}}
-    @selected={{this.selectedCollection}}
-    @disabled={{this.isCollectionSelectDisabled}}
-    @onChange={{this.onCollectionSelected}}
-    as |collection|
-  >
-    {{collection.title}}
-  </PowerSelect>
-</@form.element>
-
-{{#let (not @changeset.dataProxy.data.collectionId) as |isDisabled|}}
-  <@form.element
-    @label="Limit"
-    @controlType="number"
-    @value={{@changeset.dataProxy.data.query.limit}}
-    @onChange={{fn (mut-number @changeset.dataProxy.data.query.limit)}}
-    as |el|
-  >
-    <el.control disabled={{isDisabled}} />
+  <@form.element @label={{"APIs"}} @property="apiId">
+    <PowerSelect
+      @options={{this.availableApis.value}}
+      @selected={{this.selectedApi}}
+      @searchEnabled={{true}}
+      @searchField="title"
+      @disabled={{not this.availableApis.isResolved}}
+      @onChange={{this.onApiSelected}}
+      as |api|
+    >
+      {{api.title}}
+    </PowerSelect>
   </@form.element>
 
-  <@form.element
-    @label="Offset"
-    @controlType="number"
-    @value={{@changeset.dataProxy.data.query.offset}}
-    @onChange={{fn (mut-number @changeset.dataProxy.data.query.offset)}}
-    as |el|
-  >
-    <el.control disabled={{isDisabled}} />
+  <div>
+    Mehr Informationen zur API
+    <a
+      href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
+    >
+      {{this.selectedApi.title}}
+    </a>
+  </div>
+
+  <@form.element @label="Collection" @property="collectionId">
+    <PowerSelect
+      @options={{this.availableCollections.value}}
+      @selected={{this.selectedCollection}}
+      @disabled={{this.isCollectionSelectDisabled}}
+      @onChange={{this.onCollectionSelected}}
+      as |collection|
+    >
+      {{collection.title}}
+    </PowerSelect>
   </@form.element>
 
-  <@form.element
-    @controlType="switch"
-    @label="Include Geometry Data?"
-    @value={{not @changeset.dataProxy.data.query.skipGeometry}}
-    @onChange={{this.toggleSkipGeometry}}
-    as |el|
-  >
-    <el.control disabled={{isDisabled}} />
+  {{#let (not @changeset.dataProxy.data.collectionId) as |isDisabled|}}
+    <@form.element
+      @label="Limit"
+      @controlType="number"
+      @value={{@changeset.dataProxy.data.query.limit}}
+      @onChange={{fn (mut-number @changeset.dataProxy.data.query.limit)}}
+      as |el|
+    >
+      <el.control disabled={{isDisabled}} />
+    </@form.element>
+
+    <@form.element
+      @label="Offset"
+      @controlType="number"
+      @value={{@changeset.dataProxy.data.query.offset}}
+      @onChange={{fn (mut-number @changeset.dataProxy.data.query.offset)}}
+      as |el|
+    >
+      <el.control disabled={{isDisabled}} />
+    </@form.element>
+
+    <@form.element
+      @controlType="switch"
+      @label="Include Geometry Data?"
+      @value={{not @changeset.dataProxy.data.query.skipGeometry}}
+      @onChange={{this.toggleSkipGeometry}}
+      as |el|
+    >
+      <el.control disabled={{isDisabled}} />
+    </@form.element>
+  {{/let}}
+
+  <@form.element @label="Selected Properties">
+    <PowerSelectMultiple
+      @options={{this.propertiesSchema.value}}
+      @selected={{this.selectedProperties}}
+      @disabled={{not this.propertiesSchema.isResolved}}
+      @searchEnabled={{true}}
+      @searchField="title"
+      @onChange={{this.onPropertiesSelected}}
+      as |property|
+    >
+      {{property.title}}
+    </PowerSelectMultiple>
   </@form.element>
-{{/let}}
 
-<@form.element @label="Selected Properties">
-  <PowerSelectMultiple
-    @options={{this.propertiesSchema.value}}
-    @selected={{this.selectedProperties}}
-    @disabled={{not this.propertiesSchema.isResolved}}
-    @searchEnabled={{true}}
-    @searchField="title"
-    @onChange={{this.onPropertiesSelected}}
-    as |property|
+  <NodeFormFields::OgcApiFeatures::PropertyQuery
+    @acc={{acc}}
+    @form={{@form}}
+    @changeset={{@changeset}}
+  />
+
+  <acc.item @value="advanced-filter" @title="Advanced Filter Query">
+    <@form.element
+      @label="Advanced Filter"
+      @controlType="textarea"
+      @helpText="Enter a valid CQL2 filter expression"
+      @property="data.query.filter"
+      as |el|
+    >
+      <el.control disabled={{not this.selectedCollection}} />
+    </@form.element>
+  </acc.item>
+
+  <NodeFormFields::OgcApiFeatures::DataTransformation
+    @acc={{acc}}
+    @form={{@form}}
+    @changeset={{@changeset}}
+    @propertiesSchema={{this.propertiesSchema}}
+  />
+
+  <BsButton
+    @onClick={{fn (mut this.showPreviewModal) true}}
+    @disabled={{not this.selectedCollection}}
   >
-    {{property.title}}
-  </PowerSelectMultiple>
-</@form.element>
+    Preview
+  </BsButton>
 
-<NodeFormFields::OgcApiFeatures::PropertyQuery
-  @form={{@form}}
-  @changeset={{@changeset}}
-/>
+  <BsModalSimple
+    @title="Data Preview"
+    @open={{this.showPreviewModal}}
+    @onHide={{fn (mut this.showPreviewModal) false}}
+  >
+    {{! prettier-ignore }}
+    <pre><code>{{this.previewFeatures}}</code></pre>
+  </BsModalSimple>
 
-<@form.element
-  @label="Advanced Filter"
-  @controlType="textarea"
-  @helpText="Enter a valid CQL2 filter expression"
-  @property="data.query.filter"
-  as |el|
->
-  <el.control disabled={{not this.selectedCollection}} />
-</@form.element>
-
-<NodeFormFields::OgcApiFeatures::DataTransformation
-  @form={{@form}}
-  @changeset={{@changeset}}
-  @propertiesSchema={{this.propertiesSchema}}
-/>
-
-<BsButton
-  @onClick={{fn (mut this.showPreviewModal) true}}
-  @disabled={{not this.selectedCollection}}
->
-  Preview
-</BsButton>
-
-<BsModalSimple
-  @title="Data Preview"
-  @open={{this.showPreviewModal}}
-  @onHide={{fn (mut this.showPreviewModal) false}}
->
-  {{! prettier-ignore }}
-  <pre><code>{{this.previewFeatures}}</code></pre>
-</BsModalSimple>
-
-<div>
-  <strong>
-    Number of items in the current collection:
-  </strong>
-  {{this.selectedCollection.itemCount}}
-</div>
-<div>
-  <strong>
-    Number of matching items for current query:
-  </strong>
-  {{this.numberOfAllMatchingFeatures}}
-</div>
-<div>
-  <strong>
-    Number of match items within the limit for current query:
-  </strong>
-  {{this.numberOfCurrentMatchingFeatures}}
-</div>
+  <div>
+    <strong>
+      Number of items in the current collection:
+    </strong>
+    {{this.selectedCollection.itemCount}}
+  </div>
+  <div>
+    <strong>
+      Number of matching items for current query:
+    </strong>
+    {{this.numberOfAllMatchingFeatures}}
+  </div>
+  <div>
+    <strong>
+      Number of match items within the limit for current query:
+    </strong>
+    {{this.numberOfCurrentMatchingFeatures}}
+  </div>
+</BsAccordion>

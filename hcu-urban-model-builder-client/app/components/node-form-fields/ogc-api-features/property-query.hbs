@@ -1,7 +1,8 @@
-<fieldset {{did-update this.onCollectionIdChanged this.collectionId}}>
-  <legend>
-    Selected Property Queries
-  </legend>
+<@acc.item
+  @value="property-query"
+  @title="Property Queries"
+  {{did-update this.onCollectionIdChanged this.collectionId}}
+>
 
   {{#each this.selectedPropertyQuery as |property|}}
     <div>
@@ -34,7 +35,8 @@
       @disabled={{this.isQueryBuildDisabled}}
       @searchEnabled={{true}}
       @searchField="title"
-      @onChange={{fn (mut this.selectedNewQueryProperty)}} as |collection|
+      @onChange={{fn (mut this.selectedNewQueryProperty)}}
+      as |collection|
     >
       {{collection.title}}
     </PowerSelect>
@@ -45,7 +47,8 @@
       @options={{this.currentQueryOperatorOptions}}
       @selected={{this.newQueryOperator}}
       @disabled={{not this.selectedNewQueryProperty}}
-      @onChange={{fn (mut this.newQueryOperator)}} as |operator|
+      @onChange={{fn (mut this.newQueryOperator)}}
+      as |operator|
     >
       {{operator}}
     </PowerSelect>
@@ -55,7 +58,8 @@
     @label="Query Property Value"
     @controlType={{this.newQueryValueControlType}}
     @value={{this.newQueryValue}}
-    @onChange={{fn (mut this.newQueryValue)}} as |el|
+    @onChange={{fn (mut this.newQueryValue)}}
+    as |el|
   >
     <el.control disabled={{not this.selectedNewQueryProperty}} />
   </@form.element>
@@ -67,4 +71,4 @@
   >
     Add
   </BsButton>
-</fieldset>
+</@acc.item>
