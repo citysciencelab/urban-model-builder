@@ -4,7 +4,8 @@ import Service from '@ember/service';
 export type TEventBusEvents =
   | 'scenario-value-changed'
   | 'node:selected'
-  | 'node:unselected';
+  | 'node:unselected'
+  | 'primitive-modal:create-clicked';
 
 export default class EventBus extends Service {
   public _events: Partial<

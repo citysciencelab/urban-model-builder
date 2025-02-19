@@ -29,7 +29,6 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
-import { NodeType } from "hcu-urban-model-builder-backend";
 import { FlowTransitionEdge } from "./lib/edges/flow-tranistion.tsx";
 import { ArrowNode } from "./lib/nodes/arrow-node.tsx";
 import { FolderNode } from "./lib/nodes/folder-node.tsx";
@@ -245,25 +244,6 @@ function Flow({
     event.dataTransfer.dropEffect = "move";
   }, []);
 
-  const onDrop = useCallback(
-    async (event: DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-
-      const type = nodeActions.draggedNodeConfig.value;
-      nodeActions.draggedNodeConfig = null;
-      await nodeActions.create("node", {
-        type: type,
-        name: `${NodeType[type]} ${nodes.length}`,
-        data: {},
-        position: rfInstance!.screenToFlowPosition({
-          x: event.clientX,
-          y: event.clientY,
-        }),
-      });
-    },
-    [rfInstance, nodes],
-  );
-
   const onBeforeDelete = useCallback(
     async (toBeDeleted: { nodes: Node[]; edges: Edge[] }) => {
       if (toBeDeleted.nodes.length > 0) {
@@ -377,7 +357,6 @@ function Flow({
       onReconnect={onReconnect}
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}
-      onDrop={onDrop}
       onDragOver={onDragOver}
       onBeforeDelete={onBeforeDelete}
       isValidConnection={isValidConnection}

@@ -5,9 +5,6 @@ import { tracked } from '@glimmer/tracking';
 import type Edge from 'hcu-urban-model-builder-client/models/edge';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import type StoreEventEmitterService from './store-event-emitter';
-import type { ReactFlowInstance } from '@xyflow/react';
-import type { NodeType } from 'hcu-urban-model-builder-backend';
-import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type Model from '@ember-data/model';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 import type EventBus from './event-bus';
@@ -21,11 +18,6 @@ export default class EmberReactConnectorService extends Service {
   @tracked currentModel: ModelsVersion | null = null;
   @tracked sidebarElement: HTMLElement | null = null;
   @tracked toolbarElement: HTMLElement | null = null;
-  @tracked draggedNodeConfig: {
-    label: string;
-    className: string;
-    value: NodeType;
-  } | null = null;
 
   get currentModelVersionId() {
     return this.currentModel!.id;

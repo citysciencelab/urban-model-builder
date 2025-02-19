@@ -1,8 +1,7 @@
-<div
+<a
   class="node-toolbar__node --{{@config.className}}"
-  draggable="true"
-  {{on "dragstart" (fn @onDragStart @config)}}
-  {{on "dragend" @onDragEnd}}
+  href="javascript:void(0)"
+  {{on "click" (fn @onClick @config)}}
 >
   <div class="node-toolbar__node__icon">
     <SvgIcon @icon="add" @size="xs" />
@@ -12,4 +11,4 @@
 
     {{uppercase (humanize @config.label)}}
   </span>
-</div>
+</a>

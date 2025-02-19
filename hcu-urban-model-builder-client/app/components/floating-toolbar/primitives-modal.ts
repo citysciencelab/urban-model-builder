@@ -5,7 +5,7 @@ import { service } from '@ember/service';
 
 import { NodeType } from 'hcu-urban-model-builder-backend';
 import { decamelize, dasherize } from '@ember/string';
-import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
+import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
 
 export interface FloatingToolbarPrimitivesModalSignature {
   // The arguments accepted by the component
@@ -36,13 +36,13 @@ const NodeIconMap: Record<string, string> = {
 type NodeTypeConfig = {
   label: string;
   className: string;
-  value: NodeType;
+  type: NodeType;
   icon: keyof typeof NodeIconMap | 'question-circle';
 };
 
 export default class FloatingToolbarPrimitivesModalComponent extends Component<FloatingToolbarPrimitivesModalSignature> {
+  @service declare eventBus: EventBus;
   @tracked isPinned = false;
-  @service declare emberReactConnector: EmberReactConnectorService;
 
   readonly nodeGroups = [
     {
@@ -76,7 +76,7 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
     return {
       label: decamelize(typeStr),
       className: dasherize(typeStr),
-      value: nodeType,
+      type: nodeType,
       icon: NodeIconMap[nodeType] || 'question-circle',
     };
   }
@@ -89,13 +89,7 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
     return !this.isPinned;
   }
 
-  @action onDragStart(config: NodeTypeConfig) {
-    this.emberReactConnector.draggedNodeConfig = config;
-  }
-
-  @action
-  async onDragEnd(event: DragEvent) {
-    event.preventDefault();
-    this.emberReactConnector.draggedNodeConfig = null;
+  @action onNodeClick(config: NodeTypeConfig) {
+    this.eventBus.emit('primitive-modal:create-clicked', config);
   }
 }

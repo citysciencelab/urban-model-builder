@@ -4,6 +4,7 @@ import {
   StoreEventSenderTransport,
 } from '../context/ember-react-connector';
 import { useCallback, useContext, useEffect } from 'react';
+import { NodeType } from 'hcu-urban-model-builder-backend';
 
 const nodeHasChanged = (node1: Node, node2: any) => {
   return (
@@ -18,6 +19,22 @@ export const useEmberEventListeners = () => {
   const emberReactConnector = useContext(EmberReactConnectorContext);
   const rfInstance = useReactFlow();
   const { setNodes, setEdges } = rfInstance;
+
+  const createNode = useCallback(
+    async (nodeConfig: { type: NodeType }) => {
+      const type = nodeConfig.type;
+      await emberReactConnector.create('node', {
+        type: type,
+        name: `${NodeType[type]} ${rfInstance.getNodes().length + 1}`,
+        data: {},
+        position: rfInstance!.screenToFlowPosition({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+        }),
+      });
+    },
+    [rfInstance],
+  );
 
   const addNode = useCallback(
     async (newNode: any) => {
@@ -135,6 +152,10 @@ export const useEmberEventListeners = () => {
     emberReactConnector.storeEventEmitter.on('node', 'updated', updateNode);
     emberReactConnector.storeEventEmitter.on('node', 'deleted', removeNode);
     emberReactConnector.eventBus.on('node:selected', selectNode);
+    emberReactConnector.eventBus.on(
+      'primitive-modal:create-clicked',
+      createNode,
+    );
 
     emberReactConnector.storeEventEmitter.on('edge', 'created', addEdge);
     emberReactConnector.storeEventEmitter.on('edge', 'updated', updateEdge);
@@ -145,6 +166,10 @@ export const useEmberEventListeners = () => {
       emberReactConnector.storeEventEmitter.off('node', 'updated', updateNode);
       emberReactConnector.storeEventEmitter.off('node', 'deleted', removeNode);
       emberReactConnector.eventBus.off('node:selected', selectNode);
+      emberReactConnector.eventBus.off(
+        'primitive-modal:create-clicked',
+        createNode,
+      );
 
       emberReactConnector.storeEventEmitter.off('edge', 'created', addEdge);
       emberReactConnector.storeEventEmitter.off('edge', 'updated', updateEdge);

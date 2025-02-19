@@ -14,7 +14,6 @@ export type NodeActions = {
   onSidebarInserted: (element: HTMLElement) => void;
   onToolbarInserted: (element: HTMLElement) => void;
   confirmDeleteNodes: (nodeIds: string[]) => boolean;
-  draggedNodeConfig: any;
   currentModelVersionId: string;
   storeEventEmitter: {
     on: (
@@ -46,11 +45,17 @@ export type NodeActions = {
   };
   eventBus: {
     on: (
-      eventName: 'node:selected' | 'node:unselected',
+      eventName:
+        | 'node:selected'
+        | 'node:unselected'
+        | 'primitive-modal:create-clicked',
       callback: (...args: any[]) => void,
     ) => void;
     off: (
-      eventName: 'node:selected' | 'node:unselected',
+      eventName:
+        | 'node:selected'
+        | 'node:unselected'
+        | 'primitive-modal:create-clicked',
       callback: (...args: any[]) => void,
     ) => void;
     emit: (

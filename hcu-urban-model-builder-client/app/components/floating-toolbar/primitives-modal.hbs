@@ -33,8 +33,7 @@
             {{#each nodeGroup.nodeTypes as |nodeType|}}
               <FloatingToolbar::Node
                 @config={{this.getNodeTypeConfig nodeType}}
-                @onDragStart={{this.onDragStart}}
-                @onDragEnd={{this.onDragEnd}}
+                @onClick={{this.onNodeClick}}
               />
             {{/each}}
           </div>
