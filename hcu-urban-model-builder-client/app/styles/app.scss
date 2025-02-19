@@ -581,14 +581,3 @@ fieldset {
 .ember-basic-dropdown-content a.list-group-item:hover {
   background-color: var(--bs-tertiary-bg);
 }
-
-.modal:has(.simulate-model__chart-container) {
-  &.show .modal-dialog,
-  &.fade .modal-dialog {
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  .modal-header {
-    border-bottom: 0;
-  }
-}
