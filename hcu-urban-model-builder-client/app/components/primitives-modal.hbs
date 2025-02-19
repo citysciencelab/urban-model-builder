@@ -1,0 +1,45 @@
+{{#unless @disabled}}
+  <BasicDropdown
+    @horizontalPosition="center"
+    @verticalPosition="above"
+    @onClose={{@onClose}}
+    @renderInPlace={{true}}
+    as |dd|
+  >
+    <dd.Trigger>
+      <BsButton @type="primary" class="btn-round" @size="md">
+        <SvgIcon @icon="add" @size="md" />
+      </BsButton>
+    </dd.Trigger>
+    <dd.Content>
+      <div class="primitives-card">
+        <div class="primitives-card__row">
+          <h5>
+            {{t "node-toolbar.title"}}
+          </h5>
+          <a
+            class={{if @isPinned "pinned"}}
+            href="javascript:void(0)"
+            {{on "click" @togglePin}}
+          >
+            <SvgIcon @icon="push_pin" @size="xs" />
+          </a>
+        </div>
+        {{#each @nodeGroups as |nodeGroup|}}
+          <h6>
+            {{titleize nodeGroup.name}}
+          </h6>
+          <div class="node-toolbar__section">
+            {{#each nodeGroup.nodeTypes as |nodeType|}}
+              <NodeToolbar::Node
+                @config={{@getNodeTypeConfig nodeType}}
+                @onDragStart={{@onDragStart}}
+                @onDragEnd={{@onDragEnd}}
+              />
+            {{/each}}
+          </div>
+        {{/each}}
+      </div>
+    </dd.Content>
+  </BasicDropdown>
+{{/unless}}
