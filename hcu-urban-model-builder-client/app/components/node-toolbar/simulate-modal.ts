@@ -20,7 +20,7 @@ import type StoreEventEmitterService from 'hcu-urban-model-builder-client/servic
 import { task, timeout } from 'ember-concurrency';
 import config from 'hcu-urban-model-builder-client/config/environment';
 
-export interface SimulateModalSignature {
+export interface NodeToolbarSimulateModalSignature {
   // The arguments accepted by the component
   Args: {
     model: ModelsVersion;
@@ -41,15 +41,15 @@ enum TabName {
 type SimulationResult = Awaited<ReturnType<SimulationAdapter<any>['simulate']>>;
 
 type TimeSeriesDataset = Awaited<
-  ReturnType<SimulateModalComponent['getTimeSeriesDataset']>
+  ReturnType<NodeToolbarSimulateModalComponent['getTimeSeriesDataset']>
 >;
 type ScatterPlotDataset = Awaited<
-  ReturnType<SimulateModalComponent['getScatterPlotDataset']>
+  ReturnType<NodeToolbarSimulateModalComponent['getScatterPlotDataset']>
 >;
 
 const BASE_SPEED = 20;
 
-export default class SimulateModalComponent extends Component<SimulateModalSignature> {
+export default class NodeToolbarSimulateModalComponent extends Component<NodeToolbarSimulateModalSignature> {
   readonly DEBOUNCE_MS = 250;
 
   @service declare feathers: FeathersService;

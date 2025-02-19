@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 
-export interface PrimitivesModalSignature {
+export interface NodeToolbarPrimitivesModalSignature {
   // The arguments accepted by the component
   Args: {};
   // Any blocks yielded by the component
@@ -11,4 +11,4 @@ export interface PrimitivesModalSignature {
   Element: null;
 }
 
-export default class PrimitivesModalComponent extends Component<PrimitivesModalSignature> {}
+export default class NodeToolbarPrimitivesModalComponent extends Component<NodeToolbarPrimitivesModalSignature> { }
