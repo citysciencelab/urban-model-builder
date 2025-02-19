@@ -2,12 +2,6 @@
 
 <ReactWrapper @model={{this.model}} />
 
-<SimulateModal
-  @model={{this.model}}
-  @show={{this.modelDialogs.showSimulateModal}}
-  @onHide={{fn (mut this.modelDialogs.showSimulateModal) false}}
-/>
-
 <Model::SettingsDialog
   @open={{this.modelDialogs.showSettingsModal}}
   @model={{this.model}}

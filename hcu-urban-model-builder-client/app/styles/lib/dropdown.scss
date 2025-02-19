@@ -1,0 +1,78 @@
+.primitives-card,
+.simulate-card {
+  background-color: $white;
+  border-color: $border-color;
+  border-width: $border-width;
+  border-style: $border-style;
+  box-shadow: $box-shadow-lg;
+  border-radius: $border-radius-lg;
+  padding: get-spacer(3);
+  min-width: 400px;
+  margin-bottom: 3rem;
+  .primitives-card__row,
+  .simulate-card__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    a {
+      background-color: $black;
+      opacity: 0.2;
+      border-radius: $border-radius-pill;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        fill: $white;
+      }
+
+      &.pinned {
+        background-color: $color-primary;
+        color: $black;
+        opacity: 1;
+      }
+    }
+  }
+
+  h6 {
+    font-weight: $font-weight-base;
+    padding-top: get-spacer(3);
+    &:first-child {
+      padding-top: 0;
+    }
+  }
+  .node-toolbar__section {
+    display: flex;
+    gap: get-spacer(2);
+    flex-wrap: wrap;
+    margin-top: get-spacer(2);
+    .node-toolbar__node {
+      min-width: calc(50% - calc(get-spacer(2) / 2));
+    }
+  }
+}
+.ember-basic-dropdown-content:has(.primitives-card, .simulate-card) {
+  background-color: transparent;
+}
+
+.simulate-card {
+  min-width: 600px;
+}
+
+.ember-basic-dropdown-trigger--above::after {
+  content: "";
+  position: absolute;
+  top: -3.2rem;
+  z-index: 999999;
+
+  width: 0px;
+  height: 0px;
+  border-style: solid;
+  border-width: 20px 15px 0 15px;
+  border-color: white transparent transparent transparent;
+  transform: rotate(0deg) translateX(-50%);
+  left: 50%;
+}
