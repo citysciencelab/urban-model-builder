@@ -26,6 +26,7 @@ import {
   Node,
   ReactFlowProvider,
   NodeDimensionChange,
+  OnConnectStartParams,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
@@ -96,6 +97,10 @@ function Flow({
         markerEnd: { type: MarkerType.Arrow },
       };
     }),
+  );
+
+  const [connectionLineType, setConnectionLineType] = useState(
+    ConnectionLineType.Bezier,
   );
 
   const sidebarContainerRef = useRef(null);
@@ -343,6 +348,17 @@ function Flow({
     [rfInstance],
   );
 
+  const onConnectionStart = (_: unknown, params: OnConnectStartParams) => {
+    if (
+      params.handleId.startsWith("flow-") ||
+      params.handleId.startsWith("transition-")
+    ) {
+      setConnectionLineType(ConnectionLineType.SmoothStep);
+    } else {
+      setConnectionLineType(ConnectionLineType.Bezier);
+    }
+  };
+
   return (
     <ReactFlow
       onInit={setRfInstance}
@@ -350,6 +366,7 @@ function Flow({
       onNodesChange={onNodesChange}
       edges={edges}
       onEdgesChange={onEdgesChange}
+      onConnectStart={onConnectionStart}
       onConnect={onConnect}
       defaultEdgeOptions={{
         zIndex: 10,
@@ -362,12 +379,12 @@ function Flow({
       isValidConnection={isValidConnection}
       nodeTypes={nodeTypes}
       edgeTypes={edgesTypes}
-      connectionLineType={ConnectionLineType.SmoothStep}
+      connectionLineType={connectionLineType}
       edgesFocusable={!flowOptions.disabled}
       nodesDraggable={!flowOptions.disabled}
       nodesConnectable={!flowOptions.disabled}
       nodesFocusable={!flowOptions.disabled}
-      panOnDrag={true}
+      panOnDrag={[1]}
       fitView
     >
       <Panel position="bottom-center">
