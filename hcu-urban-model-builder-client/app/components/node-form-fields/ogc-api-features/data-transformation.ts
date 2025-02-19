@@ -24,6 +24,9 @@ export default class NodeFormFieldsOgcApiFeaturesDataTransformationComponent ext
     if (!this.args.propertiesSchema.isResolved) {
       return null;
     }
+    if (!this.args.propertiesSchema.value) {
+      return null;
+    }
 
     const all = this.args.propertiesSchema.value.filter(
       (property) => property.type === 'string' || property.type === 'integer',
