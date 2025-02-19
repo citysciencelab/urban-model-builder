@@ -464,6 +464,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   }
 
   @action onClose() {
+    this.show = false;
     return !this.isPinned;
   }
 
