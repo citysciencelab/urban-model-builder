@@ -1,7 +1,7 @@
 import Component from '@glimmer/component';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 
-export interface NodeToolbarSignature {
+export interface FloatingToolbarSignature {
   // The arguments accepted by the component
   Args: {
     model: ModelModel;
@@ -14,4 +14,4 @@ export interface NodeToolbarSignature {
   Element: null;
 }
 
-export default class NodeToolbarComponent extends Component<NodeToolbarSignature> { }
+export default class FloatingToolbarComponent extends Component<FloatingToolbarSignature> { }

@@ -7,7 +7,7 @@ import { NodeType } from 'hcu-urban-model-builder-backend';
 import { decamelize, dasherize } from '@ember/string';
 import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
 
-export interface NodeToolbarPrimitivesModalSignature {
+export interface FloatingToolbarPrimitivesModalSignature {
   // The arguments accepted by the component
   Args: {};
   // Any blocks yielded by the component
@@ -40,7 +40,7 @@ type NodeTypeConfig = {
   icon: keyof typeof NodeIconMap | 'question-circle';
 };
 
-export default class NodeToolbarPrimitivesModalComponent extends Component<NodeToolbarPrimitivesModalSignature> {
+export default class FloatingToolbarPrimitivesModalComponent extends Component<FloatingToolbarPrimitivesModalSignature> {
   @tracked isPinned = false;
   @service declare emberReactConnector: EmberReactConnectorService;
 

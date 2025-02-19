@@ -31,7 +31,7 @@
           </h6>
           <div class="node-toolbar__section">
             {{#each nodeGroup.nodeTypes as |nodeType|}}
-              <NodeToolbar::Node
+              <FloatingToolbar::Node
                 @config={{this.getNodeTypeConfig nodeType}}
                 @onDragStart={{this.onDragStart}}
                 @onDragEnd={{this.onDragEnd}}
