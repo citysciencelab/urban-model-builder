@@ -1,38 +1,34 @@
-{{#if (eq this.type "node")}}
-  <div class="sidebar">
-    <div class="sidebar__header">
-      <h3>
-        {{this.name}}
-      </h3>
-    </div>
-    <div
-      class="sidebar__content"
-      {{did-insert this.initialize}}
-      {{did-update this.initialize @record}}
-    >
-      <BsAlert
-        @type="danger"
-        @dismissible={{false}}
-        @visible={{this.hasErrors}}
+<BsForm @model={{this.changeset.dataProxy}} @disabled={{@disabled}} as |form|>
+  {{#if (eq this.type "node")}}
+    <div class="sidebar">
+      <div class="sidebar__header">
+        <h3>
+          <form.element
+            @controlType="text"
+            @placeholder="Name"
+            @property="name"
+            @customError={{get this.errors "name"}}
+          />
+        </h3>
+      </div>
+      <div
+        class="sidebar__content"
+        {{did-insert this.initialize}}
+        {{did-update this.initialize @record}}
       >
-        There is an error in the form. Please fix it to save.
-      </BsAlert>
-      {{#if this.isGhostNode}}
-        <div class="alert alert-warning">
-          👻 {{t "forms.node.ghost_warning"}}
-        </div>
-      {{/if}}
-      <BsForm
-        @model={{this.changeset.dataProxy}}
-        @disabled={{@disabled}} as |form|
-      >
-        <form.element
-          @controlType="text"
-          @label="Name"
-          @placeholder="Name"
-          @property="name"
-          @customError={{get this.errors "name"}}
-        />
+        <BsAlert
+          @type="danger"
+          @dismissible={{false}}
+          @visible={{this.hasErrors}}
+        >
+          There is an error in the form. Please fix it to save.
+        </BsAlert>
+        {{#if this.isGhostNode}}
+          <div class="alert alert-warning">
+            👻
+            {{t "forms.node.ghost_warning"}}
+          </div>
+        {{/if}}
 
         <form.element
           @controlType="textarea"
@@ -54,18 +50,19 @@
         {{/if}}
 
         <div {{did-update this.onIsDirtyChanged this.isDirty}}></div>
-      </BsForm>
-      {{! DELETE Button }}
-      <div class="node__delete-button-wrapper">
-        <button
-          type="button"
-          class="btn btn-danger"
-          disabled={{@disabled}}
-          {{on "click" this.deleteNode}}
-        >
-          Delete
-        </button>
+
+        {{! DELETE Button }}
+        <div class="node__delete-button-wrapper">
+          <button
+            type="button"
+            class="btn btn-danger"
+            disabled={{@disabled}}
+            {{on "click" this.deleteNode}}
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-{{/if}}
+  {{/if}}
+</BsForm>

@@ -1,41 +1,45 @@
-<@form.element
-  @controlType="textarea"
-  @label="Value"
-  @helpText={{
-    if
-    @changeset.dataProxy.isParameter
-    "Currently controlled as scenario parameter"
-  }}
-  @property="data.value" as |el|
->
-  <NodeFormFields::Formula
-    @form={{@form}}
-    @node={{@node}}
-    @el={{el}}
-    @disabled={{@disabled}}
+<BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
+  <@form.element
+    @controlType="textarea"
+    @label="Value"
+    @helpText={{if
+      @changeset.dataProxy.isParameter
+      "Currently controlled as scenario parameter"
+    }}
+    @property="data.value"
+    as |el|
   >
-    <el.control
-      class="code-textarea"
-      disabled={{or @changeset.dataProxy.isParameter @disabled}}
-    />
-  </NodeFormFields::Formula>
-</@form.element>
+    <NodeFormFields::Formula
+      @form={{@form}}
+      @node={{@node}}
+      @el={{el}}
+      @disabled={{@disabled}}
+    >
+      <el.control
+        class="code-textarea"
+        disabled={{or @changeset.dataProxy.isParameter @disabled}}
+      />
+    </NodeFormFields::Formula>
+  </@form.element>
 
-<NodeFormFields::ParameterSettings
-  @form={{@form}}
-  @changeset={{@changeset}}
-  @el={{@el}}
-  @errors={{@errors}}
-  @type="numeric"
-  @inputVisible={{true}}
-  @outputVisible={{true}}
-  @disabled={{@disabled}}
-/>
+  <NodeFormFields::ParameterSettings
+    @acc={{acc}}
+    @form={{@form}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+    @errors={{@errors}}
+    @type="numeric"
+    @inputVisible={{true}}
+    @outputVisible={{true}}
+    @disabled={{@disabled}}
+  />
 
-<NodeFormFields::Validation
-  @form={{@form}}
-  @modelsVersion={{@modelsVersion}}
-  @changeset={{@changeset}}
-  @el={{@el}}
-  @errors={{@errors}}
-/>
+  <NodeFormFields::Validation
+    @acc={{acc}}
+    @form={{@form}}
+    @modelsVersion={{@modelsVersion}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+    @errors={{@errors}}
+  />
+</BsAccordion>

@@ -1,121 +1,120 @@
 {{#if (or @inputVisible @outputVisible)}}
-  <fieldset class="parameter__settings">
-    <legend>
-      Interface &amp; Scenario
-    </legend>
-    {{#if @inputVisible}}
-      {{! INPUT }}
-      <h5>
-        Input
-      </h5>
-      <@form.element>
-        <PowerSelect
-          @placeholder="Select Parameter Type"
-          class="col-12"
-          @options={{this.filteredParameterTypes}}
-          @selected={{this.selectedParameterType}}
-          @disabled={{@disabled}}
-          @onChange={{this.onParameterTypeChange}} as |parameter|
-        >
-          {{parameter.label}}
-        </PowerSelect>
-      </@form.element>
-      {{#if (and @changeset.dataProxy.isParameter (eq @type "numeric"))}}
-        <div class="row">
-          {{#if (eq @changeset.dataProxy.parameterType "slider")}}
-            {{! MIN Value }}
-            <@form.element
-              class="col-4"
-              @controlType="number"
-              @label="Min"
-              @customError={{get @errors "parameterMin"}}
-              @property="parameterMin" as |el|
-            >
-              <el.control step={{0.001}} />
-            </@form.element>
-            {{! STEP Value }}
-            <@form.element
-              class="col-4"
-              @controlType="number"
-              @label="Step"
-              @customError={{get @errors "parameterStep"}}
-              @property="parameterStep" as |el|
-            >
-              <el.control step={{0.001}} min={{0.001}} />
-            </@form.element>
-            {{! MAX Value }}
-            <@form.element
-              class="col-4"
-              @controlType="number"
-              @label="Max"
-              @customError={{get @errors "parameterMax"}}
-              @property="parameterMax" as |el|
-            >
-              <el.control step={{0.001}} />
-            </@form.element>
-          {{else if (eq @changeset.dataProxy.parameterType "select")}}
-            <div class="col-5">
-              Value
-            </div>
-            <div class="col-5">
-              Label
-            </div>
-            <div class="col2"></div>
-            {{#each @changeset.dataProxy.parameterOptions.data as |option|}}
+  <@acc.item @value={{"interface-scenario"}} @title="Interface &amp; Scenario">
+    <fieldset class="parameter__settings">
+      {{#if @inputVisible}}
+        {{! INPUT }}
+        <h6>
+          Input
+        </h6>
+        <@form.element>
+          <PowerSelect
+            @placeholder="Select Parameter Type"
+            class="col-12"
+            @options={{this.filteredParameterTypes}}
+            @selected={{this.selectedParameterType}}
+            @disabled={{@disabled}}
+            @onChange={{this.onParameterTypeChange}} as |parameter|
+          >
+            {{parameter.label}}
+          </PowerSelect>
+        </@form.element>
+        {{#if (and @changeset.dataProxy.isParameter (eq @type "numeric"))}}
+          <div class="row">
+            {{#if (eq @changeset.dataProxy.parameterType "slider")}}
+              {{! MIN Value }}
               <@form.element
-                class="col-5"
+                class="col-4"
                 @controlType="number"
-                @onChange={{fn (mut-number option.value)}}
-                @value={{option.value}} as |el|
+                @label="Min"
+                @customError={{get @errors "parameterMin"}}
+                @property="parameterMin" as |el|
               >
-                <el.control {{on "blur" this.sortSelectOptionsByValue}} />
+                <el.control step={{0.001}} />
               </@form.element>
+              {{! STEP Value }}
               <@form.element
-                class="col-5"
-                @controlType="text"
-                @onChange={{fn (mut option.label)}}
-                @value={{option.label}} as |el|
+                class="col-4"
+                @controlType="number"
+                @label="Step"
+                @customError={{get @errors "parameterStep"}}
+                @property="parameterStep" as |el|
               >
-                <el.control />
+                <el.control step={{0.001}} min={{0.001}} />
               </@form.element>
-              <div class="col-2">
-                <a
-                  href="javascript:void(0)"
-                  {{on "click" (fn this.removeParameterSelectOption option)}}
-                >
-                  <FaIcon @icon="trash" />
-                </a>
-              </div>
-            {{/each}}
-            <div class="col-12">
-              <button
-                type="button"
-                class="btn btn-primary"
-                {{on "click" this.addParameterSelectOption}}
+              {{! MAX Value }}
+              <@form.element
+                class="col-4"
+                @controlType="number"
+                @label="Max"
+                @customError={{get @errors "parameterMax"}}
+                @property="parameterMax" as |el|
               >
-                Add Option
-              </button>
-            </div>
-          {{/if}}
-        </div>
+                <el.control step={{0.001}} />
+              </@form.element>
+            {{else if (eq @changeset.dataProxy.parameterType "select")}}
+              <div class="col-5">
+                Value
+              </div>
+              <div class="col-5">
+                Label
+              </div>
+              <div class="col2"></div>
+              {{#each @changeset.dataProxy.parameterOptions.data as |option|}}
+                <@form.element
+                  class="col-5"
+                  @controlType="number"
+                  @onChange={{fn (mut-number option.value)}}
+                  @value={{option.value}} as |el|
+                >
+                  <el.control {{on "blur" this.sortSelectOptionsByValue}} />
+                </@form.element>
+                <@form.element
+                  class="col-5"
+                  @controlType="text"
+                  @onChange={{fn (mut option.label)}}
+                  @value={{option.label}} as |el|
+                >
+                  <el.control />
+                </@form.element>
+                <div class="col-2">
+                  <a
+                    href="javascript:void(0)"
+                    {{on "click" (fn this.removeParameterSelectOption option)}}
+                  >
+                    <FaIcon @icon="trash" />
+                  </a>
+                </div>
+              {{/each}}
+              <div class="col-12">
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  {{on "click" this.addParameterSelectOption}}
+                >
+                  Add Option
+                </button>
+              </div>
+            {{/if}}
+          </div>
+        {{/if}}
       {{/if}}
-    {{/if}}
-    {{! DIVIDER }}
-    {{#if (and @inputVisible @outputVisible)}}
-      <hr />
-    {{/if}}
-    {{! OUTPUT }}
-    {{#if @outputVisible}}
-      <h5>
-        Output
-      </h5>
-      <@form.element
-        @controlType="switch"
-        @label="Is Output Parameter?"
-        @property="isOutputParameter" as |el|
-      >
-        <el.control />
-      </@form.element>
-    {{/if}}
-  </fieldset>
+      {{! DIVIDER }}
+      {{#if (and @inputVisible @outputVisible)}}
+        <hr />
+      {{/if}}
+      {{! OUTPUT }}
+      {{#if @outputVisible}}
+        <h6>
+          Output
+        </h6>
+        <@form.element
+          @controlType="switch"
+          @label="Is Output Parameter?"
+          @property="isOutputParameter" as |el|
+        >
+          <el.control />
+        </@form.element>
+      {{/if}}
+    </fieldset>
+  </@acc.item>
 {{/if}}

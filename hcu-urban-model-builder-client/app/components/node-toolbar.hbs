@@ -2,19 +2,29 @@
   <BasicDropdown
     @horizontalPosition="center"
     @verticalPosition="above"
-    @renderInPlace={{true}}
-    as |dd|
+    @onClose={{this.onClose}}
+    @renderInPlace={{true}} as |dd|
   >
     <dd.Trigger>
       <SvgIcon @icon="add" @size="md" />
     </dd.Trigger>
     <dd.Content>
       <div class="primitives-card">
-
+        <div class="primitives-card__row">
+          <h5>
+            {{t "node-toolbar.title"}}
+          </h5>
+          <a
+            class={{if this.isPinned "pinned"}}
+            href="javascript:void(0)"
+            {{on "click" this.togglePin}}
+          >
+            <SvgIcon @icon="push_pin" @size="xs" />
+          </a>
+        </div>
         {{#each this.nodeGroups as |nodeGroup|}}
           <h6>
             {{titleize nodeGroup.name}}
-
           </h6>
           <div class="node-toolbar__section">
             {{#each nodeGroup.nodeTypes as |nodeType|}}
@@ -29,4 +39,12 @@
       </div>
     </dd.Content>
   </BasicDropdown>
+
+  {{! Button: Simulate }}
+  <BsButton
+    @type="secondary"
+    @onClick={{this.modelDialogs.onShowSimulateDialog}}
+  >
+    Simulate
+  </BsButton>
 {{/unless}}

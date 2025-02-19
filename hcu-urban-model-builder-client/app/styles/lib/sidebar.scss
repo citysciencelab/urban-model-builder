@@ -72,6 +72,21 @@
     align-items: center;
     gap: get-spacer(1);
   }
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: get-spacer(2);
+
+    .mb-3 {
+      margin-bottom: 0 !important;
+    }
+
+    input[type="text"] {
+      @include font-size($h3-font-size);
+      font-weight: $font-weight-bold;
+    }
+  }
 }
 
 .sidebar__content {
@@ -82,7 +97,7 @@
   flex-direction: column;
   align-items: flex-start;
   overflow-y: auto;
-  form {
+  > * {
     width: 100%;
   }
 }
