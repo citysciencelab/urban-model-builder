@@ -20,12 +20,10 @@ import type StoreEventEmitterService from 'hcu-urban-model-builder-client/servic
 import { task, timeout } from 'ember-concurrency';
 import config from 'hcu-urban-model-builder-client/config/environment';
 
-export interface SimulateModalSignature {
+export interface FloatingToolbarSimulateModalSignature {
   // The arguments accepted by the component
   Args: {
     model: ModelsVersion;
-    show?: boolean;
-    onHide: () => void;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -43,15 +41,15 @@ enum TabName {
 type SimulationResult = Awaited<ReturnType<SimulationAdapter<any>['simulate']>>;
 
 type TimeSeriesDataset = Awaited<
-  ReturnType<SimulateModalComponent['getTimeSeriesDataset']>
+  ReturnType<FloatingToolbarSimulateModalComponent['getTimeSeriesDataset']>
 >;
 type ScatterPlotDataset = Awaited<
-  ReturnType<SimulateModalComponent['getScatterPlotDataset']>
+  ReturnType<FloatingToolbarSimulateModalComponent['getScatterPlotDataset']>
 >;
 
 const BASE_SPEED = 20;
 
-export default class SimulateModalComponent extends Component<SimulateModalSignature> {
+export default class FloatingToolbarSimulateModalComponent extends Component<FloatingToolbarSimulateModalSignature> {
   readonly DEBOUNCE_MS = 250;
 
   @service declare feathers: FeathersService;
@@ -59,6 +57,9 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare eventBus: EventBus;
   @service declare emberReactConnector: EmberReactConnectorService;
+
+  @tracked show = false;
+  @tracked isPinned = false;
 
   @tracked isClientSideCalculation = true;
   @tracked activeTab: TabName = TabName.TimeSeries;
@@ -144,7 +145,9 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
 
   @action
   onShow() {
+    this.show = true;
     this.simulationTask.perform();
+    return this.show;
   }
 
   @action
@@ -171,7 +174,7 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
   simulationTask = task({ restartable: true }, async () => {
     let isCanceled = true;
     try {
-      if (!this.args.show) {
+      if (!this.show) {
         isCanceled = false;
         return;
       }
@@ -458,5 +461,14 @@ export default class SimulateModalComponent extends Component<SimulateModalSigna
     this.storeEventEmitter.off('edge', 'created', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'updated', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'deleted', this.restartSimulation);
+  }
+
+  @action onClose() {
+    this.show = false;
+    return !this.isPinned;
+  }
+
+  @action togglePin() {
+    this.isPinned = !this.isPinned;
   }
 }

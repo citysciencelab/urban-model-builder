@@ -4,12 +4,6 @@
 
 <SidebarGeneral @model={{this.model}} />
 
-<SimulateModal
-  @model={{this.model}}
-  @show={{this.modelDialogs.showSimulateModal}}
-  @onHide={{fn (mut this.modelDialogs.showSimulateModal) false}}
-/>
-
 <Model::PublishDialog
   @open={{this.modelDialogs.showPublishModal}}
   @model={{this.model}}

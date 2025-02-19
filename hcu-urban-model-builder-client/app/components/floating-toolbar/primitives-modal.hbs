@@ -3,10 +3,13 @@
     @horizontalPosition="center"
     @verticalPosition="above"
     @onClose={{this.onClose}}
-    @renderInPlace={{true}} as |dd|
+    @renderInPlace={{true}}
+    as |dd|
   >
     <dd.Trigger>
-      <SvgIcon @icon="add" @size="md" />
+      <BsButton @type="primary" class="btn-round" @size="md">
+        <SvgIcon @icon="add" @size="md" />
+      </BsButton>
     </dd.Trigger>
     <dd.Content>
       <div class="primitives-card">
@@ -28,7 +31,7 @@
           </h6>
           <div class="node-toolbar__section">
             {{#each nodeGroup.nodeTypes as |nodeType|}}
-              <NodeToolbar::Node
+              <FloatingToolbar::Node
                 @config={{this.getNodeTypeConfig nodeType}}
                 @onDragStart={{this.onDragStart}}
                 @onDragEnd={{this.onDragEnd}}
@@ -39,12 +42,4 @@
       </div>
     </dd.Content>
   </BasicDropdown>
-
-  {{! Button: Simulate }}
-  <BsButton
-    @type="secondary"
-    @onClick={{this.modelDialogs.onShowSimulateDialog}}
-  >
-    Simulate
-  </BsButton>
 {{/unless}}

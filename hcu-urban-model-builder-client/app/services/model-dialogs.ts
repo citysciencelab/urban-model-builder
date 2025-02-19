@@ -4,7 +4,6 @@ import { tracked } from '@glimmer/tracking';
 
 export default class ModelDialogsService extends Service {
   @tracked showPublishModal = false;
-  @tracked showSimulateModal = false;
 
   @tracked showCloneModal = false;
   @tracked showShareModal = false;
@@ -20,10 +19,6 @@ export default class ModelDialogsService extends Service {
 
   @action onStartClone() {
     this.showCloneModal = true;
-  }
-
-  @action onShowSimulateDialog() {
-    this.showSimulateModal = true;
   }
 
   @action onShowSettingsDialog() {

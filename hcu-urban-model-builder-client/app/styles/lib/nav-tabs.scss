@@ -1,0 +1,10 @@
+.nav-tabs {
+  border: 0;
+  .nav-link {
+    border: 0;
+    @include font-size($h6-font-size);
+    &.active {
+      border-bottom: 2px solid #{$color-primary};
+    }
+  }
+}

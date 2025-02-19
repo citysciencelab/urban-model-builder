@@ -1,20 +1,15 @@
-import type Store from '@ember-data/store';
+import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { service } from '@ember/service';
-import Component from '@glimmer/component';
-import { NodeType } from 'hcu-urban-model-builder-backend';
-import type ModelModel from 'hcu-urban-model-builder-client/models/model';
-import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
-import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
-import { decamelize, dasherize } from '@ember/string';
-import { tracked } from '@glimmer/tracking';
-import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 
-export interface NodeToolbarSignature {
+import { NodeType } from 'hcu-urban-model-builder-backend';
+import { decamelize, dasherize } from '@ember/string';
+import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
+
+export interface FloatingToolbarPrimitivesModalSignature {
   // The arguments accepted by the component
-  Args: {
-    model: ModelModel;
-  };
+  Args: {};
   // Any blocks yielded by the component
   Blocks: {
     default: [];
@@ -45,12 +40,9 @@ type NodeTypeConfig = {
   icon: keyof typeof NodeIconMap | 'question-circle';
 };
 
-export default class NodeToolbarComponent extends Component<NodeToolbarSignature> {
-  @service declare store: Store;
-  @service declare modelDialogs: ModelDialogsService;
-  @service declare storeEventEmitter: StoreEventEmitterService;
-  @service declare emberReactConnector: EmberReactConnectorService;
+export default class FloatingToolbarPrimitivesModalComponent extends Component<FloatingToolbarPrimitivesModalSignature> {
   @tracked isPinned = false;
+  @service declare emberReactConnector: EmberReactConnectorService;
 
   readonly nodeGroups = [
     {
@@ -89,6 +81,14 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
     };
   }
 
+  @action togglePin() {
+    this.isPinned = !this.isPinned;
+  }
+
+  @action onClose() {
+    return !this.isPinned;
+  }
+
   @action onDragStart(config: NodeTypeConfig) {
     this.emberReactConnector.draggedNodeConfig = config;
   }
@@ -97,13 +97,5 @@ export default class NodeToolbarComponent extends Component<NodeToolbarSignature
   async onDragEnd(event: DragEvent) {
     event.preventDefault();
     this.emberReactConnector.draggedNodeConfig = null;
-  }
-
-  @action togglePin() {
-    this.isPinned = !this.isPinned;
-  }
-
-  @action onClose() {
-    return !this.isPinned;
   }
 }
