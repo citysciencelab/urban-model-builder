@@ -120,6 +120,12 @@ export const ogcFeatureNodeSchema = Type.Object(
         },
         { additionalProperties: true }
       )
+    ),
+    dataTransform: Type.Optional(
+      Type.Object({
+        keyProperty: Type.Optional(Type.String()),
+        valueProperties: Type.Optional(Type.Array(Type.String()))
+      })
     )
   },
   { additionalProperties: false }

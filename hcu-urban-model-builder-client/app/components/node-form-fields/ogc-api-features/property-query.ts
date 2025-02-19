@@ -66,8 +66,6 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
   }
 
   set propertyFilters(value) {
-    console.log('setting propertyFilters', value);
-
     this.args.changeset.dataProxy.data.query!.propertyFilters = value;
   }
 
@@ -124,13 +122,10 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
       operator: this.newQueryOperator,
       value: this.newQueryValue,
     };
-    if (this.propertyFilters) {
-      this.propertyFilters[this.selectedNewQueryProperty!.id] = newFilter;
-    } else {
-      this.propertyFilters = {
-        [this.selectedNewQueryProperty!.id]: newFilter,
-      };
-    }
+    this.propertyFilters = {
+      ...(this.propertyFilters || {}),
+      [this.selectedNewQueryProperty!.id]: newFilter,
+    };
 
     this.resetNewQueryProperty();
   }

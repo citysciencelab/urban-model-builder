@@ -1,0 +1,37 @@
+<@acc.item @value={{"data-transformation"}} @title="Data Transformations">
+  <@form.element @label="Data Key Field">
+    <PowerSelect
+      @options={{this.keyOptions}}
+      @selected={{this.selectedKeyProperty}}
+      @disabled={{not @propertiesSchema.isResolved}}
+      @searchEnabled={{true}}
+      @searchField="title"
+      @onChange={{this.onChangeKey}}
+      @allowClear={{true}}
+      as |property|
+    >
+      {{property.title}}
+    </PowerSelect>
+  </@form.element>
+
+  <@form.element @label="Data Value Field">
+    <div>
+      <a
+        href="javascript:void(0)"
+        {{on "click" (fn this.onChangeValue this.valueOptions)}}
+      >Select all</a>
+    </div>
+    <PowerSelectMultiple
+      @options={{this.valueOptions}}
+      @selected={{this.selectedValueProperties}}
+      @disabled={{not @propertiesSchema.isResolved}}
+      @searchEnabled={{true}}
+      @searchField="title"
+      @onChange={{this.onChangeValue}}
+      @allowClear={{true}}
+      as |property|
+    >
+      {{property.title}}
+    </PowerSelectMultiple>
+  </@form.element>
+</@acc.item>
