@@ -18,6 +18,8 @@ export interface FloatingToolbarPrimitivesModalSignature {
   Element: null;
 }
 
+type EmberBasicDropdownAPI = { actions: { close: () => void } };
+
 const NodeIconMap: Record<string, string> = {
   [NodeType.Stock]: 'inventory',
   [NodeType.Variable]: 'category',
@@ -43,6 +45,7 @@ type NodeTypeConfig = {
 export default class FloatingToolbarPrimitivesModalComponent extends Component<FloatingToolbarPrimitivesModalSignature> {
   @service declare eventBus: EventBus;
   @tracked isPinned = false;
+  basicDropdownInstance: EmberBasicDropdownAPI | null = null;
 
   readonly nodeGroups = [
     {
@@ -70,6 +73,12 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
     },
   ];
 
+  @action registerBasicDropdownAPI(
+    basicDropdownInstance: EmberBasicDropdownAPI,
+  ) {
+    this.basicDropdownInstance = basicDropdownInstance;
+  }
+
   @action getNodeTypeConfig(nodeType: NodeType): NodeTypeConfig {
     const typeStr = NodeType[nodeType];
 
@@ -91,5 +100,6 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
 
   @action onNodeClick(config: NodeTypeConfig) {
     this.eventBus.emit('primitive-modal:create-clicked', config);
+    this.basicDropdownInstance!.actions.close();
   }
 }
