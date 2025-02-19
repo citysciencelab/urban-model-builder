@@ -2,7 +2,7 @@
   <BasicDropdown
     @horizontalPosition="center"
     @verticalPosition="above"
-    @onClose={{@onClose}}
+    @onClose={{this.onClose}}
     @renderInPlace={{true}}
     as |dd|
   >
@@ -18,23 +18,23 @@
             {{t "node-toolbar.title"}}
           </h5>
           <a
-            class={{if @isPinned "pinned"}}
+            class={{if this.isPinned "pinned"}}
             href="javascript:void(0)"
-            {{on "click" @togglePin}}
+            {{on "click" this.togglePin}}
           >
             <SvgIcon @icon="push_pin" @size="xs" />
           </a>
         </div>
-        {{#each @nodeGroups as |nodeGroup|}}
+        {{#each this.nodeGroups as |nodeGroup|}}
           <h6>
             {{titleize nodeGroup.name}}
           </h6>
           <div class="node-toolbar__section">
             {{#each nodeGroup.nodeTypes as |nodeType|}}
               <NodeToolbar::Node
-                @config={{@getNodeTypeConfig nodeType}}
-                @onDragStart={{@onDragStart}}
-                @onDragEnd={{@onDragEnd}}
+                @config={{this.getNodeTypeConfig nodeType}}
+                @onDragStart={{this.onDragStart}}
+                @onDragEnd={{this.onDragEnd}}
               />
             {{/each}}
           </div>
