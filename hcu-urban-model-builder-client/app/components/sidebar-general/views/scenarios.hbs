@@ -31,8 +31,10 @@
             {{#if (or (eq node.parameterType "boolean") (eq node.type 4))}}
               <SidebarGeneral::ParameterBool
                 @scenarioValue={{scenarioValue}}
-                @onChange={{
-                  fn this.updateBoolParameter this.defaultScenario scenarioValue
+                @onChange={{fn
+                  this.updateBoolParameter
+                  this.defaultScenario
+                  scenarioValue
                 }}
               />
             {{else if (eq node.parameterType "slider")}}
@@ -42,8 +44,7 @@
                 @step={{node.parameterStep}}
                 @units={{node.data.units}}
                 @scenarioValue={{scenarioValue}}
-                @onChange={{
-                  fn
+                @onChange={{fn
                   this.handleScenarioSliderValueChange
                   this.defaultScenario
                   scenarioValue
@@ -53,8 +54,7 @@
               <SidebarGeneral::ParameterSelect
                 @options={{node.parameterOptions.data}}
                 @scenarioValue={{scenarioValue}}
-                @onChange={{
-                  fn
+                @onChange={{fn
                   this.handleScenarioSelectValueChange
                   this.defaultScenario
                   scenarioValue
@@ -78,7 +78,7 @@
           {{#if isSaving}}
             <FaIcon @icon="spinner" @spin={{true}} @fixedWidth={{true}} />
           {{/if}}
-          Save Scenario
+          {{t "actions.save_for_everyone"}}
         </a>
       </div>
     {{else}}

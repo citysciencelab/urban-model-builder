@@ -16,6 +16,7 @@ pagination:
 
 actions:
   save: Speichern
+  save_for_everyone: Für alle speichern
   cancel: Abbrechen
   clone: Klonen
   unsaved_changes: Sie haben ungespeicherte Änderungen. Wollen Sie die Seite wirklich verlassen?
