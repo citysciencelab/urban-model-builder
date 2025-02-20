@@ -1,20 +1,16 @@
 // TODO: check colors
 $node-color-map: (
-  "flow": #a3c4ff,
-  "stock": cadetblue,
-  "variable": coral,
-  "population": #b75b72,
-  "state": #52d48a,
-  "action": #f5a623,
-  "converter": #84f5ff,
-  "agent":
-    rgba(
-      $color: #574f7e,
-      $alpha: 0.2,
-    ),
-  "folder": #8f8d8d71,
-  "ogc-api-features": #479180,
-  "transition": #c3e628,
+  "flow": $color-primary,
+  "stock": $color-secondary,
+  "variable": #8093b3,
+  "population": #70c883,
+  "state": #fbe094,
+  "action": #584560,
+  "converter": #225f50,
+  "agent": #ffae33,
+  "folder": #686868,
+  "ogc-api-features": #c1a7cd,
+  "transition": #ffae33,
 );
 
 $edge-color-map: (
