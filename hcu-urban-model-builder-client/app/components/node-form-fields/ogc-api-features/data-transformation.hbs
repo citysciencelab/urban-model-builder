@@ -15,12 +15,7 @@
   </@form.element>
 
   <@form.element @label="Data Value Field">
-    <div>
-      <a
-        href="javascript:void(0)"
-        {{on "click" (fn this.onChangeValue this.valueOptions)}}
-      >Select all</a>
-    </div>
+
     <PowerSelectMultiple
       @options={{this.valueOptions}}
       @selected={{this.selectedValueProperties}}
@@ -33,5 +28,11 @@
     >
       {{property.title}}
     </PowerSelectMultiple>
+    <div>
+      <a
+        href="javascript:void(0)"
+        {{on "click" (fn this.onChangeValue this.valueOptions)}}
+      >Select all</a>
+    </div>
   </@form.element>
 </@acc.item>

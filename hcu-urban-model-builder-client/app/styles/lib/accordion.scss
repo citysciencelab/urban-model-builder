@@ -23,8 +23,12 @@
       }
     }
 
-    .accordion-body h6 {
-      margin-bottom: 0.5rem;
+    .accordion-body {
+      padding: get-spacer(2);
+
+      h6 {
+        margin-bottom: 0.5rem;
+      }
     }
   }
 }

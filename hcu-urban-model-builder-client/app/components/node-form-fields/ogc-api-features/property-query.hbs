@@ -3,30 +3,31 @@
   @title="Property Queries"
   {{did-update this.onCollectionIdChanged this.collectionId}}
 >
-
-  {{#each this.selectedPropertyQuery as |property|}}
-    <div>
-      {{concat
-        property.title
-        " "
-        property.filter.operator
-        " "
-        property.filter.value
-      }}
-      <a
-        href="javascript:void(0)"
-        {{on "click" (fn this.deleteQueryProperty property.id)}}
-      >
-        <FaIcon @icon="trash" />
-      </a>
-    </div>
-  {{else}}
-    <div>
-      No query params selected
-    </div>
-  {{/each}}
-
-  <hr />
+  <div class="property-query-wrapper">
+    {{#each this.selectedPropertyQuery as |property|}}
+      <div class="single-property-query">
+        <div class="code-snippet">
+          {{concat
+            property.title
+            " "
+            property.filter.operator
+            " "
+            property.filter.value
+          }}
+        </div>
+        <a
+          href="javascript:void(0)"
+          {{on "click" (fn this.deleteQueryProperty property.id)}}
+        >
+          <FaIcon @icon="trash" />
+        </a>
+      </div>
+    {{else}}
+      <div>
+        No query params selected
+      </div>
+    {{/each}}
+  </div>
 
   <@form.element @label="Query Property">
     <PowerSelect
