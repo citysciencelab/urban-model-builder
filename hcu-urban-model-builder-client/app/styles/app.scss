@@ -607,7 +607,8 @@ fieldset {
   }
 }
 .code-snippet {
-  background-color: $grey;
+  border: 1px solid $color-primary;
+  background-color: $color-primary-light;
   padding: get-spacer(2);
   width: fit-content;
 }
@@ -616,4 +617,8 @@ fieldset {
   display: flex;
   flex-direction: column;
   margin-bottom: get-spacer(3);
+}
+
+.modal-backdrop {
+  --bs-backdrop-zindex: 1051;
 }

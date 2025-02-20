@@ -108,38 +108,39 @@
     @propertiesSchema={{this.propertiesSchema}}
   />
 
-  <BsButton
-    @onClick={{fn (mut this.showPreviewModal) true}}
-    @disabled={{not this.selectedCollection}}
-  >
-    Preview
-  </BsButton>
+  <div class="sidebar-accordion__footer">
+    <div>
+      <strong>
+        Total items:
+      </strong>
+      {{this.selectedCollection.itemCount}}
+    </div>
+    <div>
+      <strong>
+        Matching items:
+      </strong>
+      {{this.numberOfAllMatchingFeatures}}
+    </div>
+    <div>
+      <strong>Within limit:
+      </strong>
+      {{this.numberOfCurrentMatchingFeatures}}
+    </div>
 
-  <BsModalSimple
-    @title="Data Preview"
-    @open={{this.showPreviewModal}}
-    @onHide={{fn (mut this.showPreviewModal) false}}
-  >
-    {{! prettier-ignore }}
-    <pre><code>{{this.previewFeatures}}</code></pre>
-  </BsModalSimple>
+    <BsButton
+      @onClick={{fn (mut this.showPreviewModal) true}}
+      @disabled={{not this.selectedCollection}}
+    >
+      Preview
+    </BsButton>
 
-  <div>
-    <strong>
-      Number of items in the current collection:
-    </strong>
-    {{this.selectedCollection.itemCount}}
-  </div>
-  <div>
-    <strong>
-      Number of matching items for current query:
-    </strong>
-    {{this.numberOfAllMatchingFeatures}}
-  </div>
-  <div>
-    <strong>
-      Number of match items within the limit for current query:
-    </strong>
-    {{this.numberOfCurrentMatchingFeatures}}
+    <BsModalSimple
+      @title="Data Preview"
+      @open={{this.showPreviewModal}}
+      @onHide={{fn (mut this.showPreviewModal) false}}
+    >
+      {{! prettier-ignore }}
+      <pre><code>{{this.previewFeatures}}</code></pre>
+    </BsModalSimple>
   </div>
 </BsAccordion>
