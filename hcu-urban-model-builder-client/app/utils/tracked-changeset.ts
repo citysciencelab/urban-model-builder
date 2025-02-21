@@ -10,6 +10,7 @@ export class TrackedChangeset<T extends ModelLike> {
 
   @tracked changesetBeforeHash: bigint | null = null;
   @tracked _errors: Record<string, string> | null = null;
+  @tracked isSaving = false;
 
   #dataProxy!: T;
   model!: T;
@@ -78,13 +79,16 @@ export class TrackedChangeset<T extends ModelLike> {
   }
 
   saveTask = task({ restartable: true }, async () => {
+    this.isSaving = true;
     const hasError = this.validate();
 
     if (hasError) {
+      this.isSaving = false;
       return;
     }
 
     if (!this.isDirty) {
+      this.isSaving = false;
       return;
     }
 
@@ -102,5 +106,7 @@ export class TrackedChangeset<T extends ModelLike> {
 
     await this.model!.save();
     this.changesetBeforeHash = Value.Hash({ ...this.#dataProxy });
+
+    this.isSaving = false;
   });
 }

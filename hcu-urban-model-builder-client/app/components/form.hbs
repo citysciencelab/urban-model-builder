@@ -1,7 +1,10 @@
 <BsForm @model={{this.changeset.dataProxy}} @disabled={{@disabled}} as |form|>
+
   {{#if (eq this.type "node")}}
     <div class="sidebar">
+
       <div class="sidebar__header">
+        <Ui::SaveIndicator @isSaving={{this.changeset.isSaving}} />
         <h3>
           <form.element
             @controlType="text"
