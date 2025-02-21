@@ -9,11 +9,15 @@
     @isSaving={{this.changeset.isSaving}}
   />
   <h4 class="mb-0">
-    <ContentEditable
-      @value={{this.changeset.dataProxy.internalName}}
-      @onChange={{fn (mut this.changeset.dataProxy.internalName)}}
-      @placeholder="Name…"
-    />
+    {{#if @modelVersion.canEdit}}
+      <ContentEditable
+        @value={{this.changeset.dataProxy.internalName}}
+        @onChange={{fn (mut this.changeset.dataProxy.internalName)}}
+        @placeholder="Name…"
+      />
+    {{else}}
+      {{this.changeset.dataProxy.internalName}}
+    {{/if}}
   </h4>
   {{#if this.changeset._errors.internalName}}
     <small class="text-danger">{{this.changeset._errors.internalName}}</small>
@@ -46,20 +50,16 @@
   </div>
 </div>
 <div class="sidebar__content">
-  {{#if @modelVersion.model.description}}
-    <div class="">
-      <strong>
-        Description:
-      </strong>
-      <br />
-      <ContentEditable
-        @value={{this.changeset.dataProxy.description}}
-        @onChange={{fn (mut this.changeset.dataProxy.description)}}
-        @placeholder="Description…"
-      />
-    </div>
-    <hr />
+  {{#if @modelVersion.canEdit}}
+    <ContentEditable
+      @value={{this.changeset.dataProxy.description}}
+      @onChange={{fn (mut this.changeset.dataProxy.description)}}
+      @placeholder="Description…"
+    />
+  {{else}}
+    {{this.changeset.dataProxy.description}}
   {{/if}}
+  <hr />
   <div class="actions">
     {{! Action: Settings }}
     <a
