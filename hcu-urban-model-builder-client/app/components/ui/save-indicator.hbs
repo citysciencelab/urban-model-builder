@@ -10,7 +10,8 @@
 >
   <div
     class="progress-bar progress-bar__save
-      {{if (gte this.progress 100) 'bg-success'}}"
+      {{if (and (gte this.progress 100) (not @errors)) 'bg-success'}}
+      {{if @errors 'bg-danger'}}"
     style="width: {{this.progress}}%"
   >
   </div>
@@ -20,7 +21,9 @@
         <span class="visually-hidden">Saving...</span>
       </div>
     {{else}}
-      {{#if (eq this.progress 100)}}
+      {{#if @errors}}
+        <FaIcon @icon="remove" />
+      {{else if (eq this.progress 100)}}
         <FaIcon @icon="check" />
       {{/if}}
     {{/if}}

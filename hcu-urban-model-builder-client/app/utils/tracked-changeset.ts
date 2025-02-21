@@ -78,6 +78,10 @@ export class TrackedChangeset<T extends ModelLike> {
     return hasError;
   }
 
+  get hasErrors() {
+    return Object.keys(this._errors || {}).length > 0;
+  }
+
   saveTask = task({ restartable: true }, async () => {
     this.isSaving = true;
     const hasError = this.validate();

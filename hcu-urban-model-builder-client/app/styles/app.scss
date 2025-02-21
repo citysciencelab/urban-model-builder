@@ -22,6 +22,24 @@
 @import "./header";
 @import "./breadcrumbs";
 
+@mixin make-input() {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  // font-size: 1rem;
+  // font-weight: 400;
+  // line-height: 1.5;
+  color: var(--bs-body-color);
+  appearance: none;
+  background-color: var(--bs-body-bg);
+  background-clip: padding-box;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  transition:
+    border-color 0.15sease-in-out,
+    box-shadow 0.15sease-in-out;
+}
+
 .navbar-brand {
   display: flex;
   align-items: center;
@@ -600,4 +618,8 @@ fieldset {
 
 .progress-bar__save.bg-success {
   background-color: $color-fiord !important;
+}
+
+.ember-content-editable {
+  @include make-input();
 }

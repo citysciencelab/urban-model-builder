@@ -1,7 +1,23 @@
-<div class="sidebar__header">
+<div
+  class="sidebar__header"
+  {{did-insert this.initialize}}
+  {{did-update this.initialize @modelVersion.model}}
+  {{did-update this.onAutoSave this.changeset.isDirty}}
+>
+  <Ui::SaveIndicator
+    @errors={{this.changeset.hasErrors}}
+    @isSaving={{this.changeset.isSaving}}
+  />
   <h4 class="mb-0">
-    {{@modelVersion.model.internalName}}
+    <ContentEditable
+      @value={{this.changeset.dataProxy.internalName}}
+      @onChange={{fn (mut this.changeset.dataProxy.internalName)}}
+      @placeholder="Name…"
+    />
   </h4>
+  {{#if this.changeset._errors.internalName}}
+    <small class="text-danger">{{this.changeset._errors.internalName}}</small>
+  {{/if}}
   <div class="sidebar__header__row">
     <Model::VersionSelect
       @model={{@modelVersion.model}}
@@ -36,7 +52,11 @@
         Description:
       </strong>
       <br />
-      {{@modelVersion.model.description}}
+      <ContentEditable
+        @value={{this.changeset.dataProxy.description}}
+        @onChange={{fn (mut this.changeset.dataProxy.description)}}
+        @placeholder="Description…"
+      />
     </div>
     <hr />
   {{/if}}
