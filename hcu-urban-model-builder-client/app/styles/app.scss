@@ -581,6 +581,26 @@ fieldset {
 .ember-basic-dropdown-content a.list-group-item:hover {
   background-color: var(--bs-tertiary-bg);
 }
+
+.progress {
+  position: relative;
+  background-color: $color-fiord;
+}
+
+.progress-bar {
+  transition: width 16ms linear;
+}
+
+.progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.progress-bar__save.bg-success {
+  background-color: $color-fiord !important;
+}
 .ember-power-select-multiple-options {
   padding: get-spacer(1);
   .ember-power-select-multiple-option {
