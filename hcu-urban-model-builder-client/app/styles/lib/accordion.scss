@@ -23,8 +23,20 @@
       }
     }
 
-    .accordion-body h6 {
-      margin-bottom: 0.5rem;
+    .accordion-body {
+      padding: get-spacer(2);
+
+      h6 {
+        margin-bottom: 0.5rem;
+      }
     }
+  }
+  .sidebar-accordion__footer {
+    padding: get-spacer(2);
+    border: 1px solid $color-primary;
+    background-color: $color-primary-light;
+    display: flex;
+    flex-direction: column;
+    gap: get-spacer(2);
   }
 }

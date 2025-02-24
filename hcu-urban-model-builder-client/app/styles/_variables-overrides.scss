@@ -305,7 +305,9 @@ $node-selected-color: $color-rose;
 $grey: #ececec;
 
 $color-primary: $color-anakiwa;
+$color-primary-light: tint-color($color-primary, 80%);
 $color-secondary: $color-fiord;
+$color-secondary-light: tint-color($color-secondary, 80%);
 
 // scss-docs-start theme-color-variables
 $primary: $color-primary !default;

@@ -601,3 +601,44 @@ fieldset {
 .progress-bar__save.bg-success {
   background-color: $color-fiord !important;
 }
+.ember-power-select-multiple-options {
+  padding: get-spacer(1);
+  .ember-power-select-multiple-option {
+    background-color: $color-primary;
+    color: $black;
+    border-radius: $border-radius-pill;
+    border: 0;
+    padding: get-spacer(1) get-spacer(2);
+  }
+}
+.property-query-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: get-spacer(2);
+  border: 1px solid $black;
+  border-radius: $border-radius-lg;
+  padding: get-spacer(2);
+  margin-bottom: get-spacer(2);
+
+  .single-property-query {
+    display: flex;
+    gap: get-spacer(2);
+    align-items: center;
+  }
+}
+.code-snippet {
+  border: 1px solid $color-primary;
+  background-color: $color-primary-light;
+  padding: get-spacer(2);
+  width: fit-content;
+}
+
+.api-info {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: get-spacer(3);
+}
+
+.modal-backdrop {
+  --bs-backdrop-zindex: 1051;
+}
