@@ -3,13 +3,14 @@ import { checkContext } from 'feathers-hooks-common'
 import type { HookContext } from '../declarations.js'
 import _ from 'lodash'
 import { ServiceTypes } from '../client.js'
+import { Forbidden } from '@feathersjs/errors'
 
-export const checkModelVersionState = (idField: string, fkServiceName: keyof ServiceTypes) => {
+export const checkModelVersionState = (fkIdField: string, fkServiceName: keyof ServiceTypes) => {
   return async (context: HookContext) => {
     checkContext(context, 'before', ['create', 'patch', 'remove'])
 
+    // FIXME: when using stashBefore this can be removed
     if (context.method == 'remove') {
-      // TODO: discuss possible side effects of this
       context.data = await context.service._get(context.id, { user: context.params.user })
     }
 
@@ -17,19 +18,19 @@ export const checkModelVersionState = (idField: string, fkServiceName: keyof Ser
       throw new Error('Batch creation of nodes is not supported')
     }
 
-    const id = _.get(context, idField, null)
-    if (!id) {
+    const fkId = _.get(context, fkIdField, null)
+    if (!fkId) {
       throw new Error('id not found in specified context path')
     }
 
-    const record = await context.app.service(fkServiceName).get(id, { user: context.params.user }, context)
+    const record = await context.app.service(fkServiceName).get(fkId, { user: context.params.user }, context)
 
     if (record.publishedAt != null) {
-      throw new Error('Cannot be edited because the model version is published')
+      throw new Forbidden('Cannot be edited because the model version is published')
     }
 
     if (!record.isLatest) {
-      throw new Error('Cannot be edited because the model version is not the latest')
+      throw new Forbidden('Cannot be edited because the model version is not the latest')
     }
   }
 }

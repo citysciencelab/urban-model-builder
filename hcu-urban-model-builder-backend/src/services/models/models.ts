@@ -73,15 +73,16 @@ export const models = (app: Application) => {
         schemaHooks.validateData(modelsPatchValidator),
         schemaHooks.resolveData(modelsPatchResolver),
         iff(isProvider('external'), async (context) => {
+          // FIXME: should be done in a hook
           _.set(context, 'params.query', {
             role: { $gte: Roles.co_owner }
           })
-          // TODO: check if model can be patched due to the state
         }),
         customSoftDelete()
       ],
       remove: [
         iff(isProvider('external'), async (context) => {
+          // FIXME: should be done in a hook
           _.set(context, 'params.query', {
             role: { $gte: Roles.owner }
           })

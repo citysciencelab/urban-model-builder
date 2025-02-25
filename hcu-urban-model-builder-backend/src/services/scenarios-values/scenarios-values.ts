@@ -40,6 +40,7 @@ export const scenarioValues = (app: Application) => {
       ]
     },
     before: {
+      // FIXME: all permissions
       all: [
         schemaHooks.validateQuery(scenarioValuesQueryValidator),
         schemaHooks.resolveQuery(scenarioValuesQueryResolver)

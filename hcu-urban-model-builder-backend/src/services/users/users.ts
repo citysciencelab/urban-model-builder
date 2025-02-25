@@ -17,7 +17,7 @@ import {
 import type { Application } from '../../declarations.js'
 import { UserService, getOptions } from './users.class.js'
 import { userPath, userMethods } from './users.shared.js'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 export * from './users.class.js'
 export * from './users.schema.js'
@@ -45,18 +45,30 @@ export const user = (app: Application) => {
     before: {
       all: [schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
       find: [
+        // FIXME: permissions -> find is only used as filterable result for the email, maybe restrict completely
         iff(isProvider('external'), (context: any) => {
           delete context.params.query.id
         })
       ],
       get: [
+        // FIXME: when is this used
         iff(isProvider('external'), (context: any) => {
+          console.dir(context.params.user, { depth: 10 })
+
           delete context.params.query.id
         })
       ],
-      create: [schemaHooks.validateData(userDataValidator), schemaHooks.resolveData(userDataResolver)],
-      patch: [schemaHooks.validateData(userPatchValidator), schemaHooks.resolveData(userPatchResolver)],
-      remove: []
+      create: [
+        disallow('external'),
+        schemaHooks.validateData(userDataValidator),
+        schemaHooks.resolveData(userDataResolver)
+      ],
+      patch: [
+        disallow('external'),
+        schemaHooks.validateData(userPatchValidator),
+        schemaHooks.resolveData(userPatchResolver)
+      ],
+      remove: [disallow('external')]
     },
     after: {
       all: [],

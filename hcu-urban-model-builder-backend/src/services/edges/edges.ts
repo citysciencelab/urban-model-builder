@@ -42,8 +42,8 @@ export const edges = (app: Application) => {
     },
     before: {
       all: [schemaHooks.validateQuery(edgesQueryValidator), schemaHooks.resolveQuery(edgesQueryResolver)],
-      find: [],
-      get: [],
+      find: [], // FIXME: persmissions
+      get: [], // FIXME: persmissions
       create: [
         schemaHooks.validateData(edgesDataValidator),
         schemaHooks.resolveData(edgesDataResolver),

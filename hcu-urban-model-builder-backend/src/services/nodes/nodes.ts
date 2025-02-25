@@ -45,8 +45,8 @@ export const nodes = (app: Application) => {
     },
     before: {
       all: [schemaHooks.validateQuery(nodesQueryValidator), schemaHooks.resolveQuery(nodesQueryResolver)],
-      find: [],
-      get: [],
+      find: [], // FIXME: persmissions
+      get: [], // FIXME: persmissions
       create: [
         schemaHooks.validateData(nodesDataValidator),
         schemaHooks.resolveData(nodesDataResolver),

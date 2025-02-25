@@ -42,6 +42,7 @@ export const scenarios = (app: Application) => {
         schemaHooks.validateQuery(scenariosQueryValidator),
         schemaHooks.resolveQuery(scenariosQueryResolver)
       ],
+      // FIXME: all permissions
       find: [],
       get: [],
       create: [
