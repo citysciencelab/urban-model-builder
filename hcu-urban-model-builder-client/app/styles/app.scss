@@ -126,7 +126,6 @@ main {
   white-space: nowrap;
   display: flex;
   align-items: center;
-  overflow: hidden;
 
   span {
     padding: get-spacer(1) get-spacer(2);
@@ -142,6 +141,7 @@ main {
     align-items: center;
     justify-content: center;
     padding: 0 get-spacer(1);
+    border-radius: $border-radius 0 0 $border-radius;
   }
 
   @each $name, $color in $node-color-map {
