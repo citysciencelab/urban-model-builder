@@ -2,7 +2,8 @@
   @open={{@open}}
   @onSubmit={{this.onSubmit}}
   @onHide={{this.onHide}}
-  {{did-insert this.prepare}} as |modal|
+  {{did-insert this.prepare}}
+  as |modal|
 >
   <modal.header>
     <h5 class="modal-title">
@@ -16,7 +17,8 @@
     <BsForm
       @formLayout="vertical"
       @model={{this.changeset}}
-      @onSubmit={{this.onSubmit}} as |form|
+      @onSubmit={{this.onSubmit}}
+      as |form|
     >
       <form.element
         @controlType="text"
@@ -26,11 +28,11 @@
     </BsForm>
   </modal.body>
   <modal.footer>
-    <BsButton @onClick={{this.onHide}}>
-      {{t "actions.cancel"}}
-    </BsButton>
-    <BsButton @type="success" @onClick={{this.onSubmit}}>
-      {{t "actions.clone"}}
-    </BsButton>
+    <Ui::ModalButtons
+      @onCancel={{this.onHide}}
+      @onSubmit={{this.onSubmit}}
+      @cancelText={{t "actions.cancel"}}
+      @submitText={{t "actions.clone"}}
+    />
   </modal.footer>
 </BsModal>
