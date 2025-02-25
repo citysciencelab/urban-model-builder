@@ -8,7 +8,8 @@
     @controlType="text"
     @label="Unit"
     @value={{this._value}}
-    @onChange={{this.onInputChange}} as |el|
+    @onChange={{this.onInputChange}}
+    as |el|
   >
     <el.control
       {{on "focus" this.onInputFocus}}
@@ -28,7 +29,8 @@
               {{#if (is-array v)}}
                 <BsListGroup
                   @flush={{true}}
-                  class="units__list-group" as |ListGroup|
+                  class="units__list-group"
+                  as |ListGroup|
                 >
                   {{#each v as |item|}}
                     <ListGroup.item>
@@ -47,7 +49,8 @@
                     <acc.item @value={{k2}} @title={{k2}}>
                       <BsListGroup
                         @flush={{true}}
-                        class="units__list-group" as |ListGroup|
+                        class="units__list-group"
+                        as |ListGroup|
                       >
                         {{#each v2 as |item|}}
                           <ListGroup.item>
@@ -72,7 +75,7 @@
                   href="javascript:void(0)"
                   {{on "click" (fn this.onItemClick "Unitless")}}
                 >
-                  Unitless
+                  {{t "components.unit_selection.unitless"}}
                 </a>
               </ListGroup.item>
             </BsListGroup>

@@ -24,10 +24,11 @@
           @dismissible={{false}}
           @visible={{this.hasErrors}}
         >
-          There is an error in the form. Please fix it to save.
+          {{t "messages.form_error"}}
         </BsAlert>
         {{#if this.isGhostNode}}
           <div class="alert alert-warning">
+            {{! template-lint-disable no-bare-strings }}
             👻
             {{t "forms.node.ghost_warning"}}
           </div>
@@ -62,7 +63,7 @@
             disabled={{@disabled}}
             {{on "click" this.deleteNode}}
           >
-            Delete
+            {{t "actions.delete"}}
           </button>
         </div>
       </div>

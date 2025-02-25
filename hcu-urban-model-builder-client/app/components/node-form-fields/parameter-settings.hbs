@@ -1,10 +1,13 @@
 {{#if (or @inputVisible @outputVisible)}}
-  <@acc.item @value={{"interface-scenario"}} @title="Interface &amp; Scenario">
+  <@acc.item
+    @value={{"interface-scenario"}}
+    @title={{t "components.parameter_settings.title"}}
+  >
     <fieldset class="parameter__settings">
       {{#if @inputVisible}}
         {{! INPUT }}
         <h6>
-          Input
+          {{t "components.parameter_settings.input"}}
         </h6>
         <@form.element>
           <PowerSelect
@@ -13,7 +16,8 @@
             @options={{this.filteredParameterTypes}}
             @selected={{this.selectedParameterType}}
             @disabled={{@disabled}}
-            @onChange={{this.onParameterTypeChange}} as |parameter|
+            @onChange={{this.onParameterTypeChange}}
+            as |parameter|
           >
             {{parameter.label}}
           </PowerSelect>
@@ -27,7 +31,8 @@
                 @controlType="number"
                 @label="Min"
                 @customError={{get @errors "parameterMin"}}
-                @property="parameterMin" as |el|
+                @property="parameterMin"
+                as |el|
               >
                 <el.control step={{0.001}} />
               </@form.element>
@@ -37,7 +42,8 @@
                 @controlType="number"
                 @label="Step"
                 @customError={{get @errors "parameterStep"}}
-                @property="parameterStep" as |el|
+                @property="parameterStep"
+                as |el|
               >
                 <el.control step={{0.001}} min={{0.001}} />
               </@form.element>
@@ -47,16 +53,17 @@
                 @controlType="number"
                 @label="Max"
                 @customError={{get @errors "parameterMax"}}
-                @property="parameterMax" as |el|
+                @property="parameterMax"
+                as |el|
               >
                 <el.control step={{0.001}} />
               </@form.element>
             {{else if (eq @changeset.dataProxy.parameterType "select")}}
               <div class="col-5">
-                Value
+                {{t "components.parameter_settings.value"}}
               </div>
               <div class="col-5">
-                Label
+                {{t "components.parameter_settings.label"}}
               </div>
               <div class="col2"></div>
               {{#each @changeset.dataProxy.parameterOptions.data as |option|}}
@@ -64,7 +71,8 @@
                   class="col-5"
                   @controlType="number"
                   @onChange={{fn (mut-number option.value)}}
-                  @value={{option.value}} as |el|
+                  @value={{option.value}}
+                  as |el|
                 >
                   <el.control {{on "blur" this.sortSelectOptionsByValue}} />
                 </@form.element>
@@ -72,7 +80,8 @@
                   class="col-5"
                   @controlType="text"
                   @onChange={{fn (mut option.label)}}
-                  @value={{option.label}} as |el|
+                  @value={{option.label}}
+                  as |el|
                 >
                   <el.control />
                 </@form.element>
@@ -91,7 +100,7 @@
                   class="btn btn-primary"
                   {{on "click" this.addParameterSelectOption}}
                 >
-                  Add Option
+                  {{t "components.parameter_settings.add_option"}}
                 </button>
               </div>
             {{/if}}
@@ -105,12 +114,13 @@
       {{! OUTPUT }}
       {{#if @outputVisible}}
         <h6>
-          Output
+          {{t "components.parameter_settings.output"}}
         </h6>
         <@form.element
           @controlType="switch"
           @label="Is Output Parameter?"
-          @property="isOutputParameter" as |el|
+          @property="isOutputParameter"
+          as |el|
         >
           <el.control />
         </@form.element>

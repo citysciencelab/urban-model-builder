@@ -15,7 +15,7 @@
   </@form.element>
 
   <div class="api-info">
-    Mehr Informationen zur API
+    {{t "components.ogc_api.more_info"}}
     <a
       href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
       target="_blank"
@@ -111,18 +111,18 @@
   <div class="sidebar-accordion__footer">
     <div>
       <strong>
-        Total items:
+        {{t "components.ogc_api.total"}}:
       </strong>
       {{this.selectedCollection.itemCount}}
     </div>
     <div>
       <strong>
-        Matching items:
+        {{t "components.ogc_api.matching"}}:
       </strong>
       {{this.numberOfAllMatchingFeatures}}
     </div>
     <div>
-      <strong>Within limit:
+      <strong>{{t "components.ogc_api.in_limit"}}:
       </strong>
       {{this.numberOfCurrentMatchingFeatures}}
     </div>
@@ -131,7 +131,7 @@
       @onClick={{fn (mut this.showPreviewModal) true}}
       @disabled={{not this.selectedCollection}}
     >
-      Preview
+      {{t "components.ogc_api.preview"}}
     </BsButton>
 
     <BsModalSimple

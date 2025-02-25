@@ -24,7 +24,7 @@
       </div>
     {{else}}
       <div>
-        No query params selected
+        {{t "components.property_query.no_params"}}
       </div>
     {{/each}}
   </div>
@@ -70,6 +70,6 @@
     @onClick={{this.addNewQuery}}
     disabled={{this.isAddNewQueryPropertyDisabled}}
   >
-    Add
+    {{t "components.property_query.add_query"}}
   </BsButton>
 </@acc.item>

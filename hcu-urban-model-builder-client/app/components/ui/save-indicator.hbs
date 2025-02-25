@@ -1,13 +1,14 @@
 <div
   class="progress"
   role="progressbar"
-  aria-label="Example with label"
   aria-valuenow={{this.progress}}
   aria-valuemin="0"
   aria-valuemax="100"
   {{did-update this.update @isSaving}}
   {{will-destroy this.destroyAnimation}}
 >
+  {{! template-lint-disable no-inline-styles }}
+  {{! template-lint-disable style-concatenation }}
   <div
     class="progress-bar progress-bar__save
       {{if (and (gte this.progress 100) (not @errors)) 'bg-success'}}
@@ -18,12 +19,16 @@
   <div class="progress-label text-light">
     {{#if this.isProgressing}}
       <div class="spinner-grow spinner-grow-sm text-light" role="status">
-        <span class="visually-hidden">Saving...</span>
+        <span class="visually-hidden">
+          {{t "messages.saving"}}
+        </span>
       </div>
     {{else}}
       {{#if @errors}}
+        {{! template-lint-disable require-presentational-children }}
         <FaIcon @icon="remove" />
       {{else if (eq this.progress 100)}}
+        {{! template-lint-disable require-presentational-children }}
         <FaIcon @icon="check" />
       {{/if}}
     {{/if}}

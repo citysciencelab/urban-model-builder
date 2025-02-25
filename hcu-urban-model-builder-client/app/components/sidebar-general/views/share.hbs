@@ -12,7 +12,7 @@
     {{#if @modelVersion.isLatest}}
       &nbsp;
       <span class="badge rounded-pill badge-success text-bg-light">
-        Latest
+        {{t "components.share.latest"}}
       </span>
     {{/if}}
   </div>
@@ -31,8 +31,7 @@
         {{on "click" this.onCreateNewDraftVersion}}
       >
         <SvgIcon @icon="edit" @size="md" />
-
-        New Draft
+        {{t "components.share.new_draft"}}
       </a>
       {{! Action: Publish -> Dialog }}
       <a
@@ -41,8 +40,7 @@
         {{on "click" this.modelDialogs.onStartPublish}}
       >
         <SvgIcon @icon="upload" @size="md" />
-
-        Publish
+        {{t "components.share.publish"}}
       </a>
       {{! Action: Share -> Dialog }}
       <a
@@ -51,8 +49,7 @@
         {{on "click" this.modelDialogs.onStartShare}}
       >
         <SvgIcon @icon="share" @size="md" />
-
-        Share
+        {{t "components.share.share"}}
       </a>
       {{! Action: Clone -> Dialog }}
       <a
@@ -61,8 +58,7 @@
         {{on "click" this.modelDialogs.onStartClone}}
       >
         <SvgIcon @icon="content_copy" @size="md" />
-
-        Clone
+        {{t "components.share.clone"}}
       </a>
     </div>
   </div>

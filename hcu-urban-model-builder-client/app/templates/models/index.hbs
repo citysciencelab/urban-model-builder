@@ -1,4 +1,4 @@
-{{page-title "Index"}}
+{{page-title (t "routes.models.index.title")}}
 
 <div class="container main-content">
   <div class="card">
@@ -11,7 +11,8 @@
         {{! search }}
         <BsDropdown
           @onShow={{this.onShowSearch}}
-          @closeOnMenuClick={{false}} as |dd|
+          @closeOnMenuClick={{false}}
+          as |dd|
         >
           <dd.button
             @size="sm"
@@ -120,7 +121,8 @@
               model.latestDraftVersion
               model.latestDraftVersion
               model.latestPublishedVersion
-            ) as |currentModelVersion|
+            )
+            as |currentModelVersion|
           }}
             <ListGroup.item class="list-group-with-actions">
               <div class="list-group-body">
@@ -155,7 +157,7 @@
                     <FaIcon @icon="shield" @fixedWidth={{false}} />
                     &nbsp;
                     {{#if (eq this.user.currentUserId model.createdBy.id)}}
-                      Creator
+                      {{t "permissions.creator"}}
                     {{else if model.role}}
                       {{t (concat "permissions." model.role)}}
                     {{else}}
@@ -165,8 +167,7 @@
 
                   {{! Meta: Created at }}
                   <span
-                    title={{
-                      concat
+                    title={{concat
                       (t "general.created_at")
                       ": "
                       (format-date
@@ -181,8 +182,7 @@
                   </span>
                   {{! Meta: Updated at }}
                   <span
-                    title={{
-                      concat
+                    title={{concat
                       (t "general.modified_at")
                       ": "
                       (format-date
@@ -210,14 +210,14 @@
                 </LinkTo>
                 <a
                   href="#"
-                  class="{{if model.canEdit "" "disabled"}}"
+                  class="{{if model.canEdit '' 'disabled'}}"
                   {{on "click" (fn this.startEditing model)}}
                 >
                   <FaIcon @icon="pencil" />
                 </a>
                 <a
                   href="#"
-                  class="{{if model.canDelete "" "disabled"}}"
+                  class="{{if model.canDelete '' 'disabled'}}"
                   {{on "click" (fn this.startDeleting model)}}
                 >
                   <FaIcon @icon="trash" />
@@ -252,11 +252,13 @@
 <BsModal
   @open={{this.isModalOpen}}
   @onSubmit={{this.submitModel}}
-  @onHide={{this.closeModal}} as |modal|
+  @onHide={{this.closeModal}}
+  as |modal|
 >
   <modal.header>
     <h5 class="modal-title">
       {{#if (eq this.mode "edit")}}
+        {{! template-lint-disable no-triple-curlies  }}
         {{{t "routes.models.index.edit_title" name=this.changeset.name}}}
       {{else}}
         {{t "routes.models.index.create_new_title"}}
@@ -267,14 +269,16 @@
     <BsForm
       @formLayout="vertical"
       @model={{this.changeset}}
-      @onSubmit={{this.submitModel}} as |form|
+      @onSubmit={{this.submitModel}}
+      as |form|
     >
       {{! name }}
       <form.element
         @controlType="text"
         @label={{t "models.model.attributes.name"}}
         @property="internalName"
-        {{did-insert this.focusFirstInputElement}} as |el|
+        {{did-insert this.focusFirstInputElement}}
+        as |el|
       >
         <el.control
           placeholder={{concat (t "models.model.attributes.name") "…"}}

@@ -14,6 +14,13 @@ pagination:
   prev: Back
   next: Next
 
+messages:
+  error: Error
+  warning: Warning
+  general_error: Please try again. If the problem persists, please contact support. 
+  form_error: There is an error in the form. Please fix it to save.
+  saving: Saving…
+
 actions:
   save: Save
   save_for_everyone: Save for everyone
@@ -26,11 +33,15 @@ actions:
   loading: Loading…
   share: Share
   close: Close
+  delete: Delete
+  simulate: Simulate
 
 node-toolbar:
   title: Primitives
   
 models:
+  node:
+    error: Error in node
   model:
     singular: Model
     plural: Models
@@ -58,14 +69,28 @@ public_models:
     plural: Public models
 
 routes:
+  application:
+    title: "Urban Model Builder"
   models:
+    title: Models
     index:
+      index:
+        title: All
       list_of_all_models: List of all models
       add_model: Create model
       total: Total models
       create_new_title: Create new model
       edit_title: Edit model <em>{name}</em>
       no_models_found: No models found
+    versions:
+      show:
+        title: Show
+  public_models:
+    title: Public Models
+  login: 
+    title: Login
+  demo:
+    title: Demo
 
 components:
   clone_dialog:
@@ -77,12 +102,64 @@ components:
   simulate_modal:
     title: Simulation Results
     is_client_side: Is client side calculation?
+    controls: Simulation Control
+    default_speed: Normal speed
   share_modal:
     title: Share model
     intro: Here you can share the model with other users.
+    current_permissions: Actual permissions
+    no_permissions_yet: No permissions yet
   settings_dialog:
     title: Model settings
     intro: Here you can edit the (simulation) settings of the model.
+  data_transformation:
+    select_all: Alle auswählen
+  property_query:
+    add_query: Add
+    no_params: No query params selected
+  converter:
+    mapping: Mapping
+    input: Input
+    output: Output
+    add_point: Add Point
+  formula:
+    search_placeholder: 'Search…'
+    nothing_found: Nothing found
+  ogc_api:
+    more_info: Mehr Informationen zur API
+    total: Total items
+    matching: Matching items
+    in_limit: Within limit
+    preview: Preview
+  parameter_settings:
+    title: "Interface & Scenario"
+    input: Input
+    value: Value
+    label: Label
+    add_option: Add Option
+    output: Output
+  unit_selection: 
+    unitless: Unitless
+  model_info:
+    public: Public
+    edit_mode: Edit Mode
+    view_mode: View Mode
+    settings: Settings
+  scenarios:
+    title: Scenario
+    no_parameters: No Parameters
+  share:
+    latest: Latest
+    new_draft: New Draft
+    publish: Publish
+    share: Share
+    clone: Clone
+  parameter_bool:
+    on: On
+  parameter_slider:
+    below_minimum_value: The current value is below the minimum value.
+    above_maximum_value: The current value is above the maximum value.
+    not_a_multiple: The current value is not a multiple of the step size.
 
 permissions:
   0: No authorization
@@ -91,3 +168,4 @@ permissions:
   3: Co-Owner
   4: Owner
   you: You
+  creator: Creator

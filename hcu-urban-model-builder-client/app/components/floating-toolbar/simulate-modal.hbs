@@ -34,7 +34,7 @@
         <BsAlert @type="danger" @visible={{this.hasError}}>
           <strong>
             {{#if this.simulationErrorNode}}
-              Error in Node
+              {{t "models.node.error"}}
               <a
                 href="javascript:void(0)"
                 class="simulate-model__error-node__select-link"
@@ -51,7 +51,7 @@
               </a>
               :
             {{else}}
-              Error:
+              {{t "messages.error"}}:
             {{/if}}
           </strong>
           {{this.simulationError.message}}
@@ -85,7 +85,7 @@
           <div class="simulate-model__range__wrapper">
             <div class="simulate-model__range">
               <label for="time-range" class="form-label">
-                Simulation Control
+                {{t "components.simulate_modal.controls"}}
               </label>
               <Input
                 @type="range"
@@ -109,6 +109,7 @@
 
             <BsDropdown as |dd|>
               <dd.button @type="link">
+                {{! template-lint-disable no-bare-strings }}
                 {{this.speed}}x
                 <span class="caret"></span>
               </dd.button>
@@ -119,6 +120,7 @@
                     class="dropdown-item"
                     {{on "click" (fn this.setSpeed 0.2)}}
                   >
+                    {{! template-lint-disable no-bare-strings }}
                     0.2x
                   </a>
                 </menu.item>
@@ -128,6 +130,7 @@
                     class="dropdown-item"
                     {{on "click" (fn this.setSpeed 0.5)}}
                   >
+                    {{! template-lint-disable no-bare-strings }}
                     0.5x
                   </a>
                 </menu.item>
@@ -137,7 +140,8 @@
                     class="dropdown-item"
                     {{on "click" (fn this.setSpeed 1)}}
                   >
-                    1x (Normal Speed)
+                    {{! template-lint-disable no-bare-strings }}
+                    1x ({{t "components.simulate_modal.default_speed"}})
                   </a>
                 </menu.item>
                 <menu.item>
@@ -146,6 +150,7 @@
                     class="dropdown-item"
                     {{on "click" (fn this.setSpeed 1.5)}}
                   >
+                    {{! template-lint-disable no-bare-strings }}
                     1.5x
                   </a>
                 </menu.item>
@@ -155,6 +160,7 @@
                     class="dropdown-item"
                     {{on "click" (fn this.setSpeed 2)}}
                   >
+                    {{! template-lint-disable no-bare-strings }}
                     2x
                   </a>
                 </menu.item>
@@ -164,6 +170,7 @@
                     class="dropdown-item"
                     {{on "click" (fn this.setSpeed 5)}}
                   >
+                    {{! template-lint-disable no-bare-strings }}
                     5x
                   </a>
                 </menu.item>
@@ -173,6 +180,7 @@
                     class="dropdown-item"
                     {{on "click" (fn this.setSpeed 10)}}
                   >
+                    {{! template-lint-disable no-bare-strings }}
                     10x
                   </a>
                 </menu.item>
@@ -189,7 +197,7 @@
       @type="secondary"
       @onClick={{this.modelDialogs.onShowSimulateDialog}}
     >
-      Simulate
+      {{t "actions.simulate"}}
     </BsButton>
   </modal.Trigger>
 

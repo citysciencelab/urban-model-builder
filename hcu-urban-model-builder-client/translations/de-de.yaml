@@ -14,6 +14,13 @@ pagination:
   prev: Zurück
   next: Weiter
 
+messages:
+  error: Fehler
+  warning: Warnung
+  general_error: Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den Support.
+  form_error: Es gibt einen Fehler im Formular. Bitte korrigieren um zu speichern.
+  saving: Speichern…
+
 actions:
   save: Speichern
   save_for_everyone: Für alle speichern
@@ -26,11 +33,15 @@ actions:
   loading: Lädt…
   share: Teilen
   close: Schließen
+  delete: Löschen
+  simulate: Simulieren
 
 node-toolbar:
   title: Primitives
 
 models:
+  node:
+    error: Fehler in Knoten
   model:
     singular: Modell
     plural: Modelle
@@ -58,14 +69,27 @@ public_models:
     plural: Öffentliche Modelle
 
 routes:
+  application:
+    title: "Urban Model Builder"
   models:
+    title: Modelle
     index:
+      title: Alle
       list_of_all_models: Liste aller Modelle
       add_model: Modell erstellen
       total: Modelle gesamt 
       create_new_title: Neues Modell erstellen
       edit_title: Modell <em>{name}</em> bearbeiten
       no_models_found: Keine Modelle gefunden
+    versions:
+      show:
+        title: Ansicht
+  public_models:
+    title: Öffentliche Modelle
+  login: 
+    title: Login
+  demo:
+    title: Demo
 
 components:
   clone_dialog:
@@ -77,12 +101,64 @@ components:
   simulate_modal:
     title: Simulationsergebnisse
     is_client_side: Clientseitige Berechnung?
+    controls: Simulationseinstellungen
+    default_speed: Standard
   share_modal:
     title: Modell teilen
     intro: Hier können Sie das Modell mit anderen Nutzern teilen.
+    current_permissions: Aktuelle Berechtigungen
+    no_permissions_yet: Bisher keine Berechtigungen
   settings_dialog:
     title: Modelleinstellungen
     intro: Hier können Sie die (Simulations-)Einstellungen des Modells bearbeiten.
+  data_transformation:
+    select_all: Alle auswählen
+  property_query:
+    add_query: Hinzufügen
+    no_params: Keine Parameter ausgewählt
+  converter:
+    mapping: Mapping
+    input: Input
+    output: Output
+    add_point: Punkt hinzufügen
+  formula:
+    search_placeholder: 'Suchbegriff…'
+    nothing_found: Keine Ergebnisse
+  ogc_api:
+    more_info: Mehr Informationen zur API
+    total: Datensätze gesamt
+    matching: Passende Datensätze
+    in_limit: Datensätze im Limit
+    preview: Vorschau
+  parameter_settings:
+    title: "Schnittstelle & Szenario"
+    input: Input
+    value: Wert
+    label: Label
+    add_option: Option hinzufügen
+    output: Output
+  unit_selection: 
+    unitless: Ohne Einheit
+  model_info:
+    public: Öffentlich
+    edit_mode: Bearbeitungsmodus
+    view_mode: Ansichtsmodus
+    settings: Einstellungen
+  scenarios:
+    title: Szenario
+    no_parameters: Keine Parameter
+  share:
+    latest: Neuestes
+    new_draft: Neuer Entwurf
+    publish: Veröffentlichen
+    share: Teilen
+    clone: Klonen
+  parameter_bool:
+    on: On
+  parameter_slider:
+    below_minimum_value: Der aktuelle Wert liegt unter dem Mindestwert.
+    above_maximum_value: Der aktuelle Wert liegt über dem Höchstwert.
+    not_a_multiple: Der aktuelle Wert ist kein Vielfaches der Schrittweite.
 
 permissions:
   0: Keine Berechtigung
@@ -91,3 +167,4 @@ permissions:
   3: Co-Owner
   4: Owner
   you: Du selbst
+  creator: Ersteller
