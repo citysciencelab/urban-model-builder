@@ -664,3 +664,8 @@ fieldset {
 .ember-content-editable {
   @include make-input();
 }
+
+.save-indicator .spinner-grow {
+  position: relative;
+  top: 1px;
+}
