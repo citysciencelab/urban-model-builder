@@ -22,26 +22,25 @@ export const channels = (app: Application) => {
 
   // eslint-disable-next-line no-unused-vars
   app.publish((data: any, context: HookContext) => {
-    // Here you can add event publishers to channels set up in `channels.js`
-    // To publish only for a specific event use `app.publish(eventname, () => {})`
+    // do not automatically publish
+    return []
   })
 
-  const modelVersionBasedPublisher =
-    (modelVersionForeignKey: string) => (data: any, context: HookContext) => {
-      if (!(modelVersionForeignKey in data)) {
-        logger.error(`Missing ${modelVersionForeignKey} in data`, data)
-        return
-      }
-
-      const modelVersionId = data[modelVersionForeignKey]
-
-      return app.channel(`model-versions:${modelVersionId}`).filter((connection) => {
-        return connection !== context?.params?.connection
-      })
+  const modelVersionBasePublisher = (modelVersionForeignKey: string) => (data: any, context: HookContext) => {
+    if (!(modelVersionForeignKey in data)) {
+      logger.error(`Missing ${modelVersionForeignKey} in data`, data)
+      return []
     }
 
-  app.service('nodes').publish(modelVersionBasedPublisher('modelsVersionsId'))
-  app.service('edges').publish(modelVersionBasedPublisher('modelsVersionsId'))
-  app.service('scenarios').publish(modelVersionBasedPublisher('modelsVersionsId'))
-  app.service('models-versions').publish(modelVersionBasedPublisher('id'))
+    const modelVersionId = data[modelVersionForeignKey]
+
+    return app.channel(`model-versions:${modelVersionId}`).filter((connection) => {
+      return connection !== context?.params?.connection
+    })
+  }
+
+  app.service('nodes').publish(modelVersionBasePublisher('modelsVersionsId'))
+  app.service('edges').publish(modelVersionBasePublisher('modelsVersionsId'))
+  app.service('scenarios').publish(modelVersionBasePublisher('modelsVersionsId'))
+  app.service('models-versions').publish(modelVersionBasePublisher('id'))
 }
