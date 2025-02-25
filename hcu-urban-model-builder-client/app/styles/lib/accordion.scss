@@ -40,3 +40,7 @@
     gap: get-spacer(2);
   }
 }
+
+.accordion-button:not(.collapsed) {
+  color: $black;
+}
