@@ -7,22 +7,14 @@ import { logger } from './logger.js'
 import { Nodes, NodesData } from './services/nodes/nodes.shared.js'
 
 export const channels = (app: Application) => {
-  logger.warn(
-    'Publishing all events to all authenticated users. See `channels.ts` and https://dove.feathersjs.com/api/channels.html for more information.'
-  )
-
   app.on('connection', (connection: RealTimeConnection) => {
-    // On a new real-time connection, add it to the anonymous channel
-    app.channel('anonymous').join(connection)
+    // not needed for now
   })
 
   app.on('login', (authResult: AuthenticationResult, { connection }: Params) => {
     // connection can be undefined if there is no
     // real-time connection, e.g. when logging in via REST
     if (connection) {
-      // The connection is no longer anonymous, remove it
-      app.channel('anonymous').leave(connection)
-
       // Add it to the authenticated user channel
       app.channel('authenticated').join(connection)
     }
