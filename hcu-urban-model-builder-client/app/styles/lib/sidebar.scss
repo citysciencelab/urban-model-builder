@@ -135,6 +135,6 @@
   right: 0;
 
   .sidebar__header {
-    padding-right: 0;
+    padding-right: get-spacer(3);
   }
 }

@@ -57,6 +57,13 @@
 
 .ember-basic-dropdown-content {
   z-index: 1055;
+  &:has(.formula__search) {
+    max-height: 50vh;
+    overflow-y: scroll;
+  }
+}
+.ember-basic-dropdown-overlay {
+  z-index: 1054;
 }
 
 @import "./react-canvas";
