@@ -236,9 +236,7 @@ main {
 .model-search {
   padding: 0 get-spacer(2);
   display: flex;
-  input {
-    border-right: none;
-  }
+  gap: get-spacer(1);
 }
 .search-button {
   display: flex;
@@ -260,18 +258,18 @@ main {
 }
 
 .model-clear-search {
-  color: white;
+  color: $black;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 21px;
   height: 21px;
-  border: 1px solid $white;
+  border: 1px solid $black;
   border-radius: 11px;
   &:hover {
     color: $primary;
-    background-color: $white;
+    background-color: $black;
   }
 }
 
