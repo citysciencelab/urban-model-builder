@@ -10,6 +10,8 @@
 
   .animated-container {
     height: 100%;
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -102,7 +104,8 @@
   }
 }
 
-.sidebar__container--left {
+.sidebar__container--left,
+.sidebar__container--right {
   left: 0;
   right: auto;
   bottom: calc(60px + #{get-spacer(3)});
@@ -124,5 +127,14 @@
         border-right: 0;
       }
     }
+  }
+}
+
+.sidebar__container--right {
+  left: auto;
+  right: 0;
+
+  .sidebar__header {
+    padding-right: 0;
   }
 }
