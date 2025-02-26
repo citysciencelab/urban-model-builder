@@ -160,4 +160,8 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
   @action onInputFocus() {
     this.showUnits = true;
   }
+
+  @action toggleUnitsSelect() {
+    this.showUnits = !this.showUnits;
+  }
 }

@@ -404,10 +404,18 @@ a.disabled,
 }
 
 .units__accordion {
+  font-size: var(--bs-body-font-size);
+  font-family: $font-family-base;
+
+  .accordion-header .accordion-button {
+    font-family: $font-family-base;
+    font-size: var(--bs-body-font-size);
+  }
   .accordion-body {
     padding: 0;
   }
   a {
+    color: $black;
     display: block;
     text-decoration: none;
     padding: 0.5rem 1rem;
@@ -465,10 +473,12 @@ a.disabled,
 }
 
 .units__selection__caret {
-  pointer-events: none;
   position: absolute;
   right: 0;
   bottom: 0;
+  &:active {
+    border: 0;
+  }
 }
 
 .units__selection {
