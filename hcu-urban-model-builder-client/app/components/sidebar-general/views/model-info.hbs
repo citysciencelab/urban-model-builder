@@ -13,7 +13,7 @@
       <ContentEditable
         @value={{this.changeset.dataProxy.internalName}}
         @onChange={{fn (mut this.changeset.dataProxy.internalName)}}
-        @placeholder="Name…"
+        @placeholder={{t "components.model_info.name_placeholder"}}
       />
     {{else}}
       {{this.changeset.dataProxy.internalName}}
@@ -54,7 +54,7 @@
     <ContentEditable
       @value={{this.changeset.dataProxy.description}}
       @onChange={{fn (mut this.changeset.dataProxy.description)}}
-      @placeholder="Description…"
+      @placeholder={{t "components.model_info.description_placeholder"}}
     />
   {{else}}
     {{this.changeset.dataProxy.description}}

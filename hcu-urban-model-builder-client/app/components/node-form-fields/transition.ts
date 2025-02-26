@@ -13,6 +13,7 @@ export interface NodeFormFieldsTransitionSignature {
 
 export default class NodeFormFieldsTransitionComponent extends Component<NodeFormFieldsTransitionSignature> {
   get triggerTypeOptions() {
+    // FIXME: i18n
     return ['Condition', 'Probability', 'Timeout'];
   }
 }

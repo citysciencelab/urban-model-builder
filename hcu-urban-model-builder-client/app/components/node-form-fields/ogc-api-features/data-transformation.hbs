@@ -1,4 +1,7 @@
-<@acc.item @value={{"data-transformation"}} @title="Data Transformations">
+<@acc.item
+  @value={{"data-transformation"}}
+  @title={{t "components.data_transformation.title"}}
+>
   <@form.element @label={{t "components.data_transformation.data_key_field"}}>
     <PowerSelect
       @options={{this.keyOptions}}

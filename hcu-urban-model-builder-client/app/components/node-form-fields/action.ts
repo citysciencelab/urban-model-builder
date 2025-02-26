@@ -12,5 +12,6 @@ export interface NodeFormFieldsActionSignature {
 }
 
 export default class NodeFormFieldsActionComponent extends Component<NodeFormFieldsActionSignature> {
+  // FIXME: i18n
   triggerTypeOptions = ['Condition', 'Probability', 'Timeout'];
 }

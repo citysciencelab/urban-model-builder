@@ -52,9 +52,10 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
       return this.inputNode.value.name;
     }
     if (this.inputNode.isPending) {
+      // FIXME: i18n
       return 'Loading...';
     }
-
+    // FIXME: i18n
     return 'Time';
   }
 

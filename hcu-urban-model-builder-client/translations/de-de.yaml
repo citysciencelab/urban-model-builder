@@ -119,16 +119,22 @@ components:
     title: Modelleinstellungen
     intro: Hier können Sie die (Simulations-)Einstellungen des Modells bearbeiten.
   data_transformation:
+    title: Datentransformation
     select_all: Alle auswählen
     data_key_field: Schlüsselfeld
     data_value_field: Wertfeld
   property_query:
+    title: Feld-Abfragen
     add_query: Hinzufügen
     no_params: Keine Parameter ausgewählt
+    query_property: Abfragefeld
+    query_property_operator: Operator
+    query_property_value: Abfragewert
+    filter_help_text: Geben Sie einen gültigen CQL2-Filterausdruck ein
   converter:
     mapping: Mapping
-    input: Input
-    output: Output
+    input: Eingabe
+    output: Ausgabe
     add_point: Punkt hinzufügen
     interpolation_label: Interpolation
   formula:
@@ -146,18 +152,21 @@ components:
     offset_label: Offset
     include_geom_data_label: Geometriedaten einschließen?
     selected_properties_label: Ausgewählte Eigenschaften
-    advanced_filter_label: Erweiterte Filter 
+    advanced_filter_title: Erweiterte Filterabfrage
+    advanced_filter_label: Filter (CQL2)
+    data_preview_title: Daten-Vorschau
   parameter_settings:
     title: "Schnittstelle & Szenario"
-    input: Input
+    input: Eingabe
     value: Wert
     label: Label
     add_option: Option hinzufügen
-    output: Output
+    output: Ausgabe
     min_label: Min
     step_label: Schritt
     max_label: Max
     is_output_parameter_label: Ist Ausgabeparameter?
+    select_parameter_type_placeholder: Parametertyp wählen
   unit_selection: 
     unit_label: Einheit
     unitless: Ohne Einheit
@@ -166,6 +175,8 @@ components:
     edit_mode: Bearbeitungsmodus
     view_mode: Ansichtsmodus
     settings: Einstellungen
+    name_placeholder: Name…
+    description_placeholder: Beschreibung…
   scenarios:
     title: Szenario
     no_parameters: Keine Parameter
@@ -199,8 +210,9 @@ components:
     network_type_label: Netzwerktyp
     network_function_label: Netzwerkfunktion
   state:
-    start_active_label: Start aktiv
-    residency_label: Aufenthalt
+    start_active_label: Aktiv zum Start
+    residency_label: Vorhaltezeit
+    value_control_help_text: Derzeit als Szenario-Parameter gesteuert
   stock:
     value_label: Wert
   transition:
@@ -209,6 +221,7 @@ components:
     recalculate: Neuberechnen
     repeat: Wiederholen
   validation:
+    title: Validierung
     minimum_contraint: Minimale Einschränkung
     minimum_value: Minimaler Wert
     maximum_contraint: Maximale Einschränkung

@@ -4,7 +4,7 @@
     @label={{t "components.variable.value_label"}}
     @helpText={{if
       @changeset.dataProxy.isParameter
-      "Currently controlled as scenario parameter"
+      (t "components.state.value_control_help_text")
     }}
     @property="data.value"
     as |el|

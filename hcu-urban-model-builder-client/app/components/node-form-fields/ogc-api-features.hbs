@@ -14,16 +14,18 @@
     </PowerSelect>
   </@form.element>
 
-  <div class="api-info">
-    {{t "components.ogc_api.more_info"}}
-    <a
-      href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {{this.selectedApi.title}}
-    </a>
-  </div>
+  {{#if this.selectedApi}}
+    <div class="api-info">
+      {{t "components.ogc_api.more_info"}}
+      <a
+        href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {{this.selectedApi.title}}
+      </a>
+    </div>
+  {{/if}}
 
   <@form.element
     @label={{t "components.ogc_api.collection_label"}}
@@ -42,7 +44,7 @@
 
   {{#let (not @changeset.dataProxy.data.collectionId) as |isDisabled|}}
     <@form.element
-      @label={{t "components.ogc_api.limit"}}
+      @label={{t "components.ogc_api.limit_label"}}
       @controlType="number"
       @value={{@changeset.dataProxy.data.query.limit}}
       @onChange={{fn (mut-number @changeset.dataProxy.data.query.limit)}}
@@ -52,7 +54,7 @@
     </@form.element>
 
     <@form.element
-      @label={{t "components.ogc_api.offset"}}
+      @label={{t "components.ogc_api.offset_label"}}
       @controlType="number"
       @value={{@changeset.dataProxy.data.query.offset}}
       @onChange={{fn (mut-number @changeset.dataProxy.data.query.offset)}}
@@ -95,11 +97,14 @@
     @changeset={{@changeset}}
   />
 
-  <acc.item @value="advanced-filter" @title="Advanced Filter Query">
+  <acc.item
+    @value="advanced-filter"
+    @title={{t "components.ogc_api.advanced_filter_title"}}
+  >
     <@form.element
       @label={{t "components.ogc_api.advanced_filter_label"}}
       @controlType="textarea"
-      @helpText="Enter a valid CQL2 filter expression"
+      @helpText={{t "components.property_query.filter_help_text"}}
       @property="data.query.filter"
       as |el|
     >
@@ -141,7 +146,7 @@
     </BsButton>
 
     <BsModalSimple
-      @title="Data Preview"
+      @title={{t "components.ogc_api.data_preview_title"}}
       @open={{this.showPreviewModal}}
       @onHide={{fn (mut this.showPreviewModal) false}}
     >

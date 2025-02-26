@@ -19,6 +19,7 @@ export interface NodeFormFieldsParameterSettingsSignature {
 }
 
 export default class NodeFormFieldsParameterSettingsComponent extends Component<NodeFormFieldsParameterSettingsSignature> {
+  // FIXME: i18n
   parameterTypes = [
     { value: null, label: 'None' },
     { value: 'boolean', label: 'Boolean' },

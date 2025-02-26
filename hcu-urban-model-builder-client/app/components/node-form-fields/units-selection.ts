@@ -25,6 +25,7 @@ export interface NodeFormFieldsUnitsSelectionSignature {
 export default class NodeFormFieldsUnitsSelectionComponent extends Component<NodeFormFieldsUnitsSelectionSignature> {
   @tracked showUnits = false;
 
+  // FIXME: i18n
   @tracked _units = unitsCollection;
   @tracked _value = '';
 

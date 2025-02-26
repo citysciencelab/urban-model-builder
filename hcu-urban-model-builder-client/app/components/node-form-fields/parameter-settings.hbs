@@ -11,7 +11,9 @@
         </h6>
         <@form.element>
           <PowerSelect
-            @placeholder="Select Parameter Type"
+            @placeholder={{t
+              "components.parameter_settings.select_parameter_type_placeholder"
+            }}
             class="col-12"
             @options={{this.filteredParameterTypes}}
             @selected={{this.selectedParameterType}}
