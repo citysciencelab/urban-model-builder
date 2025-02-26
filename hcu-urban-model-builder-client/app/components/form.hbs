@@ -5,10 +5,17 @@
 
       <div class="sidebar__header">
         <Ui::SaveIndicator @isSaving={{this.changeset.isSaving}} />
+        <BsAlert
+          @type="danger"
+          @dismissible={{false}}
+          @visible={{this.hasErrors}}
+        >
+          {{t "messages.form_error"}}
+        </BsAlert>
         <h3>
           <form.element
             @controlType="text"
-            @placeholder="Name"
+            @placeholder={{t "models.nodes.attributes.name"}}
             @property="name"
             @customError={{get this.errors "name"}}
           />
@@ -19,25 +26,19 @@
         {{did-insert this.initialize}}
         {{did-update this.initialize @record}}
       >
-        <BsAlert
-          @type="danger"
-          @dismissible={{false}}
-          @visible={{this.hasErrors}}
-        >
-          {{t "messages.form_error"}}
-        </BsAlert>
+
         {{#if this.isGhostNode}}
           <div class="alert alert-warning">
             {{! template-lint-disable no-bare-strings }}
             👻
-            {{t "forms.node.ghost_warning"}}
+            {{t "models.nodes.ghost_warning"}}
           </div>
         {{/if}}
 
         <form.element
           @controlType="textarea"
-          @label="Description"
-          @placeholder="Description"
+          @label={{t "models.nodes.attributes.description"}}
+          @placeholder={{t "models.nodes.attributes.description"}}
           @property="description"
           @customError={{get this.errors "description"}}
         />

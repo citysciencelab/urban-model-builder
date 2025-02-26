@@ -1,6 +1,6 @@
 <@form.element
   @controlType="number"
-  @label="Population Size"
+  @label={{t "components.population.population_size_label"}}
   @property="data.populationSize"
   @onChange={{fn (mut-number @changeset.dataProxy.data.populationSize)}}
 />
@@ -15,44 +15,44 @@
 
 <@form.element
   @controlType="text"
-  @label="Geo Width"
+  @label={{t "components.population.geo_width_label"}}
   @property="data.geoWidth"
 />
 
 <@form.element
   @controlType="text"
-  @label="Geo Height"
+  @label={{t "components.population.geo_height_label"}}
   @property="data.geoHeight"
 />
 
 <@form.element
   @controlType="checkbox"
-  @label="Geo Wrap Around"
+  @label={{t "components.population.geo_wrap_around_label"}}
   @property="data.geoWrapAround"
 />
 
 <@form.element
   @controlType="radio"
-  @label="Geo Placement Type"
+  @label={{t "components.population.geo_placement_type_label"}}
   @property="data.geoPlacementType"
   @options={{this.geoPlacementTypeOptions}}
 />
 
 <@form.element
   @controlType="text"
-  @label="Geo Placement Function"
+  @label={{t "components.population.geo_placement_function_label"}}
   @property="data.geoPlacementFunction"
 />
 
 <@form.element
   @controlType="radio"
-  @label="Network Type"
+  @label={{t "components.population.network_type_label"}}
   @property="data.networkType"
   @options={{this.networkTypeOptions}}
 />
 
 <@form.element
   @controlType="text"
-  @label="Network Function"
+  @label={{t "components.population.network_function_label"}}
   @property="data.networkFunction"
 />

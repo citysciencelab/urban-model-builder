@@ -1,13 +1,14 @@
 <@form.element
   @controlType="radio"
-  @label="Trigger"
+  @label={{t "components.transition.trigger"}}
   @property="data.trigger"
   @options={{this.triggerTypeOptions}}
 />
 <@form.element
   @controlType="textarea"
-  @label="Value"
-  @property="data.value" as |el|
+  @label={{t "components.transition.value"}}
+  @property="data.value"
+  as |el|
 >
   <NodeFormFields::Formula
     @form={{@form}}
@@ -20,10 +21,14 @@
 </@form.element>
 <@form.element
   @controlType="switch"
-  @label="Recalculate"
+  @label={{t "components.transition.recalculate"}}
   @property="data.recalculate"
 />
-<@form.element @controlType="switch" @label="Repeat" @property="data.repeat" />
+<@form.element
+  @controlType="switch"
+  @label={{t "components.transition.repeat"}}
+  @property="data.repeat"
+/>
 
 <NodeFormFields::Validation
   @modelsVersion={{@modelsVersion}}

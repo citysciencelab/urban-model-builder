@@ -1,6 +1,6 @@
 <BsAccordion class="sidebar-accordion" @selected="property-query" as |acc|>
 
-  <@form.element @label={{"APIs"}} @property="apiId">
+  <@form.element @label={{t "components.ogc_api.apis_label"}} @property="apiId">
     <PowerSelect
       @options={{this.availableApis.value}}
       @selected={{this.selectedApi}}
@@ -25,7 +25,10 @@
     </a>
   </div>
 
-  <@form.element @label="Collection" @property="collectionId">
+  <@form.element
+    @label={{t "components.ogc_api.collection_label"}}
+    @property="collectionId"
+  >
     <PowerSelect
       @options={{this.availableCollections.value}}
       @selected={{this.selectedCollection}}
@@ -39,7 +42,7 @@
 
   {{#let (not @changeset.dataProxy.data.collectionId) as |isDisabled|}}
     <@form.element
-      @label="Limit"
+      @label={{t "components.ogc_api.limit"}}
       @controlType="number"
       @value={{@changeset.dataProxy.data.query.limit}}
       @onChange={{fn (mut-number @changeset.dataProxy.data.query.limit)}}
@@ -49,7 +52,7 @@
     </@form.element>
 
     <@form.element
-      @label="Offset"
+      @label={{t "components.ogc_api.offset"}}
       @controlType="number"
       @value={{@changeset.dataProxy.data.query.offset}}
       @onChange={{fn (mut-number @changeset.dataProxy.data.query.offset)}}
@@ -60,7 +63,7 @@
 
     <@form.element
       @controlType="switch"
-      @label="Include Geometry Data?"
+      @label={{t "components.ogc_api.include_geom_data_label"}}
       @value={{not @changeset.dataProxy.data.query.skipGeometry}}
       @onChange={{this.toggleSkipGeometry}}
       as |el|
@@ -69,7 +72,10 @@
     </@form.element>
   {{/let}}
 
-  <@form.element @label="Selected Properties">
+  <@form.element
+    @label={{t "components.ogc_api.selected_properties_label"}}
+    @property="properties"
+  >
     <PowerSelectMultiple
       @options={{this.propertiesSchema.value}}
       @selected={{this.selectedProperties}}
@@ -91,7 +97,7 @@
 
   <acc.item @value="advanced-filter" @title="Advanced Filter Query">
     <@form.element
-      @label="Advanced Filter"
+      @label={{t "components.ogc_api.advanced_filter_label"}}
       @controlType="textarea"
       @helpText="Enter a valid CQL2 filter expression"
       @property="data.query.filter"

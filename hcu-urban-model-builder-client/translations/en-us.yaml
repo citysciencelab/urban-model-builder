@@ -64,6 +64,11 @@ models:
       timeStep: Interval
       algorithm: Algorithm
       globals: Globals & Macros
+  nodes:
+    attributes:
+      name: Name
+      description: Description
+    ghost_warning: This is a ghost node
 public_models:
   model:
     plural: Public models
@@ -109,19 +114,27 @@ components:
     intro: Here you can share the model with other users.
     current_permissions: Actual permissions
     no_permissions_yet: No permissions yet
+    user_label: User
+    role_label: Role
   settings_dialog:
     title: Model settings
     intro: Here you can edit the (simulation) settings of the model.
   data_transformation:
-    select_all: Alle auswählen
+    select_all: Select all
+    data_key_field: Data Key Field
+    data_value_field: Data Value Field
   property_query:
     add_query: Add
     no_params: No query params selected
+    query_property: Query Property
+    query_property_operator: Query Property Operator
+    query_property_value: Query Property Value
   converter:
     mapping: Mapping
     input: Input
     output: Output
     add_point: Add Point
+    interpolation_label: Interpolation
   formula:
     search_placeholder: 'Search…'
     nothing_found: Nothing found
@@ -131,6 +144,13 @@ components:
     matching: Matching items
     in_limit: Within limit
     preview: Preview
+    collection_label: Collection
+    apis_label: APIs
+    limit_label: Limit
+    offset_label: Offset
+    include_geom_data_label: Include Geometry Data?
+    selected_properties_label: Selected Properties
+    advanced_filter_label: Advanced Filter
   parameter_settings:
     title: "Interface & Scenario"
     input: Input
@@ -138,7 +158,12 @@ components:
     label: Label
     add_option: Add Option
     output: Output
+    min_label: Min
+    step_label: Step
+    max_label: Max
+    is_output_parameter_label: Is Output Parameter?
   unit_selection: 
+    unit_label: Unit
     unitless: Unitless
   model_info:
     public: Public
@@ -160,6 +185,40 @@ components:
     below_minimum_value: The current value is below the minimum value.
     above_maximum_value: The current value is above the maximum value.
     not_a_multiple: The current value is not a multiple of the step size.
+  action:
+    action_label: Action
+    trigger_label: Trigger
+    value_label: Value
+    recalculate_label: Neu Recalculate
+    repeat_label: Repeat
+  flow:
+    rate_label: Rate
+  population:
+    population_size_label: Population Size
+    geo_width_label: Geo Width
+    geo_height_label: Geo Height
+    geo_wrap_around_label: Geo Wrap Around
+    geo_placement_type_label: Geo Placement Type
+    geo_placement_function_label: Geo Placement Function
+    network_type_label: Network Type
+    network_function_label: Network Function
+  state:
+    start_active_label: Start Active
+    residency_label: Residency
+  stock:
+    value_label: Value
+  transition:
+    trigger: Trigger
+    value: Value
+    recalculate: Recalculate
+    repeat: Repeat
+  validation:
+    minimum_contraint: Minimum Contraint
+    minimum_value: Minimum Value
+    maximum_contraint: Maximum Contraint
+    maximum_value: Maximum Value
+  variable:
+    value_label: Value
 
 permissions:
   0: No authorization

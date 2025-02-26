@@ -1,5 +1,5 @@
 <@acc.item @value={{"data-transformation"}} @title="Data Transformations">
-  <@form.element @label="Data Key Field">
+  <@form.element @label={{t "components.data_transformation.data_key_field"}}>
     <PowerSelect
       @options={{this.keyOptions}}
       @selected={{this.selectedKeyProperty}}
@@ -14,7 +14,7 @@
     </PowerSelect>
   </@form.element>
 
-  <@form.element @label="Data Value Field">
+  <@form.element @label={{t "components.data_transformation.data_value_field"}}>
 
     <PowerSelectMultiple
       @options={{this.valueOptions}}

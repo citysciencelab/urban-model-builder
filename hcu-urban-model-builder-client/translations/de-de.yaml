@@ -64,6 +64,11 @@ models:
       timeStep: Intervall
       algorithm: Algorithmus
       globals: Globals & Makros
+  nodes:
+    attributes:
+      name: Name
+      description: Beschreibung
+    ghost_warning: Dies ist ein Geisterknoten
 public_models:
   model:
     plural: Öffentliche Modelle
@@ -108,11 +113,15 @@ components:
     intro: Hier können Sie das Modell mit anderen Nutzern teilen.
     current_permissions: Aktuelle Berechtigungen
     no_permissions_yet: Bisher keine Berechtigungen
+    user_label: Benutzer
+    role_label: Rolle
   settings_dialog:
     title: Modelleinstellungen
     intro: Hier können Sie die (Simulations-)Einstellungen des Modells bearbeiten.
   data_transformation:
     select_all: Alle auswählen
+    data_key_field: Schlüsselfeld
+    data_value_field: Wertfeld
   property_query:
     add_query: Hinzufügen
     no_params: Keine Parameter ausgewählt
@@ -121,6 +130,7 @@ components:
     input: Input
     output: Output
     add_point: Punkt hinzufügen
+    interpolation_label: Interpolation
   formula:
     search_placeholder: 'Suchbegriff…'
     nothing_found: Keine Ergebnisse
@@ -130,6 +140,13 @@ components:
     matching: Passende Datensätze
     in_limit: Datensätze im Limit
     preview: Vorschau
+    collection_label: Sammlung
+    apis_label: APIs
+    limit_label: Limit
+    offset_label: Offset
+    include_geom_data_label: Geometriedaten einschließen?
+    selected_properties_label: Ausgewählte Eigenschaften
+    advanced_filter_label: Erweiterte Filter 
   parameter_settings:
     title: "Schnittstelle & Szenario"
     input: Input
@@ -137,7 +154,12 @@ components:
     label: Label
     add_option: Option hinzufügen
     output: Output
+    min_label: Min
+    step_label: Schritt
+    max_label: Max
+    is_output_parameter_label: Ist Ausgabeparameter?
   unit_selection: 
+    unit_label: Einheit
     unitless: Ohne Einheit
   model_info:
     public: Öffentlich
@@ -159,6 +181,40 @@ components:
     below_minimum_value: Der aktuelle Wert liegt unter dem Mindestwert.
     above_maximum_value: Der aktuelle Wert liegt über dem Höchstwert.
     not_a_multiple: Der aktuelle Wert ist kein Vielfaches der Schrittweite.
+  action:
+    action_label: Aktion
+    trigger_label: Auslöser
+    value_label: Wert
+    recalculate_label: Neu berechnen
+    repeat_label: Wiederholen
+  flow:
+    rate_label: Rate
+  population:
+    population_size_label: Größe der Bevölkerung
+    geo_width_label: Geo Breite
+    geo_height_label: Geo Höhe
+    geo_wrap_around_label: Geo Wrap Around
+    geo_placement_type_label: Geo Platzierungstyp
+    geo_placement_function_label: Geo Platzierungsfunktions
+    network_type_label: Netzwerktyp
+    network_function_label: Netzwerkfunktion
+  state:
+    start_active_label: Start aktiv
+    residency_label: Aufenthalt
+  stock:
+    value_label: Wert
+  transition:
+    trigger: Trigger
+    value: Wert
+    recalculate: Neuberechnen
+    repeat: Wiederholen
+  validation:
+    minimum_contraint: Minimale Einschränkung
+    minimum_value: Minimaler Wert
+    maximum_contraint: Maximale Einschränkung
+    maximum_value: Maximaler Wert
+  variable:
+    value_label: Wert
 
 permissions:
   0: Keine Berechtigung

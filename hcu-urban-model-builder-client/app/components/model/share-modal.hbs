@@ -27,7 +27,11 @@
     >
       <div class="row model__share__row">
         {{! User search }}
-        <form.element @label="User" class="col-5" @property="selectedUser">
+        <form.element
+          @label={{t "components.share_modal.user_label"}}
+          class="col-5"
+          @property="selectedUser"
+        >
           <PowerSelect
             @searchEnabled={{true}}
             @search={{this.lookupUsers}}
@@ -39,7 +43,11 @@
           </PowerSelect>
         </form.element>
         {{! Role select }}
-        <form.element @label="Role" class="col-5" @property="selectedRole">
+        <form.element
+          @label={{t "components.share_modal.role_label"}}
+          class="col-5"
+          @property="selectedRole"
+        >
           <PowerSelect
             @options={{this.roles}}
             @selected={{this.changeset.selectedRole}}
@@ -49,7 +57,7 @@
             {{role.label}}
           </PowerSelect>
         </form.element>
-        <form.element @label="Submit" class="col-2 label-sr-only">
+        <form.element @label={{t "actions.share"}} class="col-2 label-sr-only">
           <form.submitButton @size="sm">
             {{t "actions.share"}}
           </form.submitButton>

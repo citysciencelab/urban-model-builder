@@ -1,7 +1,7 @@
 <BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
   <@form.element
     @controlType="textarea"
-    @label="Rate"
+    @label={{t "components.flow.rate_label"}}
     @property="data.rate"
     as |el|
   >

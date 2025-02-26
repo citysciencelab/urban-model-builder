@@ -29,7 +29,7 @@
               <@form.element
                 class="col-4"
                 @controlType="number"
-                @label="Min"
+                @label={{t "components.parameter_settings.min_label"}}
                 @customError={{get @errors "parameterMin"}}
                 @property="parameterMin"
                 as |el|
@@ -40,7 +40,7 @@
               <@form.element
                 class="col-4"
                 @controlType="number"
-                @label="Step"
+                @label={{t "components.parameter_settings.step_label"}}
                 @customError={{get @errors "parameterStep"}}
                 @property="parameterStep"
                 as |el|
@@ -51,7 +51,7 @@
               <@form.element
                 class="col-4"
                 @controlType="number"
-                @label="Max"
+                @label={{t "components.parameter_settings.max_label"}}
                 @customError={{get @errors "parameterMax"}}
                 @property="parameterMax"
                 as |el|
@@ -118,7 +118,7 @@
         </h6>
         <@form.element
           @controlType="switch"
-          @label="Is Output Parameter?"
+          @label={{t "components.parameter_settings.is_output_parameter_label"}}
           @property="isOutputParameter"
           as |el|
         >
