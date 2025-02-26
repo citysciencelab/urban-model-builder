@@ -1,5 +1,5 @@
 # Creating multi-stage build for production
-FROM node:lts-alpine3.17 as builder
+FROM node:20.18.3-alpine3.20 as builder
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
@@ -12,7 +12,7 @@ COPY hcu-urban-model-builder-backend .
 RUN npm run compile
 
 # Creating final production image
-FROM node:lts-alpine3.17 as production
+FROM node:20.18.3-alpine3.20 as production
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /opt/
