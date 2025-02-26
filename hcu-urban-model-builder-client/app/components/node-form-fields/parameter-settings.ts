@@ -118,7 +118,10 @@ export default class NodeFormFieldsParameterSettingsComponent extends Component<
 
   @action addParameterSelectOption() {
     let nextValue = 0;
-    if (!this.args.changeset.dataProxy.parameterOptions) {
+    if (
+      !this.args.changeset.dataProxy.parameterOptions?.data ||
+      this.args.changeset.dataProxy.parameterOptions.data.length == 0
+    ) {
       this.args.changeset.dataProxy.parameterOptions = {
         data: [],
       };
@@ -130,7 +133,7 @@ export default class NodeFormFieldsParameterSettingsComponent extends Component<
     }
     this.args.changeset.dataProxy.parameterOptions.data.push({
       value: nextValue,
-      label: `New Value`,
+      label: `New Value`, // FIXME: i18n
     });
   }
 }

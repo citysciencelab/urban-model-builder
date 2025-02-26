@@ -167,6 +167,7 @@ components:
     max_label: Max
     is_output_parameter_label: Ist Ausgabeparameter?
     select_parameter_type_placeholder: Parametertyp wählen
+    no_options_added: Bitte fügen Sie mindestens eine Option hinzu
   unit_selection: 
     unit_label: Einheit
     unitless: Ohne Einheit

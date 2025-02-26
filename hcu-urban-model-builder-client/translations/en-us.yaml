@@ -168,6 +168,7 @@ components:
     max_label: Max
     is_output_parameter_label: Is Output Parameter?
     select_parameter_type_placeholder: Select Parameter Type
+    no_options_added: Please add at least one option
   unit_selection: 
     unit_label: Unit
     unitless: Unitless

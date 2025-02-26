@@ -61,13 +61,15 @@
                 <el.control step={{0.001}} />
               </@form.element>
             {{else if (eq @changeset.dataProxy.parameterType "select")}}
-              <div class="col-5">
-                {{t "components.parameter_settings.value"}}
-              </div>
-              <div class="col-5">
-                {{t "components.parameter_settings.label"}}
-              </div>
-              <div class="col2"></div>
+              {{#if @changeset.dataProxy.parameterOptions.data}}
+                <div class="col-5">
+                  <small>{{t "components.parameter_settings.value"}}</small>
+                </div>
+                <div class="col-5">
+                  <small>{{t "components.parameter_settings.label"}}</small>
+                </div>
+                <div class="col2"></div>
+              {{/if}}
               {{#each @changeset.dataProxy.parameterOptions.data as |option|}}
                 <@form.element
                   class="col-5"
@@ -76,7 +78,10 @@
                   @value={{option.value}}
                   as |el|
                 >
-                  <el.control {{on "blur" this.sortSelectOptionsByValue}} />
+                  <el.control
+                    class="form-control-sm"
+                    {{on "blur" this.sortSelectOptionsByValue}}
+                  />
                 </@form.element>
                 <@form.element
                   class="col-5"
@@ -85,7 +90,7 @@
                   @value={{option.label}}
                   as |el|
                 >
-                  <el.control />
+                  <el.control class="form-control-sm" />
                 </@form.element>
                 <div class="col-2">
                   <a
@@ -95,11 +100,17 @@
                     <FaIcon @icon="trash" />
                   </a>
                 </div>
+              {{else}}
+                <div class="col-12">
+                  <p class="text-danger">
+                    {{t "components.parameter_settings.no_options_added"}}
+                  </p>
+                </div>
               {{/each}}
-              <div class="col-12">
+              <div class="col-10">
                 <button
                   type="button"
-                  class="btn btn-primary"
+                  class="btn btn-secondary btn-sm parameter__settings__add-option"
                   {{on "click" this.addParameterSelectOption}}
                 >
                   {{t "components.parameter_settings.add_option"}}

@@ -20,20 +20,19 @@
             @customError={{get this.errors "name"}}
           />
         </h3>
+        {{#if this.isGhostNode}}
+          <div class="alert alert-warning alert-sm">
+            {{! template-lint-disable no-bare-strings }}
+            👻
+            {{t "models.nodes.ghost_warning"}}
+          </div>
+        {{/if}}
       </div>
       <div
         class="sidebar__content"
         {{did-insert this.initialize}}
         {{did-update this.initialize @record}}
       >
-
-        {{#if this.isGhostNode}}
-          <div class="alert alert-warning">
-            {{! template-lint-disable no-bare-strings }}
-            👻
-            {{t "models.nodes.ghost_warning"}}
-          </div>
-        {{/if}}
 
         <form.element
           @controlType="textarea"
