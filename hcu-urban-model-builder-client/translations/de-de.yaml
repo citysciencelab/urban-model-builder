@@ -168,6 +168,12 @@ components:
     is_output_parameter_label: Ist Ausgabeparameter?
     select_parameter_type_placeholder: Parametertyp wählen
     no_options_added: Bitte fügen Sie mindestens eine Option hinzu
+    initial_value_label: Neue Option
+    parameter_types:
+      null_type: Keine Parameter
+      boolean_type: Boolcher Wert
+      slider_type: Schieberegler
+      select_type: Wertehilfe
   unit_selection: 
     unit_label: Einheit
     unitless: Ohne Einheit
@@ -234,7 +240,7 @@ permissions:
   0: Keine Berechtigung
   1: Ansicht
   2: Mitbearbeiter
-  3: Co-Owner
-  4: Owner
+  3: Co-Inhaber
+  4: Ersteller
   you: Du selbst
   creator: Ersteller

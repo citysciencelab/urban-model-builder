@@ -3,7 +3,7 @@
     @value={{"interface-scenario"}}
     @title={{t "components.parameter_settings.title"}}
   >
-    <fieldset class="parameter__settings">
+    <fieldset class="parameter__settings" {{did-insert this.prepare}}>
       {{#if @inputVisible}}
         {{! INPUT }}
         <h6>

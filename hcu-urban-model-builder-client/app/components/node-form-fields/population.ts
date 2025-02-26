@@ -13,7 +13,7 @@ export interface NodeFormFieldsPopulationSignature {
 }
 
 export default class NodeFormFieldsPopulationComponent extends Component<NodeFormFieldsPopulationSignature> {
-  // FIXME: i18n
+  // FIXME: i18n ⚡️ impact on functionality expected
   readonly geoPlacementTypeOptions = [
     'Custom Function',
     'Ellipse',
@@ -22,6 +22,6 @@ export default class NodeFormFieldsPopulationComponent extends Component<NodeFor
     'Random',
   ];
 
-  // FIXME: i18n
+  // FIXME: i18n ⚡️ impact on functionality expected
   readonly networkTypeOptions = ['Custom Function', 'None'];
 }
