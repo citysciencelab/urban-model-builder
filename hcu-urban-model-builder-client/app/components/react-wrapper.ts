@@ -70,4 +70,11 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
       },
     );
   }
+
+  willDestroy() {
+    super.willDestroy();
+    if (this.reactRoot) {
+      this.reactRoot.unmount();
+    }
+  }
 }
