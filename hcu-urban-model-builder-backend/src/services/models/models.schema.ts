@@ -14,7 +14,7 @@ export const modelsSchema = Type.Object(
     id: Type.String({ format: 'uuid' }),
     internalName: Type.String(),
     publicName: Type.String(),
-    description: Type.Optional(Type.String()),
+    description: Nullable(Type.String()),
     latestPublishedVersionId: Nullable(Type.String({ format: 'uuid' })),
     latestDraftVersionId: Nullable(Type.String()),
     currentMinorVersion: Type.Number(),

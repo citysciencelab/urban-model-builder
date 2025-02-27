@@ -117,7 +117,7 @@
     align-items: initial;
   }
   .sidebar__header {
-    padding-right: 46px;
+    // padding-right: 46px; // removed by TBR, why was this in there?
   }
   &.sidebar__container--minimized {
     bottom: auto;

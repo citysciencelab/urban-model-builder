@@ -23,6 +23,24 @@
 @import "./header";
 @import "./breadcrumbs";
 
+@mixin make-input() {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  // font-size: 1rem;
+  // font-weight: 400;
+  // line-height: 1.5;
+  color: var(--bs-body-color);
+  appearance: none;
+  background-color: var(--bs-body-bg);
+  background-clip: padding-box;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  transition:
+    border-color 0.15sease-in-out,
+    box-shadow 0.15sease-in-out;
+}
+
 .navbar-brand {
   display: flex;
   align-items: center;
@@ -616,16 +634,16 @@ fieldset {
 .progress-bar__save.bg-success {
   background-color: $color-fiord !important;
 }
+
 .ember-power-select-multiple-options {
   padding: get-spacer(1);
-  .ember-power-select-multiple-option {
-    background-color: $color-primary;
-    color: $black;
-    border-radius: $border-radius-pill;
-    border: 0;
-    padding: get-spacer(1) get-spacer(2);
-  }
+  background-color: $color-primary;
+  color: $black;
+  border-radius: $border-radius-pill;
+  border: 0;
+  padding: get-spacer(1) get-spacer(2);
 }
+
 .property-query-wrapper {
   display: flex;
   flex-direction: column;
@@ -672,4 +690,13 @@ input:focus {
   border-color: #a3a8b3;
   outline: 0;
   box-shadow: 0 0 0 0.25rem rgba(163, 196, 255, 0.25);
+}
+
+.ember-content-editable {
+  @include make-input();
+}
+
+.save-indicator .spinner-grow {
+  position: relative;
+  top: 1px;
 }

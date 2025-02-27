@@ -1,5 +1,5 @@
 <div
-  class="progress"
+  class="progress save-indicator"
   role="progressbar"
   aria-label="Example with label"
   aria-valuenow={{this.progress}}
@@ -10,20 +10,24 @@
 >
   <div
     class="progress-bar progress-bar__save
-      {{if (gte this.progress 100) 'bg-success'}}"
+    {{if (and (gte this.progress 100) (not @errors)) "bg-success"}}
+     {{if @errors "bg-danger"}}"
     style="width: {{this.progress}}%"
   >
   </div>
   <div class="progress-label text-light">
     {{#if this.isProgressing}}
-      <div class="spinner-border text-light" role="status">
-        <span class="visually-hidden">Saving...</span>
+      <div class="spinner-grow spinner-grow-sm text-light" role="status">
+        <span class="visually-hidden">
+          Saving...
+        </span>
       </div>
     {{else}}
-      {{#if (eq this.progress 100)}}
+      {{#if @errors}}
+        <FaIcon @icon="remove" />
+      {{else if (eq this.progress 100)}}
         <FaIcon @icon="check" />
       {{/if}}
     {{/if}}
-
   </div>
 </div>
