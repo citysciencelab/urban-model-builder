@@ -4,9 +4,8 @@ ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /opt/
-COPY hcu-urban-model-builder-backend/package*.json ./
-RUN npm config set fetch-retry-maxtimeout 600000 -g && npm install
 COPY hcu-urban-model-builder-backend/ ./
+RUN npm config set fetch-retry-maxtimeout 600000 -g && npm install
 RUN npm run compile
 
 # Creating final production image
