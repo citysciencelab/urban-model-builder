@@ -19,6 +19,8 @@ import type EmberReactConnectorService from 'hcu-urban-model-builder-client/serv
 import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import { task, timeout } from 'ember-concurrency';
 import config from 'hcu-urban-model-builder-client/config/environment';
+import type DropdownManagerService from 'hcu-urban-model-builder-client/services/dropdown-manager';
+import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 
 export interface FloatingToolbarSimulateModalSignature {
   // The arguments accepted by the component
@@ -49,6 +51,8 @@ type ScatterPlotDataset = Awaited<
 
 const BASE_SPEED = 20;
 
+type EmberBasicDropdownAPI = { actions: { close: () => void } };
+
 export default class FloatingToolbarSimulateModalComponent extends Component<FloatingToolbarSimulateModalSignature> {
   readonly DEBOUNCE_MS = 250;
 
@@ -57,9 +61,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare eventBus: EventBus;
   @service declare emberReactConnector: EmberReactConnectorService;
+  @service declare dropdownManager: DropdownManagerService;
+  @service declare modelDialogs: ModelDialogsService;
+  basicDropdownInstance: EmberBasicDropdownAPI | null = null;
 
   @tracked show = false;
-  @tracked isPinned = false;
 
   @tracked isClientSideCalculation = true;
   @tracked activeTab: TabName = TabName.TimeSeries;
@@ -143,8 +149,15 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     return scenarioNodeValueMap;
   }
 
+  @action registerBasicDropdownAPI(
+    basicDropdownInstance: EmberBasicDropdownAPI,
+  ) {
+    this.basicDropdownInstance = basicDropdownInstance;
+  }
+
   @action
-  onShow() {
+  onOpen() {
+    this.dropdownManager.onOpen('simulateModal');
     this.show = true;
     this.simulationTask.perform();
     return this.show;
@@ -465,10 +478,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action onClose() {
     this.show = false;
-    return !this.isPinned;
+    return !this.dropdownManager.isSimulateDropdownPinned;
   }
 
-  @action togglePin() {
-    this.isPinned = !this.isPinned;
+  @action
+  toggleDropdown() {
+    this.dropdownManager.togglePin('simulateModal');
   }
 }

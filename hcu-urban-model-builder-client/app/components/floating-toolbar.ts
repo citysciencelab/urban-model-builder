@@ -1,5 +1,7 @@
 import Component from '@glimmer/component';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
+import type DropdownManagerService from 'hcu-urban-model-builder-client/services/dropdown-manager';
+import { service } from '@ember/service';
 
 export interface FloatingToolbarSignature {
   // The arguments accepted by the component
@@ -14,4 +16,6 @@ export interface FloatingToolbarSignature {
   Element: null;
 }
 
-export default class FloatingToolbarComponent extends Component<FloatingToolbarSignature> { }
+export default class FloatingToolbarComponent extends Component<FloatingToolbarSignature> {
+  @service declare dropdownManager: DropdownManagerService;
+}
