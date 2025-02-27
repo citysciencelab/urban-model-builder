@@ -1,6 +1,6 @@
 # Creating multi-stage build for production
 FROM node:20.18.3-alpine3.20 AS builder
-ARG NODE_ENV=production
+ARG NODE_ENV=development
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /opt/
