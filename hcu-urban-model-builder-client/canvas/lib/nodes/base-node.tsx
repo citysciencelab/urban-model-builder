@@ -4,6 +4,7 @@ import { memo } from "react";
 import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 import { ReactFlowNodeType } from "../declarations.ts";
+import { DefaultIcon } from "../../default-icon.tsx";
 
 export const BaseNode = memo(
   ({ id, data, isConnectable, selected, type }: NodeProps) => {
@@ -19,9 +20,16 @@ export const BaseNode = memo(
       <div className="react-flow__node-base__content">
         <DefaultNodeHandles type={handleType} isConnectable={isConnectable} />
         <NodeResizer isVisible={!!selected} />
+        <div className="react-flow__node-base__header">
+          <div className="react-flow__node-base__icon">
+            <DefaultIcon />
+          </div>
+          <div className="react-flow__node-base__name">{name}</div>
+        </div>
 
-        <div className="react-flow__node-base__name">{name}</div>
-
+        <div className="react-flow__node-base__footer">
+          <div className="react-flow__node-base--tags">Lorem ipsum</div>
+        </div>
         <DefaultNodeToolbar
           nodeId={id}
           isNodeSelected={selected}
