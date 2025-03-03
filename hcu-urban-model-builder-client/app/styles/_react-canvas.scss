@@ -1,6 +1,9 @@
 @use "sass:map";
 @use "sass:color";
 
+.react-flow {
+  z-index: unset !important;
+}
 .react-flow__resize-control.line {
   border-color: $node-selected-color;
 }
@@ -143,7 +146,9 @@ $group-nodes: "folder", "agent";
 .react-wrapper .react-flow__controls {
   flex-direction: row;
 }
-
+.react-wrapper .react-flow__panel {
+  z-index: 1052;
+}
 .react-wrapper .react-flow__panel.center {
   margin-left: 140px;
   margin-right: 140px;

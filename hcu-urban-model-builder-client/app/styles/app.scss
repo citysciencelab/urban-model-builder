@@ -18,6 +18,7 @@
 @import "lib/cards";
 @import "lib/nav-tabs";
 @import "lib/dropdown";
+@import "lib/input";
 
 @import "./header";
 @import "./breadcrumbs";
@@ -74,6 +75,13 @@
 
 .ember-basic-dropdown-content {
   z-index: 1055;
+  &:has(.formula__search) {
+    max-height: 50vh;
+    overflow-y: scroll;
+  }
+}
+.ember-basic-dropdown-overlay {
+  z-index: 1054;
 }
 
 @import "./react-canvas";
@@ -108,7 +116,7 @@ main {
     text-underline-offset: 8px;
   }
 }
-.navbar h3 {
+.navbar h4 {
   color: $white;
   margin: 0;
 }
@@ -136,7 +144,6 @@ main {
   white-space: nowrap;
   display: flex;
   align-items: center;
-  overflow: hidden;
 
   span {
     padding: get-spacer(1) get-spacer(2);
@@ -152,6 +159,7 @@ main {
     align-items: center;
     justify-content: center;
     padding: 0 get-spacer(1);
+    border-radius: $border-radius 0 0 $border-radius;
   }
 
   @each $name, $color in $node-color-map {
@@ -246,10 +254,9 @@ main {
 .model-search {
   padding: 0 get-spacer(2);
   display: flex;
-  input {
-    border-right: none;
-  }
+  gap: get-spacer(1);
 }
+
 .search-button {
   display: flex;
   align-items: center;
@@ -270,18 +277,18 @@ main {
 }
 
 .model-clear-search {
-  color: white;
+  color: $black;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 21px;
   height: 21px;
-  border: 1px solid $white;
+  border: 1px solid $black;
   border-radius: 11px;
   &:hover {
     color: $primary;
-    background-color: $white;
+    background-color: $black;
   }
 }
 
@@ -415,10 +422,18 @@ a.disabled,
 }
 
 .units__accordion {
+  font-size: var(--bs-body-font-size);
+  font-family: $font-family-base;
+
+  .accordion-header .accordion-button {
+    font-family: $font-family-base;
+    font-size: var(--bs-body-font-size);
+  }
   .accordion-body {
     padding: 0;
   }
   a {
+    color: $black;
     display: block;
     text-decoration: none;
     padding: 0.5rem 1rem;
@@ -467,10 +482,6 @@ a.disabled,
   text-decoration: none;
 }
 
-.btn-round {
-  border-radius: 50%;
-}
-
 .units__selection__input {
   position: relative;
   margin-bottom: 0 !important;
@@ -480,10 +491,14 @@ a.disabled,
 }
 
 .units__selection__caret {
-  pointer-events: none;
   position: absolute;
   right: 0;
   bottom: 0;
+  padding-right: var(--bs-accordion-btn-padding-x);
+  padding-left: var(--bs-accordion-btn-padding-x);
+  &:active {
+    border: 0;
+  }
 }
 
 .units__selection {
@@ -659,6 +674,22 @@ fieldset {
 
 .modal-backdrop {
   --bs-backdrop-zindex: 1051;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.25rem rgba(163, 196, 255, 0.25);
+}
+
+.ember-power-select-trigger {
+  min-height: 2.25rem;
+}
+
+.ember-power-select-trigger:focus,
+.ember-power-select-trigger--active {
+  border-color: #a3a8b3;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(163, 196, 255, 0.25);
 }
 
 .ember-content-editable {

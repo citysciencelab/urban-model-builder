@@ -393,7 +393,7 @@ function Flow({
       <Background />
       <Controls />
       <div
-        className="sidebar__container"
+        className="sidebar__container sidebar__container--right"
         id="sidebar-container"
         ref={sidebarContainerRef}
       ></div>

@@ -41,12 +41,13 @@ a {
   border-radius: $border-radius-lg;
 
   &.btn-round {
+    border-radius: 50%;
     padding: get-spacer(1);
-    aspect-ratio: 1;
-    width: 2rem;
+    min-width: 2rem;
+    height: 2rem;
     &.btn-md {
-      padding: get-spacer(2);
-      width: unset;
+      min-width: 2.5rem;
+      height: 2.5rem;
     }
   }
 
