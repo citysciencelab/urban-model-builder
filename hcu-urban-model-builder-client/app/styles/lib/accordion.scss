@@ -1,8 +1,12 @@
 .accordion.sidebar-accordion {
   > .accordion-item {
-    border: 0;
-    border-bottom: 1px solid $gray-200;
+    margin-top: get-spacer(2);
+    border: 1px solid $gray-200;
+    border-radius: $border-radius;
     > .accordion-header {
+      padding-left: get-spacer(2);
+      padding-right: get-spacer(2);
+
       > .accordion-button {
         background-color: transparent;
         padding: get-spacer(3) 0;
@@ -24,11 +28,17 @@
     }
 
     .accordion-body {
+      border-top: 1px solid $gray-200;
+
       padding: get-spacer(2);
 
       h6 {
         margin-bottom: 0.5rem;
       }
+    }
+
+    &:has(.show) {
+      background-color: rgba($color-primary, 0.1);
     }
   }
   .sidebar-accordion__footer {
