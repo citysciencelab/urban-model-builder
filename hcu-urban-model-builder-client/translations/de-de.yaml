@@ -228,6 +228,10 @@ components:
     value_label: Wert
   transition:
     trigger: Trigger
+    trigger_options:
+      Condition: Condition
+      Probability: Probability
+      Timeout: Timeout
     value: Wert
     recalculate: Neuberechnen
     repeat: Wiederholen

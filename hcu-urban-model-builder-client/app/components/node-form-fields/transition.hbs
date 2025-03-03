@@ -3,7 +3,13 @@
   @label={{t "components.transition.trigger"}}
   @property="data.trigger"
   @options={{this.triggerTypeOptions}}
-/>
+  as |el|
+>
+  <el.control as |option|>
+    {{t (concat "components.transition.trigger_options." option)}}
+  </el.control>
+</@form.element>
+
 <@form.element
   @controlType="textarea"
   @label={{t "components.transition.value"}}
@@ -19,6 +25,7 @@
     <el.control class="code-textarea" />
   </NodeFormFields::Formula>
 </@form.element>
+
 <@form.element
   @controlType="switch"
   @label={{t "components.transition.recalculate"}}

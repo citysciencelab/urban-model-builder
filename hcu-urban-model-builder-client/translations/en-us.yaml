@@ -229,6 +229,10 @@ components:
     value_label: Value
   transition:
     trigger: Trigger
+    trigger_options:
+      Condition: Condition
+      Probability: Probability
+      Timeout: Timeout
     value: Value
     recalculate: Recalculate
     repeat: Repeat
