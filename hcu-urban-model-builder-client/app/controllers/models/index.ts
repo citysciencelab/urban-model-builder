@@ -111,17 +111,6 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
     }
   }
 
-  @action
-  focusFirstInputElement(el: HTMLElement) {
-    if (!el) return;
-    setTimeout(() => {
-      const firstInputEl = el.querySelector('input');
-      if (firstInputEl) {
-        firstInputEl?.focus();
-      }
-    }, 50);
-  }
-
   @action onSortChange(key: string, direction: number) {
     this.page = 1;
     this.sort_key = key;

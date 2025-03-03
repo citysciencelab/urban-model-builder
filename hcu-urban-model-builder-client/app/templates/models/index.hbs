@@ -248,58 +248,11 @@
   </div>
 </div>
 
-{{! Modal / Form }}
-<BsModal
-  @open={{this.isModalOpen}}
+{{! Use the new component for the Modal / Form }}
+<Model::FormModal
+  @isOpen={{this.isModalOpen}}
+  @mode={{this.mode}}
+  @changeset={{this.changeset}}
+  @onClose={{this.closeModal}}
   @onSubmit={{this.submitModel}}
-  @onHide={{this.closeModal}}
-  as |modal|
->
-  <modal.header>
-    <h5 class="modal-title">
-      {{#if (eq this.mode "edit")}}
-        {{! template-lint-disable no-triple-curlies  }}
-        {{{t "routes.models.index.edit_title" name=this.changeset.name}}}
-      {{else}}
-        {{t "routes.models.index.create_new_title"}}
-      {{/if}}
-    </h5>
-  </modal.header>
-  <modal.body>
-    <BsForm
-      @formLayout="vertical"
-      @model={{this.changeset}}
-      @onSubmit={{this.submitModel}}
-      as |form|
-    >
-      {{! name }}
-      <form.element
-        @controlType="text"
-        @label={{t "models.model.attributes.name"}}
-        @property="internalName"
-        {{did-insert this.focusFirstInputElement}}
-        as |el|
-      >
-        <el.control
-          placeholder={{concat (t "models.model.attributes.name") "…"}}
-          required
-        />
-      </form.element>
-      {{! description }}
-      <form.element
-        @controlType="textarea"
-        @label={{t "models.model.attributes.description"}}
-        @property="description"
-        @rows="3"
-      />
-    </BsForm>
-  </modal.body>
-  <modal.footer>
-    <Ui::ModalButtons
-      @onCancel={{this.closeModal}}
-      @onSubmit={{this.submitModel}}
-      @cancelText={{t "actions.cancel"}}
-      @submitText={{t "actions.save"}}
-    />
-  </modal.footer>
-</BsModal>
+/>
