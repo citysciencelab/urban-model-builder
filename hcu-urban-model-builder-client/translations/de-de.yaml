@@ -202,6 +202,10 @@ components:
   action:
     action_label: Aktion
     trigger_label: Auslöser
+    trigger_options:
+      Condition: Condition
+      Probability: Probability
+      Timeout: Timeout
     value_label: Wert
     recalculate_label: Neu berechnen
     repeat_label: Wiederholen

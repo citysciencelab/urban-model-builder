@@ -203,6 +203,10 @@ components:
   action:
     action_label: Action
     trigger_label: Trigger
+    trigger_options:
+      Condition: Condition
+      Probability: Probability
+      Timeout: Timeout
     value_label: Value
     recalculate_label: Neu Recalculate
     repeat_label: Repeat
