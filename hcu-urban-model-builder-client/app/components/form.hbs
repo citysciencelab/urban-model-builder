@@ -12,14 +12,14 @@
         >
           {{t "messages.form_error"}}
         </BsAlert>
-        <h3>
+        <h4>
           <form.element
             @controlType="text"
             @placeholder={{t "models.nodes.attributes.name"}}
             @property="name"
             @customError={{get this.errors "name"}}
           />
-        </h3>
+        </h4>
         {{#if this.isGhostNode}}
           <div class="alert alert-warning alert-sm">
             {{! template-lint-disable no-bare-strings }}

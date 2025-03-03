@@ -15,9 +15,13 @@
       {{on "focus" this.onInputFocus}}
       {{on "keyup" this.onInputEnter}}
     />
-    <span class="units__selection__caret btn btn_link">
+    <a
+      href="javascript:void(0)"
+      class="units__selection__caret btn btn_link"
+      {{on "click" this.toggleUnitsSelect}}
+    >
       <FaIcon @icon="caret-down" />
-    </span>
+    </a>
   </@form.element>
 
   {{#if this.showUnits}}

@@ -6,6 +6,7 @@ import { service } from '@ember/service';
 import { NodeType } from 'hcu-urban-model-builder-backend';
 import { decamelize, dasherize } from '@ember/string';
 import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
+import type FloatingToolbarDropdownManagerService from 'hcu-urban-model-builder-client/services/floating-toolbar-dropdown-manager';
 
 export interface FloatingToolbarPrimitivesModalSignature {
   // The arguments accepted by the component
@@ -17,8 +18,6 @@ export interface FloatingToolbarPrimitivesModalSignature {
   // The element to which `...attributes` is applied in the component template
   Element: null;
 }
-
-type EmberBasicDropdownAPI = { actions: { close: () => void } };
 
 const NodeIconMap: Record<string, string> = {
   [NodeType.Stock]: 'inventory',
@@ -44,8 +43,8 @@ type NodeTypeConfig = {
 
 export default class FloatingToolbarPrimitivesModalComponent extends Component<FloatingToolbarPrimitivesModalSignature> {
   @service declare eventBus: EventBus;
-  @tracked isPinned = false;
-  basicDropdownInstance: EmberBasicDropdownAPI | null = null;
+  @service
+  declare floatingToolbarDropdownManager: FloatingToolbarDropdownManagerService;
 
   readonly nodeGroups = [
     {
@@ -73,12 +72,6 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
     },
   ];
 
-  @action registerBasicDropdownAPI(
-    basicDropdownInstance: EmberBasicDropdownAPI,
-  ) {
-    this.basicDropdownInstance = basicDropdownInstance;
-  }
-
   @action getNodeTypeConfig(nodeType: NodeType): NodeTypeConfig {
     const typeStr = NodeType[nodeType];
 
@@ -90,16 +83,24 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
     };
   }
 
-  @action togglePin() {
-    this.isPinned = !this.isPinned;
+  @action
+  toggleDropdown() {
+    this.floatingToolbarDropdownManager.togglePin('primitivesModal');
+  }
+
+  @action onOpen() {
+    this.floatingToolbarDropdownManager.onOpen('primitivesModal');
+    return true;
   }
 
   @action onClose() {
-    return !this.isPinned;
+    return !this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned;
   }
 
   @action onNodeClick(config: NodeTypeConfig) {
     this.eventBus.emit('primitive-modal:create-clicked', config);
-    this.basicDropdownInstance!.actions.close();
+    this.floatingToolbarDropdownManager.dropdownInstances[
+      'primitivesModal'
+    ]?.actions.close();
   }
 }

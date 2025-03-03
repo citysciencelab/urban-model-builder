@@ -2,10 +2,15 @@
   @horizontalPosition="center"
   @verticalPosition="above"
   @renderInPlace={{true}}
-  @onOpen={{this.onShow}}
+  @onOpen={{this.onOpen}}
   @onClose={{this.onClose}}
+  @registerAPI={{fn
+    this.floatingToolbarDropdownManager.registerInstance
+    "simulateModal"
+  }}
   as |modal|
 >
+
   <modal.Content>
     <div class="simulate-card">
       <div class="simulate-card__row">
@@ -14,9 +19,12 @@
         </h4>
 
         <a
-          class={{if this.isPinned "pinned"}}
+          class={{if
+            this.floatingToolbarDropdownManager.isSimulateDropdownPinned
+            "pinned"
+          }}
           href="javascript:void(0)"
-          {{on "click" this.togglePin}}
+          {{on "click" this.toggleDropdown}}
         >
           <SvgIcon @icon="push_pin" @size="xs" />
         </a>
@@ -193,10 +201,7 @@
 
   </modal.Content>
   <modal.Trigger>
-    <BsButton
-      @type="secondary"
-      @onClick={{this.modelDialogs.onShowSimulateDialog}}
-    >
+    <BsButton @type="secondary">
       {{t "actions.simulate"}}
     </BsButton>
   </modal.Trigger>

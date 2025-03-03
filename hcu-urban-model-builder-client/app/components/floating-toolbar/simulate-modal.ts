@@ -19,6 +19,8 @@ import type EmberReactConnectorService from 'hcu-urban-model-builder-client/serv
 import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import { task, timeout } from 'ember-concurrency';
 import config from 'hcu-urban-model-builder-client/config/environment';
+import type FloatingToolbarDropdownManagerService from 'hcu-urban-model-builder-client/services/floating-toolbar-dropdown-manager';
+import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 
 export interface FloatingToolbarSimulateModalSignature {
   // The arguments accepted by the component
@@ -49,6 +51,8 @@ type ScatterPlotDataset = Awaited<
 
 const BASE_SPEED = 20;
 
+type EmberBasicDropdownAPI = { actions: { close: () => void } };
+
 export default class FloatingToolbarSimulateModalComponent extends Component<FloatingToolbarSimulateModalSignature> {
   readonly DEBOUNCE_MS = 250;
 
@@ -57,9 +61,12 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare eventBus: EventBus;
   @service declare emberReactConnector: EmberReactConnectorService;
+  @service
+  declare floatingToolbarDropdownManager: FloatingToolbarDropdownManagerService;
+  @service declare modelDialogs: ModelDialogsService;
+  basicDropdownInstance: EmberBasicDropdownAPI | null = null;
 
   @tracked show = false;
-  @tracked isPinned = false;
 
   @tracked isClientSideCalculation = true;
   @tracked activeTab: TabName = TabName.TimeSeries;
@@ -144,7 +151,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action
-  onShow() {
+  onOpen() {
+    this.floatingToolbarDropdownManager.onOpen('simulateModal');
     this.show = true;
     this.simulationTask.perform();
     return this.show;
@@ -465,10 +473,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action onClose() {
     this.show = false;
-    return !this.isPinned;
+    return !this.floatingToolbarDropdownManager.isSimulateDropdownPinned;
   }
 
-  @action togglePin() {
-    this.isPinned = !this.isPinned;
+  @action
+  toggleDropdown() {
+    this.floatingToolbarDropdownManager.togglePin('simulateModal');
   }
 }

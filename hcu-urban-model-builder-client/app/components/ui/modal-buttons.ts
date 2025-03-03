@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 
-export interface FloatingToolbarNodeSignature {
+export interface UiModalButtonsSignature {
   // The arguments accepted by the component
   Args: {};
   // Any blocks yielded by the component
@@ -11,4 +11,4 @@ export interface FloatingToolbarNodeSignature {
   Element: null;
 }
 
-export default class FloatingToolbarNodeComponent extends Component<FloatingToolbarNodeSignature> {}
+export default class UiModalButtonsComponent extends Component<UiModalButtonsSignature> {}

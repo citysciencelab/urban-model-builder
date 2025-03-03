@@ -19,7 +19,6 @@ export const BaseNode = memo(
       <div className="react-flow__node-base__content">
         <DefaultNodeHandles type={handleType} isConnectable={isConnectable} />
         <NodeResizer isVisible={!!selected} />
-
         <div className="react-flow__node-base__name">{name}</div>
 
         <DefaultNodeToolbar

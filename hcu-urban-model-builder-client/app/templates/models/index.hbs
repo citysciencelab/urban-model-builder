@@ -4,7 +4,7 @@
   <div class="card">
     {{! header }}
     <div class="card-header">
-      <h2 class="h5">
+      <h2 class="h3">
         {{t "routes.models.index.list_of_all_models"}}
       </h2>
       <div class="card-header-actions">
@@ -295,11 +295,11 @@
     </BsForm>
   </modal.body>
   <modal.footer>
-    <BsButton @onClick={{this.closeModal}}>
-      {{t "actions.cancel"}}
-    </BsButton>
-    <BsButton @type="success" @onClick={{this.submitModel}}>
-      {{t "actions.save"}}
-    </BsButton>
+    <Ui::ModalButtons
+      @onCancel={{this.closeModal}}
+      @onSubmit={{this.submitModel}}
+      @cancelText={{t "actions.cancel"}}
+      @submitText={{t "actions.save"}}
+    />
   </modal.footer>
 </BsModal>
