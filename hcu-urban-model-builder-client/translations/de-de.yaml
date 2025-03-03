@@ -137,6 +137,7 @@ components:
     output: Ausgabe
     add_point: Punkt hinzufügen
     interpolation_label: Interpolation
+    time: Zeit
   formula:
     search_placeholder: 'Suchbegriff…'
     nothing_found: Keine Ergebnisse

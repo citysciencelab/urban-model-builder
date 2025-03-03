@@ -58,8 +58,7 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
     if (this.inputNode.isPending) {
       return this.intl.t('actions.loading');
     }
-    // FIXME: i18n ⚡️ impact on functionality expected
-    return 'Time';
+    return this.intl.t('components.converter.time');
   }
 
   @action addNewValue() {
