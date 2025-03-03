@@ -3,115 +3,20 @@
 <div class="container main-content">
   <div class="card">
     {{! header }}
-    <div class="card-header">
-      <h2 class="h3">
-        {{t "routes.models.index.list_of_all_models"}}
-      </h2>
-      <div class="card-header-actions">
-        {{! search }}
-        <BsDropdown
-          @onShow={{this.onShowSearch}}
-          @closeOnMenuClick={{false}}
-          as |dd|
-        >
-          <dd.button
-            @size="sm"
-            @type={{if this.hasSearchQuery "primary" "tertiary"}}
-            class="search-button"
-          >
-            {{#if this.hasSearchQuery}}
-              <a
-                class="model-clear-search"
-                href="javascript:void(0)"
-                {{on "click" (fn this.clearSearch dd)}}
-              >
-                <FaIcon @icon="remove" />
-              </a>
-              <div class="model-search-preview">
-                {{this.q}}
-              </div>
-            {{else}}
-              <FaIcon @icon="search" />
-            {{/if}}
-          </dd.button>
-          <dd.menu>
-            <div class="model-search">
-              <Input
-                @value={{this._q}}
-                id="model-search-input"
-                {{on "change" this.onSearchChange}}
-              />
-              <BsButton @size="sm" @type="primary">
-                <FaIcon @icon="search" />
-              </BsButton>
-            </div>
-          </dd.menu>
-        </BsDropdown>
-        {{! sort }}
-        <BsDropdown @tagName="span" as |dd|>
-          <dd.button @size="sm" @type="tertiary">
-            <FaIcon @icon="arrow-down-a-z" />
-            {{t (concat "general." this.sort_key "_" this.sort_direction)}}
-            <span class="caret"></span>
-          </dd.button>
-          <dd.menu as |menu|>
-            <menu.item>
-              {{#if
-                (not
-                  (and
-                    (eq this.sort_key "createdAt") (eq this.sort_direction -1)
-                  )
-                )
-              }}
-                <a
-                  href="javascript:void(0)"
-                  class="dropdown-item"
-                  {{on "click" (fn this.onSortChange "createdAt" -1)}}
-                >
-                  {{t "general.createdAt_-1"}}
-                </a>
-              {{/if}}
-              {{#if
-                (not
-                  (and
-                    (eq this.sort_key "createdAt") (eq this.sort_direction 1)
-                  )
-                )
-              }}
-                <a
-                  href="javascript:void(0)"
-                  class="dropdown-item"
-                  {{on "click" (fn this.onSortChange "createdAt" 1)}}
-                >
-                  {{t "general.createdAt_1"}}
-                </a>
-              {{/if}}
-              {{#if
-                (not
-                  (and
-                    (eq this.sort_key "updatedAt") (eq this.sort_direction -1)
-                  )
-                )
-              }}
-                <a
-                  href="javascript:void(0)"
-                  class="dropdown-item"
-                  {{on "click" (fn this.onSortChange "updatedAt" -1)}}
-                >
-                  {{t "general.updatedAt_-1"}}
-                </a>
-              {{/if}}
-            </menu.item>
-          </dd.menu>
-        </BsDropdown>
-        {{! create }}
-        <BsButton @type="primary" @size="sm" {{on "click" this.startCreating}}>
-          <FaIcon @icon="plus" />
-          {{t "routes.models.index.add_model"}}
-        </BsButton>
-      </div>
-    </div>
-
+    {{#let this._q as |searchQuery|}}
+      <ModelsIndexHeader
+        @onShowSearch={{this.onShowSearch}}
+        @hasSearchQuery={{this.hasSearchQuery}}
+        @q={{this.q}}
+        @searchQuery={{searchQuery}}
+        @clearSearch={{this.clearSearch}}
+        @onSearchChange={{this.onSearchChange}}
+        @sort_key={{this.sort_key}}
+        @sort_direction={{this.sort_direction}}
+        @onSortChange={{this.onSortChange}}
+        @startCreating={{this.startCreating}}
+      />
+    {{/let}}
     {{! list }}
     <BsListGroup class="list-group-flush" as |ListGroup|>
       {{#let this.persistedModels as |models|}}

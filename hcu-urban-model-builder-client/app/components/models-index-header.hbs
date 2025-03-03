@@ -1,0 +1,86 @@
+<div class="card-header">
+  <h2 class="h3">
+    {{t "routes.models.index.list_of_all_models"}}
+  </h2>
+  <div class="card-header-actions">
+    {{! search }}
+    <BsDropdown @onShow={{@onShowSearch}} @closeOnMenuClick={{false}} as |dd|>
+      <dd.button
+        @size="sm"
+        @type={{if @hasSearchQuery "primary" "tertiary"}}
+        class="search-button"
+      >
+        {{#if @hasSearchQuery}}
+          <a
+            class="model-clear-search"
+            href="javascript:void(0)"
+            {{on "click" (fn @clearSearch dd)}}
+          >
+            <FaIcon @icon="remove" />
+          </a>
+          <div class="model-search-preview">
+            {{@q}}
+          </div>
+        {{else}}
+          <FaIcon @icon="search" />
+        {{/if}}
+      </dd.button>
+      <dd.menu>
+        <div class="model-search">
+          <Input
+            @value={{@searchQuery}}
+            id="model-search-input"
+            {{on "change" @onSearchChange}}
+          />
+          <BsButton @size="sm" @type="primary">
+            <FaIcon @icon="search" />
+          </BsButton>
+        </div>
+      </dd.menu>
+    </BsDropdown>
+    {{! sort }}
+    <BsDropdown @tagName="span" as |dd|>
+      <dd.button @size="sm" @type="tertiary">
+        <FaIcon @icon="arrow-down-a-z" />
+        {{t (concat "general." @sort_key "_" @sort_direction)}}
+        <span class="caret"></span>
+      </dd.button>
+      <dd.menu as |menu|>
+        <menu.item>
+          {{#if (not (and (eq @sort_key "createdAt") (eq @sort_direction -1)))}}
+            <a
+              href="javascript:void(0)"
+              class="dropdown-item"
+              {{on "click" (fn @onSortChange "createdAt" -1)}}
+            >
+              {{t "general.createdAt_-1"}}
+            </a>
+          {{/if}}
+          {{#if (not (and (eq @sort_key "createdAt") (eq @sort_direction 1)))}}
+            <a
+              href="javascript:void(0)"
+              class="dropdown-item"
+              {{on "click" (fn @onSortChange "createdAt" 1)}}
+            >
+              {{t "general.createdAt_1"}}
+            </a>
+          {{/if}}
+          {{#if (not (and (eq @sort_key "updatedAt") (eq @sort_direction -1)))}}
+            <a
+              href="javascript:void(0)"
+              class="dropdown-item"
+              {{on "click" (fn @onSortChange "updatedAt" -1)}}
+            >
+              {{t "general.updatedAt_-1"}}
+            </a>
+          {{/if}}
+        </menu.item>
+      </dd.menu>
+    </BsDropdown>
+    {{! create }}
+    <BsButton @type="primary" @size="sm" {{on "click" @startCreating}}>
+      <FaIcon @icon="plus" />
+      {{t "routes.models.index.add_model"}}
+    </BsButton>
+  </div>
+</div>
