@@ -37,6 +37,12 @@
             @search={{this.lookupUsers}}
             @selected={{this.changeset.selectedUser}}
             @onChange={{this.onUserChange}}
+            @searchMessage={{t "components.share_modal.search_message"}}
+            @loadingMessage={{t "components.share_modal.loading_message"}}
+            @noMatchesMessage={{t "components.share_modal.no_matches_message"}}
+            @searchPlaceholder={{t
+              "components.share_modal.search_user_placeholder"
+            }}
             as |user|
           >
             {{user.email}}

@@ -115,6 +115,10 @@ components:
     no_permissions_yet: Bisher keine Berechtigungen
     user_label: Benutzer
     role_label: Rolle
+    search_user_placeholder: "Nutzer suchen..."
+    search_message: "Tippen zum Suchen"
+    loading_message: "Lädt..."
+    no_matches_message: "Keine Ergebnisse gefunden"
   settings_dialog:
     title: Modelleinstellungen
     intro: Hier können Sie die (Simulations-)Einstellungen des Modells bearbeiten.

@@ -116,6 +116,10 @@ components:
     no_permissions_yet: No permissions yet
     user_label: User
     role_label: Role
+    search_user_placeholder: "Search users..."
+    search_message: "Type to search"
+    loading_message: "Loading..."
+    no_matches_message: "No results found"
   settings_dialog:
     title: Model settings
     intro: Here you can edit the (simulation) settings of the model.
