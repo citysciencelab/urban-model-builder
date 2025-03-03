@@ -218,8 +218,17 @@ components:
     geo_height_label: Geo Height
     geo_wrap_around_label: Geo Wrap Around
     geo_placement_type_label: Geo Placement Type
+    geo_placement_type_options:
+      "Custom Function": Custom Function
+      Ellipse: Ellipse
+      Grid: Grid
+      Network: Network
+      Random: Random
     geo_placement_function_label: Geo Placement Function
     network_type_label: Network Type
+    network_type_options:
+      "Custom Function": Custom Function
+      None: None
     network_function_label: Network Function
   state:
     start_active_label: Start Active

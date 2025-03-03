@@ -36,7 +36,12 @@
   @label={{t "components.population.geo_placement_type_label"}}
   @property="data.geoPlacementType"
   @options={{this.geoPlacementTypeOptions}}
-/>
+  as |el|
+>
+  <el.control as |option|>
+    {{t (concat "components.population.geo_placement_type_options." option)}}
+  </el.control>
+</@form.element>
 
 <@form.element
   @controlType="text"
@@ -49,7 +54,12 @@
   @label={{t "components.population.network_type_label"}}
   @property="data.networkType"
   @options={{this.networkTypeOptions}}
-/>
+  as |el|
+>
+  <el.control as |option|>
+    {{t (concat "components.population.network_type_options." option)}}
+  </el.control>
+</@form.element>
 
 <@form.element
   @controlType="text"
