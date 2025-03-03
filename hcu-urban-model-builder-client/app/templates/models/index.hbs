@@ -1,4 +1,4 @@
-{{page-title "Index"}}
+{{page-title (t "routes.models.index.title")}}
 
 <div class="container main-content">
   <div class="card">
@@ -157,7 +157,7 @@
                     <FaIcon @icon="shield" @fixedWidth={{false}} />
                     &nbsp;
                     {{#if (eq this.user.currentUserId model.createdBy.id)}}
-                      Creator
+                      {{t "permissions.creator"}}
                     {{else if model.role}}
                       {{t (concat "permissions." model.role)}}
                     {{else}}
@@ -258,6 +258,7 @@
   <modal.header>
     <h5 class="modal-title">
       {{#if (eq this.mode "edit")}}
+        {{! template-lint-disable no-triple-curlies  }}
         {{{t "routes.models.index.edit_title" name=this.changeset.name}}}
       {{else}}
         {{t "routes.models.index.create_new_title"}}

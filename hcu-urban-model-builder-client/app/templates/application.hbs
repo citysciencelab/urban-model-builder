@@ -1,17 +1,18 @@
-{{page-title "Urban Model Builder"}}
+{{page-title (t "routes.application.title")}}
 
 <BsNavbar
   @type="dark"
   @backgroundColor="dark"
   @fluid={{false}}
-  id="navbar-main" as |navbar|
+  id="navbar-main"
+  as |navbar|
 >
   <div class="navbar-header">
     <navbar.toggle />
     <LinkTo @route="models.index" class="navbar-brand">
       <img
         src="/assets/images/urban-model-builder-logo.svg"
-        alt="urban-model-builder-logo"
+        alt={{t "routes.application.title"}}
       />
       {{t "general.brand"}}
     </LinkTo>
@@ -54,6 +55,7 @@
     {{/if}}
   </ul>
 </BsNavbar>
+
 <div id="ember-bootstrap-wormhole"></div>
 <BasicDropdownWormhole />
 

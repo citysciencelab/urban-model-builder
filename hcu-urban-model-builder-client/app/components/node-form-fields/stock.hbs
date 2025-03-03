@@ -1,7 +1,8 @@
 <@form.element
   @controlType="textarea"
-  @label="Value"
-  @property="data.value" as |el|
+  @label={{t "components.stock.value_label"}}
+  @property="data.value"
+  as |el|
 >
   <NodeFormFields::Formula
     @form={{@form}}

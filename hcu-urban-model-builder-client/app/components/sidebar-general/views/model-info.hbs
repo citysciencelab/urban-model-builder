@@ -13,7 +13,7 @@
       <ContentEditable
         @value={{this.changeset.dataProxy.internalName}}
         @onChange={{fn (mut this.changeset.dataProxy.internalName)}}
-        @placeholder="Name…"
+        @placeholder={{t "components.model_info.name_placeholder"}}
       />
     {{else}}
       {{this.changeset.dataProxy.internalName}}
@@ -31,7 +31,7 @@
     {{#if @modelVersion.isPublished}}
       &nbsp;
       <span class="badge rounded-pill badge-success text-bg-light">
-        Public
+        {{t "components.model_info.public"}}
       </span>
     {{/if}}
 
@@ -39,12 +39,12 @@
     {{#if @modelVersion.canEdit}}
       &nbsp;
       <span class="badge rounded-pill badge-warning text-bg-light">
-        Edit Mode
+        {{t "components.model_info.edit_mode"}}
       </span>
     {{else}}
       &nbsp;
       <span class="badge rounded-pill badge-warning text-bg-light">
-        View Mode
+        {{t "components.model_info.view_mode"}}
       </span>
     {{/if}}
   </div>
@@ -54,7 +54,7 @@
     <ContentEditable
       @value={{this.changeset.dataProxy.description}}
       @onChange={{fn (mut this.changeset.dataProxy.description)}}
-      @placeholder="Description…"
+      @placeholder={{t "components.model_info.description_placeholder"}}
     />
   {{else}}
     {{this.changeset.dataProxy.description}}
@@ -68,7 +68,7 @@
       {{on "click" this.modelDialogs.onShowSettingsDialog}}
     >
       <SvgIcon @icon="settings" @size="md" />
-      Settings
+      {{t "components.model_info.settings"}}
     </a>
   </div>
 </div>

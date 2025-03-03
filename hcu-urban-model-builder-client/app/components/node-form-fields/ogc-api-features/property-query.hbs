@@ -1,6 +1,6 @@
 <@acc.item
   @value="property-query"
-  @title="Property Queries"
+  @title={{t "components.property_query.title"}}
   {{did-update this.onCollectionIdChanged this.collectionId}}
 >
   <div class="property-query-wrapper">
@@ -24,12 +24,12 @@
       </div>
     {{else}}
       <div>
-        No query params selected
+        {{t "components.property_query.no_params"}}
       </div>
     {{/each}}
   </div>
 
-  <@form.element @label="Query Property">
+  <@form.element @label={{t "components.property_query.query_property"}}>
     <PowerSelect
       @options={{this.queryablePropertiesOptions}}
       @selected={{this.selectedNewQueryProperty}}
@@ -43,7 +43,9 @@
     </PowerSelect>
   </@form.element>
 
-  <@form.element @label="Query Property Operator">
+  <@form.element
+    @label={{t "components.property_query.query_property_operator"}}
+  >
     <PowerSelect
       @options={{this.currentQueryOperatorOptions}}
       @selected={{this.newQueryOperator}}
@@ -56,7 +58,7 @@
   </@form.element>
 
   <@form.element
-    @label="Query Property Value"
+    @label={{t "components.property_query.query_property_value"}}
     @controlType={{this.newQueryValueControlType}}
     @value={{this.newQueryValue}}
     @onChange={{fn (mut this.newQueryValue)}}
@@ -70,6 +72,6 @@
     @onClick={{this.addNewQuery}}
     disabled={{this.isAddNewQueryPropertyDisabled}}
   >
-    Add
+    {{t "components.property_query.add_query"}}
   </BsButton>
 </@acc.item>

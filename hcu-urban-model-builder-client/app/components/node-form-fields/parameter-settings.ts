@@ -2,6 +2,9 @@ import Component from '@glimmer/component';
 import type Node from 'hcu-urban-model-builder-client/models/node';
 import { action } from '@ember/object';
 import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
+import { tracked } from '@glimmer/tracking';
+import type IntlService from 'ember-intl/services/intl';
+import { inject as service } from '@ember/service';
 export interface NodeFormFieldsParameterSettingsSignature {
   // The arguments accepted by the component
   Args: {
@@ -19,11 +22,14 @@ export interface NodeFormFieldsParameterSettingsSignature {
 }
 
 export default class NodeFormFieldsParameterSettingsComponent extends Component<NodeFormFieldsParameterSettingsSignature> {
+  @service declare intl: IntlService;
+
+  @tracked
   parameterTypes = [
-    { value: null, label: 'None' },
-    { value: 'boolean', label: 'Boolean' },
-    { value: 'slider', label: 'Slider' },
-    { value: 'select', label: 'Select' },
+    { value: null, label: 'null_type' },
+    { value: 'boolean', label: 'boolean_type' },
+    { value: 'slider', label: 'slider_type' },
+    { value: 'select', label: 'select_type' },
   ];
 
   get filteredParameterTypes() {
@@ -40,6 +46,14 @@ export default class NodeFormFieldsParameterSettingsComponent extends Component<
     return this.parameterTypes.filter(
       (item) => item.value == this.args.changeset.dataProxy.parameterType,
     )[0];
+  }
+
+  @action prepare() {
+    for (const paramType of this.parameterTypes) {
+      paramType.label = this.intl.t(
+        `components.parameter_settings.parameter_types.${paramType.label}`,
+      );
+    }
   }
 
   @action onParameterTypeChange(parameterType: {
@@ -117,7 +131,10 @@ export default class NodeFormFieldsParameterSettingsComponent extends Component<
 
   @action addParameterSelectOption() {
     let nextValue = 0;
-    if (!this.args.changeset.dataProxy.parameterOptions) {
+    if (
+      !this.args.changeset.dataProxy.parameterOptions?.data ||
+      this.args.changeset.dataProxy.parameterOptions.data.length == 0
+    ) {
       this.args.changeset.dataProxy.parameterOptions = {
         data: [],
       };
@@ -129,7 +146,7 @@ export default class NodeFormFieldsParameterSettingsComponent extends Component<
     }
     this.args.changeset.dataProxy.parameterOptions.data.push({
       value: nextValue,
-      label: `New Value`,
+      label: this.intl.t('components.parameter_settings.initial_value_label'),
     });
   }
 }

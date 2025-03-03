@@ -14,6 +14,13 @@ pagination:
   prev: Zurück
   next: Weiter
 
+messages:
+  error: Fehler
+  warning: Warnung
+  general_error: Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den Support.
+  form_error: Es gibt einen Fehler im Formular. Bitte korrigieren um zu speichern.
+  saving: Speichern…
+
 actions:
   save: Speichern
   save_for_everyone: Für alle speichern
@@ -26,11 +33,15 @@ actions:
   loading: Lädt…
   share: Teilen
   close: Schließen
+  delete: Löschen
+  simulate: Simulieren
 
 node-toolbar:
   title: Primitives
 
 models:
+  node:
+    error: Fehler in Knoten
   model:
     singular: Modell
     plural: Modelle
@@ -53,19 +64,37 @@ models:
       timeStep: Intervall
       algorithm: Algorithmus
       globals: Globals & Makros
+  nodes:
+    attributes:
+      name: Name
+      description: Beschreibung
+    ghost_warning: Dies ist ein Geisterknoten
 public_models:
   model:
     plural: Öffentliche Modelle
 
 routes:
+  application:
+    title: "Urban Model Builder"
   models:
+    title: Modelle
     index:
+      title: Alle
       list_of_all_models: Liste aller Modelle
       add_model: Modell erstellen
       total: Modelle gesamt 
       create_new_title: Neues Modell erstellen
       edit_title: Modell <em>{name}</em> bearbeiten
       no_models_found: Keine Modelle gefunden
+    versions:
+      show:
+        title: Ansicht
+  public_models:
+    title: Öffentliche Modelle
+  login: 
+    title: Login
+  demo:
+    title: Demo
 
 components:
   clone_dialog:
@@ -77,17 +106,159 @@ components:
   simulate_modal:
     title: Simulationsergebnisse
     is_client_side: Clientseitige Berechnung?
+    controls: Simulationseinstellungen
+    default_speed: Standard
   share_modal:
     title: Modell teilen
     intro: Hier können Sie das Modell mit anderen Nutzern teilen.
+    current_permissions: Aktuelle Berechtigungen
+    no_permissions_yet: Bisher keine Berechtigungen
+    user_label: Benutzer
+    role_label: Rolle
   settings_dialog:
     title: Modelleinstellungen
     intro: Hier können Sie die (Simulations-)Einstellungen des Modells bearbeiten.
+  data_transformation:
+    title: Datentransformation
+    select_all: Alle auswählen
+    data_key_field: Schlüsselfeld
+    data_value_field: Wertfeld
+  property_query:
+    title: Feld-Abfragen
+    add_query: Hinzufügen
+    no_params: Keine Parameter ausgewählt
+    query_property: Abfragefeld
+    query_property_operator: Operator
+    query_property_value: Abfragewert
+    filter_help_text: Geben Sie einen gültigen CQL2-Filterausdruck ein
+  converter:
+    mapping: Mapping
+    input: Eingabe
+    output: Ausgabe
+    add_point: Punkt hinzufügen
+    interpolation_label: Interpolation
+    time: Zeit
+  formula:
+    search_placeholder: 'Suchbegriff…'
+    nothing_found: Keine Ergebnisse
+  ogc_api:
+    more_info: Mehr Informationen zur API
+    total: Datensätze gesamt
+    matching: Passende Datensätze
+    in_limit: Datensätze im Limit
+    preview: Vorschau
+    collection_label: Sammlung
+    apis_label: APIs
+    limit_label: Limit
+    offset_label: Offset
+    include_geom_data_label: Geometriedaten einschließen?
+    selected_properties_label: Ausgewählte Eigenschaften
+    advanced_filter_title: Erweiterte Filterabfrage
+    advanced_filter_label: Filter (CQL2)
+    data_preview_title: Daten-Vorschau
+  parameter_settings:
+    title: "Schnittstelle & Szenario"
+    input: Eingabe
+    value: Wert
+    label: Label
+    add_option: Option hinzufügen
+    output: Ausgabe
+    min_label: Min
+    step_label: Schritt
+    max_label: Max
+    is_output_parameter_label: Ist Ausgabeparameter?
+    select_parameter_type_placeholder: Parametertyp wählen
+    no_options_added: Bitte fügen Sie mindestens eine Option hinzu
+    initial_value_label: Neue Option
+    parameter_types:
+      null_type: Keine Parameter
+      boolean_type: Boolcher Wert
+      slider_type: Schieberegler
+      select_type: Wertehilfe
+  unit_selection: 
+    unit_label: Einheit
+    unitless: Ohne Einheit
+  model_info:
+    public: Öffentlich
+    edit_mode: Bearbeitungsmodus
+    view_mode: Ansichtsmodus
+    settings: Einstellungen
+    name_placeholder: Name…
+    description_placeholder: Beschreibung…
+  scenarios:
+    title: Szenario
+    no_parameters: Keine Parameter
+  share:
+    latest: Neuestes
+    new_draft: Neuer Entwurf
+    publish: Veröffentlichen
+    share: Teilen
+    clone: Klonen
+  parameter_bool:
+    on: On
+  parameter_slider:
+    below_minimum_value: Der aktuelle Wert liegt unter dem Mindestwert.
+    above_maximum_value: Der aktuelle Wert liegt über dem Höchstwert.
+    not_a_multiple: Der aktuelle Wert ist kein Vielfaches der Schrittweite.
+  action:
+    action_label: Aktion
+    trigger_label: Auslöser
+    trigger_options:
+      Condition: Condition
+      Probability: Probability
+      Timeout: Timeout
+    value_label: Wert
+    recalculate_label: Neu berechnen
+    repeat_label: Wiederholen
+  flow:
+    rate_label: Rate
+  population:
+    population_size_label: Größe der Bevölkerung
+    geo_width_label: Geo Breite
+    geo_height_label: Geo Höhe
+    geo_wrap_around_label: Geo Wrap Around
+    geo_placement_type_label: Geo Platzierungstyp
+    geo_placement_type_options:
+      "Custom Function": Benutzerdefinierte Funktion
+      Ellipse: Ellipse
+      Grid: Grid
+      Network: Network
+      Random: Random
+    geo_placement_function_label: Geo Platzierungsfunktions
+    network_type_label: Netzwerktyp
+    network_type_options:
+      "Custom Function": Benutzerdefinierte Funktion
+      None: Keine
+    network_function_label: Netzwerkfunktion
+  state:
+    start_active_label: Aktiv zum Start
+    residency_label: Vorhaltezeit
+    value_control_help_text: Derzeit als Szenario-Parameter gesteuert
+  stock:
+    value_label: Wert
+  transition:
+    trigger: Trigger
+    trigger_options:
+      Condition: Condition
+      Probability: Probability
+      Timeout: Timeout
+    value: Wert
+    recalculate: Neuberechnen
+    repeat: Wiederholen
+  validation:
+    title: Validierung
+    minimum_contraint: Minimale Einschränkung
+    minimum_value: Minimaler Wert
+    maximum_contraint: Maximale Einschränkung
+    maximum_value: Maximaler Wert
+  variable:
+    value_label: Wert
 
 permissions:
   0: Keine Berechtigung
   1: Ansicht
   2: Mitbearbeiter
-  3: Co-Owner
-  4: Owner
+  3: Co-Inhaber
+  4: Ersteller
   you: Du selbst
+  creator: Ersteller

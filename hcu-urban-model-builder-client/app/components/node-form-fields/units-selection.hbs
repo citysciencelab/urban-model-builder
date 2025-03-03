@@ -6,7 +6,7 @@
   <@form.element
     class="units__selection__input"
     @controlType="text"
-    @label="Unit"
+    @label={{t "components.unit_selection.unit_label"}}
     @value={{this._value}}
     @onChange={{this.onInputChange}}
     as |el|
@@ -79,7 +79,7 @@
                   href="javascript:void(0)"
                   {{on "click" (fn this.onItemClick "Unitless")}}
                 >
-                  Unitless
+                  {{t "components.unit_selection.unitless"}}
                 </a>
               </ListGroup.item>
             </BsListGroup>

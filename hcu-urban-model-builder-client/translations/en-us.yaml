@@ -14,6 +14,13 @@ pagination:
   prev: Back
   next: Next
 
+messages:
+  error: Error
+  warning: Warning
+  general_error: Please try again. If the problem persists, please contact support. 
+  form_error: There is an error in the form. Please fix it to save.
+  saving: Saving…
+
 actions:
   save: Save
   save_for_everyone: Save for everyone
@@ -26,11 +33,15 @@ actions:
   loading: Loading…
   share: Share
   close: Close
+  delete: Delete
+  simulate: Simulate
 
 node-toolbar:
   title: Primitives
   
 models:
+  node:
+    error: Error in node
   model:
     singular: Model
     plural: Models
@@ -53,19 +64,38 @@ models:
       timeStep: Interval
       algorithm: Algorithm
       globals: Globals & Macros
+  nodes:
+    attributes:
+      name: Name
+      description: Description
+    ghost_warning: This is a ghost node
 public_models:
   model:
     plural: Public models
 
 routes:
+  application:
+    title: "Urban Model Builder"
   models:
+    title: Models
     index:
+      index:
+        title: All
       list_of_all_models: List of all models
       add_model: Create model
       total: Total models
       create_new_title: Create new model
       edit_title: Edit model <em>{name}</em>
       no_models_found: No models found
+    versions:
+      show:
+        title: Show
+  public_models:
+    title: Public Models
+  login: 
+    title: Login
+  demo:
+    title: Demo
 
 components:
   clone_dialog:
@@ -77,12 +107,153 @@ components:
   simulate_modal:
     title: Simulation Results
     is_client_side: Is client side calculation?
+    controls: Simulation Control
+    default_speed: Normal speed
   share_modal:
     title: Share model
     intro: Here you can share the model with other users.
+    current_permissions: Actual permissions
+    no_permissions_yet: No permissions yet
+    user_label: User
+    role_label: Role
   settings_dialog:
     title: Model settings
     intro: Here you can edit the (simulation) settings of the model.
+  data_transformation:
+    title: Data Transformations
+    select_all: Select all
+    data_key_field: Data Key Field
+    data_value_field: Data Value Field
+  property_query:
+    title: Property Queries
+    add_query: Add
+    no_params: No query params selected
+    query_property: Query Property
+    query_property_operator: Query Property Operator
+    query_property_value: Query Property Value
+    filter_help_text: Enter a valid CQL2 filter expression
+  converter:
+    mapping: Mapping
+    input: Input
+    output: Output
+    add_point: Add Point
+    interpolation_label: Interpolation
+    time: Time
+  formula:
+    search_placeholder: 'Search…'
+    nothing_found: Nothing found
+  ogc_api:
+    more_info: Mehr Informationen zur API
+    total: Total items
+    matching: Matching items
+    in_limit: Within limit
+    preview: Preview
+    collection_label: Collection
+    apis_label: APIs
+    limit_label: Limit
+    offset_label: Offset
+    include_geom_data_label: Include Geometry Data?
+    selected_properties_label: Selected Properties
+    advanced_filter_title: Advanced Filter Query
+    advanced_filter_label: Filter (CQL2)
+    data_preview_title: Data Preview
+  parameter_settings:
+    title: "Interface & Scenario"
+    input: Input
+    value: Value
+    label: Label
+    add_option: Add Option
+    output: Output
+    min_label: Min
+    step_label: Step
+    max_label: Max
+    is_output_parameter_label: Is Output Parameter?
+    select_parameter_type_placeholder: Select Parameter Type
+    no_options_added: Please add at least one option
+    initial_value_label: New Option
+    parameter_types:
+      null_type: No Parameter
+      boolean_type: Boolean
+      slider_type: Slider
+      select_type: Select
+  unit_selection: 
+    unit_label: Unit
+    unitless: Unitless
+  model_info:
+    public: Public
+    edit_mode: Edit Mode
+    view_mode: View Mode
+    settings: Settings
+    name_placeholder: Name…
+    description_placeholder: Description…
+  scenarios:
+    title: Scenario
+    no_parameters: No Parameters
+  share:
+    latest: Latest
+    new_draft: New Draft
+    publish: Publish
+    share: Share
+    clone: Clone
+  parameter_bool:
+    on: On
+  parameter_slider:
+    below_minimum_value: The current value is below the minimum value.
+    above_maximum_value: The current value is above the maximum value.
+    not_a_multiple: The current value is not a multiple of the step size.
+  action:
+    action_label: Action
+    trigger_label: Trigger
+    trigger_options:
+      Condition: Condition
+      Probability: Probability
+      Timeout: Timeout
+    value_label: Value
+    recalculate_label: Neu Recalculate
+    repeat_label: Repeat
+  flow:
+    rate_label: Rate
+  population:
+    population_size_label: Population Size
+    geo_width_label: Geo Width
+    geo_height_label: Geo Height
+    geo_wrap_around_label: Geo Wrap Around
+    geo_placement_type_label: Geo Placement Type
+    geo_placement_type_options:
+      "Custom Function": Custom Function
+      Ellipse: Ellipse
+      Grid: Grid
+      Network: Network
+      Random: Random
+    geo_placement_function_label: Geo Placement Function
+    network_type_label: Network Type
+    network_type_options:
+      "Custom Function": Custom Function
+      None: None
+    network_function_label: Network Function
+  state:
+    start_active_label: Start Active
+    residency_label: Residency
+    value_control_help_text: Currently controlled as scenario parameter
+  stock:
+    value_label: Value
+  transition:
+    trigger: Trigger
+    trigger_options:
+      Condition: Condition
+      Probability: Probability
+      Timeout: Timeout
+    value: Value
+    recalculate: Recalculate
+    repeat: Repeat
+  validation:
+    title: Validation
+    minimum_contraint: Minimum Contraint
+    minimum_value: Minimum Value
+    maximum_contraint: Maximum Contraint
+    maximum_value: Maximum Value
+  variable:
+    value_label: Value
 
 permissions:
   0: No authorization
@@ -91,3 +262,4 @@ permissions:
   3: Co-Owner
   4: Owner
   you: You
+  creator: Creator

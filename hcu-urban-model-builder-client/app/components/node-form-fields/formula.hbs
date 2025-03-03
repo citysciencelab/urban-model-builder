@@ -14,7 +14,7 @@
             id="formulas-filter"
             @type="text"
             @value={{this.filterValue}}
-            placeholder="Search..."
+            placeholder={{t "components.formula.search_placeholder"}}
           />
           <a
             href="javascript:void(0)"
@@ -55,7 +55,7 @@
           {{else}}
             <BsListGroup @flush={{true}} as |ListGroup|>
               <ListGroup.item>
-                Nothing found
+                {{t "components.formula.nothing_found"}}
               </ListGroup.item>
             </BsListGroup>
           {{/each-in}}

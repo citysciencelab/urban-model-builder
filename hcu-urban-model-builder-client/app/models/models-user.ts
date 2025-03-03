@@ -10,7 +10,6 @@ export default class ModelsUser extends Model {
   @belongsTo('model', { async: true, inverse: 'modelsUsers' })
   declare model: AsyncBelongsTo<ModelModel>;
 
-  // FIXME: does not seem to work as expected
   @belongsTo('user', { async: true, inverse: 'modelsUsers' })
   declare user: AsyncBelongsTo<UserModel>;
 

@@ -43,6 +43,7 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
   @tracked selectedUser: UserModel | null = null;
   @tracked currentPermissions: ModelsUser[] = [];
 
+  @tracked
   roles = [
     {
       label: 'None',

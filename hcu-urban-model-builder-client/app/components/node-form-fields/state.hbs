@@ -1,12 +1,12 @@
 <@form.element
   @controlType="textarea"
-  @label="Start Active"
-  @helpText={{
-    if
+  @label={{t "components.state.start_active_label"}}
+  @helpText={{if
     @changeset.dataProxy.isParameter
-    "Currently controlled as scenario parameter"
+    (t "components.state.value_control_help_text")
   }}
-  @property="data.startActive" as |el|
+  @property="data.startActive"
+  as |el|
 >
   <NodeFormFields::Formula
     @form={{@form}}
@@ -23,8 +23,9 @@
 
 <@form.element
   @controlType="textarea"
-  @label="Residency"
-  @property="data.residency" as |el|
+  @label={{t "components.state.residency_label"}}
+  @property="data.residency"
+  as |el|
 >
   <NodeFormFields::Formula
     @form={{@form}}
