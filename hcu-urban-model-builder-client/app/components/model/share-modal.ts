@@ -63,6 +63,10 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
     },
   ];
 
+  get Validation() {
+    return ModelShareValidations(this.intl);
+  }
+
   async initChangeset() {
     this.formModel = {
       selectedUser: null,
@@ -72,8 +76,8 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
 
     this.changeset = Changeset(
       this.formModel,
-      lookupValidator(ModelShareValidations),
-      ModelShareValidations,
+      lookupValidator(this.Validation),
+      this.Validation,
     );
   }
 

@@ -8,6 +8,7 @@ import type { FormModelClone } from 'global';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 import type EmberRouter from '@ember/routing/router';
 import { inject as service } from '@ember/service';
+import type IntlService from 'ember-intl/services/intl';
 
 export interface ModelCloneDialogSignature {
   Args: {
@@ -22,8 +23,13 @@ export interface ModelCloneDialogSignature {
 
 export default class ModelCloneDialogComponent extends Component<ModelCloneDialogSignature> {
   @service declare router: EmberRouter;
+  @service intl!: IntlService;
   @tracked changeset!: EmberChangeset;
   @tracked formModel!: FormModelClone;
+
+  get Validation() {
+    return ModelCloneValidations(this.intl);
+  }
 
   @action prepare() {
     this.formModel = {
@@ -31,8 +37,8 @@ export default class ModelCloneDialogComponent extends Component<ModelCloneDialo
     };
     this.changeset = Changeset(
       this.formModel,
-      lookupValidator(ModelCloneValidations),
-      ModelCloneValidations,
+      lookupValidator(this.Validation),
+      this.Validation,
     );
   }
 
