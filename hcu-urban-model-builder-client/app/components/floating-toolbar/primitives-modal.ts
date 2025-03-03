@@ -6,7 +6,7 @@ import { service } from '@ember/service';
 import { NodeType } from 'hcu-urban-model-builder-backend';
 import { decamelize, dasherize } from '@ember/string';
 import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
-import type DropdownManagerService from 'hcu-urban-model-builder-client/services/dropdown-manager';
+import type FloatingToolbarDropdownManagerService from 'hcu-urban-model-builder-client/services/floating-toolbar-dropdown-manager';
 
 export interface FloatingToolbarPrimitivesModalSignature {
   // The arguments accepted by the component
@@ -43,7 +43,8 @@ type NodeTypeConfig = {
 
 export default class FloatingToolbarPrimitivesModalComponent extends Component<FloatingToolbarPrimitivesModalSignature> {
   @service declare eventBus: EventBus;
-  @service declare dropdownManager: DropdownManagerService;
+  @service
+  declare floatingToolbarDropdownManager: FloatingToolbarDropdownManagerService;
 
   readonly nodeGroups = [
     {
@@ -84,20 +85,22 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
 
   @action
   toggleDropdown() {
-    this.dropdownManager.togglePin('primitivesModal');
+    this.floatingToolbarDropdownManager.togglePin('primitivesModal');
   }
 
   @action onOpen() {
-    this.dropdownManager.onOpen('primitivesModal');
+    this.floatingToolbarDropdownManager.onOpen('primitivesModal');
     return true;
   }
 
   @action onClose() {
-    return !this.dropdownManager.isPrimitivesDropdownPinned;
+    return !this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned;
   }
 
   @action onNodeClick(config: NodeTypeConfig) {
     this.eventBus.emit('primitive-modal:create-clicked', config);
-    this.dropdownManager.dropdownInstances['primitivesModal']?.actions.close();
+    this.floatingToolbarDropdownManager.dropdownInstances[
+      'primitivesModal'
+    ]?.actions.close();
   }
 }

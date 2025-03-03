@@ -5,7 +5,7 @@ import { tracked } from '@glimmer/tracking';
 type DropdownNames = 'simulateModal' | 'primitivesModal';
 type EmberBasicDropdownAPI = { actions: { close: () => void } };
 
-export default class DropdownManagerService extends Service {
+export default class FloatingToolbarDropdownManagerService extends Service {
   dropdownInstances: Partial<Record<DropdownNames, EmberBasicDropdownAPI>> = {};
   @tracked isSimulateDropdownPinned = false;
   @tracked isPrimitivesDropdownPinned = false;
@@ -37,11 +37,11 @@ export default class DropdownManagerService extends Service {
 }
 
 // Don't remove this declaration: this is what enables TypeScript to resolve
-// this service using `Owner.lookup('service:dropdown-manager')`, as well
+// this service using `Owner.lookup('service:floating-toolbar-dropdown-manager')`, as well
 // as to check when you pass the service name as an argument to the decorator,
-// like `@service('dropdown-manager') declare altName: DropdownManagerService;`.
+// like `@service('floating-toolbar-dropdown-manager') declare altName: FloatingToolbarDropdownManagerService;`.
 declare module '@ember/service' {
   interface Registry {
-    'dropdown-manager': DropdownManagerService;
+    'floating-toolbar-dropdown-manager': FloatingToolbarDropdownManagerService;
   }
 }

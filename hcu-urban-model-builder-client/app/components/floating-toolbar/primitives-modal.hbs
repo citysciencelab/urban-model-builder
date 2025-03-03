@@ -5,7 +5,10 @@
     @onOpen={{this.onOpen}}
     @onClose={{this.onClose}}
     @renderInPlace={{true}}
-    @registerAPI={{fn this.dropdownManager.registerInstance "primitivesModal"}}
+    @registerAPI={{fn
+      this.floatingToolbarDropdownManager.registerInstance
+      "primitivesModal"
+    }}
     as |dd|
   >
 
@@ -22,7 +25,7 @@
           </h5>
           <a
             class={{if
-              this.dropdownManager.isPrimitivesDropdownPinned
+              this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned
               "pinned"
             }}
             href="javascript:void(0)"
