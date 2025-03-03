@@ -636,12 +636,18 @@ fieldset {
 }
 
 .ember-power-select-multiple-options {
-  padding: get-spacer(1);
-  background-color: $color-primary;
-  color: $black;
-  border-radius: $border-radius-pill;
-  border: 0;
-  padding: get-spacer(1) get-spacer(2);
+  .ember-power-select-multiple-option {
+    padding: get-spacer(1);
+    background-color: $color-primary;
+    color: $black;
+    border-radius: $border-radius-pill;
+    border: 0;
+    padding: get-spacer(1) get-spacer(2);
+  }
+
+  .ember-power-select-trigger-multiple-input:focus {
+    box-shadow: none;
+  }
 }
 
 .property-query-wrapper {
