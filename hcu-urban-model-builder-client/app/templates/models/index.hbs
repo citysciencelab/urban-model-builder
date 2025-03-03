@@ -4,14 +4,15 @@
   <div class="card">
     {{! header }}
     <div class="card-header">
-      <h2 class="h5">
+      <h2 class="h3">
         {{t "routes.models.index.list_of_all_models"}}
       </h2>
       <div class="card-header-actions">
         {{! search }}
         <BsDropdown
           @onShow={{this.onShowSearch}}
-          @closeOnMenuClick={{false}} as |dd|
+          @closeOnMenuClick={{false}}
+          as |dd|
         >
           <dd.button
             @size="sm"
@@ -120,7 +121,8 @@
               model.latestDraftVersion
               model.latestDraftVersion
               model.latestPublishedVersion
-            ) as |currentModelVersion|
+            )
+            as |currentModelVersion|
           }}
             <ListGroup.item class="list-group-with-actions">
               <div class="list-group-body">
@@ -165,8 +167,7 @@
 
                   {{! Meta: Created at }}
                   <span
-                    title={{
-                      concat
+                    title={{concat
                       (t "general.created_at")
                       ": "
                       (format-date
@@ -181,8 +182,7 @@
                   </span>
                   {{! Meta: Updated at }}
                   <span
-                    title={{
-                      concat
+                    title={{concat
                       (t "general.modified_at")
                       ": "
                       (format-date
@@ -210,14 +210,14 @@
                 </LinkTo>
                 <a
                   href="#"
-                  class="{{if model.canEdit "" "disabled"}}"
+                  class="{{if model.canEdit '' 'disabled'}}"
                   {{on "click" (fn this.startEditing model)}}
                 >
                   <FaIcon @icon="pencil" />
                 </a>
                 <a
                   href="#"
-                  class="{{if model.canDelete "" "disabled"}}"
+                  class="{{if model.canDelete '' 'disabled'}}"
                   {{on "click" (fn this.startDeleting model)}}
                 >
                   <FaIcon @icon="trash" />
@@ -252,7 +252,8 @@
 <BsModal
   @open={{this.isModalOpen}}
   @onSubmit={{this.submitModel}}
-  @onHide={{this.closeModal}} as |modal|
+  @onHide={{this.closeModal}}
+  as |modal|
 >
   <modal.header>
     <h5 class="modal-title">
@@ -267,14 +268,16 @@
     <BsForm
       @formLayout="vertical"
       @model={{this.changeset}}
-      @onSubmit={{this.submitModel}} as |form|
+      @onSubmit={{this.submitModel}}
+      as |form|
     >
       {{! name }}
       <form.element
         @controlType="text"
         @label={{t "models.model.attributes.name"}}
         @property="internalName"
-        {{did-insert this.focusFirstInputElement}} as |el|
+        {{did-insert this.focusFirstInputElement}}
+        as |el|
       >
         <el.control
           placeholder={{concat (t "models.model.attributes.name") "…"}}
@@ -291,11 +294,11 @@
     </BsForm>
   </modal.body>
   <modal.footer>
-    <BsButton @onClick={{this.closeModal}}>
-      {{t "actions.cancel"}}
-    </BsButton>
-    <BsButton @type="success" @onClick={{this.submitModel}}>
-      {{t "actions.save"}}
-    </BsButton>
+    <Ui::ModalButtons
+      @onCancel={{this.closeModal}}
+      @onSubmit={{this.submitModel}}
+      @cancelText={{t "actions.cancel"}}
+      @submitText={{t "actions.save"}}
+    />
   </modal.footer>
 </BsModal>

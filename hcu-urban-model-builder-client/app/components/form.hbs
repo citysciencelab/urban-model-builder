@@ -5,14 +5,14 @@
 
       <div class="sidebar__header">
         <Ui::SaveIndicator @isSaving={{this.changeset.isSaving}} />
-        <h3>
+        <h4>
           <form.element
             @controlType="text"
             @placeholder="Name"
             @property="name"
             @customError={{get this.errors "name"}}
           />
-        </h3>
+        </h4>
       </div>
       <div
         class="sidebar__content"
