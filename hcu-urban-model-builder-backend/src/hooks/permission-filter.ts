@@ -24,9 +24,6 @@ export const permissionFilter = async (context: HookContext) => {
     delete context.params.query.$public
   } else {
     // ensure that the user gets only public and his models if $me or $public is not set
-    _.set(context.params.query, '$or', [
-      { userId: context.params.user._id },
-      { 'roles.userId': context.params.user._id }
-    ])
+    _.set(context, 'params.query.$or', [{ latestPublishedVersionId: { $ne: null } }, { role: { $gt: 0 } }])
   }
 }
