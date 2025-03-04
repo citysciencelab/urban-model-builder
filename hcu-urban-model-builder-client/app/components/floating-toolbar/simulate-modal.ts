@@ -159,6 +159,17 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action
+  onClose() {
+    const canClose =
+      !this.floatingToolbarDropdownManager.isSimulateDropdownPinned;
+
+    if (canClose) {
+      this.show = false;
+    }
+    return canClose;
+  }
+
+  @action
   async toggleClientSideCalculation(value: boolean) {
     this.isClientSideCalculation = value;
     await this.restartSimulation();
@@ -469,11 +480,6 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.storeEventEmitter.off('edge', 'created', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'updated', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'deleted', this.restartSimulation);
-  }
-
-  @action onClose() {
-    this.show = false;
-    return !this.floatingToolbarDropdownManager.isSimulateDropdownPinned;
   }
 
   @action
