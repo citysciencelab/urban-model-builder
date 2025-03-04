@@ -9,9 +9,12 @@
       @form={{@form}}
       @node={{@node}}
       @el={{el}}
-      @disabled={{@disabled}}
+      @disabled={{or @changeset.dataProxy.isParameter @disabled}}
     >
-      <el.control class="code-textarea" />
+      <el.control
+        class="code-textarea"
+        disabled={{or @changeset.dataProxy.isParameter @disabled}}
+      />
     </NodeFormFields::Formula>
   </@form.element>
 

@@ -1,32 +1,39 @@
-<@form.element
-  @controlType="textarea"
-  @label={{t "components.stock.value_label"}}
-  @property="data.value"
-  as |el|
->
-  <NodeFormFields::Formula
-    @form={{@form}}
-    @node={{@node}}
-    @el={{el}}
-    @disabled={{@disabled}}
+<BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
+  <@form.element
+    @controlType="textarea"
+    @label={{t "components.stock.value_label"}}
+    @property="data.value"
+    as |el|
   >
-    <el.control class="code-textarea" />
-  </NodeFormFields::Formula>
-</@form.element>
+    <NodeFormFields::Formula
+      @form={{@form}}
+      @node={{@node}}
+      @el={{el}}
+      @disabled={{or @changeset.dataProxy.isParameter @disabled}}
+    >
+      <el.control
+        class="code-textarea"
+        disabled={{or @changeset.dataProxy.isParameter @disabled}}
+      />
+    </NodeFormFields::Formula>
+  </@form.element>
 
-<NodeFormFields::ParameterSettings
-  @form={{@form}}
-  @changeset={{@changeset}}
-  @el={{@el}}
-  @errors={{@errors}}
-  @type="numeric"
-  @outputVisible={{true}}
-  @disabled={{@disabled}}
-/>
+  <NodeFormFields::ParameterSettings
+    @acc={{acc}}
+    @form={{@form}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+    @errors={{@errors}}
+    @type="numeric"
+    @outputVisible={{true}}
+    @disabled={{@disabled}}
+  />
 
-<NodeFormFields::Validation
-  @modelsVersion={{@modelsVersion}}
-  @form={{@form}}
-  @changeset={{@changeset}}
-  @el={{@el}}
-/>
+  <NodeFormFields::Validation
+    @acc={{acc}}
+    @modelsVersion={{@modelsVersion}}
+    @form={{@form}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+  />
+</BsAccordion>

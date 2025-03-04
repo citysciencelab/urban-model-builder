@@ -13,7 +13,7 @@
       @form={{@form}}
       @node={{@node}}
       @el={{el}}
-      @disabled={{@disabled}}
+      @disabled={{or @changeset.dataProxy.isParameter @disabled}}
     >
       <el.control
         class="code-textarea"
