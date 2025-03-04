@@ -69,18 +69,15 @@ models:
       name: Name
       description: Description
     ghost_warning: This is a ghost node
-public_models:
-  model:
-    plural: Public models
 
 routes:
   application:
     title: "Urban Model Builder"
   models:
-    title: Models
+    title: My Models
     index:
       title: All
-      list_of_all_models: List of all models
+      list_of_models: List of My Models
       add_model: Create model
       total: Total models
       create_new_title: Create new model
@@ -91,6 +88,7 @@ routes:
         title: Show
   public_models:
     title: Public Models
+    list_of_models: List of Public Models
   login: 
     title: Login
   demo:

@@ -5,6 +5,7 @@
     {{! header }}
     {{#let this._q as |searchQuery|}}
       <ModelsIndexHeader
+        @title={{t "routes.models.index.list_of_models"}}
         @onShowSearch={{this.onShowSearch}}
         @hasSearchQuery={{this.hasSearchQuery}}
         @q={{this.q}}

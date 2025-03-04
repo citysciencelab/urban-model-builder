@@ -43,6 +43,7 @@ export default class ModelsIndexRoute extends Route {
     const query: any = {
       $skip: (params.page - 1) * params.limit,
       $limit: params.limit,
+      $me: true,
     };
 
     if (params.sort_key) {

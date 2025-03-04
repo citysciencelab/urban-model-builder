@@ -69,18 +69,15 @@ models:
       name: Name
       description: Beschreibung
     ghost_warning: Dies ist ein Geisterknoten
-public_models:
-  model:
-    plural: Öffentliche Modelle
 
 routes:
   application:
     title: "Urban Model Builder"
   models:
-    title: Modelle
+    title: Meine Modelle
     index:
       title: Alle
-      list_of_all_models: Liste aller Modelle
+      list_of_models: Liste meiner Modelle
       add_model: Modell erstellen
       total: Modelle gesamt 
       create_new_title: Neues Modell erstellen
@@ -91,6 +88,7 @@ routes:
         title: Ansicht
   public_models:
     title: Öffentliche Modelle
+    list_of_models: Liste der öffentlichen Modelle
   login: 
     title: Login
   demo:
