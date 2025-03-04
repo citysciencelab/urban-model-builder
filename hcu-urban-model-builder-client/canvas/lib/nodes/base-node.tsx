@@ -4,7 +4,7 @@ import { memo } from "react";
 import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 import { ReactFlowNodeType } from "../declarations.ts";
-import { DefaultIcon } from "../../default-icon.tsx";
+import { Icon, IconNames } from "../utils/icon.tsx";
 
 export const BaseNode = memo(
   ({ id, data, isConnectable, selected, type }: NodeProps) => {
@@ -22,7 +22,7 @@ export const BaseNode = memo(
         <NodeResizer isVisible={!!selected} />
         <div className="react-flow__node-base__header">
           <div className="react-flow__node-base__icon">
-            <DefaultIcon />
+            <Icon icon={type as IconNames} />
           </div>
           <div className="react-flow__node-base__name">{name}</div>
         </div>
