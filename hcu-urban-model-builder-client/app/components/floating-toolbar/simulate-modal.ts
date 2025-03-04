@@ -319,18 +319,14 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         node.type !== NodeType.OgcApiFeatures &&
         node.type !== NodeType.Population
       ) {
-        if (typeof value.series[0] === 'number') {
+        if (this.isNumberArray(value.series)) {
           series.push({
             type: 'line',
             name: node.name,
-            data: value.series as number[],
+            data: value.series,
           });
-        } else if (
-          Array.isArray(value.series[0]) &&
-          typeof value.series[0]?.[0] === 'number'
-        ) {
-          const values = value.series as number[][];
-          const subSeries = values.reduce((acc, current, timeIndex) => {
+        } else if (this.isNumberArrayArray(value.series)) {
+          const subSeries = value.series.reduce((acc, current, timeIndex) => {
             current.forEach((innerValue, subSeriesNumber) => {
               if (!acc[subSeriesNumber]) {
                 acc[subSeriesNumber] = {
@@ -345,12 +341,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
           }, [] as ChartSeries[]);
 
           series.push(...subSeries);
-        } else if (
-          typeof value.series[0] === 'object' &&
-          typeof value.series[0][Object.keys(value.series[0])[0]] === 'number'
-        ) {
-          const values = value.series as Record<string, number>[];
-          const subSeries = values.reduce(
+        } else if (this.isObjectNumberArray(value.series)) {
+          const subSeries = value.series.reduce(
             (acc, current, timeIndex) => {
               for (const [key, innerValue] of Object.entries(current)) {
                 if (!acc.has(key)) {
@@ -504,6 +496,28 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       animation: false,
       series: currentDataset,
     };
+  }
+
+  private isNumberArray(value: any): value is number[] {
+    return Array.isArray(value) && typeof value[0] === 'number';
+  }
+
+  private isNumberArrayArray(value: any): value is number[][] {
+    return Array.isArray(value[0]) && typeof value[0]?.[0] === 'number';
+  }
+
+  private isObjectNumberArray(value: any): value is Record<string, number>[] {
+    const firstItem = value[0];
+    if (typeof firstItem !== 'object') {
+      return false;
+    }
+
+    const objectKeys = Object.keys(firstItem);
+    return (
+      objectKeys.length > 0 &&
+      typeof firstItem === 'object' &&
+      typeof firstItem[objectKeys[0]!] === 'number'
+    );
   }
 
   @action playPause() {
