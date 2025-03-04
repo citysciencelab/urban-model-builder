@@ -40,7 +40,9 @@ enum TabName {
   ScatterPlot = 'scatter-plot',
 }
 
-type SimulationResult = Awaited<ReturnType<SimulationAdapter<any>['simulate']>>;
+type SimulationResult = Awaited<
+  ReturnType<SimulationAdapter<any>['getResults']>
+>;
 
 type TimeSeriesDataset = Awaited<
   ReturnType<FloatingToolbarSimulateModalComponent['getTimeSeriesDataset']>
@@ -48,6 +50,12 @@ type TimeSeriesDataset = Awaited<
 type ScatterPlotDataset = Awaited<
   ReturnType<FloatingToolbarSimulateModalComponent['getScatterPlotDataset']>
 >;
+
+type ChartSeries = {
+  type: 'line';
+  name: string;
+  data: number[];
+};
 
 const BASE_SPEED = 20;
 
@@ -156,6 +164,17 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.show = true;
     this.simulationTask.perform();
     return this.show;
+  }
+
+  @action
+  onClose() {
+    const canClose =
+      !this.floatingToolbarDropdownManager.isSimulateDropdownPinned;
+
+    if (canClose) {
+      this.show = false;
+    }
+    return canClose;
   }
 
   @action
@@ -269,18 +288,20 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     const nodeValuesMap = this.inMemoryScenario;
 
     if (this.isClientSideCalculation) {
-      this.simulationResult = await new SimulationAdapter(
-        this.feathers.app,
-        this.args.model.id!,
-        nodeValuesMap,
-      ).simulate();
+      this.simulationResult = (
+        await new SimulationAdapter(
+          this.feathers.app,
+          this.args.model.id!,
+          nodeValuesMap,
+        ).simulate()
+      ).getResults();
     } else {
-      this.simulationResult = await this.feathers.app
+      this.simulationResult = (await this.feathers.app
         .service('models')
         .simulate({
           id: this.args.model.id!,
           nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
-        });
+        })) as any;
     }
   }
 
@@ -288,7 +309,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   async getTimeSeriesDataset(simulateResult: SimulationResult) {
     const data = simulateResult;
 
-    const series = [];
+    const series: ChartSeries[] = [];
 
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
@@ -298,15 +319,48 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         node.type !== NodeType.OgcApiFeatures &&
         node.type !== NodeType.Population
       ) {
-        if (Array.isArray(value.series[0])) {
-          continue;
-        }
+        if (this.isNumberArray(value.series)) {
+          series.push({
+            type: 'line',
+            name: node.name,
+            data: value.series,
+          });
+        } else if (this.isNumberArrayArray(value.series)) {
+          const subSeries = value.series.reduce((acc, current, timeIndex) => {
+            current.forEach((innerValue, subSeriesNumber) => {
+              if (!acc[subSeriesNumber]) {
+                acc[subSeriesNumber] = {
+                  type: 'line',
+                  name: `${node.name} - ${subSeriesNumber}`,
+                  data: [],
+                };
+              }
+              acc[subSeriesNumber].data[timeIndex] = innerValue;
+            });
+            return acc;
+          }, [] as ChartSeries[]);
 
-        series.push({
-          type: 'line',
-          name: node.name,
-          data: value.series,
-        });
+          series.push(...subSeries);
+        } else if (this.isObjectNumberArray(value.series)) {
+          const subSeries = value.series.reduce(
+            (acc, current, timeIndex) => {
+              for (const [key, innerValue] of Object.entries(current)) {
+                if (!acc.has(key)) {
+                  acc.set(key, {
+                    type: 'line',
+                    name: `${node.name} - ${key}`,
+                    data: [],
+                  });
+                }
+                acc.get(key)!.data[timeIndex] = innerValue;
+              }
+              return acc;
+            },
+            new Map() as Map<string, ChartSeries>,
+          );
+
+          series.push(...Array.from(subSeries.values()));
+        }
       }
     }
 
@@ -315,9 +369,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   async getScatterPlotDataset(simulateResult: SimulationResult) {
-    const data = simulateResult;
     const series = [];
-    for (const [nodeId, value] of Object.entries(data.nodes)) {
+    for (const [nodeId, value] of Object.entries(simulateResult.nodes)) {
       const populationNode = await this.store.findRecord<Node>('node', nodeId);
       const [edge] = (await populationNode.targetEdgesWithGhosts).filter(
         (edge) => edge.type === EdgeType.AgentPopulation,
@@ -407,6 +460,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     );
 
     return {
+      legend: {
+        type: 'scroll',
+        data: dataset.map((d) => d.name),
+        top: 10,
+      },
       xAxis: {
         data: this.currentDataset!.times,
       },
@@ -426,6 +484,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     ]!;
     return {
       legend: {
+        type: 'scroll',
         data: currentDataset.map((d) => d.name),
         top: 10,
       },
@@ -437,6 +496,28 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       animation: false,
       series: currentDataset,
     };
+  }
+
+  private isNumberArray(value: any): value is number[] {
+    return Array.isArray(value) && typeof value[0] === 'number';
+  }
+
+  private isNumberArrayArray(value: any): value is number[][] {
+    return Array.isArray(value[0]) && typeof value[0]?.[0] === 'number';
+  }
+
+  private isObjectNumberArray(value: any): value is Record<string, number>[] {
+    const firstItem = value[0];
+    if (typeof firstItem !== 'object') {
+      return false;
+    }
+
+    const objectKeys = Object.keys(firstItem);
+    return (
+      objectKeys.length > 0 &&
+      typeof firstItem === 'object' &&
+      typeof firstItem[objectKeys[0]!] === 'number'
+    );
   }
 
   @action playPause() {
@@ -469,11 +550,6 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.storeEventEmitter.off('edge', 'created', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'updated', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'deleted', this.restartSimulation);
-  }
-
-  @action onClose() {
-    this.show = false;
-    return !this.floatingToolbarDropdownManager.isSimulateDropdownPinned;
   }
 
   @action
