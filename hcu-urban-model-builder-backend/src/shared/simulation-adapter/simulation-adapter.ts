@@ -27,6 +27,13 @@ type PopulationNodeResult = {
   state: number[]
 }[][]
 
+type SimulationResultSeries = number[] | number[][] | Record<string, number>[] | PopulationNodeResult
+
+type SimulationResult = {
+  nodes: Record<string, { series: SimulationResultSeries }>
+  times: number[]
+}
+
 const NODE_TYPE_TO_PARAMETER_NAME_MAP = {
   [NodeType.Stock]: 'initial',
   [NodeType.Variable]: 'value',
@@ -38,11 +45,14 @@ const NODE_TYPE_TO_PARAMETER_NAME_MAP = {
 
 export class SimulationAdapter<T extends ClientApplication | Application> {
   private app: ClientApplication
+  private model: Model | null = null
   private nodeIdPrimitiveMapWithGhosts = new Map<string, Primitive>()
   private nodeIdPrimitiveMapWithoutGhosts = new Map<string, Primitive>()
   private ghostParentToChildIdMap = new Map<string, string[]>()
   private primitiveIdNodeIdMap: Map<string, string> = new Map()
   private primitiveIdTypeMap = new Map<string, NodeType>()
+  private outputParameterNodesIds: Set<string> = new Set()
+  private simulationResultBeforeSerialization: Results | null = null
 
   constructor(
     app: T,
@@ -53,10 +63,10 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     this.app = app as ClientApplication
   }
 
-  public async simulate(serializeForUMP: boolean = false) {
-    const model = await this.createSimulationModel()
+  public async simulate() {
+    this.model = await this.createSimulationModel()
 
-    await this.createModelPrimitives(model)
+    await this.createModelPrimitives(this.model)
 
     await this.addGhostNodesToPrimitiveMap()
 
@@ -64,18 +74,24 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
     await this.assignConverterInput()
 
-    await this.createModelRelationsByEdges(model)
+    await this.createModelRelationsByEdges(this.model)
     try {
-      const simulationResult = model.simulate()
+      this.simulationResultBeforeSerialization = this.model.simulate()
 
-      return serializeForUMP
-        ? this.serializeSimulationResultForUMP(simulationResult, model)
-        : this.serializeSimulationResult(simulationResult)
+      return this
     } catch (error: any) {
       throw new SimulationError(error.message, {
         nodeId: this.primitiveIdNodeIdMap.get(error.primitive?.id) || null
       })
     }
+  }
+
+  public getResults() {
+    return this.serializeSimulationResult()
+  }
+
+  public getResultsForUMP() {
+    return this.serializeSimulationResultForUMP()
   }
 
   private async createSimulationModel() {
@@ -113,6 +129,9 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
       this.nodeIdPrimitiveMapWithoutGhosts.set(node.id, simulationPrimitive)
       this.primitiveIdNodeIdMap.set(simulationPrimitive.id, node.id)
       this.primitiveIdTypeMap.set(simulationPrimitive.id, node.type)
+      if (node.isOutputParameter) {
+        this.outputParameterNodesIds.add(node.id)
+      }
     }
   }
 
@@ -224,12 +243,21 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     }
   }
 
-  private serializeSimulationResult(simulationResult: Results) {
-    const resultData = {
-      nodes: {} as Record<string, { series: number[] | PopulationNodeResult }>,
+  private serializeSimulationResult() {
+    if (!this.simulationResultBeforeSerialization) {
+      throw new Error('Simulation result is not available')
+    }
+
+    const simulationResult = this.simulationResultBeforeSerialization
+    const resultData: SimulationResult = {
+      nodes: {},
       times: simulationResult.times()
     }
     for (const [nodeId, primitive] of this.nodeIdPrimitiveMapWithoutGhosts) {
+      if (!this.outputParameterNodesIds.has(nodeId)) {
+        continue
+      }
+
       if (primitive.id in (simulationResult._data.children || {})) {
         const primitiveResult = simulationResult.series(primitive)
 
@@ -263,26 +291,29 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     return resultData
   }
 
-  private async serializeSimulationResultForUMP(simulationResult: Results, model: Model) {
+  private serializeSimulationResultForUMP() {
+    const simulationResult = this.simulationResultBeforeSerialization
+    if (!simulationResult) {
+      throw new Error('Simulation result is not available')
+    }
+    if (!this.model) {
+      throw new Error('Model is not available')
+    }
+
     const resultData: Record<string, any> = {
       periods: simulationResult._data.periods,
       timeUnits: simulationResult.timeUnits,
-      timeStep: model.timeStep,
-      timeStart: model.timeStart,
-      timeLength: model.timeLength
+      timeStep: this.model.timeStep,
+      timeStart: this.model.timeStart,
+      timeLength: this.model.timeLength
     }
-    const outPutParameters = await this.app.service('nodes').find({
-      query: {
-        modelsVersionsId: this.modelVersionId,
-        isOutputParameter: true
-      }
-    })
+
     for (const [nodeId, primitive] of this.nodeIdPrimitiveMapWithoutGhosts) {
-      if (primitive.id in (simulationResult._data.children || {})) {
-        const primitiveResult = simulationResult.series(primitive)
-        if (outPutParameters.data.some((node: Nodes) => node.id === nodeId)) {
-          resultData[_.snakeCase(primitive.name)] = primitiveResult
-        }
+      if (
+        primitive.id in (simulationResult._data.children || {}) &&
+        this.outputParameterNodesIds.has(nodeId)
+      ) {
+        resultData[_.snakeCase(primitive.name)] = simulationResult.series(primitive)
       }
     }
     return resultData
