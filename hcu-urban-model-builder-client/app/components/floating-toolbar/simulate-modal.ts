@@ -40,7 +40,9 @@ enum TabName {
   ScatterPlot = 'scatter-plot',
 }
 
-type SimulationResult = Awaited<ReturnType<SimulationAdapter<any>['simulate']>>;
+type SimulationResult = Awaited<
+  ReturnType<SimulationAdapter<any>['getResults']>
+>;
 
 type TimeSeriesDataset = Awaited<
   ReturnType<FloatingToolbarSimulateModalComponent['getTimeSeriesDataset']>
@@ -48,6 +50,12 @@ type TimeSeriesDataset = Awaited<
 type ScatterPlotDataset = Awaited<
   ReturnType<FloatingToolbarSimulateModalComponent['getScatterPlotDataset']>
 >;
+
+type ChartSeries = {
+  type: 'line';
+  name: string;
+  data: number[];
+};
 
 const BASE_SPEED = 20;
 
@@ -301,7 +309,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   async getTimeSeriesDataset(simulateResult: SimulationResult) {
     const data = simulateResult;
 
-    const series = [];
+    const series: ChartSeries[] = [];
 
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
@@ -311,15 +319,56 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         node.type !== NodeType.OgcApiFeatures &&
         node.type !== NodeType.Population
       ) {
-        if (Array.isArray(value.series[0])) {
-          continue;
-        }
+        if (typeof value.series[0] === 'number') {
+          series.push({
+            type: 'line',
+            name: node.name,
+            data: value.series as number[],
+          });
+        } else if (
+          Array.isArray(value.series[0]) &&
+          typeof value.series[0]?.[0] === 'number'
+        ) {
+          const values = value.series as number[][];
+          const subSeries = values.reduce((acc, current, timeIndex) => {
+            current.forEach((innerValue, subSeriesNumber) => {
+              if (!acc[subSeriesNumber]) {
+                acc[subSeriesNumber] = {
+                  type: 'line',
+                  name: `${node.name} - ${subSeriesNumber}`,
+                  data: [],
+                };
+              }
+              acc[subSeriesNumber].data[timeIndex] = innerValue;
+            });
+            return acc;
+          }, [] as ChartSeries[]);
 
-        series.push({
-          type: 'line',
-          name: node.name,
-          data: value.series,
-        });
+          series.push(...subSeries);
+        } else if (
+          typeof value.series[0] === 'object' &&
+          typeof value.series[0][Object.keys(value.series[0])[0]] === 'number'
+        ) {
+          const values = value.series as Record<string, number>[];
+          const subSeries = values.reduce(
+            (acc, current, timeIndex) => {
+              for (const [key, innerValue] of Object.entries(current)) {
+                if (!acc.has(key)) {
+                  acc.set(key, {
+                    type: 'line',
+                    name: `${node.name} - ${key}`,
+                    data: [],
+                  });
+                }
+                acc.get(key)!.data[timeIndex] = innerValue;
+              }
+              return acc;
+            },
+            new Map() as Map<string, ChartSeries>,
+          );
+
+          series.push(...Array.from(subSeries.values()));
+        }
       }
     }
 
