@@ -1,31 +1,49 @@
 import { NodeProps, NodeResizer } from "@xyflow/react";
-import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo, useMemo } from "react";
 import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 import { ReactFlowNodeType } from "../declarations.ts";
 import { Icon, IconNames } from "../utils/icon.tsx";
 
+interface EmberModel {
+  get(key: string): any;
+}
+
+const tagsNodeMap: Record<string, (emberModel: EmberModel) => string[]> = {
+  [ReactFlowNodeType.Variable]: (emberModel: EmberModel) => {
+    const value = emberModel.get("data.value");
+
+    if (!value) {
+      return [];
+    }
+    const unit = emberModel.get("data.units");
+    return [unit ? `${value} ${unit}` : `${value}`];
+  },
+  [ReactFlowNodeType.OgcApiFeatures]: (emberModel: EmberModel) => {
+    const url = emberModel.get("data.collectionId");
+    if (!url) {
+      return [];
+    }
+
+    const properties = emberModel.get("data.query.properties");
+    if (!properties) {
+      return [url];
+    }
+
+    return [url, ...properties];
+  },
+};
+
 export const BaseNode = memo(
   ({ id, data, isConnectable, selected, type }: NodeProps) => {
-    const name = useModelPropState({
-      emberModel: data.emberModel as any,
-      propertyName: "name",
-    });
-
-    const value = useModelPropState({
-      emberModel: data.emberModel as any,
-      propertyName: "data.value",
-    });
-
-    const unit = useModelPropState({
-      emberModel: data.emberModel as any,
-      propertyName: "data.units",
-    });
+    const emberModel = data.emberModel as EmberModel | undefined;
 
     const tags = useMemo(() => {
-      if (type === ReactFlowNodeType.Variable) {
-        return [`${value} ${unit}`];
+      if (emberModel) {
+        const tagsFn = tagsNodeMap[type];
+        if (tagsFn) {
+          return tagsFn(emberModel);
+        }
       }
       return [];
     }, [data]);
@@ -41,7 +59,9 @@ export const BaseNode = memo(
           <div className="react-flow__node-base__icon">
             <Icon icon={type as IconNames} />
           </div>
-          <div className="react-flow__node-base__name">{name}</div>
+          <div className="react-flow__node-base__name">
+            {emberModel?.get("name")}
+          </div>
         </div>
 
         {tags && (

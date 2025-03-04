@@ -15,8 +15,6 @@ import type ScenariosValue from './scenarios-value';
 export default class Node extends Model {
   [Type] = 'node' as const;
 
-  private listeners: Set<(newNode: Node) => void> = new Set();
-
   @attr('number') declare type: NodeType;
 
   @attr('string') declare name: string;
@@ -104,17 +102,5 @@ export default class Node extends Model {
       return edges.concat(...childrenEdges);
     };
     return fetch();
-  }
-
-  emitSave() {
-    this.listeners.forEach((listener) => listener(this));
-  }
-
-  onSave(callback: () => void) {
-    this.listeners.add(callback);
-  }
-
-  offSave(listener: (newNode: Node) => void) {
-    this.listeners.delete(listener);
   }
 }
