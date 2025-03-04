@@ -328,9 +328,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   async getScatterPlotDataset(simulateResult: SimulationResult) {
-    const data = simulateResult;
     const series = [];
-    for (const [nodeId, value] of Object.entries(data.nodes)) {
+    for (const [nodeId, value] of Object.entries(simulateResult.nodes)) {
       const populationNode = await this.store.findRecord<Node>('node', nodeId);
       const [edge] = (await populationNode.targetEdgesWithGhosts).filter(
         (edge) => edge.type === EdgeType.AgentPopulation,
@@ -420,6 +419,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     );
 
     return {
+      legend: {
+        type: 'scroll',
+        data: dataset.map((d) => d.name),
+        top: 10,
+      },
       xAxis: {
         data: this.currentDataset!.times,
       },
@@ -439,6 +443,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     ]!;
     return {
       legend: {
+        type: 'scroll',
         data: currentDataset.map((d) => d.name),
         top: 10,
       },
