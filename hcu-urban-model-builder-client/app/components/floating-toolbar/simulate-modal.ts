@@ -280,18 +280,20 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     const nodeValuesMap = this.inMemoryScenario;
 
     if (this.isClientSideCalculation) {
-      this.simulationResult = await new SimulationAdapter(
-        this.feathers.app,
-        this.args.model.id!,
-        nodeValuesMap,
-      ).simulate();
+      this.simulationResult = (
+        await new SimulationAdapter(
+          this.feathers.app,
+          this.args.model.id!,
+          nodeValuesMap,
+        ).simulate()
+      ).getResults();
     } else {
-      this.simulationResult = await this.feathers.app
+      this.simulationResult = (await this.feathers.app
         .service('models')
         .simulate({
           id: this.args.model.id!,
           nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
-        });
+        })) as any;
     }
   }
 
