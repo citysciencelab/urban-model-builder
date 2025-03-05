@@ -1,48 +1,53 @@
-<@form.element
-  @controlType="textarea"
-  @label="Start Active"
-  @helpText={{
-    if
-    @changeset.dataProxy.isParameter
-    "Currently controlled as scenario parameter"
-  }}
-  @property="data.startActive" as |el|
->
-  <NodeFormFields::Formula
-    @form={{@form}}
-    @node={{@node}}
-    @el={{el}}
-    @disabled={{@disabled}}
-  >
-    <el.control
-      class="code-textarea"
-      disabled={{@changeset.dataProxy.isParameter}}
-    />
-  </NodeFormFields::Formula>
-</@form.element>
+<BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
 
-<@form.element
-  @controlType="textarea"
-  @label="Residency"
-  @property="data.residency" as |el|
->
-  <NodeFormFields::Formula
-    @form={{@form}}
-    @node={{@node}}
-    @el={{el}}
-    @disabled={{@disabled}}
+  <@form.element
+    @controlType="textarea"
+    @label="Start Active"
+    @helpText={{if
+      @changeset.dataProxy.isParameter
+      "Currently controlled as scenario parameter"
+    }}
+    @property="data.startActive"
+    as |el|
   >
-    <el.control class="code-textarea" />
-  </NodeFormFields::Formula>
-</@form.element>
+    <NodeFormFields::Formula
+      @form={{@form}}
+      @node={{@node}}
+      @el={{el}}
+      @disabled={{@disabled}}
+    >
+      <el.control
+        class="code-textarea"
+        disabled={{@changeset.dataProxy.isParameter}}
+      />
+    </NodeFormFields::Formula>
+  </@form.element>
 
-<NodeFormFields::ParameterSettings
-  @form={{@form}}
-  @changeset={{@changeset}}
-  @el={{@el}}
-  @errors={{@errors}}
-  @type="boolean"
-  @inputVisible={{true}}
-  @outputVisible={{true}}
-  @disabled={{@disabled}}
-/>
+  <@form.element
+    @controlType="textarea"
+    @label="Residency"
+    @property="data.residency"
+    as |el|
+  >
+    <NodeFormFields::Formula
+      @form={{@form}}
+      @node={{@node}}
+      @el={{el}}
+      @disabled={{@disabled}}
+    >
+      <el.control class="code-textarea" />
+    </NodeFormFields::Formula>
+  </@form.element>
+
+  <NodeFormFields::ParameterSettings
+    @acc={{acc}}
+    @form={{@form}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+    @errors={{@errors}}
+    @type="boolean"
+    @inputVisible={{true}}
+    @outputVisible={{true}}
+    @disabled={{@disabled}}
+  />
+</BsAccordion>

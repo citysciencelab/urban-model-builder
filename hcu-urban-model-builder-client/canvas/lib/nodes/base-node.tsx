@@ -19,6 +19,17 @@ const tagsNodeMap: Record<string, (emberModel: EmberModel) => string[]> = {
     const unit = emberModel.get("data.units");
     return [unit ? `${value} ${unit}` : `${value}`];
   },
+
+  [ReactFlowNodeType.Stock]: (emberModel: EmberModel) => {
+    const value = emberModel.get("data.value");
+
+    if (!value) {
+      return [];
+    }
+    const unit = emberModel.get("data.units");
+    return [unit ? `${value} ${unit}` : `${value}`];
+  },
+
   [ReactFlowNodeType.OgcApiFeatures]: (emberModel: EmberModel) => {
     const url = emberModel.get("data.collectionId");
     if (!url) {
@@ -30,7 +41,39 @@ const tagsNodeMap: Record<string, (emberModel: EmberModel) => string[]> = {
       return [url];
     }
 
-    return [url, ...properties];
+    return [url, properties.join(", ")];
+  },
+  [ReactFlowNodeType.Population]: (emberModel: EmberModel) => {
+    const populationSize = emberModel.get("data.populationSize");
+    if (!populationSize) {
+      return [];
+    }
+    const placementType = emberModel.get("data.geoPlacementType");
+    if (!placementType) {
+      return [];
+    }
+    return [populationSize, placementType];
+  },
+
+  [ReactFlowNodeType.State]: (emberModel: EmberModel) => {
+    const startActive = emberModel.get("data.startActive");
+    if (!startActive) {
+      return [];
+    }
+    return [startActive];
+  },
+
+  [ReactFlowNodeType.Action]: (emberModel: EmberModel) => {
+    const action = emberModel.get("data.action");
+    if (!action) {
+      return [];
+    }
+
+    const trigger = emberModel.get("data.trigger");
+    if (!trigger) {
+      return [];
+    }
+    return [action, trigger];
   },
 };
 
@@ -64,13 +107,15 @@ export const BaseNode = memo(
           </div>
         </div>
 
-        {tags && (
+        {tags.length > 0 && (
           <div className="react-flow__node-base__footer">
-            {tags.map((tag) => (
-              <div className="react-flow__node-base--tags" key={tag}>
-                {tag}
-              </div>
-            ))}
+            <div className="react-flow__node-base--tags">
+              {tags.map((tag) => (
+                <div className="react-flow__node-base--single-tag" key={tag}>
+                  {tag}
+                </div>
+              ))}
+            </div>
           </div>
         )}
         <DefaultNodeToolbar
