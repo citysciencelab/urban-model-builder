@@ -14,6 +14,7 @@ export default function (intl: IntlService) {
       }),
       validateLength({
         min: 3,
+        max: 255,
         description: intl.t('models.model.attributes.name'),
       }),
     ],

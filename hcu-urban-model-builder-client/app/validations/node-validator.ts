@@ -87,7 +87,8 @@ const validatData = () => {
 };
 
 export default {
-  name: [validatePresence(true), validateLength({ min: 2 })],
+  name: [validatePresence(true), validateLength({ min: 2, max: 255 })],
+  description: [validateLength({ max: 255 })],
   parameterMin: [validateMinMax()],
   parameterStep: [validateStep()],
   data: [validatData()],

@@ -50,6 +50,7 @@
   </div>
 </div>
 <div class="sidebar__content">
+  {{t "models.model.attributes.description"}}:
   {{#if @modelVersion.canEdit}}
     <ContentEditable
       @value={{this.changeset.dataProxy.description}}
