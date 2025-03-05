@@ -71,7 +71,6 @@ export const useEmberEventListeners = () => {
                 data: updatedNode.raw.data,
               };
             }
-            console.log(updatedNode);
             return n;
           }),
         );
