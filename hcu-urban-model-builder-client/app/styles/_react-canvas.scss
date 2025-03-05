@@ -57,11 +57,15 @@
 
   .react-flow__node-base--tags {
     display: flex;
-    align-items: center;
-    justify-content: center;
     gap: 0.5rem;
-    padding: get-spacer(1) get-spacer(2);
-    border-radius: $border-radius-xl;
+
+    .react-flow__node-base--single-tag {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: get-spacer(1) get-spacer(2);
+      border-radius: $border-radius-xl;
+    }
   }
 }
 
@@ -81,7 +85,7 @@
     .react-flow__node-base__header {
       background-color: $white;
     }
-    .react-flow__node-base--tags {
+    .react-flow__node-base--single-tag {
       background-color: rgba($color, 0.5);
       color: contrast-color(rgba($color, 0.5));
     }
