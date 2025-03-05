@@ -5,7 +5,6 @@ import {
   useReactFlow,
   useUpdateNodeInternals,
 } from "@xyflow/react";
-import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo, useCallback, useContext, useMemo, useState } from "react";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 import { EmberReactConnectorContext } from "../context/ember-react-connector.ts";
@@ -37,10 +36,7 @@ export const ArrowNode = memo(
     const updateNodeInternals = useUpdateNodeInternals();
     const emberReactConnector = useContext(EmberReactConnectorContext);
 
-    const name = useModelPropState({
-      emberModel: data.emberModel as any,
-      propertyName: "name",
-    });
+    const name = data.emberModel.get("name");
 
     const [direction, setDirection] = useState<Position>(
       data.emberModel.data.direction || Position.Right,

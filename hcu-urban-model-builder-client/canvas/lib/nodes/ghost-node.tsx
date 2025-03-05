@@ -1,5 +1,4 @@
 import { NodeProps } from "@xyflow/react";
-import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo, useEffect, useMemo, useState } from "react";
 import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 import { NodeType } from "hcu-urban-model-builder-backend";
@@ -27,10 +26,7 @@ export const GhostNode = memo(
         : undefined;
     }, [ghostNodeModel]);
 
-    let ghostName = useModelPropState({
-      emberModel: ghostNodeModel,
-      propertyName: "name",
-    });
+    let ghostName = data.emberModel.get("name");
 
     return (
       <div className={`react-flow__node-default content`}>

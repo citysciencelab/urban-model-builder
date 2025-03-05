@@ -56,10 +56,25 @@ export const useEmberEventListeners = () => {
   const updateNode = useCallback(
     (updatedNode: any, sender: StoreEventSenderTransport) => {
       if (
-        sender === StoreEventSenderTransport.LOCAL ||
         updatedNode.modelsVersions.id !==
-          emberReactConnector.currentModelVersionId
+        emberReactConnector.currentModelVersionId
       ) {
+        return;
+      }
+
+      if (sender === StoreEventSenderTransport.LOCAL) {
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id === updatedNode.id) {
+              return {
+                ...n,
+                data: updatedNode.raw.data,
+              };
+            }
+            console.log(updatedNode);
+            return n;
+          }),
+        );
         return;
       }
 
