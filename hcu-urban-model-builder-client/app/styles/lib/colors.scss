@@ -19,6 +19,15 @@ $edge-color-map: (
   "agent-population": #aba3d2,
 );
 
+@function contrast-color($color) {
+  $lightness: lightness($color);
+  @if $lightness > 50% {
+    @return black;
+  } @else {
+    @return white;
+  }
+}
+
 .text-bg-secondary {
   background-color: $color-secondary !important;
   color: $white;

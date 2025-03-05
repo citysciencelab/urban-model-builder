@@ -54,6 +54,7 @@
     "@glimmer/tracking": "^1.1.2",
     "@glint/environment-ember-loose": "^1.4.0",
     "@glint/template": "^1.4.0",
+    "@svgr/webpack": "^8.1.0",
     "@tsconfig/ember": "^3.0.8",
     "@types/luxon": "^3.4.2",
     "@types/react-dom": "^18.3.0",

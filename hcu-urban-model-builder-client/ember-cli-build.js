@@ -71,6 +71,11 @@ module.exports = function (defaults) {
                 ],
               },
             },
+            {
+              test: /\.svg$/,
+              exclude: /node_modules\/(?!@material-design-icons)/,
+              use: ['@svgr/webpack'],
+            },
           ],
         },
         infrastructureLogging: {

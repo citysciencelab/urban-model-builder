@@ -5,7 +5,6 @@ import {
   NodeResizer,
   Position,
 } from "@xyflow/react";
-import { useModelPropState } from "../utils/use-model-prop-state.tsx";
 import { memo } from "react";
 import { ReactFlowNodeType } from "../declarations.ts";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
@@ -19,10 +18,7 @@ const positions = [
 
 export const FolderNode = memo(
   ({ id, selected, data, type, isConnectable }: NodeProps) => {
-    const name = useModelPropState({
-      emberModel: data.emberModel as any,
-      propertyName: "name",
-    });
+    const name = data.emberModel.get("name");
 
     return (
       <div className="react-flow__node-folder__content">
