@@ -80,9 +80,10 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     const nodeIdToParamValueMap = data.nodeIdToParameterValueMap
       ? new Map(Object.entries(data.nodeIdToParameterValueMap).map(([key, value]) => [key, value]))
       : new Map<string, number>()
-    return new SimulationAdapter(this.app, data.id, nodeIdToParamValueMap, logger).simulate(
-      params?.serializeForUMP
-    )
+
+    const simulationAdapter = new SimulationAdapter(this.app, data.id, nodeIdToParamValueMap, logger)
+    simulationAdapter.simulate()
+    return params?.serializeForUMP ? simulationAdapter.getResultsForUMP() : simulationAdapter.getResults()
   }
 
   async newDraft(data: ModelsNewDraft, params?: ServiceParams) {
