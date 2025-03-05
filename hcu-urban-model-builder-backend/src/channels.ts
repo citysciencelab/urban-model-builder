@@ -1,10 +1,9 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/channels.html
-import type { RealTimeConnection, Params, ServiceGenericType } from '@feathersjs/feathers'
+import type { RealTimeConnection, Params, ServiceGenericType, Service } from '@feathersjs/feathers'
 import type { AuthenticationResult } from '@feathersjs/authentication'
 import '@feathersjs/transport-commons'
-import type { Application, HookContext } from './declarations.js'
+import type { Application, HookContext, ServiceTypes } from './declarations.js'
 import { logger } from './logger.js'
-import { Nodes, NodesData } from './services/nodes/nodes.shared.js'
 
 export const channels = (app: Application) => {
   logger.warn(
@@ -48,8 +47,29 @@ export const channels = (app: Application) => {
       })
     }
 
+  const modelVersionBasedDeepPublisher = (
+    parentServiceName: keyof ServiceTypes,
+    parentForeignKey: string,
+    modelVersionForeignKey: string
+  ) => {
+    const parentService = app.service(parentServiceName)
+    if (!('get' in parentService)) {
+      throw new Error(`Service ${parentServiceName} does not have a get method`)
+    }
+    return async (data: any, context: HookContext) => {
+      const parentDataSet = await parentService.get(data[parentForeignKey])
+      const modelVersionId = parentDataSet[modelVersionForeignKey]
+      return app.channel(`model-versions:${modelVersionId}`).filter((connection) => {
+        return connection !== context?.params?.connection
+      })
+    }
+  }
+
   app.service('nodes').publish(modelVersionBasedPublisher('modelsVersionsId'))
   app.service('edges').publish(modelVersionBasedPublisher('modelsVersionsId'))
   app.service('scenarios').publish(modelVersionBasedPublisher('modelsVersionsId'))
+  app
+    .service('scenarios-values')
+    .publish(modelVersionBasedDeepPublisher('scenarios', 'scenariosId', 'modelsVersionsId'))
   app.service('models-versions').publish(modelVersionBasedPublisher('id'))
 }
