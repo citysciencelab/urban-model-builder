@@ -102,7 +102,9 @@ export default class NodeFormFieldsParameterSettingsComponent extends Component<
           data: [
             {
               value: 0,
-              label: 'New',
+              label: this.intl.t(
+                'components.parameter_settings.initial_value_label',
+              ), // 'New',
             },
           ],
         };
