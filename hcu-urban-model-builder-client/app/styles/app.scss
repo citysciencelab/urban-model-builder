@@ -637,6 +637,7 @@ fieldset {
 
 .ember-power-select-multiple-options {
   .ember-power-select-multiple-option {
+    padding: get-spacer(1);
     background-color: $color-primary;
     color: $black;
     border-radius: $border-radius-pill;
@@ -704,4 +705,13 @@ input:focus {
 .save-indicator .spinner-grow {
   position: relative;
   top: 1px;
+}
+
+.alert-sm {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.parameter__settings__add-option {
+  width: 100%;
 }

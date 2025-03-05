@@ -11,7 +11,19 @@ export const permissionFilter = async (context: HookContext) => {
     return context
   }
 
-  const userId = ensureUserId(context)
+  // potentially throws NotAuthenticated
+  ensureUserId(context)
 
-  _.set(context, 'params.query.$or', [{ latestPublishedVersionId: { $ne: null } }, { role: { $gt: 0 } }])
+  if (context.params.query.$me) {
+    // only "my" models, i.e. created by me or shared with me, i.e. I've got a role > 0
+    context.params.query.role = { $gt: 0 }
+    delete context.params.query.$me
+  } else if (context.params.query.$public) {
+    // only public models, i.e. latestPublishedVersionId is not null
+    context.params.query.latestPublishedVersionId = { $ne: null }
+    delete context.params.query.$public
+  } else {
+    // ensure that the user gets only public and his models if $me or $public is not set
+    _.set(context, 'params.query.$or', [{ latestPublishedVersionId: { $ne: null } }, { role: { $gt: 0 } }])
+  }
 }

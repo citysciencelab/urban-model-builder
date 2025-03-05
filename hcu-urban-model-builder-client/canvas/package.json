@@ -23,7 +23,7 @@
   "peerDependencies": {
     "@embroider/addon-shim": "^1.8.9",
     "@xyflow/react": "^12.0.4",
-    "hcu-urban-model-builder-backend": "^1.0.0-7",
+    "hcu-urban-model-builder-backend": "^1.0.0-8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "@material-design-icons/svg": "^0.14.14"

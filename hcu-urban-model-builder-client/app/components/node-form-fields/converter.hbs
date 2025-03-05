@@ -1,89 +1,94 @@
-<@form.element
-  @label="Input"
-  @value={{this.inputName}}
-  @controlType="text"
-  @disabled={{true}} as |el|
->
-  <el.control disabled="true" />
-</@form.element>
+<BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
+  <@form.element
+    @label={{t "components.converter.input"}}
+    @value={{this.inputName}}
+    @controlType="text"
+    @disabled={{true}}
+    as |el|
+  >
+    <el.control disabled="true" />
+  </@form.element>
 
-<fieldset>
-  <legend>
-    Mapping
-  </legend>
-  <div class="row">
-    <div class="col-12">
-      <div
-        class="chart-container"
-        {{did-insert this.didInsertChartContainer}}
-      ></div>
-    </div>
-    <div class="col-5 mb-2">
-      <strong>
-        Input
-      </strong>
-    </div>
-    <div class="col-5">
-      <strong>
-        Output
-      </strong>
-    </div>
-    <div class="col-2">
-    </div>
-  </div>
-  {{#each @changeset.dataProxy.data.values as |value i|}}
-    <div class="row converter__values__row">
-      <@form.element
-        class="col-5"
-        @controlType="number"
-        @value={{value.x}}
-        @onChange={{fn this.updateValue i "x"}}
-      />
-      <@form.element
-        class="col-5"
-        @controlType="number"
-        @value={{value.y}}
-        @onChange={{fn this.updateValue i "y"}}
-      />
-      <div class="col-2 converter__values__actions">
-        <a href="javascript:void(0)" {{on "click" (fn this.removeValue i)}}>
-          <FaIcon @icon="trash" />
-        </a>
+  <fieldset>
+    <legend>
+      {{t "components.converter.mapping"}}
+    </legend>
+    <div class="row">
+      <div class="col-12">
+        <div
+          class="chart-container"
+          {{did-insert this.didInsertChartContainer}}
+        ></div>
+      </div>
+      <div class="col-5 mb-2">
+        <strong>
+          {{t "components.converter.input"}}
+        </strong>
+      </div>
+      <div class="col-5">
+        <strong>
+          {{t "components.converter.output"}}
+        </strong>
+      </div>
+      <div class="col-2">
       </div>
     </div>
-  {{/each}}
-  <div class="row">
-    <div class="col-12">
-      <BsButton
-        class="converter__values__actions__add"
-        @type="secondary"
-        @onClick={{this.addNewValue}}
-      >
-        Add Point
-      </BsButton>
-    </div>
-  </div>
-</fieldset>
-
-<@form.element @label="Interpolation">
-  <BsButtonGroup
-    class="button-group__full-width"
-    @value={{@changeset.dataProxy.data.interpolation}}
-    @type="radio"
-    @onChange={{this.updateInterpolation}} as |bg|
-  >
-    {{#each this.interpolationOptions as |option|}}
-      <bg.button @type="light" @value={{option}}>
-        {{option}}
-      </bg.button>
+    {{#each @changeset.dataProxy.data.values as |value i|}}
+      <div class="row converter__values__row">
+        <@form.element
+          class="col-5"
+          @controlType="number"
+          @value={{value.x}}
+          @onChange={{fn this.updateValue i "x"}}
+        />
+        <@form.element
+          class="col-5"
+          @controlType="number"
+          @value={{value.y}}
+          @onChange={{fn this.updateValue i "y"}}
+        />
+        <div class="col-2 converter__values__actions">
+          <a href="javascript:void(0)" {{on "click" (fn this.removeValue i)}}>
+            <FaIcon @icon="trash" />
+          </a>
+        </div>
+      </div>
     {{/each}}
-  </BsButtonGroup>
-</@form.element>
+    <div class="row">
+      <div class="col-12">
+        <BsButton
+          class="converter__values__actions__add"
+          @type="secondary"
+          @onClick={{this.addNewValue}}
+        >
+          {{t "components.converter.add_point"}}
+        </BsButton>
+      </div>
+    </div>
+  </fieldset>
 
-<NodeFormFields::Validation
-  @modelsVersion={{@modelsVersion}}
-  @form={{@form}}
-  @changeset={{@changeset}}
-  @el={{@el}}
-  @errors={{@errors}}
-/>
+  <@form.element @label={{t "components.converter.interpolation_label"}}>
+    <BsButtonGroup
+      class="button-group__full-width"
+      @value={{@changeset.dataProxy.data.interpolation}}
+      @type="radio"
+      @onChange={{this.updateInterpolation}}
+      as |bg|
+    >
+      {{#each this.interpolationOptions as |option|}}
+        <bg.button @type="light" @value={{option}}>
+          {{option}}
+        </bg.button>
+      {{/each}}
+    </BsButtonGroup>
+  </@form.element>
+
+  <NodeFormFields::Validation
+    @acc={{acc}}
+    @modelsVersion={{@modelsVersion}}
+    @form={{@form}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+    @errors={{@errors}}
+  />
+</BsAccordion>

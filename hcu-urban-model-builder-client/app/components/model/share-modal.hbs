@@ -3,7 +3,8 @@
   @onSubmit={{this.onSubmit}}
   @onHide={{this.onHide}}
   @size="lg"
-  {{did-insert this.prepare}} as |modal|
+  {{did-insert this.prepare}}
+  as |modal|
 >
   <modal.header>
     <h5 class="modal-title">
@@ -16,36 +17,53 @@
     </p>
 
     <h5>
-      Modell teilen
+      {{t "components.share_modal.title"}}
     </h5>
     <BsForm
       @formLayout="vertical"
       @model={{this.changeset}}
-      @onSubmit={{this.onSubmit}} as |form|
+      @onSubmit={{this.onSubmit}}
+      as |form|
     >
       <div class="row model__share__row">
         {{! User search }}
-        <form.element @label="User" class="col-5" @property="selectedUser">
+        <form.element
+          @label={{t "components.share_modal.user_label"}}
+          class="col-5"
+          @property="selectedUser"
+        >
           <PowerSelect
             @searchEnabled={{true}}
             @search={{this.lookupUsers}}
             @selected={{this.changeset.selectedUser}}
-            @onChange={{this.onUserChange}} as |user|
+            @onChange={{this.onUserChange}}
+            @searchMessage={{t "components.share_modal.search_message"}}
+            @loadingMessage={{t "components.share_modal.loading_message"}}
+            @noMatchesMessage={{t "components.share_modal.no_matches_message"}}
+            @searchPlaceholder={{t
+              "components.share_modal.search_user_placeholder"
+            }}
+            as |user|
           >
             {{user.email}}
           </PowerSelect>
         </form.element>
         {{! Role select }}
-        <form.element @label="Role" class="col-5" @property="selectedRole">
+        <form.element
+          @label={{t "components.share_modal.role_label"}}
+          class="col-5"
+          @property="selectedRole"
+        >
           <PowerSelect
             @options={{this.roles}}
             @selected={{this.changeset.selectedRole}}
-            @onChange={{fn (mut this.changeset.selectedRole)}} as |role|
+            @onChange={{fn (mut this.changeset.selectedRole)}}
+            as |role|
           >
             {{role.label}}
           </PowerSelect>
         </form.element>
-        <form.element @label="Submit" class="col-2 label-sr-only">
+        <form.element @label={{t "actions.share"}} class="col-2 label-sr-only">
           <form.submitButton @size="sm">
             {{t "actions.share"}}
           </form.submitButton>
@@ -56,7 +74,7 @@
     <hr />
 
     <h5>
-      Aktuelle Berechtigungen
+      {{t "components.share_modal.current_permissions"}}
     </h5>
 
     <ul class="model__permissions list-group">
@@ -70,6 +88,7 @@
             <div class="list-group-meta">
               {{! Badge: Current Role }}
 
+              {{! template-lint-disable no-action }}
               {{#if (compute (action this.canBeChanged) permission)}}
                 {{! Action: Badge + Change Role Dropdown }}
                 <BasicDropdown @renderInPlace={{false}} as |dd|>
@@ -117,6 +136,7 @@
           </div>
           <div class="list-group-actions">
             {{! Action: Remove Permission }}
+            {{! template-lint-disable no-action }}
             {{#if (compute (action this.canBeChanged) permission)}}
               <a
                 href="javascript:void(0)"
@@ -129,7 +149,7 @@
         </li>
       {{else}}
         <li class="list-group-item">
-          Bisher noch keine Berechtigungen
+          {{t "components.share_modal.no_permissions_yet"}}
         </li>
       {{/each}}
     </ul>

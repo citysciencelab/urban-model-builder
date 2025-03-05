@@ -1,11 +1,14 @@
-{{yield}}
+<BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
+  {{yield}}
 
-<NodeFormFields::ParameterSettings
-  @form={{@form}}
-  @changeset={{@changeset}}
-  @el={{@el}}
-  @errors={{@errors}}
-  @type="numeric"
-  @outputVisible={{true}}
-  @disabled={{@disabled}}
-/>
+  <NodeFormFields::ParameterSettings
+    @acc={{acc}}
+    @form={{@form}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+    @errors={{@errors}}
+    @type="numeric"
+    @outputVisible={{true}}
+    @disabled={{@disabled}}
+  />
+</BsAccordion>

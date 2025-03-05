@@ -5,6 +5,8 @@ import { Changeset, EmberChangeset } from 'ember-changeset';
 import lookupValidator from 'ember-changeset-validations';
 import { tracked } from '@glimmer/tracking';
 import ModelSettingsValidations from '../../validations/model-settings';
+import { inject as service } from '@ember/service';
+import type IntlService from 'ember-intl/services/intl';
 
 export interface ModelSettingsDialogSignature {
   Args: {
@@ -18,6 +20,7 @@ export interface ModelSettingsDialogSignature {
 }
 
 export default class ModelSettingsDialogComponent extends Component<ModelSettingsDialogSignature> {
+  @service intl!: IntlService;
   @tracked changeset!: EmberChangeset;
 
   timeUnits = [
@@ -31,11 +34,15 @@ export default class ModelSettingsDialogComponent extends Component<ModelSetting
   ];
   algorithms = ['Euler', 'RK4'];
 
+  get Validation() {
+    return ModelSettingsValidations(this.intl);
+  }
+
   @action prepare() {
     this.changeset = Changeset(
       this.args.model,
-      lookupValidator(ModelSettingsValidations),
-      ModelSettingsValidations,
+      lookupValidator(this.Validation),
+      this.Validation,
     );
   }
 

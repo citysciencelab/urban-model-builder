@@ -19,7 +19,10 @@ export default class ApplicationRoute extends Route {
 
   async beforeModel(transition: Transition) {
     await this.session.setup();
-    this.intl.setLocale(['de-de']);
+
+    const storedLocale = localStorage.getItem('locale');
+    const locale = storedLocale || 'de-de';
+    this.intl.setLocale([locale]);
 
     if (transition.to?.name === 'authenticated.index') {
       this.router.replaceWith('models');

@@ -1,2 +1,50 @@
-{{page-title "PublicModels"}}
-{{outlet}}
+{{page-title (t "routes.models.index.title")}}
+
+<div class="container main-content">
+  <div class="card">
+    {{! header }}
+    {{#let this._q as |searchQuery|}}
+      <ModelsIndexHeader
+        @title={{t "routes.public_models.list_of_models"}}
+        @onShowSearch={{this.onShowSearch}}
+        @hasSearchQuery={{this.hasSearchQuery}}
+        @q={{this.q}}
+        @searchQuery={{searchQuery}}
+        @clearSearch={{this.clearSearch}}
+        @onSearchChange={{this.onSearchChange}}
+        @sort_key={{this.sort_key}}
+        @sort_direction={{this.sort_direction}}
+        @onSortChange={{this.onSortChange}}
+        @startCreating={{this.startCreating}}
+      />
+    {{/let}}
+    {{! list }}
+    <ModelsIndexList
+      @persistedModels={{this.persistedModels}}
+      @user={{this.user}}
+      @intl={{this.intl}}
+      @startEditing={{this.startEditing}}
+      @startDeleting={{this.startDeleting}}
+    />
+    {{! footer }}
+    <div class="card-footer model-index-footer text-body-secondary">
+      <Ui::Pagination
+        @model={{this.persistedModels}}
+        @limit={{this.limit}}
+        @total={{this.model.meta.total}}
+        @page={{this.page}}
+        @onPageChanged={{this.onPageChanged}}
+        @onLimitChanged={{this.onLimitChanged}}
+      />
+    </div>
+  </div>
+</div>
+
+{{! Use the new component for the Modal / Form }}
+<Model::FormModal
+  @isOpen={{this.isModalOpen}}
+  @mode={{this.mode}}
+  @changeset={{this.changeset}}
+  @onClose={{this.closeModal}}
+  @onSubmit={{this.submitModel}}
+/>

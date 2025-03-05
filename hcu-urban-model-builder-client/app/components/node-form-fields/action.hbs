@@ -1,7 +1,8 @@
 <@form.element
   @controlType="textarea"
-  @label="Action"
-  @property="data.action" as |el|
+  @label={{t "components.action.action_label"}}
+  @property="data.action"
+  as |el|
 >
   <NodeFormFields::Formula
     @form={{@form}}
@@ -15,15 +16,21 @@
 
 <@form.element
   @controlType="radio"
-  @label="Trigger"
+  @label={{t "components.action.trigger_label"}}
   @property="data.trigger"
   @options={{this.triggerTypeOptions}}
-/>
+  as |el|
+>
+  <el.control as |option|>
+    {{t (concat "components.action.trigger_options." option)}}
+  </el.control>
+</@form.element>
 
 <@form.element
   @controlType="textarea"
-  @label="Value"
-  @property="data.value" as |el|
+  @label={{t "components.action.value_label"}}
+  @property="data.value"
+  as |el|
 >
   <NodeFormFields::Formula
     @form={{@form}}
@@ -37,8 +44,12 @@
 
 <@form.element
   @controlType="switch"
-  @label="Recalculate"
+  @label={{t "components.action.recalculate_label"}}
   @property="data.recalculate"
 />
 
-<@form.element @controlType="switch" @label="Repeat" @property="data.repeat" />
+<@form.element
+  @controlType="switch"
+  @label={{t "components.action.repeat_label"}}
+  @property="data.repeat"
+/>

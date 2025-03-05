@@ -43,6 +43,7 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
   @tracked selectedUser: UserModel | null = null;
   @tracked currentPermissions: ModelsUser[] = [];
 
+  @tracked
   roles = [
     {
       label: 'None',
@@ -62,6 +63,10 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
     },
   ];
 
+  get Validation() {
+    return ModelShareValidations(this.intl);
+  }
+
   async initChangeset() {
     this.formModel = {
       selectedUser: null,
@@ -71,8 +76,8 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
 
     this.changeset = Changeset(
       this.formModel,
-      lookupValidator(ModelShareValidations),
-      ModelShareValidations,
+      lookupValidator(this.Validation),
+      this.Validation,
     );
   }
 
