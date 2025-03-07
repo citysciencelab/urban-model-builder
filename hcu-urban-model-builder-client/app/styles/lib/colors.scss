@@ -28,6 +28,10 @@ $edge-color-map: (
   }
 }
 
+@function flatten-color($color, $alpha, $background: white) {
+  @return mix($background, $color, $alpha * 100%);
+}
+
 .text-bg-secondary {
   background-color: $color-secondary !important;
   color: $white;

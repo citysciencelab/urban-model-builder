@@ -34,7 +34,7 @@
   justify-content: center;
   align-items: center;
   padding: get-spacer(1) get-spacer(3);
-  font-size: $font-family-base;
+  font-size: $font-size-base;
   font-weight: $headings-font-weight;
   width: 100%;
   .react-flow__node-base__icon {
@@ -43,17 +43,19 @@
     justify-content: center;
   }
   svg {
-    width: $font-family-base;
-    height: $font-family-base;
+    transform: scale(0.8);
   }
 }
 
-.react-flow__node-base__footer {
+.react-flow__node-base__footer,
+.react-flow__node-arrow__footer {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: get-spacer(2) get-spacer(3);
   font-size: $font-size-sm;
+  z-index: 9;
 
   .react-flow__node-base--tags {
     display: flex;
@@ -86,8 +88,8 @@
       background-color: $white;
     }
     .react-flow__node-base--single-tag {
-      background-color: rgba($color, 0.5);
-      color: contrast-color(rgba($color, 0.5));
+      background-color: flatten-color($color, 0.5);
+      color: contrast-color(flatten-color($color, 0.5));
     }
   }
   @if (
@@ -107,6 +109,25 @@
 
         .react-flow__node-base__icon svg {
           fill: contrast-color($color);
+        }
+      }
+    }
+  }
+
+  @if ($name == "flow" or $name == "transition") {
+    .react-flow__node-#{$name} {
+      .react-flow__node-arrow__handle__target,
+      .react-flow__node-arrow__handle__source {
+        background-color: $color !important;
+        border-color: $color !important;
+      }
+
+      .react-flow__node-arrow__content {
+        .react-flow__node-arrow__icon {
+          fill: $color;
+          &::before {
+            background-color: $color;
+          }
         }
       }
     }
@@ -141,10 +162,139 @@ $group-nodes: "folder", "agent";
   border: var(--xy-node-border-default);
   border-radius: var(--xy-node-border-radius-default);
   border-color: transparent;
+
+  .react-flow__node-arrow__header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: calc(get-spacer(2) + 2.8rem) get-spacer(3) get-spacer(2);
+    font-size: $font-size-base;
+    font-weight: $headings-font-weight;
+    width: 100%;
+    gap: get-spacer(2);
+    .react-flow__node-arrow__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+
+      &::before {
+        content: " ";
+        position: absolute;
+        display: block;
+        width: calc(get-spacer(3) + 2px);
+        height: 2px;
+        right: calc(100% - calc(0.5 * $font-size-base));
+      }
+    }
+    svg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: $font-size-base;
+      height: $font-size-base;
+    }
+  }
+
+  .react-flow__node-arrow__footer {
+    height: 2.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &:has(.react-flow__node-arrow__handle__target.react-flow__handle-top) {
+    .react-flow__node-arrow__header {
+      flex-direction: column;
+
+      .react-flow__node-arrow__icon {
+        transform: rotate(90deg);
+        &::before {
+          width: calc(calc(get-spacer(1) + 2.8rem) + 2px);
+        }
+      }
+    }
+  }
+
+  &:has(.react-flow__node-arrow__handle__target.react-flow__handle-right) {
+    .react-flow__node-arrow__header {
+      flex-direction: row-reverse;
+      .react-flow__node-arrow__icon {
+        transform: rotate(180deg);
+        &::before {
+          width: calc(get-spacer(3) + 2px);
+        }
+      }
+    }
+  }
+
+  &:has(.react-flow__node-arrow__handle__target.react-flow__handle-bottom) {
+    .react-flow__node-arrow__header {
+      flex-direction: column-reverse;
+      .react-flow__node-arrow__icon {
+        transform: rotate(-90deg);
+        &::before {
+          width: calc(calc(get-spacer(1) + 2.8rem) + 2px);
+        }
+      }
+    }
+  }
 }
 
 .selected > .react-flow__node-arrow__content {
   border-color: $node-selected-color;
+}
+
+.react-flow__node-arrow__handle__target,
+.react-flow__node-arrow__handle__source {
+  width: get-spacer(3) !important;
+  height: get-spacer(3) !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  svg {
+    overflow: visible;
+    transform: scale(0.5);
+  }
+}
+
+.react-flow__node-arrow__handle__target {
+  &.react-flow__handle-right {
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+  &.react-flow__handle-top {
+    svg {
+      transform: rotate(90deg);
+    }
+  }
+
+  &.react-flow__handle-bottom {
+    svg {
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.react-flow__node-arrow__handle__source {
+  &.react-flow__handle-left {
+    svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  &.react-flow__handle-top {
+    svg {
+      transform: rotate(-90deg);
+    }
+  }
+
+  &.react-flow__handle-bottom {
+    svg {
+      transform: rotate(90deg);
+    }
+  }
 }
 
 .react-wrapper .react-flow__controls {

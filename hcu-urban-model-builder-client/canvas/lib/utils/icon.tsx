@@ -14,10 +14,10 @@ import Storage from "@material-design-icons/svg/sharp/storage.svg";
 const iconMap = {
   stock: Inventory,
   variable: Category,
-  "flow-icon": FlowIcon,
+  flow: FlowIcon,
   converter: Autorenew,
   state: ToggleOff,
-  transition_push: TransitionPush,
+  transition: TransitionPush,
   action: PlayPause,
   population: Groups,
   agent: Person,

@@ -8,6 +8,34 @@ import {
 import { memo, useCallback, useContext, useMemo, useState } from "react";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 import { EmberReactConnectorContext } from "../context/ember-react-connector.ts";
+import { ReactFlowNodeType } from "../declarations.ts";
+import { Icon, IconNames } from "../utils/icon.tsx";
+
+import ChevronRight from "@material-design-icons/svg/sharp/chevron_right.svg";
+interface EmberModel {
+  get(key: string): any;
+}
+
+const tagsNodeMap: Record<string, (emberModel: EmberModel) => string[]> = {
+  [ReactFlowNodeType.Flow]: (emberModel: EmberModel) => {
+    const rate = emberModel.get("data.rate");
+
+    if (!rate) {
+      return [];
+    }
+    return [rate];
+  },
+
+  [ReactFlowNodeType.Transition]: (emberModel: EmberModel) => {
+    const value = emberModel.get("data.value");
+
+    if (!value) {
+      return [];
+    }
+    const unit = emberModel.get("data.units");
+    return [unit ? `${value} ${unit}` : `${value}`];
+  },
+};
 
 const positions = [
   Position.Top,
@@ -35,8 +63,19 @@ export const ArrowNode = memo(
     const rfInstance = useReactFlow();
     const updateNodeInternals = useUpdateNodeInternals();
     const emberReactConnector = useContext(EmberReactConnectorContext);
+    const emberModel = data.emberModel as EmberModel | undefined;
 
     const name = data.emberModel.get("name");
+
+    const tags = useMemo(() => {
+      if (emberModel) {
+        const tagsFn = tagsNodeMap[type];
+        if (tagsFn) {
+          return tagsFn(emberModel);
+        }
+      }
+      return [];
+    }, [data]);
 
     const [direction, setDirection] = useState<Position>(
       data.emberModel.data.direction || Position.Right,
@@ -73,7 +112,6 @@ export const ArrowNode = memo(
             isConnectable={isConnectable}
           />
         ))}
-
         <Handle
           type="target"
           id={`${type}-target`}
@@ -81,17 +119,35 @@ export const ArrowNode = memo(
           key={oppositeHandle}
           className="react-flow__node-arrow__handle__target"
           isConnectable={isConnectable}
-        />
-
+        >
+          <ChevronRight />
+        </Handle>
         <Handle
           type="source"
           id={`${type}-source`}
           position={direction}
           className="react-flow__node-arrow__handle__source"
           isConnectable={isConnectable}
-        />
-
-        <div className="react-flow__node-flow__label">{name}</div>
+        >
+          <ChevronRight />
+        </Handle>
+        <div className="react-flow__node-arrow__header">
+          <div className="react-flow__node-arrow__icon">
+            <Icon icon={type as IconNames} />
+          </div>
+          {name}
+        </div>
+        <div className="react-flow__node-arrow__footer">
+          {tags.length > 0 && (
+            <div className="react-flow__node-base--tags">
+              {tags.map((tag) => (
+                <div className="react-flow__node-base--single-tag" key={tag}>
+                  {tag}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <DefaultNodeToolbar nodeId={id} isNodeSelected={selected}>
           <button onClick={onChangeDirection}>🔁</button>
         </DefaultNodeToolbar>
