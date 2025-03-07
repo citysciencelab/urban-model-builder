@@ -45,14 +45,10 @@ const tagsNodeMap: Record<string, (emberModel: EmberModel) => string[]> = {
   },
   [ReactFlowNodeType.Population]: (emberModel: EmberModel) => {
     const populationSize = emberModel.get("data.populationSize");
-    if (!populationSize) {
-      return [];
-    }
+
     const placementType = emberModel.get("data.geoPlacementType");
-    if (!placementType) {
-      return [];
-    }
-    return [populationSize, placementType];
+
+    return [populationSize, placementType].filter((v) => !!v);
   },
 
   [ReactFlowNodeType.State]: (emberModel: EmberModel) => {
