@@ -384,7 +384,7 @@ function Flow({
       nodesDraggable={!flowOptions.disabled}
       nodesConnectable={!flowOptions.disabled}
       nodesFocusable={!flowOptions.disabled}
-      panOnDrag={[1]}
+      panOnDrag={true}
       fitView
     >
       <Panel position="bottom-center">
