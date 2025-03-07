@@ -118,5 +118,3 @@ declare module 'simulation' {
     timeUnits?: ('Seconds' | 'Minutes' | 'Hours' | 'Days' | 'Weeks' | 'Months' | 'Years') | undefined
   }
 }
-
-declare module 'simulation-viz-console'

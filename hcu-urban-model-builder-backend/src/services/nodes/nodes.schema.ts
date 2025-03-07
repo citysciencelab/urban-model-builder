@@ -199,6 +199,7 @@ export const nodesDataSchema = Type.Pick(
     'width',
     'parentId',
     'isParameter',
+    'isOutputParameter',
     'parameterType',
     'parameterMin',
     'parameterMax',

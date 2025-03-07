@@ -300,6 +300,36 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       nodeMigrationMap.set(node.id, newNode.id)
     }
 
+    const newNodes = await this.app.service('nodes').find({
+      query: {
+        modelsVersionsId: newDraftModelVersion.id
+      },
+      user: params?.user
+    })
+
+    for (const newNode of newNodes.data) {
+      let newParentId = null
+      let newGhostParentId = null
+      if (newNode.parentId && nodeMigrationMap.has(newNode.parentId)) {
+        newParentId = nodeMigrationMap.get(newNode.parentId)
+      }
+      if (newNode.ghostParentId && nodeMigrationMap.has(newNode.ghostParentId)) {
+        newGhostParentId = nodeMigrationMap.get(newNode.ghostParentId)
+      }
+      if (newParentId || newGhostParentId) {
+        await this.app.service('nodes').patch(
+          newNode.id,
+          {
+            ...(newParentId ? { parentId: newParentId } : {}),
+            ...(newGhostParentId ? { ghostParentId: newGhostParentId } : {})
+          },
+          {
+            user: params?.user
+          }
+        )
+      }
+    }
+
     const edges = await this.app.service('edges').find({
       query: {
         modelsVersionsId: currentModelVersion.id
