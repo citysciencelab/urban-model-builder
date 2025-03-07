@@ -34,7 +34,7 @@
   justify-content: center;
   align-items: center;
   padding: get-spacer(1) get-spacer(3);
-  font-size: $h4-font-size;
+  font-size: $font-family-base;
   font-weight: $headings-font-weight;
   width: 100%;
   .react-flow__node-base__icon {
@@ -43,8 +43,8 @@
     justify-content: center;
   }
   svg {
-    width: $h4-font-size;
-    height: $h4-font-size;
+    width: $font-family-base;
+    height: $font-family-base;
   }
 }
 
@@ -53,7 +53,7 @@
   justify-content: space-between;
   align-items: center;
   padding: get-spacer(2) get-spacer(3);
-  font-size: $h6-font-size;
+  font-size: $font-size-sm;
 
   .react-flow__node-base--tags {
     display: flex;
