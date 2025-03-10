@@ -10,5 +10,11 @@
     "target": "es2021",
     "module": "esnext",
     "jsx": "react-jsx",
-  }
+  },
+  "include": [
+    "./types/svg.d.ts",
+    "./index.tsx",
+    "./lib/**/*.ts",
+    "./lib/**/*.tsx",
+  ],
 }
