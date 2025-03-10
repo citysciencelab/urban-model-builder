@@ -33,6 +33,8 @@ import { BaseNode } from "./lib/nodes/base-node.tsx";
 import { FlowTransitionEdge } from "./lib/edges/flow-tranistion.tsx";
 import { ArrowNode } from "./lib/nodes/arrow-node.tsx";
 import { FolderNode } from "./lib/nodes/folder-node.tsx";
+import { AgentNode } from "./lib/nodes/agent-node.tsx";
+
 import {
   getNodePositionInsideParent,
   sortNodeModels,
@@ -63,7 +65,7 @@ const nodeTypes = {
   [ReactFlowNodeType.Converter]: BaseNode,
   [ReactFlowNodeType.Transition]: ArrowNode,
   [ReactFlowNodeType.Folder]: FolderNode,
-  [ReactFlowNodeType.Agent]: FolderNode,
+  [ReactFlowNodeType.Agent]: AgentNode,
   [ReactFlowNodeType.Population]: BaseNode,
   [ReactFlowNodeType.Action]: BaseNode,
   [ReactFlowNodeType.Ghost]: GhostNode,
