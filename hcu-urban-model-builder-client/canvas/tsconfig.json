@@ -12,7 +12,7 @@
     "jsx": "react-jsx",
   },
   "include": [
-    "./types/svg.d.ts",
+    "./types/**/*.d.ts",
     "./index.tsx",
     "./lib/**/*.ts",
     "./lib/**/*.tsx",
