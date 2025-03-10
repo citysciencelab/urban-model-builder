@@ -33,5 +33,5 @@ export function Icon(props: { icon: IconNames }) {
     throw new Error(`Icon ${props.icon} not found`);
   }
   const SelectedIcon = iconMap[props.icon];
-  return <SelectedIcon />;
+  return <SelectedIcon fill="currentColor" />;
 }
