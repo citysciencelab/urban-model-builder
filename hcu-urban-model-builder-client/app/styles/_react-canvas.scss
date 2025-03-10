@@ -124,7 +124,7 @@
 
       .react-flow__node-arrow__content {
         .react-flow__node-arrow__icon {
-          fill: $color;
+          color: $color;
           &::before {
             background-color: $color;
           }

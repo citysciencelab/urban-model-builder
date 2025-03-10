@@ -10,8 +10,8 @@ import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 import { EmberReactConnectorContext } from "../context/ember-react-connector.ts";
 import { ReactFlowNodeType } from "../declarations.ts";
 import { Icon, IconNames } from "../utils/icon.tsx";
-
 import ChevronRight from "@material-design-icons/svg/sharp/chevron_right.svg";
+
 interface EmberModel {
   get(key: string): any;
 }
