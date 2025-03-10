@@ -10,7 +10,6 @@ import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 import { EmberReactConnectorContext } from "../context/ember-react-connector.ts";
 import { ReactFlowNodeType } from "../declarations.ts";
 import { Icon, IconNames } from "../utils/icon.tsx";
-import ChevronRight from "@material-design-icons/svg/sharp/chevron_right.svg";
 
 interface EmberModel {
   get(key: string): any;
@@ -89,6 +88,14 @@ export const ArrowNode = memo(
       return positions.filter((p) => p !== oppositeHandle && p !== direction);
     }, [direction, oppositeHandle]);
 
+    const isHorizontal = useMemo(() => {
+      return direction === Position.Left || direction === Position.Right;
+    }, [direction]);
+
+    const isVertical = useMemo(() => {
+      return direction === Position.Top || direction === Position.Bottom;
+    }, [direction]);
+
     const onChangeDirection = useCallback(() => {
       const newDirection = nextDirection[direction];
       setDirection(newDirection);
@@ -101,8 +108,36 @@ export const ArrowNode = memo(
       });
     }, [direction, rfInstance]);
 
+    const SpecialHandle = () => (
+      <>
+        <Handle
+          type="target"
+          id={`${type}-target`}
+          position={oppositeHandle}
+          key={oppositeHandle}
+          className="react-flow__node-arrow__handle__target"
+          isConnectable={isConnectable}
+        >
+          <Icon icon="chevron-right" />
+        </Handle>
+        <Handle
+          type="source"
+          id={`${type}-source`}
+          position={direction}
+          className="react-flow__node-arrow__handle__source"
+          isConnectable={isConnectable}
+        >
+          <Icon icon="chevron-right" />
+        </Handle>
+      </>
+    );
+
     return (
-      <div className="react-flow__node-arrow__content">
+      <div
+        className={
+          "react-flow__node-arrow__content " + `--direction-${direction}`
+        }
+      >
         {normalTargetHandles.map((position) => (
           <Handle
             type={"target"}
@@ -112,33 +147,18 @@ export const ArrowNode = memo(
             isConnectable={isConnectable}
           />
         ))}
-        <Handle
-          type="target"
-          id={`${type}-target`}
-          position={oppositeHandle}
-          key={oppositeHandle}
-          className="react-flow__node-arrow__handle__target"
-          isConnectable={isConnectable}
-        >
-          <ChevronRight />
-        </Handle>
-        <Handle
-          type="source"
-          id={`${type}-source`}
-          position={direction}
-          className="react-flow__node-arrow__handle__source"
-          isConnectable={isConnectable}
-        >
-          <ChevronRight />
-        </Handle>
+
+        {isVertical && <SpecialHandle />}
+
         <div className="react-flow__node-arrow__header">
           <div className="react-flow__node-arrow__icon">
             <Icon icon={type as IconNames} />
           </div>
-          {name}
+          <div className="react-flow__node-arrow__name">{name}</div>
+          {isHorizontal && <SpecialHandle />}
         </div>
-        <div className="react-flow__node-arrow__footer">
-          {tags.length > 0 && (
+        {tags.length > 0 && (
+          <div className="react-flow__node-arrow__footer">
             <div className="react-flow__node-base--tags">
               {tags.map((tag) => (
                 <div className="react-flow__node-base--single-tag" key={tag}>
@@ -146,8 +166,8 @@ export const ArrowNode = memo(
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
         <DefaultNodeToolbar nodeId={id} isNodeSelected={selected}>
           <button onClick={onChangeDirection}>🔁</button>
         </DefaultNodeToolbar>

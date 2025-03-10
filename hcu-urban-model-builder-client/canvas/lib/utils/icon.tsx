@@ -10,6 +10,7 @@ import Person from "@material-design-icons/svg/sharp/person.svg";
 import Folder from "@material-design-icons/svg/sharp/folder.svg";
 // import Ghost from "@material-design-icons/svg/sharp/ghost.svg";
 import Storage from "@material-design-icons/svg/sharp/storage.svg";
+import ChevronRight from "@material-design-icons/svg/sharp/chevron_right.svg";
 
 const iconMap = {
   stock: Inventory,
@@ -24,6 +25,7 @@ const iconMap = {
   folder: Folder,
   // ghost: Ghost,
   "ogc-api-features": Storage,
+  "chevron-right": ChevronRight,
 } as const;
 
 export type IconNames = keyof typeof iconMap;
