@@ -143,6 +143,11 @@
 
   @if ($name == "flow" or $name == "transition") {
     .react-flow__node-#{$name} {
+      .react-flow__node-base--single-tag {
+        background-color: flatten-color($color, 0.5);
+        color: contrast-color(flatten-color($color, 0.5));
+      }
+
       .react-flow__node-arrow__handle__target,
       .react-flow__node-arrow__handle__source {
         background-color: $color;
