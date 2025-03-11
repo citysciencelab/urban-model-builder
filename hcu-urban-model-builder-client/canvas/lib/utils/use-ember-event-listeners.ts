@@ -1,19 +1,10 @@
-import { MarkerType, Node, useReactFlow } from '@xyflow/react';
+import { MarkerType, useReactFlow } from '@xyflow/react';
 import {
   EmberReactConnectorContext,
   StoreEventSenderTransport,
 } from '../context/ember-react-connector';
 import { useCallback, useContext, useEffect } from 'react';
 import { NodeType } from 'hcu-urban-model-builder-backend';
-
-const nodeHasChanged = (node1: Node, node2: any) => {
-  return (
-    node1.position.x !== node2.position.x ||
-    node1.position.y !== node2.position.y ||
-    node1.width !== node2.width ||
-    node1.height !== node2.height
-  );
-};
 
 export const useEmberEventListeners = () => {
   const emberReactConnector = useContext(EmberReactConnectorContext);
@@ -62,27 +53,27 @@ export const useEmberEventListeners = () => {
         return;
       }
 
-      if (sender === StoreEventSenderTransport.LOCAL) {
-        setNodes((nds) =>
-          nds.map((n) => {
-            if (n.id === updatedNode.id) {
-              return {
-                ...n,
-                data: updatedNode.raw.data,
-              };
-            }
-            return n;
-          }),
-        );
-        return;
-      }
-
       setNodes((nds) =>
         nds.map((n) => {
-          if (n.id === updatedNode.id && nodeHasChanged(n, updatedNode.raw)) {
+          if (n.id === updatedNode.id) {
+            return sender === StoreEventSenderTransport.LOCAL
+              ? {
+                  ...n,
+                  data: updatedNode.raw.data,
+                }
+              : {
+                  ...n,
+                  ...updatedNode.raw,
+                };
+          }
+          if (n.data.emberModel?.get('ghostParent.id') === updatedNode.id) {
+            console.log('hit');
+
             return {
               ...n,
-              ...updatedNode.raw,
+              data: {
+                ...n.data,
+              },
             };
           }
 

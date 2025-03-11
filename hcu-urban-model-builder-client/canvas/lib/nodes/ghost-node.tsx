@@ -26,7 +26,7 @@ export const GhostNode = memo(
         : undefined;
     }, [ghostNodeModel]);
 
-    let ghostName = data.emberModel.get("name");
+    let ghostName = ghostNodeModel?.get("name");
 
     return (
       <div className={`react-flow__node-default content`}>
