@@ -24,6 +24,9 @@ const enumToLowerCaseStringMap = <
   inputEnum: EnumType,
 ) => {
   return Object.keys(inputEnum).reduce((acc: any, key: any) => {
+    if (!Number.isNaN(Number(key))) {
+      return acc;
+    }
     acc[key] = dasherize(key);
     return acc;
   }, {}) as T;
@@ -45,3 +48,17 @@ function enumLowerCaseStringToEnumValue<
 export const reactFlowNodeToNodeType = enumLowerCaseStringToEnumValue(NodeType);
 
 export const reactFlowEdgeToEdgeType = enumLowerCaseStringToEnumValue(EdgeType);
+
+function enumValueToEnumLowerCaseString<
+  EnumType extends Record<number | string, any>,
+  EnumTypeMap extends EnumToLowerCaseStringMap<EnumType>,
+  T extends keyof EnumType,
+>(enumType: EnumType) {
+  return (type: T) => {
+    return dasherize(enumType[type]);
+  };
+}
+
+export const nodeTypeToReactFlowNode = enumValueToEnumLowerCaseString(NodeType);
+
+export const edgeTypeToReactFlowEdge = enumValueToEnumLowerCaseString(EdgeType);

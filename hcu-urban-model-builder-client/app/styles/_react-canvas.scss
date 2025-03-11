@@ -20,7 +20,8 @@
   overflow: hidden;
 }
 
-.react-flow__node-base__content {
+.react-flow__node-base__content,
+.react-flow__node-ghost__content {
   @include node-content();
   display: flex;
   justify-content: flex-start;
@@ -29,6 +30,12 @@
   background-color: $white;
   border-radius: $border-radius-lg;
 }
+
+.react-flow__node-ghost__content {
+  border-style: dashed;
+  opacity: 0.66;
+}
+
 .react-flow__node-base__header {
   display: flex;
   justify-content: center;
@@ -84,10 +91,9 @@
 }
 
 @each $name, $color in $node-color-map {
-  .react-flow__node-#{$name} {
-    .react-flow__node-base__content {
-      border-color: $color;
-    }
+  .react-flow__node-ghost__content.--type-#{$name},
+  .react-flow__node-#{$name} .react-flow__node-base__content {
+    border-color: $color;
     .react-flow__node-base__header {
       background-color: $white;
     }
@@ -96,8 +102,21 @@
       color: contrast-color(flatten-color($color, 0.5));
     }
   }
-  @if ($name == "stock" or $name == "state" or $name == "action" or $name == "population" or $name == "agent") {
-    .react-flow__node-#{$name} {
+
+  @if (
+    $name ==
+      "stock" or
+      $name ==
+      "state" or
+      $name ==
+      "action" or
+      $name ==
+      "population" or
+      $name ==
+      "agent"
+  ) {
+    .react-flow__node-ghost__content.--type-#{$name},
+    .react-flow__node-#{$name} .react-flow__node-base__content {
       .react-flow__node-base__header {
         background-color: $color;
         color: contrast-color($color);
@@ -113,8 +132,8 @@
     .react-flow__node-#{$name} {
       .react-flow__node-arrow__handle__target,
       .react-flow__node-arrow__handle__source {
-        background-color: $color !important;
-        border-color: $color !important;
+        background-color: $color;
+        border-color: $color;
       }
 
       .react-flow__node-arrow__content {
