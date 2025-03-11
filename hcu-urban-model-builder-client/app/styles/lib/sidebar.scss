@@ -72,7 +72,6 @@
   padding: get-spacer(3);
   flex-direction: column;
   gap: get-spacer(2);
-  overflow: hidden;
   .sidebar__header__row {
     display: flex;
     align-items: center;
@@ -80,6 +79,8 @@
   }
 
   h4 {
+    word-break: break-word;
+    hyphens: auto;
     .mb-3 {
       margin-bottom: 0 !important;
     }

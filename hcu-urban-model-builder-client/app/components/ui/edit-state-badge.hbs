@@ -1,0 +1,11 @@
+<div class="edit-state-badge">
+  {{#unless @modelVersion.canEdit}}
+    <span class="badge rounded-pill badge-warning text-bg-light">
+      {{t "components.model_info.view_mode"}}
+    </span>
+    <BsTooltip
+      @title={{t "components.edit_state_badge.tooltip"}}
+      @placement="bottom"
+    />
+  {{/unless}}
+</div>

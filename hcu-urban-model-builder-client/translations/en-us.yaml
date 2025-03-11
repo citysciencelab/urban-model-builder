@@ -95,6 +95,8 @@ routes:
     title: Demo
 
 components:
+  edit_state_badge:
+    tooltip: This version can no longer be edited
   clone_dialog:
     title: Model cloning
     intro: Here you create a new model based on the current model version.

@@ -28,24 +28,18 @@
       @model={{@modelVersion.model}}
       @currentVersion={{@modelVersion}}
     />
+    {{! Badget: Latest }}
+    {{#if @modelVersion.isLatest}}
+      &nbsp;
+      <span class="badge rounded-pill badge-success text-bg-light">
+        {{t "components.share.latest"}}
+      </span>
+    {{/if}}
     {{! Badge: Public }}
     {{#if @modelVersion.isPublished}}
       &nbsp;
       <span class="badge rounded-pill badge-success text-bg-light">
         {{t "components.model_info.public"}}
-      </span>
-    {{/if}}
-
-    {{! Badge: Edit Mode / View Mode }}
-    {{#if @modelVersion.canEdit}}
-      &nbsp;
-      <span class="badge rounded-pill badge-warning text-bg-light">
-        {{t "components.model_info.edit_mode"}}
-      </span>
-    {{else}}
-      &nbsp;
-      <span class="badge rounded-pill badge-warning text-bg-light">
-        {{t "components.model_info.view_mode"}}
       </span>
     {{/if}}
   </div>

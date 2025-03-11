@@ -421,7 +421,11 @@ $direction-config: (
     border: 1px solid $col;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    // border-bottom: 2px solid white;
+
+    max-width: min(80%, #{$max-node-width});
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     &:after {
       content: "";
       width: 100%;

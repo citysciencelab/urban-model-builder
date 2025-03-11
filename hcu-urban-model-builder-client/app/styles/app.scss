@@ -697,6 +697,7 @@ input:focus {
 .save-indicator {
   text-align: center;
   position: absolute;
+  pointer-events: none;
   width: 100%;
   top: 0;
   transform: translateY(-2.5rem);
@@ -723,4 +724,24 @@ input:focus {
 
 .parameter__settings__add-option {
   width: 100%;
+}
+
+.edit-state-badge {
+  position: absolute;
+  left: 50%;
+  z-index: 10;
+  transform: translate(-50%, 1rem);
+}
+
+.react-flow__panel.bottom.center {
+  pointer-events: none !important;
+  .toolbar__container {
+    pointer-events: all;
+  }
+}
+
+.react-flow__node-arrow__name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
