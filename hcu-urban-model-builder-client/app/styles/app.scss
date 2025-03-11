@@ -194,6 +194,10 @@ main {
   }
 }
 
+.list-group-body {
+  width: 100%;
+}
+
 .list-group-body-content {
   display: flex;
   gap: get-spacer(2);
@@ -262,7 +266,16 @@ main {
 .model-search {
   padding: 0 get-spacer(2);
   display: flex;
-  gap: get-spacer(1);
+  min-width: 250px;
+  input {
+    @include make-input();
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
 }
 
 .search-button {
@@ -743,5 +756,21 @@ input:focus {
 .react-flow__node-arrow__name {
   overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.modal-title em {
+  max-width: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.list-group-title {
+  max-width: 50rem;
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
