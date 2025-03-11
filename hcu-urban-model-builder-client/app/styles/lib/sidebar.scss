@@ -78,6 +78,10 @@
     gap: get-spacer(1);
   }
 
+  .alert {
+    margin-bottom: 0;
+  }
+
   h4 {
     word-break: break-word;
     hyphens: auto;
