@@ -51,17 +51,20 @@
   </div>
 </div>
 <div class="sidebar__content">
-  {{t "models.model.attributes.description"}}:
-  {{#if @modelVersion.canEdit}}
-    <ContentEditable
-      @value={{this.changeset.dataProxy.description}}
-      @onChange={{fn (mut this.changeset.dataProxy.description)}}
-      @placeholder={{t "components.model_info.description_placeholder"}}
-    />
-  {{else}}
-    {{this.changeset.dataProxy.description}}
-  {{/if}}
-  <hr />
+  <div class="mb-3">
+    <label for="" class="form-label">{{t
+        "models.model.attributes.description"
+      }}</label>
+    {{#if @modelVersion.canEdit}}
+      <ContentEditable
+        @value={{this.changeset.dataProxy.description}}
+        @onChange={{fn (mut this.changeset.dataProxy.description)}}
+        @placeholder={{t "components.model_info.description_placeholder"}}
+      />
+    {{else}}
+      {{this.changeset.dataProxy.description}}
+    {{/if}}
+  </div>
   <div class="actions">
     {{! Action: Settings }}
     <a

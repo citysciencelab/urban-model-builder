@@ -1,17 +1,12 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
-import type Scenario from 'hcu-urban-model-builder-client/models/scenario';
-import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
-import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
 import { service } from '@ember/service';
-import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import { tracked } from '@glimmer/tracking';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
-import { load } from 'ember-async-data';
-import type Store from '@ember-data/store';
 import { ensureSafeComponent } from '@embroider/util';
 import { importSync } from '@embroider/macros';
 import { dasherize } from '@ember/string';
+import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 
 export interface SidebarGeneralSignature {
   // The arguments accepted by the component
@@ -29,6 +24,7 @@ export interface SidebarGeneralSignature {
 export default class SidebarGeneralComponent extends Component<SidebarGeneralSignature> {
   @tracked isMinimized = false;
   @tracked activeView = 'modelInfo';
+  @service declare modelDialogs: ModelDialogsService;
 
   get sidebarViewComponent() {
     if (!this.activeView) {
@@ -50,7 +46,11 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
   }
 
   @action selectActiveView(view: string) {
-    this.isMinimized = false;
-    this.activeView = view;
+    if (view == 'settings') {
+      this.modelDialogs.onShowSettingsDialog();
+    } else {
+      this.isMinimized = false;
+      this.activeView = view;
+    }
   }
 }
