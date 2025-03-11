@@ -79,6 +79,14 @@ const edgesTypes = {
   [ReactFlowEdgeType.AgentPopulation]: EditableEdge,
 };
 
+const defaultEdgeOptions = {
+  zIndex: 10,
+  markerEnd: {
+    type: MarkerType.Arrow,
+    strokeWidth: 1.5,
+  },
+};
+
 function Flow({
   nodes: initialNodes,
   edges: initialEdges,
@@ -96,7 +104,7 @@ function Flow({
     initialEdges.map((e) => {
       return {
         ...e.raw,
-        markerEnd: { type: MarkerType.Arrow },
+        ...defaultEdgeOptions,
       };
     }),
   );
@@ -371,7 +379,7 @@ function Flow({
       onConnectStart={onConnectionStart}
       onConnect={onConnect}
       defaultEdgeOptions={{
-        zIndex: 10,
+        ...defaultEdgeOptions,
       }}
       onReconnect={onReconnect}
       onNodeDrag={onNodeDrag}
