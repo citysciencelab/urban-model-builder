@@ -89,6 +89,12 @@
       @include font-size($h4-font-size);
       font-weight: $font-weight-bold;
     }
+
+    .invalid-feedback {
+      font-size: $font-size-sm;
+      font-weight: normal;
+      font-family: $font-family-sans-serif;
+    }
   }
 }
 
