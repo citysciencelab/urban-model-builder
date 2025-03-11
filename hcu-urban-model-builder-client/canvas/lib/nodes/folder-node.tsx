@@ -6,37 +6,25 @@ import {
   Position,
 } from "@xyflow/react";
 import { memo } from "react";
-import { ReactFlowNodeType } from "../declarations.ts";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
-
-const positions = [
-  Position.Top,
-  Position.Bottom,
-  Position.Left,
-  Position.Right,
-];
+import { Icon, IconNames } from "../utils/icon.tsx";
 
 export const FolderNode = memo(
   ({ id, selected, data, type, isConnectable }: NodeProps) => {
-    const name = data.emberModel.get("name");
+    const emberModel = data.emberModel;
 
     return (
-      <div className="react-flow__node-folder__content">
-        {type === ReactFlowNodeType.Agent &&
-          ["source"].map((handleType: HandleType) =>
-            positions.map((position) => (
-              <Handle
-                id={`${type}-${handleType}-${position}`}
-                key={`${type}-${handleType}-${position}`}
-                type={handleType}
-                position={position}
-                isConnectable={isConnectable}
-              />
-            )),
-          )}
-        <NodeResizer isVisible={!!selected} />
-        <div>{name}</div>
-        <DefaultNodeToolbar nodeId={id} isNodeSelected={selected} />
+      <div className="react-flow__node-base__content">
+        <NodeResizer isVisible={!!selected} minWidth={216} minHeight={108} />
+        <DefaultNodeToolbar nodeId={id} isNodeSelected={selected} position="right" />
+        <div className="react-flow__node-base__header">
+          <div className="react-flow__node-base__icon">
+            <Icon icon={"folder" as IconNames} />
+          </div>
+          <div className="react-flow__node-base__name">
+            {emberModel?.get("name")}
+          </div>
+        </div>
       </div>
     );
   },

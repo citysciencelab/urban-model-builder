@@ -167,7 +167,7 @@ main {
       border-color: $color;
       .node-toolbar__node__icon {
         background-color: $color;
-        color: contrast-color($color);
+        color: color-contrast($color);
       }
     }
   }

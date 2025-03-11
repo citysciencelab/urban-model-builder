@@ -6,6 +6,12 @@
 }
 .react-flow__resize-control.line {
   border-color: $node-selected-color;
+  z-index: 1;
+}
+
+.react-wrapper .react-flow__resize-control.handle {
+  width: 8px;
+  height: 8px;
 }
 
 .react-flow__node {
@@ -17,7 +23,7 @@
   height: 100%;
   border: var(--xy-node-border-default);
   border-radius: var(--xy-node-border-radius-default);
-  overflow: hidden;
+  // overflow: hidden;
 }
 
 .react-flow__node-base__content,
@@ -44,6 +50,9 @@
   font-size: $font-size-base;
   font-weight: $headings-font-weight;
   width: 100%;
+  border-radius: calc($border-radius-lg - 1px);
+  // border-bottom-right-radius: var(--xy-node-border-radius-default);
+  // border-bottom-left-radius: var(--xy-node-border-radius-default);
   .react-flow__node-base__icon {
     display: flex;
     align-items: center;
@@ -99,30 +108,20 @@
     }
     .react-flow__node-base--single-tag {
       background-color: flatten-color($color, 0.5);
-      color: contrast-color(flatten-color($color, 0.5));
+      color: color-contrast(flatten-color($color, 0.5));
     }
   }
 
-  @if (
-    $name ==
-      "stock" or
-      $name ==
-      "state" or
-      $name ==
-      "action" or
-      $name ==
-      "population" or
-      $name ==
-      "agent"
-  ) {
+  $node-types-with-colored-header: ("stock", "state", "action", "population", "agent");
+  @if index($node-types-with-colored-header, $name) {
     .react-flow__node-ghost__content.--type-#{$name},
     .react-flow__node-#{$name} .react-flow__node-base__content {
       .react-flow__node-base__header {
         background-color: $color;
-        color: contrast-color($color);
+        color: color-contrast($color);
 
         .react-flow__node-base__icon svg {
-          fill: contrast-color($color);
+          fill: color-contrast($color);
         }
       }
     }
@@ -308,10 +307,19 @@ $group-nodes: "folder", "agent";
 .react-flow__node-toolbar {
   border-radius: calc(1rem + 1px);
   background-color: $dark;
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: $white;
     background: transparent;
     border: none;
+    padding: 0;
     height: 2rem;
     width: 2rem;
     border-radius: 50%;
@@ -323,9 +331,37 @@ $group-nodes: "folder", "agent";
   }
 }
 
+.default-toolbar__ghost-button span {
+  filter: grayscale(100%) contrast(1) brightness(1.5);
+}
+
 .react-flow__edge__control-point {
   &:focus {
     outline: none;
     fill: var(--xy-edge-stroke-selected-default);
+  }
+}
+
+.react-flow__node-folder {
+  .react-flow__node-base__content {
+    align-items: flex-start;
+  }
+  .react-flow__node-base__header {
+    width: auto;
+    $col: map-get($node-color-map, "folder");
+    transform: translate(4px, -34px);
+    border: 1px solid $col;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    // border-bottom: 2px solid white;
+    &:after {
+      content: "";
+      width: 100%;
+      height: 4px;
+      background-color: $white;
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+    }
   }
 }

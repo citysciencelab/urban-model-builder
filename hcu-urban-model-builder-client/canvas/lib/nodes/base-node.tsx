@@ -13,7 +13,7 @@ export const BaseNode = memo(
     return (
       <div className="react-flow__node-base__content">
         <DefaultNodeHandles type={handleType} isConnectable={isConnectable} />
-        <NodeResizer isVisible={!!selected} />
+        <NodeResizer isVisible={!!selected} minHeight={34} minWidth={100}/>
 
         <BaseNodeData type={type} data={data} />
 

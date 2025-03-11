@@ -14,7 +14,16 @@ export const useEmberEventListeners = () => {
   const createNode = useCallback(
     async (nodeConfig: { type: NodeType }) => {
       const type = nodeConfig.type;
-      await emberReactConnector.create('node', {
+
+      let sizeOptions = {};
+      if (type === NodeType.Agent || type === NodeType.Folder) {
+        sizeOptions = {
+          width: 216,
+          height: 108,
+        };
+      }
+
+      const nodeData = {
         type: type,
         name: `${NodeType[type]} ${rfInstance.getNodes().length + 1}`,
         data: {},
@@ -22,7 +31,10 @@ export const useEmberEventListeners = () => {
           x: window.innerWidth / 2,
           y: window.innerHeight / 2,
         }),
-      });
+        ...sizeOptions,
+      };
+
+      await emberReactConnector.create('node', nodeData);
     },
     [rfInstance],
   );
