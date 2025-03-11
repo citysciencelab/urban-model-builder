@@ -357,6 +357,19 @@ $direction-config: (
     max-width: none;
   }
 }
+
+.react-flow__node-folder {
+  $col: map-get(
+    $map: $node-color-map,
+    $key: "folder"
+  );
+  .react-flow__node-base__content,
+  .react-flow__node-base__header {
+    border-color: $col;
+    color: $col;
+  }
+}
+
 .react-flow__node-folder {
   .react-flow__node-base__content {
     align-items: flex-start;
