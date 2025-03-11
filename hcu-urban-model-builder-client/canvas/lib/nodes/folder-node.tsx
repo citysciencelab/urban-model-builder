@@ -1,10 +1,4 @@
-import {
-  Handle,
-  HandleType,
-  NodeProps,
-  NodeResizer,
-  Position,
-} from "@xyflow/react";
+import { NodeProps, NodeResizer } from "@xyflow/react";
 import { memo } from "react";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
 import { Icon, IconNames } from "../utils/icon.tsx";
@@ -16,7 +10,7 @@ export const FolderNode = memo(
     return (
       <div className="react-flow__node-base__content">
         <NodeResizer isVisible={!!selected} minWidth={216} minHeight={108} />
-        <DefaultNodeToolbar nodeId={id} isNodeSelected={selected} position="right" />
+        <DefaultNodeToolbar nodeId={id} isNodeSelected={selected} />
         <div className="react-flow__node-base__header">
           <div className="react-flow__node-base__icon">
             <Icon icon={"folder" as IconNames} />
