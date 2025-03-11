@@ -11,8 +11,8 @@ import Folder from "@material-design-icons/svg/sharp/folder.svg";
 // import Ghost from "@material-design-icons/svg/sharp/ghost.svg";
 import Storage from "@material-design-icons/svg/sharp/storage.svg";
 import ChevronRight from "@material-design-icons/svg/sharp/chevron_right.svg";
-import Close from "@material-design-icons/svg/sharp/close.svg";
 import Delete from "@material-design-icons/svg/sharp/delete_forever.svg";
+import Rotate90Deg from "@material-design-icons/svg/sharp/rotate_90_degrees_cw.svg";
 
 const iconMap = {
   stock: Inventory,
@@ -29,6 +29,7 @@ const iconMap = {
   "ogc-api-features": Storage,
   "chevron-right": ChevronRight,
   close: Delete,
+  rotate90deg: Rotate90Deg,
 } as const;
 
 export type IconNames = keyof typeof iconMap;

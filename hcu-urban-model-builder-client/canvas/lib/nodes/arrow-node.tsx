@@ -169,7 +169,9 @@ export const ArrowNode = memo(
           </div>
         )}
         <DefaultNodeToolbar nodeId={id} isNodeSelected={selected}>
-          <button onClick={onChangeDirection}>🔁</button>
+          <button onClick={onChangeDirection}>
+            <Icon icon="rotate90deg" />
+          </button>
         </DefaultNodeToolbar>
       </div>
     );
