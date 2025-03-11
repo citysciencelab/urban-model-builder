@@ -39,6 +39,14 @@
   transition:
     border-color 0.15sease-in-out,
     box-shadow 0.15sease-in-out;
+
+  &:focus {
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border-color: rgb(162.5, 168, 178.5);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(163, 196, 255, 0.25);
+  }
 }
 
 .navbar-brand {

@@ -5,13 +5,15 @@
 
       <div class="sidebar__header">
         <Ui::SaveIndicator @isSaving={{this.changeset.isSaving}} />
-        <BsAlert
-          @type="danger"
-          @dismissible={{false}}
-          @visible={{this.hasErrors}}
-        >
-          {{t "messages.form_error"}}
-        </BsAlert>
+        {{#if this.hasErrors}}
+          <BsAlert
+            @type="danger"
+            @dismissible={{false}}
+            @visible={{this.hasErrors}}
+          >
+            {{t "messages.form_error"}}
+          </BsAlert>
+        {{/if}}
         <h4>
           <form.element
             @controlType="text"
