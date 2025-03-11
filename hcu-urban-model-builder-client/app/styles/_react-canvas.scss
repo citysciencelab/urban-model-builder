@@ -9,7 +9,8 @@
   z-index: 1;
 }
 
-.react-wrapper .react-flow__resize-control.handle {
+.react-wrapper .react-flow__resize-control.handle,
+.react-wrapper .react-flow__handle {
   width: 8px;
   height: 8px;
 }
@@ -233,23 +234,23 @@ $direction-config: (
   "top": (
     "flex-direction": column-reverse,
     "handle-rotation": -90deg,
-    "icon-rotation": 90deg,
+    "icon-rotation": 90deg
   ),
   "left": (
     "flex-direction": row-reverse,
     "handle-rotation": 180deg,
-    "icon-rotation": 180deg,
+    "icon-rotation": 180deg
   ),
   "bottom": (
     "flex-direction": column,
     "handle-rotation": 90deg,
-    "icon-rotation": 90deg,
+    "icon-rotation": 90deg
   ),
   "right": (
     "flex-direction": row,
     "handle-rotation": 0deg,
-    "icon-rotation": 0deg,
-  ),
+    "icon-rotation": 0deg
+  )
 );
 
 @each $direction, $props in $direction-config {
@@ -350,6 +351,12 @@ $direction-config: (
   }
 }
 
+.react-flow__node-folder,
+.react-flow__node-agent {
+  .react-flow__node-base__content {
+    max-width: none;
+  }
+}
 .react-flow__node-folder {
   .react-flow__node-base__content {
     align-items: flex-start;
