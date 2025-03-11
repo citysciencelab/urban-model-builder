@@ -12,10 +12,38 @@ $ghost-node-opacity: 0.66;
   z-index: 1;
 }
 
-.react-wrapper .react-flow__resize-control.handle,
-.react-wrapper .react-flow__handle {
-  width: 8px;
-  height: 8px;
+.react-flow {
+  .react-flow__resize-control.handle,
+  .react-flow__handle {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+@each $name, $color in $node-color-map {
+  .react-flow__node-#{$name} .react-flow__handle,
+  .react-flow__node-ghost__content.--type-#{$name} .react-flow__handle {
+    background-color: $color;
+  }
+}
+
+.react-flow__node {
+  .react-flow__handle:not(.react-flow__node-arrow__handle__target):not(
+      .react-flow__node-arrow__handle__source
+    ) {
+    &.react-flow__handle-right {
+      transform: translate(50%, -50%) translateX(0.5rem);
+    }
+    &.react-flow__handle-left {
+      transform: translate(-50%, -50%) translateX(-0.5rem);
+    }
+    &.react-flow__handle-top {
+      transform: translate(-50%, -50%) translateY(-0.5rem);
+    }
+    &.react-flow__handle-bottom {
+      transform: translate(-50%, 50%) translateY(0.5rem);
+    }
+  }
 }
 
 .react-flow__node {
@@ -245,18 +273,18 @@ $padding-for-vertical-arrows: get-spacer(2) 0;
 
 $direction-config: (
   "top": (
-    "flex-direction": column-reverse,
+    "handle-rotation": -90deg,
     "content-padding": $padding-for-vertical-arrows,
   ),
   "left": (
-    "flex-direction": row-reverse,
+    "handle-rotation": 180deg,
   ),
   "bottom": (
-    "flex-direction": column,
+    "handle-rotation": 90deg,
     "content-padding": $padding-for-vertical-arrows,
   ),
   "right": (
-    "flex-direction": row,
+    "handle-rotation": 0deg,
   ),
 );
 
@@ -364,7 +392,7 @@ $direction-config: (
 .react-flow__node-folder {
   $col: map-get(
     $map: $node-color-map,
-    $key: "folder"
+    $key: "folder",
   );
   .react-flow__node-base__content,
   .react-flow__node-base__header {
