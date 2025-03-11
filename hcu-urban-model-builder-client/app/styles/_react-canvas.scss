@@ -29,11 +29,19 @@
   flex-direction: column;
   background-color: $white;
   border-radius: $border-radius-lg;
+  max-width: 300px;
 }
 
 .react-flow__node-ghost__content {
   border-style: dashed;
   opacity: 0.66;
+}
+
+.react-flow__node.selected {
+  .react-flow__node-base__content,
+  .react-flow__node-ghost__content {
+    border-color: $node-selected-color;
+  }
 }
 
 .react-flow__node-base__header {
@@ -61,19 +69,24 @@
   justify-content: space-between;
   align-items: center;
   padding: get-spacer(1) get-spacer(3);
-  font-size: 0.5rem; //$font-size-sm;
+  font-size: 0.5rem;
   z-index: 9;
+  width: 100%;
 
   .react-flow__node-base--tags {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
 
     .react-flow__node-base--single-tag {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: get-spacer(1) get-spacer(2);
       border-radius: $border-radius-xl;
+      max-width: 100%;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
   }
 }

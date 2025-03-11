@@ -1,5 +1,3 @@
-import { NodeResizer, NodeTypes } from "@xyflow/react";
-import { DefaultNodeHandles } from "lib/utils/default-node-handles";
 import { memo, useMemo } from "react";
 import { ReactFlowNodeType } from "../../declarations";
 import { Icon, IconNames } from "../../utils/icon.tsx";
