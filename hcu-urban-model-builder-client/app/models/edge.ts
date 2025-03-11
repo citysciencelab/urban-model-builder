@@ -4,6 +4,7 @@ import type Node from './node';
 import { EdgeType } from 'hcu-urban-model-builder-backend';
 import type ModelsVersion from './models-version';
 import { dasherize } from '@ember/string';
+import { MarkerType } from '@xyflow/react';
 
 export default class Edge extends Model {
   [Type] = 'edge' as const;
@@ -29,14 +30,21 @@ export default class Edge extends Model {
   @attr('date') declare updatedAt: Date;
 
   get raw() {
+    const edgeTypeStr = dasherize(EdgeType[this.type]);
     return {
       id: this.id,
-      type: dasherize(EdgeType[this.type]),
+      type: edgeTypeStr,
       source: this.source.id,
       target: this.target.id,
       sourceHandle: this.sourceHandle,
       targetHandle: this.targetHandle,
       reconnectable: this.reconnectable,
+      zIndex: 10,
+      markerEnd: {
+        type: MarkerType.Arrow,
+        strokeWidth: 1.5,
+        edgeType: edgeTypeStr,
+      },
       data: {
         points: (this.points?.data || []).map((point) => ({
           ...point,

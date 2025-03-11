@@ -234,6 +234,12 @@ $group-nodes: "folder", "agent";
     --xy-edge-stroke-selected: #{darken($color, 10%)};
     --xy-edge-stroke-width: 2;
   }
+
+  #\31 __edgeType\=#{$name}\&strokeWidth\=1\.5\&type\=arrow {
+    & > * {
+      stroke: $color !important;
+    }
+  }
 }
 
 .react-flow__node-arrow__content {

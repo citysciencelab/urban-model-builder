@@ -10,13 +10,13 @@ $node-color-map: (
   "agent": #ffae33,
   "folder": #686868,
   "ogc-api-features": #c1a7cd,
-  "transition": #ffae33
+  "transition": #ffae33,
 );
 
 $edge-color-map: (
   "flow": map.get($node-color-map, "flow"),
-  "transition": #030303,
-  "agent-population": #aba3d2
+  "transition": map.get($node-color-map, "transition"),
+  "agent-population": map.get($node-color-map, "population"),
 );
 
 @function flatten-color($color, $alpha, $background: white) {

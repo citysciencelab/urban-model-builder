@@ -17,7 +17,6 @@ import {
   Panel,
   addEdge,
   ReactFlowInstance,
-  MarkerType,
   ConnectionLineType,
   EdgeChange,
   reconnectEdge,
@@ -79,14 +78,6 @@ const edgesTypes = {
   [ReactFlowEdgeType.AgentPopulation]: EditableEdge,
 };
 
-const defaultEdgeOptions = {
-  zIndex: 10,
-  markerEnd: {
-    type: MarkerType.Arrow,
-    strokeWidth: 1.5,
-  },
-};
-
 function Flow({
   nodes: initialNodes,
   edges: initialEdges,
@@ -104,7 +95,6 @@ function Flow({
     initialEdges.map((e) => {
       return {
         ...e.raw,
-        ...defaultEdgeOptions,
       };
     }),
   );
@@ -205,14 +195,12 @@ function Flow({
   const onConnect = useCallback(
     async (params: Connection) => {
       const tmpEdgeId = getTmpEdgeId(params);
-      const markerEnd = { type: MarkerType.Arrow };
 
       const type = getEdgeTypeByConnection(params);
 
       const tmpEdge: Edge = {
         type: type,
         id: tmpEdgeId,
-        markerEnd,
         ...params,
       };
 
@@ -231,7 +219,6 @@ function Flow({
           .filter((e) => e.id !== tmpEdgeId)
           .concat({
             ...newEdge.raw,
-            markerEnd,
           }),
       );
     },
@@ -378,9 +365,6 @@ function Flow({
       onEdgesChange={onEdgesChange}
       onConnectStart={onConnectionStart}
       onConnect={onConnect}
-      defaultEdgeOptions={{
-        ...defaultEdgeOptions,
-      }}
       onReconnect={onReconnect}
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}
