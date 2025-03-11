@@ -3,8 +3,9 @@
   {{#if (eq this.type "node")}}
     <div class="sidebar">
 
+      <Ui::SaveIndicator @isSaving={{this.changeset.isSaving}} />
+
       <div class="sidebar__header">
-        <Ui::SaveIndicator @isSaving={{this.changeset.isSaving}} />
         {{#if this.hasErrors}}
           <BsAlert
             @type="danger"

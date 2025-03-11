@@ -1,13 +1,14 @@
+<Ui::SaveIndicator
+  @errors={{this.changeset.hasErrors}}
+  @isSaving={{this.changeset.isSaving}}
+/>
 <div
   class="sidebar__header"
   {{did-insert this.initialize}}
   {{did-update this.initialize @modelVersion.model}}
   {{did-update this.onAutoSave this.changeset.isDirty}}
 >
-  <Ui::SaveIndicator
-    @errors={{this.changeset.hasErrors}}
-    @isSaving={{this.changeset.isSaving}}
-  />
+
   <h4 class="mb-0">
     {{#if @modelVersion.canEdit}}
       <ContentEditable

@@ -21,13 +21,14 @@
   min-height: 50vh;
   max-height: calc(100vh - 144px);
 
+  position: relative;
+
   background-color: $white;
   box-shadow: $box-shadow-lg;
   border-color: $border-color;
   border-width: $border-width;
   border-style: $border-style;
   border-radius: $border-radius-lg;
-  overflow: hidden;
 
   display: grid;
   grid-template-columns: auto 1fr;
@@ -71,6 +72,7 @@
   padding: get-spacer(3);
   flex-direction: column;
   gap: get-spacer(2);
+  overflow: hidden;
   .sidebar__header__row {
     display: flex;
     align-items: center;
