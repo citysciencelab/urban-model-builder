@@ -67,8 +67,6 @@ export const useEmberEventListeners = () => {
                 };
           }
           if (n.data.emberModel?.get('ghostParent.id') === updatedNode.id) {
-            console.log('hit');
-
             return {
               ...n,
               data: {
