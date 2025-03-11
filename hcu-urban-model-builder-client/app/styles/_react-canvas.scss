@@ -230,33 +230,29 @@ $group-nodes: "folder", "agent";
   justify-content: center;
 }
 
+$padding-for-vertical-arrows: get-spacer(2) 0;
+
 $direction-config: (
   "top": (
     "flex-direction": column-reverse,
-    "handle-rotation": -90deg,
-    "icon-rotation": 90deg
+    "content-padding": $padding-for-vertical-arrows,
   ),
   "left": (
     "flex-direction": row-reverse,
-    "handle-rotation": 180deg,
-    "icon-rotation": 180deg
   ),
   "bottom": (
     "flex-direction": column,
-    "handle-rotation": 90deg,
-    "icon-rotation": 90deg
+    "content-padding": $padding-for-vertical-arrows,
   ),
   "right": (
     "flex-direction": row,
-    "handle-rotation": 0deg,
-    "icon-rotation": 0deg
-  )
+  ),
 );
 
 @each $direction, $props in $direction-config {
   .--direction-#{$direction} {
-    .react-flow__node-arrow__header {
-      flex-direction: map-get($props, "flex-direction");
+    &.react-flow__node-arrow__content {
+      padding: map-get($props, "content-padding");
     }
 
     .react-flow__node-arrow__handle__source,
@@ -264,10 +260,6 @@ $direction-config: (
       svg {
         transform: rotate(map-get($props, "handle-rotation"));
       }
-    }
-
-    .react-flow__node-arrow__icon {
-      transform: rotate(map-get($props, "icon-rotation"));
     }
   }
 }
