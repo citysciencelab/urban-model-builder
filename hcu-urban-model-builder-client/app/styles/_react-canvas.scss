@@ -217,50 +217,45 @@ $group-nodes: "folder", "agent";
   justify-content: center;
 }
 
-.--direction-top {
-  .react-flow__node-arrow__header {
-    flex-direction: column-reverse;
-  }
-  .react-flow__node-arrow__handle__source,
-  .react-flow__node-arrow__handle__target {
-    svg {
-      transform: rotate(-90deg);
+$direction-config: (
+  "top": (
+    "flex-direction": column-reverse,
+    "handle-rotation": -90deg,
+    "icon-rotation": 90deg,
+  ),
+  "left": (
+    "flex-direction": row-reverse,
+    "handle-rotation": 180deg,
+    "icon-rotation": 180deg,
+  ),
+  "bottom": (
+    "flex-direction": column,
+    "handle-rotation": 90deg,
+    "icon-rotation": 90deg,
+  ),
+  "right": (
+    "flex-direction": row,
+    "handle-rotation": 0deg,
+    "icon-rotation": 0deg,
+  ),
+);
+
+@each $direction, $props in $direction-config {
+  .--direction-#{$direction} {
+    .react-flow__node-arrow__header {
+      flex-direction: map-get($props, "flex-direction");
     }
-  }
 
-  .react-flow__node-arrow__icon {
-    transform: rotate(90deg);
-  }
-}
-
-.--direction-left {
-  .react-flow__node-arrow__header {
-    flex-direction: row-reverse;
-  }
-  .react-flow__node-arrow__handle__source,
-  .react-flow__node-arrow__handle__target {
-    svg {
-      transform: rotate(180deg);
+    .react-flow__node-arrow__handle__source,
+    .react-flow__node-arrow__handle__target {
+      svg {
+        transform: rotate(map-get($props, "handle-rotation"));
+      }
     }
-  }
-  .react-flow__node-arrow__icon {
-    transform: rotate(180deg);
-  }
-}
 
-.--direction-bottom {
-  .react-flow__node-arrow__header {
-    flex-direction: column;
-  }
-
-  .react-flow__node-arrow__handle__source,
-  .react-flow__node-arrow__handle__target {
-    svg {
-      transform: rotate(90deg);
+    .react-flow__node-arrow__icon {
+      transform: rotate(map-get($props, "icon-rotation"));
     }
-  }
-  .react-flow__node-arrow__icon {
-    transform: rotate(90deg);
   }
 }
 
