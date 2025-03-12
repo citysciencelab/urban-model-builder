@@ -44,6 +44,10 @@
   flex-direction: column;
   justify-content: space-between;
 
+  .nav-item:first-child a {
+    border-top-left-radius: $border-radius-lg;
+  }
+
   .nav-link {
     padding: get-spacer(3);
     color: $black;
