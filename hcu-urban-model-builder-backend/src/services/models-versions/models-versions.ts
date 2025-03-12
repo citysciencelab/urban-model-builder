@@ -20,7 +20,7 @@ import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
 import { ModelsVersionsService, getOptions } from './models-versions.class.js'
 import { modelsVersionsPath, modelsVersionsMethods } from './models-versions.shared.js'
 import { setCreatedBy } from '../../hooks/set-created-by.js'
-import { disallow, discard, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, iff, isProvider, keep } from 'feathers-hooks-common'
 import _ from 'lodash'
 import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import { Roles } from '../../client.js'
@@ -76,7 +76,20 @@ export const modelsVersions = (app: Application) => {
       ],
       patch: [
         checkModelPermission(`params.${STASH_BEFORE_KEY}.id`, 'models-versions', Roles.viewer),
-        iff(isProvider('external'), discard('publishedAt')), // FIXME: external: pick only the fields that can be updated (e.g. timestep, globals, ....)
+        iff(
+          isProvider('external'),
+          keep(
+            'notes',
+            'timeUnits',
+            'timeStart',
+            'timeLength',
+            'timeStep',
+            'algorithm',
+            'globals',
+            'customUnits',
+            'publishedToUMPAt'
+          )
+        ),
         schemaHooks.validateData(modelsVersionsPatchValidator),
         schemaHooks.resolveData(modelsVersionsPatchResolver)
       ],
