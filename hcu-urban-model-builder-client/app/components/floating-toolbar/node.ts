@@ -11,4 +11,4 @@ export interface FloatingToolbarNodeSignature {
   Element: null;
 }
 
-export default class FloatingToolbarNodeComponent extends Component<FloatingToolbarNodeSignature> { }
+export default class FloatingToolbarNodeComponent extends Component<FloatingToolbarNodeSignature> {}

@@ -1,0 +1,44 @@
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #ddd;
+  border-radius: 5px;
+  outline: none;
+  transition: 0.2s;
+
+  &::-webkit-slider-runnable-track {
+    background: #ddd;
+    height: 6px;
+    border-radius: 5px;
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: $color-secondary;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -7px; // Zentriert den Thumb auf der Linie
+  }
+
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: $color-secondary;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  &::-moz-range-track {
+    background: #ddd;
+    height: 6px;
+    border-radius: 5px;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}

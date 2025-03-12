@@ -76,7 +76,13 @@ export const modelsQuerySchema = Type.Intersect(
       }
     }),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        $me: Type.Optional(Type.Boolean()),
+        $public: Type.Optional(Type.Boolean())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

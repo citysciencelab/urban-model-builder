@@ -55,6 +55,7 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
   @action
   async didInsert(element: HTMLElement) {
     this.emberReactConnector.currentModel = this.args.model;
+    this.emberReactConnector.selected = [];
 
     if (this.reactRoot) {
       this.reactRoot.unmount();
@@ -69,5 +70,12 @@ export default class ReactWrapperComponent extends Component<ReactWrapperSignatu
         disabled: !this.args.model.canEdit,
       },
     );
+  }
+
+  willDestroy() {
+    super.willDestroy();
+    if (this.reactRoot) {
+      this.reactRoot.unmount();
+    }
   }
 }

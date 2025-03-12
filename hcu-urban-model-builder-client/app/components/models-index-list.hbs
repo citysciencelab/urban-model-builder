@@ -1,0 +1,122 @@
+<BsListGroup class="list-group-flush" as |ListGroup|>
+  {{#let @persistedModels as |models|}}
+    {{#each models as |model|}}
+      {{#let
+        (if
+          model.latestDraftVersion
+          model.latestDraftVersion
+          model.latestPublishedVersion
+        )
+        as |currentModelVersion|
+      }}
+        <ListGroup.item class="list-group-with-actions">
+          <div class="list-group-body">
+            <div class="list-group-body-content">
+              {{! Model name }}
+              <LinkTo
+                @route="models.versions.show"
+                @models={{array model.id currentModelVersion}}
+                class="list-group-title"
+              >
+                {{model.internalName}}
+                {{! Published / Draft }}
+              </LinkTo>
+              <span class="meta">
+                {{#if currentModelVersion.publishedAt}}
+                  ({{t "models.model.states.published"}})
+                {{else}}
+                  ({{t "models.model.states.draft"}})
+                {{/if}}
+              </span>
+            </div>
+            {{! Meta }}
+            <div class="list-group-meta">
+              {{! Meta: Version }}
+              <Model::VersionSelect
+                @model={{model}}
+                @currentVersion={{currentModelVersion}}
+              />
+              {{! Permissions }}
+              <span
+                class="badge rounded-pill badge-success text-bg-secondary text-light"
+              >
+                <FaIcon @icon="shield" @fixedWidth={{false}} />
+                &nbsp;
+                {{#if (eq @user.currentUserId model.createdBy.id)}}
+                  {{t "permissions.creator"}}
+                {{else if model.role}}
+                  {{t (concat "permissions." model.role)}}
+                {{else}}
+                  {{t "permissions.0"}}
+                {{/if}}
+              </span>
+
+              {{! Meta: Created at }}
+              <span
+                title={{concat
+                  (t "general.created_at")
+                  ": "
+                  (format-date
+                    model.createdAt localeMatcher="lookup" format="dateTime"
+                  )
+                }}
+              >
+                <FaIcon
+                  @icon="calendar-plus"
+                  @fixedWidth={{true}}
+                />{{format-date model.createdAt}}
+              </span>
+              {{! Meta: Updated at }}
+              <span
+                title={{concat
+                  (t "general.modified_at")
+                  ": "
+                  (format-date
+                    model.updatedAt localeMatcher="lookup" format="dateTime"
+                  )
+                }}
+              >
+                <FaIcon @icon="code-commit" @fixedWidth={{true}} />
+                {{time-ago @intl.primaryLocale model.updatedAt}}
+              </span>
+              {{! Created By }}
+              <span>
+                <FaIcon @icon="user" @fixedWidth={{true}} />
+                {{model.createdBy.email}}
+              </span>
+            </div>
+          </div>
+          {{! Actions }}
+          <div class="list-group-actions">
+            <LinkTo
+              @route="models.versions.show"
+              @models={{array model.id currentModelVersion}}
+            >
+              <FaIcon @icon="eye" />
+            </LinkTo>
+            <a
+              href="#"
+              class="{{if model.canEdit '' 'disabled'}}"
+              {{on "click" (fn @startEditing model)}}
+            >
+              <FaIcon @icon="pencil" />
+            </a>
+            <a
+              href="#"
+              class="{{if model.canDelete '' 'disabled'}}"
+              {{on "click" (fn @startDeleting model)}}
+            >
+              <FaIcon @icon="trash" />
+            </a>
+          </div>
+        </ListGroup.item>
+      {{/let}}
+    {{else}}
+      <ListGroup.item>
+        <div class="list-group-body">
+          {{t "routes.models.index.no_models_found"}}
+        </div>
+      </ListGroup.item>
+    {{/each}}
+  {{/let}}
+</BsListGroup>

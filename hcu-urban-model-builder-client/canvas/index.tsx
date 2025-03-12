@@ -17,7 +17,6 @@ import {
   Panel,
   addEdge,
   ReactFlowInstance,
-  MarkerType,
   ConnectionLineType,
   EdgeChange,
   reconnectEdge,
@@ -33,6 +32,8 @@ import { BaseNode } from "./lib/nodes/base-node.tsx";
 import { FlowTransitionEdge } from "./lib/edges/flow-tranistion.tsx";
 import { ArrowNode } from "./lib/nodes/arrow-node.tsx";
 import { FolderNode } from "./lib/nodes/folder-node.tsx";
+import { AgentNode } from "./lib/nodes/agent-node.tsx";
+
 import {
   getNodePositionInsideParent,
   sortNodeModels,
@@ -63,7 +64,7 @@ const nodeTypes = {
   [ReactFlowNodeType.Converter]: BaseNode,
   [ReactFlowNodeType.Transition]: ArrowNode,
   [ReactFlowNodeType.Folder]: FolderNode,
-  [ReactFlowNodeType.Agent]: FolderNode,
+  [ReactFlowNodeType.Agent]: AgentNode,
   [ReactFlowNodeType.Population]: BaseNode,
   [ReactFlowNodeType.Action]: BaseNode,
   [ReactFlowNodeType.Ghost]: GhostNode,
@@ -94,7 +95,6 @@ function Flow({
     initialEdges.map((e) => {
       return {
         ...e.raw,
-        markerEnd: { type: MarkerType.Arrow },
       };
     }),
   );
@@ -195,14 +195,12 @@ function Flow({
   const onConnect = useCallback(
     async (params: Connection) => {
       const tmpEdgeId = getTmpEdgeId(params);
-      const markerEnd = { type: MarkerType.Arrow };
 
       const type = getEdgeTypeByConnection(params);
 
       const tmpEdge: Edge = {
         type: type,
         id: tmpEdgeId,
-        markerEnd,
         ...params,
       };
 
@@ -221,7 +219,6 @@ function Flow({
           .filter((e) => e.id !== tmpEdgeId)
           .concat({
             ...newEdge.raw,
-            markerEnd,
           }),
       );
     },
@@ -368,9 +365,6 @@ function Flow({
       onEdgesChange={onEdgesChange}
       onConnectStart={onConnectionStart}
       onConnect={onConnect}
-      defaultEdgeOptions={{
-        zIndex: 10,
-      }}
       onReconnect={onReconnect}
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}
@@ -384,7 +378,7 @@ function Flow({
       nodesDraggable={!flowOptions.disabled}
       nodesConnectable={!flowOptions.disabled}
       nodesFocusable={!flowOptions.disabled}
-      panOnDrag={[1]}
+      panOnDrag={true}
       fitView
     >
       <Panel position="bottom-center">
@@ -393,7 +387,7 @@ function Flow({
       <Background />
       <Controls />
       <div
-        className="sidebar__container"
+        className="sidebar__container sidebar__container--right"
         id="sidebar-container"
         ref={sidebarContainerRef}
       ></div>

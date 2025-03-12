@@ -34,6 +34,7 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
   @tracked sourceNodes: Node[] = A([]);
   @tracked warnings: string[] = A([]);
   @tracked filterValue = '';
+  // FIXME: i18n ⚡️ impact on functionality expected
   formulas: FormulaCollection = formulaCollection;
 
   get inputEl() {

@@ -7,16 +7,16 @@
 </div>
 
 {{! Pagination }}
-<nav class="pagination__nav" aria-label="Pagination">
+<nav class="pagination__nav">
   {{! Prev }}
   <ul class="pagination pagination-md">
-    <li class="page-item {{if (eq this.prevPage @page) "disabled"}}">
+    <li class="page-item {{if (eq this.prevPage @page) 'disabled'}}">
       <a
         class="page-link"
         href="javascript:void(0)"
-        aria-label="Previous"
         {{on "click" (fn @onPageChanged this.prevPage)}}
       >
+        {{! template-lint-disable no-bare-strings }}
         <span aria-hidden="true">
           &laquo;
         </span>
@@ -35,7 +35,7 @@
           </a>
         </li>
       {{else}}
-        <li class="page-item {{if (eq @page page) "active"}}">
+        <li class="page-item {{if (eq @page page) 'active'}}">
           <a
             class="page-link"
             href="javascript:void(0)"
@@ -48,13 +48,13 @@
     {{/each}}
 
     {{! Next }}
-    <li class="page-item {{if (eq this.nextPage @page) "disabled"}}">
+    <li class="page-item {{if (eq this.nextPage @page) 'disabled'}}">
       <a
         class="page-link"
         href="javascript:void(0)"
-        aria-label="Next"
         {{on "click" (fn @onPageChanged this.nextPage)}}
       >
+        {{! template-lint-disable no-bare-strings }}
         <span aria-hidden="true">
           &raquo;
         </span>
@@ -73,7 +73,8 @@
   <BsButtonGroup
     @value={{@limit}}
     @type="radio"
-    @onChange={{@onLimitChanged}} as |bg|
+    @onChange={{@onLimitChanged}}
+    as |bg|
   >
     {{#each this.limits as |limit|}}
       <bg.button @type="tertiary" @size="sm" @value={{limit}}>

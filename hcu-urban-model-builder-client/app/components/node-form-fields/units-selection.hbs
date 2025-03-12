@@ -6,17 +6,22 @@
   <@form.element
     class="units__selection__input"
     @controlType="text"
-    @label="Unit"
+    @label={{t "components.unit_selection.unit_label"}}
     @value={{this._value}}
-    @onChange={{this.onInputChange}} as |el|
+    @onChange={{this.onInputChange}}
+    as |el|
   >
     <el.control
       {{on "focus" this.onInputFocus}}
       {{on "keyup" this.onInputEnter}}
     />
-    <span class="units__selection__caret btn btn_link">
+    <a
+      href="javascript:void(0)"
+      class="units__selection__caret btn btn_link"
+      {{on "click" this.toggleUnitsSelect}}
+    >
       <FaIcon @icon="caret-down" />
-    </span>
+    </a>
   </@form.element>
 
   {{#if this.showUnits}}
@@ -28,7 +33,8 @@
               {{#if (is-array v)}}
                 <BsListGroup
                   @flush={{true}}
-                  class="units__list-group" as |ListGroup|
+                  class="units__list-group"
+                  as |ListGroup|
                 >
                   {{#each v as |item|}}
                     <ListGroup.item>
@@ -47,7 +53,8 @@
                     <acc.item @value={{k2}} @title={{k2}}>
                       <BsListGroup
                         @flush={{true}}
-                        class="units__list-group" as |ListGroup|
+                        class="units__list-group"
+                        as |ListGroup|
                       >
                         {{#each v2 as |item|}}
                           <ListGroup.item>
@@ -72,7 +79,7 @@
                   href="javascript:void(0)"
                   {{on "click" (fn this.onItemClick "Unitless")}}
                 >
-                  Unitless
+                  {{t "components.unit_selection.unitless"}}
                 </a>
               </ListGroup.item>
             </BsListGroup>

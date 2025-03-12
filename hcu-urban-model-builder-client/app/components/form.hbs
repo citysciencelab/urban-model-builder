@@ -3,40 +3,44 @@
   {{#if (eq this.type "node")}}
     <div class="sidebar">
 
+      <Ui::SaveIndicator @isSaving={{this.changeset.isSaving}} />
+
       <div class="sidebar__header">
-        <Ui::SaveIndicator @isSaving={{this.changeset.isSaving}} />
-        <h3>
+        {{#if this.hasErrors}}
+          <BsAlert
+            @type="danger"
+            @dismissible={{false}}
+            @visible={{this.hasErrors}}
+          >
+            {{t "messages.form_error"}}
+          </BsAlert>
+        {{/if}}
+        <h4>
           <form.element
             @controlType="text"
-            @placeholder="Name"
+            @placeholder={{t "models.nodes.attributes.name"}}
             @property="name"
             @customError={{get this.errors "name"}}
           />
-        </h3>
+        </h4>
+        {{#if this.isGhostNode}}
+          <div class="alert alert-warning alert-sm">
+            {{! template-lint-disable no-bare-strings }}
+            👻
+            {{t "models.nodes.ghost_warning"}}
+          </div>
+        {{/if}}
       </div>
       <div
         class="sidebar__content"
         {{did-insert this.initialize}}
         {{did-update this.initialize @record}}
       >
-        <BsAlert
-          @type="danger"
-          @dismissible={{false}}
-          @visible={{this.hasErrors}}
-        >
-          There is an error in the form. Please fix it to save.
-        </BsAlert>
-        {{#if this.isGhostNode}}
-          <div class="alert alert-warning">
-            👻
-            {{t "forms.node.ghost_warning"}}
-          </div>
-        {{/if}}
 
         <form.element
           @controlType="textarea"
-          @label="Description"
-          @placeholder="Description"
+          @label={{t "models.nodes.attributes.description"}}
+          @placeholder={{t "models.nodes.attributes.description"}}
           @property="description"
           @customError={{get this.errors "description"}}
         />
@@ -62,7 +66,7 @@
             disabled={{@disabled}}
             {{on "click" this.deleteNode}}
           >
-            Delete
+            {{t "actions.delete"}}
           </button>
         </div>
       </div>

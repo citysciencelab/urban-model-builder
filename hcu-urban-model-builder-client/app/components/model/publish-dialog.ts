@@ -6,6 +6,8 @@ import lookupValidator from 'ember-changeset-validations';
 import { tracked } from '@glimmer/tracking';
 import ModelPublishValidations from '../../validations/model-publish';
 import type { FormModelPublish } from 'global';
+import { inject as service } from '@ember/service';
+import type IntlService from 'ember-intl/services/intl';
 
 export interface ModelPublishDialogSignature {
   // The arguments accepted by the component
@@ -22,10 +24,15 @@ export interface ModelPublishDialogSignature {
 }
 
 export default class ModelPublishDialogComponent extends Component<ModelPublishDialogSignature> {
+  @service intl!: IntlService;
   @tracked changeset!: EmberChangeset;
   @tracked formModel!: FormModelPublish;
 
   versionTypes = ['minor', 'major'];
+
+  get Validation() {
+    return ModelPublishValidations(this.intl);
+  }
 
   @action prepare() {
     this.formModel = {
@@ -34,8 +41,8 @@ export default class ModelPublishDialogComponent extends Component<ModelPublishD
     };
     this.changeset = Changeset(
       this.formModel,
-      lookupValidator(ModelPublishValidations),
-      ModelPublishValidations,
+      lookupValidator(this.Validation),
+      this.Validation,
     );
   }
 

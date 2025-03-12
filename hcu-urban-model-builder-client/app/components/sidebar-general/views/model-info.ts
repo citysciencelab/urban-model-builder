@@ -8,6 +8,7 @@ import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-ver
 import lookupValidator from 'ember-changeset-validations';
 import modelValidator from 'hcu-urban-model-builder-client/validations/model';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
+import type IntlService from 'ember-intl/services/intl';
 
 export interface SidebarGeneralViewsModelInfoSignature {
   // The arguments accepted by the component
@@ -25,11 +26,14 @@ export interface SidebarGeneralViewsModelInfoSignature {
 
 export default class SidebarGeneralViewsModelInfoComponent extends Component<SidebarGeneralViewsModelInfoSignature> {
   @service declare modelDialogs: ModelDialogsService;
+  @service declare intl: IntlService;
 
   @tracked record: ModelModel | null = null;
   @tracked changeset: TrackedChangeset<ModelModel> | null = null;
 
-  validator = lookupValidator(modelValidator);
+  get validator() {
+    return lookupValidator(modelValidator(this.intl));
+  }
 
   @action onAutoSave() {
     if (this.changeset?.isDirty) {

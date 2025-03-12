@@ -30,6 +30,10 @@ export default class UiSaveIndicatorComponent extends Component<UiSaveIndicatorS
     return this.currentProgress * 100;
   }
 
+  get isDone() {
+    return this.currentProgress >= 1.0;
+  }
+
   unscheduleAnimation() {
     clearInterval(this.intervalId); // stop the interval, stay at 90% until finished
     this.intervalId = -1;

@@ -14,8 +14,8 @@ Router.map(function () {
         this.route('show', { path: '/version/:version_id' });
       });
     });
+    this.route('public-models', { resetNamespace: true });
   });
   this.route('login');
   this.route('demo');
-  this.route('public-models');
 });

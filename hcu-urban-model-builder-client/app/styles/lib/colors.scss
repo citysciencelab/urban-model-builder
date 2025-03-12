@@ -15,9 +15,19 @@ $node-color-map: (
 
 $edge-color-map: (
   "flow": map.get($node-color-map, "flow"),
-  "transition": #030303,
-  "agent-population": #aba3d2,
+  "transition": map.get($node-color-map, "transition"),
+  "agent-population": map.get($node-color-map, "population"),
 );
+
+$edge-color-selected-map: (
+  "flow": darken(map.get($node-color-map, "flow"), 10%),
+  "transition": darken(map.get($node-color-map, "transition"), 20%),
+  "agent-population": darken(map.get($node-color-map, "population"), 20%),
+);
+
+@function flatten-color($color, $alpha, $background: white) {
+  @return mix($background, $color, $alpha * 100%);
+}
 
 .text-bg-secondary {
   background-color: $color-secondary !important;

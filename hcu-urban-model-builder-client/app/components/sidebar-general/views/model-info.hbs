@@ -1,19 +1,29 @@
+<Ui::SaveIndicator
+  @errors={{this.changeset.hasErrors}}
+  @isSaving={{this.changeset.isSaving}}
+/>
 <div
   class="sidebar__header"
   {{did-insert this.initialize}}
   {{did-update this.initialize @modelVersion.model}}
   {{did-update this.onAutoSave this.changeset.isDirty}}
 >
-  <Ui::SaveIndicator
-    @errors={{this.changeset.hasErrors}}
-    @isSaving={{this.changeset.isSaving}}
-  />
+  {{#if this.changeset.hasErrors}}
+    <BsAlert
+      @type="danger"
+      @dismissible={{false}}
+      @visible={{this.changeset.hasErrors}}
+    >
+      {{t "messages.form_error"}}
+    </BsAlert>
+  {{/if}}
+
   <h4 class="mb-0">
     {{#if @modelVersion.canEdit}}
       <ContentEditable
         @value={{this.changeset.dataProxy.internalName}}
         @onChange={{fn (mut this.changeset.dataProxy.internalName)}}
-        @placeholder="Name…"
+        @placeholder={{t "components.model_info.name_placeholder"}}
       />
     {{else}}
       {{this.changeset.dataProxy.internalName}}
@@ -27,39 +37,37 @@
       @model={{@modelVersion.model}}
       @currentVersion={{@modelVersion}}
     />
+    {{! Badget: Latest }}
+    {{#if @modelVersion.isLatest}}
+      &nbsp;
+      <span class="badge rounded-pill badge-success text-bg-light">
+        {{t "components.share.latest"}}
+      </span>
+    {{/if}}
     {{! Badge: Public }}
     {{#if @modelVersion.isPublished}}
       &nbsp;
       <span class="badge rounded-pill badge-success text-bg-light">
-        Public
-      </span>
-    {{/if}}
-
-    {{! Badge: Edit Mode / View Mode }}
-    {{#if @modelVersion.canEdit}}
-      &nbsp;
-      <span class="badge rounded-pill badge-warning text-bg-light">
-        Edit Mode
-      </span>
-    {{else}}
-      &nbsp;
-      <span class="badge rounded-pill badge-warning text-bg-light">
-        View Mode
+        {{t "components.model_info.public"}}
       </span>
     {{/if}}
   </div>
 </div>
 <div class="sidebar__content">
-  {{#if @modelVersion.canEdit}}
-    <ContentEditable
-      @value={{this.changeset.dataProxy.description}}
-      @onChange={{fn (mut this.changeset.dataProxy.description)}}
-      @placeholder="Description…"
-    />
-  {{else}}
-    {{this.changeset.dataProxy.description}}
-  {{/if}}
-  <hr />
+  <div class="mb-3">
+    <label for="" class="form-label">{{t
+        "models.model.attributes.description"
+      }}</label>
+    {{#if @modelVersion.canEdit}}
+      <ContentEditable
+        @value={{this.changeset.dataProxy.description}}
+        @onChange={{fn (mut this.changeset.dataProxy.description)}}
+        @placeholder={{t "components.model_info.description_placeholder"}}
+      />
+    {{else}}
+      {{this.changeset.dataProxy.description}}
+    {{/if}}
+  </div>
   <div class="actions">
     {{! Action: Settings }}
     <a
@@ -68,7 +76,7 @@
       {{on "click" this.modelDialogs.onShowSettingsDialog}}
     >
       <SvgIcon @icon="settings" @size="md" />
-      Settings
+      {{t "components.model_info.settings"}}
     </a>
   </div>
 </div>

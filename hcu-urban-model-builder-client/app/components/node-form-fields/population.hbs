@@ -1,58 +1,81 @@
-<@form.element
-  @controlType="number"
-  @label="Population Size"
-  @property="data.populationSize"
-  @onChange={{fn (mut-number @changeset.dataProxy.data.populationSize)}}
-/>
+<BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
+  <@form.element
+    @controlType="number"
+    @label={{t "components.population.population_size_label"}}
+    @property="data.populationSize"
+    @onChange={{fn (mut-number @changeset.dataProxy.data.populationSize)}}
+  />
 
-<NodeFormFields::UnitsSelection
-  @form={{@form}}
-  @modelsVersion={{@modelsVersion}}
-  @changeset={{@changeset}}
-  @el={{@el}}
-  @property="data.geoUnits"
-/>
+  <NodeFormFields::UnitsSelection
+    @form={{@form}}
+    @modelsVersion={{@modelsVersion}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+    @property="data.geoUnits"
+  />
 
-<@form.element
-  @controlType="text"
-  @label="Geo Width"
-  @property="data.geoWidth"
-/>
+  <@form.element
+    @controlType="text"
+    @label={{t "components.population.geo_width_label"}}
+    @property="data.geoWidth"
+  />
 
-<@form.element
-  @controlType="text"
-  @label="Geo Height"
-  @property="data.geoHeight"
-/>
+  <@form.element
+    @controlType="text"
+    @label={{t "components.population.geo_height_label"}}
+    @property="data.geoHeight"
+  />
 
-<@form.element
-  @controlType="checkbox"
-  @label="Geo Wrap Around"
-  @property="data.geoWrapAround"
-/>
+  <@form.element
+    @controlType="checkbox"
+    @label={{t "components.population.geo_wrap_around_label"}}
+    @property="data.geoWrapAround"
+  />
 
-<@form.element
-  @controlType="radio"
-  @label="Geo Placement Type"
-  @property="data.geoPlacementType"
-  @options={{this.geoPlacementTypeOptions}}
-/>
+  <@form.element
+    @controlType="radio"
+    @label={{t "components.population.geo_placement_type_label"}}
+    @property="data.geoPlacementType"
+    @options={{this.geoPlacementTypeOptions}}
+    as |el|
+  >
+    <el.control as |option|>
+      {{t (concat "components.population.geo_placement_type_options." option)}}
+    </el.control>
+  </@form.element>
 
-<@form.element
-  @controlType="text"
-  @label="Geo Placement Function"
-  @property="data.geoPlacementFunction"
-/>
+  <@form.element
+    @controlType="text"
+    @label={{t "components.population.geo_placement_function_label"}}
+    @property="data.geoPlacementFunction"
+  />
 
-<@form.element
-  @controlType="radio"
-  @label="Network Type"
-  @property="data.networkType"
-  @options={{this.networkTypeOptions}}
-/>
+  <@form.element
+    @controlType="radio"
+    @label={{t "components.population.network_type_label"}}
+    @property="data.networkType"
+    @options={{this.networkTypeOptions}}
+    as |el|
+  >
+    <el.control as |option|>
+      {{t (concat "components.population.network_type_options." option)}}
+    </el.control>
+  </@form.element>
 
-<@form.element
-  @controlType="text"
-  @label="Network Function"
-  @property="data.networkFunction"
-/>
+  <@form.element
+    @controlType="text"
+    @label={{t "components.population.network_function_label"}}
+    @property="data.networkFunction"
+  />
+
+  <NodeFormFields::ParameterSettings
+    @acc={{acc}}
+    @form={{@form}}
+    @changeset={{@changeset}}
+    @el={{@el}}
+    @errors={{@errors}}
+    @type="numeric"
+    @outputVisible={{true}}
+    @disabled={{@disabled}}
+  />
+</BsAccordion>

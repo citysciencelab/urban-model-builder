@@ -19,5 +19,7 @@ export default class LangSwitchComponent extends Component<LangSwitchSignature> 
 
   @action changeLocaleTo(locale: string) {
     this.intl.setLocale(locale);
+    localStorage.setItem('locale', locale);
+    window.location.reload();
   }
 }

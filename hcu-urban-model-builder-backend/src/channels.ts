@@ -1,10 +1,9 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/channels.html
-import type { RealTimeConnection, Params, ServiceGenericType } from '@feathersjs/feathers'
+import type { RealTimeConnection, Params, ServiceGenericType, Service } from '@feathersjs/feathers'
 import type { AuthenticationResult } from '@feathersjs/authentication'
 import '@feathersjs/transport-commons'
-import type { Application, HookContext } from './declarations.js'
+import type { Application, HookContext, ServiceTypes } from './declarations.js'
 import { logger } from './logger.js'
-import { Nodes, NodesData } from './services/nodes/nodes.shared.js'
 
 export const channels = (app: Application) => {
   app.on('connection', (connection: RealTimeConnection) => {
@@ -39,8 +38,34 @@ export const channels = (app: Application) => {
     })
   }
 
+  const modelVersionBaseDeepPublisher = (
+    parentServiceName: keyof ServiceTypes,
+    parentForeignKey: string,
+    modelVersionForeignKey: string
+  ) => {
+    const parentService = app.service(parentServiceName)
+    if (!('get' in parentService)) {
+      throw new Error(`Service ${parentServiceName} does not have a get method`)
+    }
+    return async (data: any, context: HookContext) => {
+      const parentDataSet = await parentService.get(data[parentForeignKey])
+      if (!(modelVersionForeignKey in parentDataSet)) {
+        logger.error(`Missing ${modelVersionForeignKey} in data`, data)
+        return []
+      }
+
+      const modelVersionId = parentDataSet[modelVersionForeignKey]
+      return app.channel(`model-versions:${modelVersionId}`).filter((connection) => {
+        return connection !== context?.params?.connection
+      })
+    }
+  }
+
   app.service('nodes').publish(modelVersionBasePublisher('modelsVersionsId'))
   app.service('edges').publish(modelVersionBasePublisher('modelsVersionsId'))
   app.service('scenarios').publish(modelVersionBasePublisher('modelsVersionsId'))
+  app
+    .service('scenarios-values')
+    .publish(modelVersionBaseDeepPublisher('scenarios', 'scenariosId', 'modelsVersionsId'))
   app.service('models-versions').publish(modelVersionBasePublisher('id'))
 }

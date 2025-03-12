@@ -6,6 +6,8 @@ import type Node from 'hcu-urban-model-builder-client/models/node';
 import { tracked } from '@glimmer/tracking';
 import * as echarts from 'echarts';
 import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
+import type IntlService from 'ember-intl/services/intl';
+import { inject as service } from '@ember/service';
 
 export interface NodeFormFieldsConverterSignature {
   // The arguments accepted by the component
@@ -23,6 +25,8 @@ export interface NodeFormFieldsConverterSignature {
 
 export default class NodeFormFieldsConverterComponent extends Component<NodeFormFieldsConverterSignature> {
   readonly interpolationOptions = ['Linear', 'Discrete'];
+
+  @service declare intl: IntlService;
 
   @tracked chartContainer?: HTMLElement;
   @tracked chart?: echarts.ECharts;
@@ -52,10 +56,9 @@ export default class NodeFormFieldsConverterComponent extends Component<NodeForm
       return this.inputNode.value.name;
     }
     if (this.inputNode.isPending) {
-      return 'Loading...';
+      return this.intl.t('actions.loading');
     }
-
-    return 'Time';
+    return this.intl.t('components.converter.time');
   }
 
   @action addNewValue() {

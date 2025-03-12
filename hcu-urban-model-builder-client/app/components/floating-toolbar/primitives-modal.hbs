@@ -2,11 +2,16 @@
   <BasicDropdown
     @horizontalPosition="center"
     @verticalPosition="above"
+    @onOpen={{this.onOpen}}
     @onClose={{this.onClose}}
     @renderInPlace={{true}}
-    @registerAPI={{this.registerBasicDropdownAPI}}
+    @registerAPI={{fn
+      this.floatingToolbarDropdownManager.registerInstance
+      "primitivesModal"
+    }}
     as |dd|
   >
+
     <dd.Trigger>
       <BsButton @type="primary" class="btn-round" @size="md">
         <SvgIcon @icon="add" @size="md" />
@@ -19,9 +24,12 @@
             {{t "node-toolbar.title"}}
           </h5>
           <a
-            class={{if this.isPinned "pinned"}}
+            class={{if
+              this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned
+              "pinned"
+            }}
             href="javascript:void(0)"
-            {{on "click" this.togglePin}}
+            {{on "click" this.toggleDropdown}}
           >
             <SvgIcon @icon="push_pin" @size="xs" />
           </a>

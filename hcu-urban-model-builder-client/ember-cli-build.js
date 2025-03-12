@@ -71,6 +71,30 @@ module.exports = function (defaults) {
                 ],
               },
             },
+            {
+              test: /\.svg$/,
+              exclude: /node_modules\/(?!@material-design-icons)/,
+              use: [
+                {
+                  loader: '@svgr/webpack',
+                  options: {
+                    svgo: true,
+                    svgoConfig: {
+                      plugins: [
+                        {
+                          name: 'preset-default',
+                          params: {
+                            overrides: {
+                              removeViewBox: false,
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
           ],
         },
         infrastructureLogging: {

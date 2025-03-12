@@ -17,7 +17,6 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
   @service intl!: IntlService;
   @service declare user: UserService;
 
-  Validation = ModelValidations;
   @tracked isModalOpen = false;
   @tracked changeset!: EmberChangeset;
   @tracked mode = '';
@@ -29,6 +28,10 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
   @tracked _q = '';
 
   queryParams = ['sort_key', 'sort_direction', 'page', 'limit', 'q'];
+
+  get Validation() {
+    return ModelValidations(this.intl);
+  }
 
   get persistedModels() {
     return this.model.filter((item) => !item.isNew);
@@ -106,17 +109,6 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
     if (yes) {
       model.destroyRecord();
     }
-  }
-
-  @action
-  focusFirstInputElement(el: HTMLElement) {
-    if (!el) return;
-    setTimeout(() => {
-      const firstInputEl = el.querySelector('input');
-      if (firstInputEl) {
-        firstInputEl?.focus();
-      }
-    }, 50);
   }
 
   @action onSortChange(key: string, direction: number) {

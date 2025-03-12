@@ -1,10 +1,10 @@
 <BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
   <@form.element
     @controlType="textarea"
-    @label="Value"
+    @label={{t "components.variable.value_label"}}
     @helpText={{if
       @changeset.dataProxy.isParameter
-      "Currently controlled as scenario parameter"
+      (t "components.state.value_control_help_text")
     }}
     @property="data.value"
     as |el|
@@ -13,7 +13,7 @@
       @form={{@form}}
       @node={{@node}}
       @el={{el}}
-      @disabled={{@disabled}}
+      @disabled={{or @changeset.dataProxy.isParameter @disabled}}
     >
       <el.control
         class="code-textarea"

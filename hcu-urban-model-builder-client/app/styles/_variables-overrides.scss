@@ -16,7 +16,7 @@ $gray-600: #6c757d !default;
 $gray-700: #495057 !default;
 $gray-800: #343a40 !default;
 $gray-900: #212529 !default;
-$black: #333333 !default;
+$black: #333333;
 // scss-docs-end gray-color-variables
 
 // fusv-disable
@@ -72,7 +72,9 @@ $colors: (
 $min-contrast-ratio: 4.5 !default;
 
 // Customize the light and dark text colors for use in our color contrast function.
-$color-contrast-dark: $black !default;
+$color-contrast-dark: $black;
+@debug ("ababab");
+@debug ($color-contrast-dark);
 $color-contrast-light: $white !default;
 
 // fusv-disable
@@ -301,7 +303,7 @@ $cyans: (
 $color-fiord: #465166;
 $color-anakiwa: #a3c4ff;
 $color-rose: #ff0071;
-$node-selected-color: $color-rose;
+$node-selected-color: $blue-400;
 $grey: #ececec;
 
 $color-primary: $color-anakiwa;
@@ -317,7 +319,7 @@ $info: $cyan !default;
 $warning: $yellow !default;
 $danger: $red !default;
 $light: $gray-100 !default;
-$dark: $gray-900 !default;
+$dark: $black;
 // scss-docs-end theme-color-variables
 
 // scss-docs-start theme-colors-map

@@ -6,9 +6,9 @@
     @dismissible={{false}}
   >
     <strong>
-      Warning:
+      {{t "messages.warning"}}:
     </strong>
-    The current value is below the minimum value.
+    {{t "components.parameter_slider.below_minimum_value"}}
   </BsAlert>
   {{! Error: Out of bounds - Max }}
   <BsAlert
@@ -17,9 +17,9 @@
     @dismissible={{false}}
   >
     <strong>
-      Warning:
+      {{t "messages.warning"}}::
     </strong>
-    The current value is above the maximum value.
+    {{t "components.parameter_slider.above_maximum_value"}}
   </BsAlert>
   {{! Error: Step size issue }}
   <BsAlert
@@ -28,12 +28,13 @@
     @dismissible={{false}}
   >
     <strong>
-      Warning:
+      {{t "messages.warning"}}::
     </strong>
-    The current value is not a multiple of the step size.
+    {{t "components.parameter_slider.not_a_multiple"}}
   </BsAlert>
   {{! Slider }}
   <div class="range-input__min-max__control">
+    {{! template-lint-disable require-input-label }}
     <Input
       @type="range"
       @value={{@scenarioValue.value}}
