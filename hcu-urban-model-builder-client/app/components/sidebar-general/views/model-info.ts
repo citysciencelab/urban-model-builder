@@ -1,6 +1,5 @@
 import Component from '@glimmer/component';
 import { service } from '@ember/service';
-import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
@@ -25,7 +24,6 @@ export interface SidebarGeneralViewsModelInfoSignature {
 }
 
 export default class SidebarGeneralViewsModelInfoComponent extends Component<SidebarGeneralViewsModelInfoSignature> {
-  @service declare modelDialogs: ModelDialogsService;
   @service declare intl: IntlService;
 
   @tracked record: ModelModel | null = null;

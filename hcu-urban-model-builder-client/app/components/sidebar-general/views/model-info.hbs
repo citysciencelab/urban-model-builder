@@ -55,10 +55,10 @@
 </div>
 <div class="sidebar__content">
   <div class="mb-3">
-    <label for="" class="form-label">{{t
-        "models.model.attributes.description"
-      }}</label>
     {{#if @modelVersion.canEdit}}
+      <label for="" class="form-label">{{t
+          "models.model.attributes.description"
+        }}</label>
       <ContentEditable
         @value={{this.changeset.dataProxy.description}}
         @onChange={{fn (mut this.changeset.dataProxy.description)}}
@@ -67,16 +67,5 @@
     {{else}}
       {{this.changeset.dataProxy.description}}
     {{/if}}
-  </div>
-  <div class="actions">
-    {{! Action: Settings }}
-    <a
-      href="javascript:void(0)"
-      class="action-item"
-      {{on "click" this.modelDialogs.onShowSettingsDialog}}
-    >
-      <SvgIcon @icon="settings" @size="md" />
-      {{t "components.model_info.settings"}}
-    </a>
   </div>
 </div>
