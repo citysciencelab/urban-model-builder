@@ -15,6 +15,15 @@ export const addModelPermissionFilterQuery = (minRequiredRole: Roles) => {
     }
 
     const service = context.service as KnexService
+
+    // Convert query to use fully qualified column names
+    // because there are duplicate column names because of the join e.g. parentId
+    if (context.params.query) {
+      context.params.query = Object.entries(context.params.query).reduce((acc, [key, value]) => {
+        acc[`${service.options.name}.${key}`] = value
+        return acc
+      }, {} as any)
+    }
     const query = service.createQuery(context.params)
 
     query

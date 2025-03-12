@@ -31,8 +31,6 @@ export const addScenarioValuesModelPermissionFilterQuery = (minRequiredRole: Rol
       })
       .select('models_users.role as modelRole')
 
-    console.log('query', query.toSQL())
-
     context.params.knex = query
   }
 }
