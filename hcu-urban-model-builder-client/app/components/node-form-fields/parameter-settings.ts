@@ -60,22 +60,11 @@ export default class NodeFormFieldsParameterSettingsComponent extends Component<
     value: string | null;
     label: string;
   }) {
-    const newToggleValue = !this.args.changeset.dataProxy.isParameter;
+    this.args.changeset.dataProxy.parameterType = parameterType.value;
+    this.args.changeset.dataProxy.isParameter = !!parameterType.value;
 
-    let yesNo = true;
-    if (newToggleValue == true && this.args.changeset.dataProxy.data.value) {
-      yesNo = confirm(
-        'When you use this node as parameter the current value will not be used, proceed?',
-      );
-    }
-
-    if (yesNo) {
-      this.args.changeset.dataProxy.parameterType = parameterType.value;
-      this.args.changeset.dataProxy.isParameter = !!parameterType.value;
-
-      if (this.args.changeset.dataProxy.isParameter) {
-        this.initValueByType();
-      }
+    if (this.args.changeset.dataProxy.isParameter) {
+      this.initValueByType();
     }
   }
 

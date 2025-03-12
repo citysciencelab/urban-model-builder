@@ -89,9 +89,7 @@ export default class EmberReactConnectorService extends Service {
 
   @action
   confirmDeleteNodes(nodeIds: string[]) {
-    return confirm(
-      `Are you sure you want to delete this node${nodeIds.length > 1 ? 's' : ''}?`,
-    );
+    return true; // confirmation removed
   }
 
   private saveRecord(record: Model, rawData: any) {

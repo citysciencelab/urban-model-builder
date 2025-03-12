@@ -118,12 +118,9 @@ export default class FormComponent extends Component<FormSignature> {
   @action
   deleteNode() {
     if (this.record instanceof Node) {
-      const yesNo = confirm('Are you sure you want to delete this node?');
-      if (yesNo) {
-        this.record.deleteRecord();
-        this.record.save();
-        this.args.close();
-      }
+      this.record.deleteRecord();
+      this.record.save();
+      this.args.close();
     }
   }
 
