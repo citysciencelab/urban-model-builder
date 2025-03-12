@@ -18,4 +18,5 @@ Router.map(function () {
   });
   this.route('login');
   this.route('demo');
+  this.route('not-found', { path: '*path' });
 });

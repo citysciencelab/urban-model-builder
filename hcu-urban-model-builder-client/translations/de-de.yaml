@@ -281,3 +281,7 @@ time_units:
   Weeks: Wochen
   Months: Monate
   Years: Jahre
+
+error:
+  404_title: "Seite nicht gefunden"
+  404_message: "Entschuldigung, die Seite, die Sie suchen, existiert nicht."

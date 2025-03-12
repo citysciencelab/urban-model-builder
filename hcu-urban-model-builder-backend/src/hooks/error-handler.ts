@@ -6,7 +6,7 @@ export const errorHandler = async (context: HookContext, next: NextFunction) => 
   try {
     await next()
   } catch (error: any) {
-    if (!error.code || error.code <= 500) {
+    if (!error.code || error.code >= 500) {
       if (error.name === 'TokenExpiredError') {
         const newError = new NotAuthenticated('Token expired')
         context.error = newError
