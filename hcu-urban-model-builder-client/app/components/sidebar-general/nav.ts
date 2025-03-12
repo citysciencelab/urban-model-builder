@@ -23,12 +23,12 @@ export default class SidebarGeneralNavComponent extends Component<SidebarGeneral
         icon: 'tune',
       },
       {
-        id: 'settings',
-        icon: 'settings',
-      },
-      {
         id: 'share',
         icon: 'share',
+      },
+      {
+        id: 'settings',
+        icon: 'settings',
       },
     ];
   }

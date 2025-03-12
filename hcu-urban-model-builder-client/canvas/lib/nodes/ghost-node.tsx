@@ -3,6 +3,8 @@ import { memo, useEffect, useMemo, useState } from "react";
 import { DefaultNodeHandles } from "../utils/default-node-handles.tsx";
 import { NodeType } from "hcu-urban-model-builder-backend";
 import { DefaultNodeToolbar } from "../utils/default-node-toolbar.tsx";
+import { nodeTypeToReactFlowNode, ReactFlowNodeType } from "../declarations.ts";
+import { BaseNodeData } from "./base-node/data.tsx";
 
 export const GhostNode = memo(
   ({ id, data, isConnectable, selected }: NodeProps) => {
@@ -26,13 +28,24 @@ export const GhostNode = memo(
         : undefined;
     }, [ghostNodeModel]);
 
-    let ghostName = data.emberModel.get("name");
+    const parentType = useMemo(() => {
+      console.log(ReactFlowNodeType);
+      if (!ghostNodeModel) {
+        return null;
+      }
+
+      return nodeTypeToReactFlowNode(ghostNodeModel?.get("type"));
+    }, [ghostNodeModel]);
 
     return (
-      <div className={`react-flow__node-default content`}>
+      <div className={`react-flow__node-ghost__content --type-${parentType}`}>
         <DefaultNodeHandles isConnectable={isConnectable} type={handelType} />
-
-        {ghostName}
+        {parentType && (
+          <BaseNodeData
+            type={parentType}
+            data={{ emberModel: ghostNodeModel }}
+          />
+        )}
 
         <DefaultNodeToolbar nodeId={id} isNodeSelected={selected} />
       </div>

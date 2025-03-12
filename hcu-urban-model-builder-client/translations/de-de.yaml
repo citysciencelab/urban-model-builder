@@ -95,6 +95,8 @@ routes:
     title: Demo
 
 components:
+  edit_state_badge:
+    tooltip: Diese Version kann nicht mehr bearbeitet werden
   clone_dialog:
     title: Modell klonen
     intro: Hier erstellen Sie ein neues Modell auf der Grundlage der aktuellen Modellversion.

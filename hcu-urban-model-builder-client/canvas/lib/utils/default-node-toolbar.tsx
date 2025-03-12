@@ -2,12 +2,15 @@ import { NodeToolbar, Position, useReactFlow } from "@xyflow/react";
 import { NodeType } from "hcu-urban-model-builder-backend";
 import { EmberReactConnectorContext } from "../context/ember-react-connector";
 import { memo, useContext } from "react";
+import { Icon } from "./icon.tsx";
 
 export const DefaultNodeToolbar = memo(
   (props: {
     nodeId: string;
     isNodeSelected: boolean;
     allowGhost?: boolean;
+    offset?: number;
+    position?: Position;
     children?: React.ReactNode;
   }) => {
     const emberReactConnector = useContext(EmberReactConnectorContext);
@@ -34,10 +37,20 @@ export const DefaultNodeToolbar = memo(
     };
 
     return (
-      <NodeToolbar isVisible={props.isNodeSelected} position={Position.Top}>
+      <NodeToolbar
+        isVisible={props.isNodeSelected}
+        position={props.position || Position.Top}
+        offset={props.offset || 8}
+      >
         {props.children}
-        {props.allowGhost && <button onClick={createGhost}>👻</button>}
-        <button onClick={deleteNode}>❌</button>
+        {props.allowGhost && (
+          <button onClick={createGhost} className="default-toolbar__ghost-button">
+            <span>👻</span>
+          </button>
+        )}
+        <button onClick={deleteNode}>
+          <Icon icon="close" />
+        </button>
       </NodeToolbar>
     );
   },

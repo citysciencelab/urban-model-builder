@@ -1,36 +1,17 @@
 <div
-  class="progress save-indicator"
-  role="progressbar"
-  aria-valuenow={{this.progress}}
-  aria-valuemin="0"
-  aria-valuemax="100"
+  class="save-indicator"
   {{did-update this.update @isSaving}}
   {{will-destroy this.destroyAnimation}}
 >
-  {{! template-lint-disable no-inline-styles }}
-  {{! template-lint-disable style-concatenation }}
-  <div
-    class="progress-bar progress-bar__save
-      {{if (and (gte this.progress 100) (not @errors)) 'bg-success'}}
-      {{if @errors 'bg-danger'}}"
-    style="width: {{this.progress}}%"
-  >
-  </div>
-  <div class="progress-label text-light">
-    {{#if this.isProgressing}}
-      <div class="spinner-grow spinner-grow-sm text-light" role="status">
-        <span class="visually-hidden">
-          {{t "messages.saving"}}
-        </span>
-      </div>
-    {{else}}
-      {{#if @errors}}
-        {{! template-lint-disable require-presentational-children }}
-        <FaIcon @icon="remove" />
-      {{else if (eq this.progress 100)}}
-        {{! template-lint-disable require-presentational-children }}
-        <FaIcon @icon="check" />
-      {{/if}}
-    {{/if}}
-  </div>
+  <BsSpinner
+    @type="dark"
+    class={{concat
+      "save-indicator__spinner "
+      (if
+        this.isProgressing
+        "save-indicator__show"
+        (if this.isDone "save-indicator__done" "")
+      )
+    }}
+  />
 </div>
