@@ -103,4 +103,13 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
       'primitivesModal'
     ]?.actions.close();
   }
+
+  @action removePinOnClose(dd: any) {
+    if (
+      dd.isOpen &&
+      this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned
+    ) {
+      this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned = false;
+    }
+  }
 }

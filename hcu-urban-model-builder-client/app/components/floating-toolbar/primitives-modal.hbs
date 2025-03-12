@@ -12,7 +12,7 @@
     as |dd|
   >
 
-    <dd.Trigger>
+    <dd.Trigger {{on "click" (fn this.removePinOnClose dd)}}>
       <BsButton @type="primary" class="btn-round" @size="md">
         <SvgIcon @icon="add" @size="md" />
       </BsButton>

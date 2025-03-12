@@ -200,7 +200,7 @@
     </div>
 
   </modal.Content>
-  <modal.Trigger>
+  <modal.Trigger {{on "click" (fn this.removePinOnClose modal)}}>
     <BsButton @type="secondary">
       {{t "actions.simulate"}}
     </BsButton>

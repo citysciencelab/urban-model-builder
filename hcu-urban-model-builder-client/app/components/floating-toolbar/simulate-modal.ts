@@ -556,4 +556,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   toggleDropdown() {
     this.floatingToolbarDropdownManager.togglePin('simulateModal');
   }
+
+  @action removePinOnClose(dd: any) {
+    if (
+      dd.isOpen &&
+      this.floatingToolbarDropdownManager.isSimulateDropdownPinned
+    ) {
+      this.floatingToolbarDropdownManager.isSimulateDropdownPinned = false;
+    }
+  }
 }
