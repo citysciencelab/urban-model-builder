@@ -250,21 +250,6 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   ) {
     const createObjectData = _.pick(currentModelVersion, Object.keys(modelsVersionsDataSchema.properties))
 
-    console.log('NEW NEW NEW')
-    console.dir(
-      {
-        ...createObjectData,
-        parentId: parentId,
-        draftVersion: draft,
-        majorVersion: major,
-        minorVersion: minor,
-        createdBy: params?.user?.id,
-        isLatest: true,
-        publishedToUMPAt: null
-      },
-      { depth: 10 }
-    )
-
     // TODO: ensure createdBy is set on a hook using params
     const newDraftModelVersion = await this.app.service('models-versions').create(
       {

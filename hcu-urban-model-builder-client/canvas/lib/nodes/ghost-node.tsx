@@ -29,7 +29,6 @@ export const GhostNode = memo(
     }, [ghostNodeModel]);
 
     const parentType = useMemo(() => {
-      console.log(ReactFlowNodeType);
       if (!ghostNodeModel) {
         return null;
       }
