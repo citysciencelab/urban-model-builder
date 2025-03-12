@@ -9,7 +9,7 @@ export const logError = async (context: HookContext, next: NextFunction) => {
     await next()
     logger.debug(`AFTER ${context.path}.${context.method}()`)
   } catch (error: any) {
-    logger.error(`ERROR ${context.path}.${context.method}()`)
+    logger.error(`ERROR ${context.path}.${context.method}() CODE: ${error.code}`)
     logger.error(error.stack)
 
     // Log validation errors
