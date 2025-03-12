@@ -14,7 +14,7 @@ import {
   Nodes
 } from './nodes.schema.js'
 
-import type { Application } from '../../declarations.js'
+import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
 import { NodesService, getOptions } from './nodes.class.js'
 import { nodesPath, nodesMethods } from './nodes.shared.js'
 import { Roles } from '../../client.js'
@@ -61,15 +61,23 @@ export const nodes = (app: Application) => {
         schemaHooks.resolveData(nodesPatchResolver),
         iff(
           isProvider('external'),
-          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
-          checkModelVersionState('data.modelsVersionsId', 'models-versions')
+          checkModelPermission(
+            `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
+            'models-versions',
+            Roles.collaborator
+          ),
+          checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
         )
       ],
       remove: [
         iff(
           isProvider('external'),
-          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
-          checkModelVersionState('data.modelsVersionsId', 'models-versions')
+          checkModelPermission(
+            `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
+            'models-versions',
+            Roles.collaborator
+          ),
+          checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
         )
       ]
     },

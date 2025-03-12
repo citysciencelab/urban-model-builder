@@ -13,7 +13,7 @@ import {
   edgesQueryResolver
 } from './edges.schema.js'
 
-import type { Application } from '../../declarations.js'
+import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
 import { EdgesService, getOptions } from './edges.class.js'
 import { edgesPath, edgesMethods } from './edges.shared.js'
 import { authenticate } from '@feathersjs/authentication'
@@ -58,15 +58,23 @@ export const edges = (app: Application) => {
         schemaHooks.resolveData(edgesPatchResolver),
         iff(
           isProvider('external'),
-          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
-          checkModelVersionState('data.modelsVersionsId', 'models-versions')
+          checkModelPermission(
+            `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
+            'models-versions',
+            Roles.collaborator
+          ),
+          checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
         )
       ],
       remove: [
         iff(
           isProvider('external'),
-          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
-          checkModelVersionState('data.modelsVersionsId', 'models-versions')
+          checkModelPermission(
+            `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
+            'models-versions',
+            Roles.collaborator
+          ),
+          checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
         )
       ]
     },
