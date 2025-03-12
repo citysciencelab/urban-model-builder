@@ -44,10 +44,23 @@ export default class ModelSettingsDialogComponent extends Component<ModelSetting
       lookupValidator(this.Validation),
       this.Validation,
     );
+    this.changeset.set(
+      '_publishedToUMPAt',
+      this.args.model.publishedToUMPAt ? 'Yes' : 'No',
+    );
   }
 
   @action async onSubmit() {
     await this.changeset.validate();
+
+    // change UMP publish date only when changed in the UI to avoid date overrides
+    const shouldBePublishedToUMP =
+      this.changeset.get('_publishedToUMPAt') === 'Yes';
+    if (this.args.model.publishedToUMPAt && !shouldBePublishedToUMP) {
+      this.changeset.set('publishedToUMPAt', null);
+    } else if (!this.args.model.publishedToUMPAt && shouldBePublishedToUMP) {
+      this.changeset.set('publishedToUMPAt', new Date());
+    }
 
     if (this.changeset.isValid) {
       this.changeset.execute();

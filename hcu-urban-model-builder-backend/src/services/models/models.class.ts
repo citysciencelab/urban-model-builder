@@ -151,7 +151,8 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         minorVersion: newMinor,
         draftVersion: newDraft,
         publishedAt: new Date().toISOString(),
-        publishedBy: params?.user?.id
+        publishedBy: params?.user?.id,
+        publishedToUMPAt: data.publishedToUMP == 'Yes' ? new Date().toISOString() : null
       },
       { user: params?.user }
     )
@@ -188,7 +189,8 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         minorVersion: newMinor,
         draftVersion: newDraft,
         publishedAt: new Date().toISOString(),
-        publishedBy: params?.user?.id
+        publishedBy: params?.user?.id,
+        publishedToUMPAt: data.publishedToUMP == 'Yes' ? new Date().toISOString() : null
       },
       {
         user: params?.user
@@ -248,6 +250,21 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   ) {
     const createObjectData = _.pick(currentModelVersion, Object.keys(modelsVersionsDataSchema.properties))
 
+    console.log('NEW NEW NEW')
+    console.dir(
+      {
+        ...createObjectData,
+        parentId: parentId,
+        draftVersion: draft,
+        majorVersion: major,
+        minorVersion: minor,
+        createdBy: params?.user?.id,
+        isLatest: true,
+        publishedToUMPAt: null
+      },
+      { depth: 10 }
+    )
+
     // TODO: ensure createdBy is set on a hook using params
     const newDraftModelVersion = await this.app.service('models-versions').create(
       {
@@ -257,7 +274,8 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         majorVersion: major,
         minorVersion: minor,
         createdBy: params?.user?.id,
-        isLatest: true
+        isLatest: true,
+        publishedToUMPAt: null
       },
       {
         user: params?.user

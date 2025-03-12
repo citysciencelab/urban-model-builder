@@ -38,6 +38,7 @@ export default class ModelPublishDialogComponent extends Component<ModelPublishD
     this.formModel = {
       notes: '',
       versionType: 'minor',
+      publishedToUMP: 'No',
     };
     this.changeset = Changeset(
       this.formModel,
