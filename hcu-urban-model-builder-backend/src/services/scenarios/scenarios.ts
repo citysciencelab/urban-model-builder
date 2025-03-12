@@ -16,6 +16,8 @@ import {
 import type { Application } from '../../declarations.js'
 import { ScenariosService, getOptions } from './scenarios.class.js'
 import { scenariosPath, scenariosMethods } from './scenarios.shared.js'
+import { addModelPermissionFilterQuery } from '../../hooks/add-model-permission-filter-query.js'
+import { Roles } from '../../client.js'
 
 export * from './scenarios.class.js'
 export * from './scenarios.schema.js'
@@ -43,8 +45,8 @@ export const scenarios = (app: Application) => {
         schemaHooks.resolveQuery(scenariosQueryResolver)
       ],
       // FIXME: all permissions
-      find: [],
-      get: [],
+      find: [addModelPermissionFilterQuery(Roles.viewer)],
+      get: [addModelPermissionFilterQuery(Roles.viewer)],
       create: [
         schemaHooks.validateData(scenariosDataValidator),
         schemaHooks.resolveData(scenariosDataResolver)

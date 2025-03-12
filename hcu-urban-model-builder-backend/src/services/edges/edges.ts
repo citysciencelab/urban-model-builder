@@ -21,6 +21,7 @@ import { Roles } from '../../client.js'
 import { iff, isProvider } from 'feathers-hooks-common'
 import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
+import { addModelPermissionFilterQuery } from '../../hooks/add-model-permission-filter-query.js'
 
 export * from './edges.class.js'
 export * from './edges.schema.js'
@@ -42,8 +43,8 @@ export const edges = (app: Application) => {
     },
     before: {
       all: [schemaHooks.validateQuery(edgesQueryValidator), schemaHooks.resolveQuery(edgesQueryResolver)],
-      find: [], // FIXME: persmissions
-      get: [], // FIXME: persmissions
+      find: [addModelPermissionFilterQuery(Roles.viewer)],
+      get: [addModelPermissionFilterQuery(Roles.viewer)],
       create: [
         schemaHooks.validateData(edgesDataValidator),
         schemaHooks.resolveData(edgesDataResolver),
