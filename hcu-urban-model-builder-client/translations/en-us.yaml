@@ -7,6 +7,8 @@ general:
   createdAt_1: Oldest First
   updatedAt_-1: Last Modified First
   demo: Demo
+  Yes: Yes
+  No: No
 
 pagination:
   meta: Showing {start} - {end} of {total}
@@ -122,6 +124,7 @@ components:
   settings_dialog:
     title: Model settings
     intro: Here you can edit the (simulation) settings of the model.
+    publish_to_ump_label: Publish to Urban Model Platform
   data_transformation:
     title: Data Transformations
     select_all: Select all

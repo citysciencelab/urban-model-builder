@@ -98,6 +98,7 @@ export default class ModelModel extends Model {
       id: this.id,
       modelsVersionsId: version.id,
       notes: formModel.notes,
+      publishedToUMP: formModel.publishedToUMP,
     });
   }
 
@@ -106,6 +107,7 @@ export default class ModelModel extends Model {
       id: this.id,
       modelsVersionsId: version.id,
       notes: formModel.notes,
+      publishedToUMP: formModel.publishedToUMP,
     });
   }
 

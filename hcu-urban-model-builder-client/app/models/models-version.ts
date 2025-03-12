@@ -53,6 +53,7 @@ export default class ModelsVersion extends Model {
   @attr('date') declare publishedAt: Date;
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;
+  @attr('date') declare publishedToUMPAt: Date;
 
   get hasVersion() {
     return (

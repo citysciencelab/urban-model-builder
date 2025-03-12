@@ -28,6 +28,17 @@
         @options={{this.versionTypes}}
       />
       <form.element
+        @controlType="radio"
+        @label={{t "components.settings_dialog.publish_to_ump_label"}}
+        @property="publishedToUMP"
+        @options={{array "No" "Yes"}}
+        as |el|
+      >
+        <el.control as |label|>
+          {{t (concat "general" "." label)}}
+        </el.control>
+      </form.element>
+      <form.element
         @controlType="textarea"
         @label={{t "models.models_version.attributes.notes"}}
         @property="notes"

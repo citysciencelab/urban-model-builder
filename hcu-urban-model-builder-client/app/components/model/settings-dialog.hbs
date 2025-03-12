@@ -91,6 +91,22 @@
           <el.control rows="5" class="code-textarea" />
         </form.element>
       </div>
+      {{#if @model.isPublished}}
+        <hr />
+        <div class="row">
+          <form.element
+            @controlType="radio"
+            @label={{t "components.settings_dialog.publish_to_ump_label"}}
+            @property="_publishedToUMPAt"
+            @options={{array "No" "Yes"}}
+            as |el|
+          >
+            <el.control as |label|>
+              {{t (concat "general" "." label)}}
+            </el.control>
+          </form.element>
+        </div>
+      {{/if}}
     </BsForm>
   </modal.body>
   <modal.footer>

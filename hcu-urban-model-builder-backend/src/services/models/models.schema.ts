@@ -118,6 +118,7 @@ export const modelsPublishSchema = Type.Object(
   {
     id: Type.String({ format: 'uuid' }),
     notes: Type.String(),
+    publishedToUMP: Nullable(Type.Union([Type.Literal('Yes'), Type.Literal('No')])),
     modelsVersionsId: Type.String({ format: 'uuid' })
   },
   { $id: 'ModelsPublish', additionalProperties: false }

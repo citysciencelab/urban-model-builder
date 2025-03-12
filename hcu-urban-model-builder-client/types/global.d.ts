@@ -11,6 +11,7 @@ export type AdapterHasManyQuery = {
 export interface FormModelPublish {
   notes: string;
   versionType: string;
+  publishedToUMP: 'Yes' | 'No';
 }
 
 export interface FormModelShare {
