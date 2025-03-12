@@ -18,6 +18,8 @@ import type { Application } from '../../declarations.js'
 import { UserService, getOptions } from './users.class.js'
 import { userPath, userMethods } from './users.shared.js'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import _ from 'lodash'
+import { Unprocessable } from '@feathersjs/errors'
 
 export * from './users.class.js'
 export * from './users.schema.js'
@@ -45,18 +47,19 @@ export const user = (app: Application) => {
     before: {
       all: [schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
       find: [
-        // FIXME: permissions -> find is only used as filterable result for the email, maybe restrict completely
         iff(isProvider('external'), (context: any) => {
+          const mailFilterParam = _.get(context, 'params.query.email.$ilike')
+          if (!mailFilterParam) {
+            throw new Unprocessable('Email filter is required')
+          }
           delete context.params.query.id
         })
       ],
       get: [
-        // FIXME: when is this used
-        iff(isProvider('external'), (context: any) => {
-          console.dir(context.params.user, { depth: 10 })
-
+        (context: any) => {
+          // id is always set to self, i.e. when getting other users we need to force delete it
           delete context.params.query.id
-        })
+        }
       ],
       create: [
         disallow('external'),
@@ -86,7 +89,7 @@ export const user = (app: Application) => {
         iff(isProvider('external'), (context: any) => {
           const user = context.result
           if (user.id !== context.params.user.id) {
-            context.result.data = context.result = {
+            context.result = {
               id: user.id,
               email: user.email
             }
