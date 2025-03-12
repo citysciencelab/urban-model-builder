@@ -272,3 +272,12 @@ permissions:
   4: Ersteller
   you: Du selbst
   creator: Ersteller
+
+time_units:
+  Seconds: Sekunden
+  Minutes: Minuten
+  Hours: Stunden
+  Days: Tage
+  Weeks: Wochen
+  Months: Monate
+  Years: Jahre

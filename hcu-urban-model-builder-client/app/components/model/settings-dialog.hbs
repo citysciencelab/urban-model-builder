@@ -60,7 +60,7 @@
             @onChange={{fn (mut this.changeset.timeUnits)}}
             as |unit|
           >
-            {{unit}}
+            {{t (concat "time_units" "." unit)}}
           </PowerSelect>
         </form.element>
 

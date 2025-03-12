@@ -272,3 +272,12 @@ permissions:
   4: Owner
   you: You
   creator: Creator
+
+time_units:
+  Seconds: Seconds
+  Minutes: Minutes
+  Hours: Hours
+  Days: Days
+  Weeks: Weeks
+  Months: Months
+  Years: Years
