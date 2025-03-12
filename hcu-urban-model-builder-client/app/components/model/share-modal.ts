@@ -176,7 +176,7 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
     let userRemovedOwnPermissions = false;
     if (permission.user.id == this.user.currentUserId) {
       shouldBeRemoved = confirm(
-        'You are about to remove your permissions. Are you sure you want to continue?',
+        this.intl.t('actions.confirm_remove_own_permissions'),
       );
       userRemovedOwnPermissions = true;
     }
@@ -198,7 +198,7 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
     let userChangedOwnPermissions = false;
     if (permission.user.id == this.user.currentUserId) {
       shouldBeUpdated = confirm(
-        'You are about to change your permissions. Are you sure you want to continue?',
+        this.intl.t('actions.confirm_change_own_permissions'),
       );
       userChangedOwnPermissions = true;
     }

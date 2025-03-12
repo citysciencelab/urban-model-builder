@@ -37,6 +37,9 @@ actions:
   close: Schließen
   delete: Löschen
   simulate: Simulieren
+  confirm_delete_model: Sind Sie sicher, dass Sie dieses Modell löschen möchten?
+  confirm_remove_own_permissions: Sie sind dabei, Ihre Berechtigungen zu entfernen. Möchten Sie wirklich fortfahren?
+  confirm_change_own_permissions: Sie sind dabei, Ihre Berechtigungen zu ändern. Möchten Sie wirklich fortfahren?
 
 node-toolbar:
   title: Primitives

@@ -105,7 +105,7 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
 
   @action
   startDeleting(model: ModelModel) {
-    const yes = confirm('Are you sure you want to delete this model?');
+    const yes = confirm(this.intl.t('actions.confirm_delete_model'));
     if (yes) {
       model.destroyRecord();
     }
