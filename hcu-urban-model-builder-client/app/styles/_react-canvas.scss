@@ -231,8 +231,12 @@ $group-nodes: "folder", "agent";
 @each $name, $color in $edge-color-map {
   .react-flow__edge-#{$name} {
     --xy-edge-stroke: #{$color};
-    --xy-edge-stroke-selected: #{darken($color, 10%)};
+    --xy-edge-stroke-selected: #{map.get($edge-color-selected-map, $name)};
     --xy-edge-stroke-width: 2;
+  }
+
+  .react-flow__edge.react-flow__edge-#{$name}.updating .react-flow__edge-path {
+    stroke: var(--xy-edge-stroke-selected);
   }
 
   #\31 __edgeType\=#{$name}\&strokeWidth\=1\.5\&type\=arrow {
