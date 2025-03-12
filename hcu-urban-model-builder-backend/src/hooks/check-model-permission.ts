@@ -13,11 +13,6 @@ export const checkModelPermission = (
   return async (context: HookContext) => {
     checkContext(context, 'before', ['create', 'patch', 'remove'])
 
-    // FIXME: when using stashBefore this can be removed
-    if (context.method == 'remove') {
-      context.data = await context.service._get(context.id, { user: context.params.user })
-    }
-
     if (Array.isArray(context.data)) {
       throw new Error('Batch creation of nodes is not supported')
     }

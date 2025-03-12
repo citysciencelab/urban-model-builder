@@ -16,7 +16,7 @@ import {
   modelsVersionsLeaveChannelDataValidator
 } from './models-versions.schema.js'
 
-import type { Application } from '../../declarations.js'
+import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
 import { ModelsVersionsService, getOptions } from './models-versions.class.js'
 import { modelsVersionsPath, modelsVersionsMethods } from './models-versions.shared.js'
 import { setCreatedBy } from '../../hooks/set-created-by.js'
@@ -75,7 +75,7 @@ export const modelsVersions = (app: Application) => {
         setCreatedBy
       ],
       patch: [
-        checkModelPermission('data.id', 'models-versions', Roles.viewer),
+        checkModelPermission(`params.${STASH_BEFORE_KEY}.id`, 'models-versions', Roles.viewer),
         iff(isProvider('external'), discard('publishedAt')), // FIXME: external: pick only the fields that can be updated (e.g. timestep, globals, ....)
         schemaHooks.validateData(modelsVersionsPatchValidator),
         schemaHooks.resolveData(modelsVersionsPatchResolver)
