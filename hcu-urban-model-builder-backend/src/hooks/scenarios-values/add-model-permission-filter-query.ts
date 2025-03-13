@@ -29,7 +29,6 @@ export const addScenarioValuesModelPermissionFilterQuery = (minRequiredRole: Rol
           this.orWhereNotNull('models_versions.publishedAt')
         }
       })
-      .select('models_users.role as modelRole')
 
     context.params.knex = query
   }
