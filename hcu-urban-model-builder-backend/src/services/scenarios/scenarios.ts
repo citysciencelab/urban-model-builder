@@ -13,9 +13,14 @@ import {
   scenariosQueryResolver
 } from './scenarios.schema.js'
 
-import type { Application } from '../../declarations.js'
+import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
 import { ScenariosService, getOptions } from './scenarios.class.js'
 import { scenariosPath, scenariosMethods } from './scenarios.shared.js'
+import { addModelPermissionFilterQuery } from '../../hooks/add-model-permission-filter-query.js'
+import { Roles } from '../../client.js'
+import { iff, isProvider } from 'feathers-hooks-common'
+import { checkModelPermission } from '../../hooks/check-model-permission.js'
+import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
 
 export * from './scenarios.class.js'
 export * from './scenarios.schema.js'
@@ -42,17 +47,41 @@ export const scenarios = (app: Application) => {
         schemaHooks.validateQuery(scenariosQueryValidator),
         schemaHooks.resolveQuery(scenariosQueryResolver)
       ],
-      find: [],
-      get: [],
+      find: [addModelPermissionFilterQuery(Roles.viewer)],
+      get: [addModelPermissionFilterQuery(Roles.viewer)],
       create: [
         schemaHooks.validateData(scenariosDataValidator),
-        schemaHooks.resolveData(scenariosDataResolver)
+        schemaHooks.resolveData(scenariosDataResolver),
+        iff(
+          isProvider('external'),
+          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
+          checkModelVersionState('data.modelsVersionsId', 'models-versions')
+        )
       ],
       patch: [
         schemaHooks.validateData(scenariosPatchValidator),
-        schemaHooks.resolveData(scenariosPatchResolver)
+        schemaHooks.resolveData(scenariosPatchResolver),
+        iff(
+          isProvider('external'),
+          checkModelPermission(
+            `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
+            'models-versions',
+            Roles.collaborator
+          ),
+          checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
+        )
       ],
-      remove: []
+      remove: [
+        iff(
+          isProvider('external'),
+          checkModelPermission(
+            `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
+            'models-versions',
+            Roles.collaborator
+          ),
+          checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
+        )
+      ]
     },
     after: {
       all: []

@@ -16,7 +16,7 @@ export interface Configuration extends ApplicationConfiguration {
 
 // A mapping of service names to types. Will be extended in service files.
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ServiceTypes { }
+export interface ServiceTypes {}
 
 // The application instance type that will be used everywhere else
 export type Application = FeathersApplication<ServiceTypes, Configuration>
@@ -37,3 +37,5 @@ declare module '@feathersjs/feathers' {
     isTouch?: Boolean
   }
 }
+
+export const STASH_BEFORE_KEY = 'stashBefore'

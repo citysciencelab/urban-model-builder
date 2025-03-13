@@ -5,14 +5,14 @@ import { koa, rest, bodyParser, errorHandler, parseAuthentication, cors, serveSt
 import socketio from '@feathersjs/socketio'
 
 import { configurationValidator } from './configuration.js'
-import type { Application } from './declarations.js'
+import { STASH_BEFORE_KEY, type Application } from './declarations.js'
 import { logError } from './hooks/log-error.js'
 import { postgresql } from './postgresql.js'
 import { authentication } from './authentication.js'
 import { services } from './services/index.js'
 import { channels } from './channels.js'
 import { BadRequest } from '@feathersjs/errors'
-import { iff } from 'feathers-hooks-common'
+import { iff, stashBefore } from 'feathers-hooks-common'
 import { authenticate } from '@feathersjs/authentication'
 import { errorHandler as errorHandlerHook } from './hooks/error-handler.js'
 
@@ -73,13 +73,15 @@ app.hooks({
           delete context.data.createdAt
           delete context.data.updatedAt
         }
-      }
+      },
+      stashBefore(STASH_BEFORE_KEY)
     ],
     update: [
       () => {
         throw new BadRequest("Update is not supported. Use 'patch' instead.")
       }
-    ]
+    ],
+    remove: [stashBefore(STASH_BEFORE_KEY)]
   },
   after: {},
   error: {}

@@ -16,11 +16,11 @@ import {
   modelsVersionsLeaveChannelDataValidator
 } from './models-versions.schema.js'
 
-import type { Application } from '../../declarations.js'
+import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
 import { ModelsVersionsService, getOptions } from './models-versions.class.js'
 import { modelsVersionsPath, modelsVersionsMethods } from './models-versions.shared.js'
 import { setCreatedBy } from '../../hooks/set-created-by.js'
-import { discard, iff, isProvider } from 'feathers-hooks-common'
+import { disallow, discard, iff, isProvider, keep } from 'feathers-hooks-common'
 import _ from 'lodash'
 import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import { Roles } from '../../client.js'
@@ -54,7 +54,6 @@ export const modelsVersions = (app: Application) => {
         schemaHooks.resolveQuery(modelsVersionsQueryResolver)
       ],
       find: [
-        // TODO: test and shift to external hook function
         iff(isProvider('external'), (context: any) => {
           _.set(context, 'params.query.$or', [queryOrOnlyWhenPermissions, queryOrWhenPublished])
           // necessary because of the join -> be more specific about the table origin of modelId
@@ -70,16 +69,31 @@ export const modelsVersions = (app: Application) => {
         })
       ],
       create: [
+        disallow('external'),
         schemaHooks.validateData(modelsVersionsDataValidator),
         schemaHooks.resolveData(modelsVersionsDataResolver),
         setCreatedBy
       ],
       patch: [
-        iff(isProvider('external'), discard('publishedAt')),
+        checkModelPermission(`params.${STASH_BEFORE_KEY}.id`, 'models-versions', Roles.viewer),
+        iff(
+          isProvider('external'),
+          keep(
+            'notes',
+            'timeUnits',
+            'timeStart',
+            'timeLength',
+            'timeStep',
+            'algorithm',
+            'globals',
+            'customUnits',
+            'publishedToUMPAt'
+          )
+        ),
         schemaHooks.validateData(modelsVersionsPatchValidator),
         schemaHooks.resolveData(modelsVersionsPatchResolver)
       ],
-      remove: [],
+      remove: [disallow('external')],
       joinChannel: [
         schemaHooks.validateData(modelsVersionsJoinChannelDataValidator),
         checkModelPermission('data.id', 'models-versions', Roles.viewer)
