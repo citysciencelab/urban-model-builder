@@ -39,7 +39,7 @@ export default class Edge extends Model {
       sourceHandle: this.sourceHandle,
       targetHandle: this.targetHandle,
       reconnectable: this.reconnectable,
-      zIndex: 10,
+      zIndex: 1001,
       markerEnd: {
         type: MarkerType.Arrow,
         strokeWidth: 1.5,
