@@ -21,6 +21,8 @@ import { task, timeout } from 'ember-concurrency';
 import config from 'hcu-urban-model-builder-client/config/environment';
 import type FloatingToolbarDropdownManagerService from 'hcu-urban-model-builder-client/services/floating-toolbar-dropdown-manager';
 import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
+import { cached } from '@glimmer/tracking';
+import { TrackedAsyncData } from 'ember-async-data';
 
 export interface FloatingToolbarSimulateModalSignature {
   // The arguments accepted by the component
@@ -134,11 +136,23 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     return !!this.simulationError;
   }
 
+  @cached
+  get _isSimulationPossible() {
+    const promise = async () => {
+      const nodes = await this.args.model.nodes;
+      const filteredNodes = nodes.filter((item) => item.isOutputParameter);
+      return filteredNodes && filteredNodes.length > 0;
+    };
+    return new TrackedAsyncData(promise());
+  }
+
+  @cached
   get isSimulationPossible() {
-    const nodes = this.store
-      .peekAll<Node>('node')
-      .filter((item) => item.isOutputParameter);
-    return nodes && nodes.length > 0;
+    if (this._isSimulationPossible.isPending) {
+      return true;
+    } else {
+      return this._isSimulationPossible.value;
+    }
   }
 
   get inMemoryScenario(): Map<string, number> {
