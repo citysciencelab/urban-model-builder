@@ -40,7 +40,12 @@
           />
         {{/if}}
         {{! ERROR }}
-        <BsAlert @type="danger" @visible={{this.hasError}}>
+        <BsAlert
+          @type="danger"
+          @visible={{this.hasError}}
+          @fade={{false}}
+          @dismissible={{false}}
+        >
           <strong>
             {{#if this.simulationErrorNode}}
               {{t "models.node.error"}}
