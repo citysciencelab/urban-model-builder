@@ -401,7 +401,8 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         await this.app.service('scenarios-values').create(
           {
             ...createScenarioValueData,
-            scenariosId: newScenario.id
+            scenariosId: newScenario.id,
+            nodesId: nodeMigrationMap.get(scenarioValue.nodesId)!
           },
           {
             user: params?.user
