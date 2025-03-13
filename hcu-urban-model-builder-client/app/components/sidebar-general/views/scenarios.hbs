@@ -64,23 +64,24 @@
           {{/let}}
         </div>
       {{/each}}
-
-      <hr />
-      <div class="text-center">
-        <a
-          href="javascript:void(0)"
-          class="btn btn-primary"
-          {{on
-            "click"
-            (fn this.saveDefaultScenario this.defaultScenario saveAction)
-          }}
-        >
-          {{#if isSaving}}
-            <FaIcon @icon="spinner" @spin={{true}} @fixedWidth={{true}} />
-          {{/if}}
-          {{t "actions.save_for_everyone"}}
-        </a>
-      </div>
+      {{#unless @modelVersion.isPublished}}
+        <hr />
+        <div class="text-center">
+          <a
+            href="javascript:void(0)"
+            class="btn btn-primary"
+            {{on
+              "click"
+              (fn this.saveDefaultScenario this.defaultScenario saveAction)
+            }}
+          >
+            {{#if isSaving}}
+              <FaIcon @icon="spinner" @spin={{true}} @fixedWidth={{true}} />
+            {{/if}}
+            {{t "actions.save_for_everyone"}}
+          </a>
+        </div>
+      {{/unless}}
     {{else}}
       {{t "components.scenarios.no_parameters"}}
     {{/if}}
