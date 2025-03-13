@@ -26,6 +26,7 @@ import {
   ReactFlowProvider,
   NodeDimensionChange,
   OnConnectStartParams,
+  FinalConnectionState,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
@@ -162,12 +163,6 @@ function Flow({
 
     setEdges((eds) => applyEdgeChanges(changes, eds));
   }, []);
-
-  // TODO: Validate connection
-  const isValidConnection = useCallback(
-    (connection: Connection) => true, // connection.source !== connection.target,
-    [],
-  );
 
   const getTmpEdgeId = (params: Connection) =>
     `tmp_source-${params.source}_target-${params.target}`;
@@ -345,7 +340,15 @@ function Flow({
     [rfInstance],
   );
 
-  const onConnectionStart = (_: unknown, params: OnConnectStartParams) => {
+  const [connectingHandle, setConnectingHandle] =
+    useState<OnConnectStartParams | null>(null);
+
+  const onConnectionStart = (
+    _: MouseEvent | TouchEvent,
+    params: OnConnectStartParams,
+  ) => {
+    setConnectingHandle(params);
+
     if (
       params.handleId.startsWith("flow-") ||
       params.handleId.startsWith("transition-")
@@ -356,6 +359,69 @@ function Flow({
     }
   };
 
+  const onConnectionEnd = () => {
+    setConnectingHandle(null);
+  };
+
+  const getOriginNodeId = (node: Node) => {
+    return node.type !== ReactFlowNodeType.Ghost
+      ? node.id
+      : node.data.emberModel.get("ghostParent.id");
+  };
+
+  const getOriginNodeType = (node: Node) => {
+    if (node.type !== ReactFlowNodeType.Ghost) {
+      return node.type;
+    }
+
+    const ghostParentId = node.data.emberModel.get("ghostParent.id");
+
+    return rfInstance.getNode(ghostParentId).type;
+  };
+
+  const isValidConnection = useCallback(
+    (connection: Connection) => {
+      if (connection.source === connection.target) {
+        return false;
+      }
+
+      const sourceNode = rfInstance.getNode(connection.source);
+      const targetNode = rfInstance.getNode(connection.target);
+
+      const sourceId = getOriginNodeId(sourceNode);
+      const targetId = getOriginNodeId(targetNode);
+      if (sourceId === targetId) {
+        return false;
+      }
+
+      const sourceType = getOriginNodeType(sourceNode);
+      const targetType = getOriginNodeType(targetNode);
+      if (connection.sourceHandle.startsWith("flow-")) {
+        return targetType === ReactFlowNodeType.Stock;
+      }
+      if (connection.targetHandle.startsWith("flow-")) {
+        return sourceType === ReactFlowNodeType.Stock;
+      }
+
+      if (connection.sourceHandle.startsWith("transition-")) {
+        return targetType === ReactFlowNodeType.State;
+      }
+      if (connection.targetHandle.startsWith("transition-")) {
+        return sourceType === ReactFlowNodeType.State;
+      }
+
+      if (connection.sourceHandle.startsWith("agent-")) {
+        return targetType === ReactFlowNodeType.Population;
+      }
+      if (connection.targetHandle.startsWith("agent-")) {
+        return sourceType === ReactFlowNodeType.Agent;
+      }
+
+      return true;
+    },
+    [rfInstance],
+  );
+
   return (
     <ReactFlow
       onInit={setRfInstance}
@@ -364,6 +430,7 @@ function Flow({
       edges={edges}
       onEdgesChange={onEdgesChange}
       onConnectStart={onConnectionStart}
+      onConnectEnd={onConnectionEnd}
       onConnect={onConnect}
       onReconnect={onReconnect}
       onNodeDrag={onNodeDrag}
@@ -380,6 +447,9 @@ function Flow({
       nodesFocusable={!flowOptions.disabled}
       panOnDrag={true}
       fitView
+      className={
+        connectingHandle ? `connecting-from-${connectingHandle.handleType}` : ""
+      }
     >
       <Panel position="bottom-center">
         <div className="toolbar__container" ref={toolbarContainerRef}></div>

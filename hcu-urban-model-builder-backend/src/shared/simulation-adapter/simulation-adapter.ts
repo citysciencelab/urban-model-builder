@@ -74,6 +74,8 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
     await this.assignConverterInput()
 
+    await this.assignAgentPopulation()
+
     await this.createModelRelationsByEdges(this.model)
     try {
       this.simulationResultBeforeSerialization = this.model.simulate()
@@ -217,6 +219,41 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     }
   }
 
+  private async assignAgentPopulation() {
+    const populationNodes = await this.app.service('nodes').find({
+      query: {
+        modelsVersionsId: this.modelVersionId,
+        type: NodeType.Population
+      }
+    })
+
+    for (const node of populationNodes.data) {
+      const ghostChildren = this.ghostParentToChildIdMap.get(node.id) || []
+      const agentPopulationEdges = await this.app.service('edges').find({
+        query: {
+          modelsVersionsId: this.modelVersionId,
+          type: EdgeType.AgentPopulation,
+          targetId: {
+            $in: [node.id, ...(ghostChildren || [])]
+          }
+        }
+      })
+
+      if (agentPopulationEdges.total > 1) {
+        throw new Error('Population node must have only one agent node')
+      }
+      if (agentPopulationEdges.total === 0) {
+        console.debug('Population node has no agent node')
+        continue
+      }
+
+      const agentPopulationEdge = agentPopulationEdges.data[0]
+      const agent = this.nodeIdPrimitiveMapWithGhosts.get(agentPopulationEdge.sourceId) as Agent
+      const population = this.nodeIdPrimitiveMapWithGhosts.get(node.id) as Population
+      population.agentBase = agent
+    }
+  }
+
   private async createModelRelationsByEdges(model: Model) {
     const edges = await this.app.service('edges').find({
       query: {
@@ -235,11 +272,12 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
         this.setPrimitiveStartEndByEdge(edge, 'flow')
       } else if (edge.type === EdgeType.Transition) {
         this.setPrimitiveStartEndByEdge(edge, 'transition')
-      } else if (edge.type === EdgeType.AgentPopulation) {
-        const population = this.nodeIdPrimitiveMapWithGhosts.get(edge.targetId) as Population
-        const agent = this.nodeIdPrimitiveMapWithGhosts.get(edge.sourceId) as Agent
-        population.agentBase = agent
       }
+      // else if (edge.type === EdgeType.AgentPopulation) {
+      //   const population = this.nodeIdPrimitiveMapWithGhosts.get(edge.targetId) as Population
+      //   const agent = this.nodeIdPrimitiveMapWithGhosts.get(edge.sourceId) as Agent
+      //   population.agentBase = agent
+      // }
     }
   }
 

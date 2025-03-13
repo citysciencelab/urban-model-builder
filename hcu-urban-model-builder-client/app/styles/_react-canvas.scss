@@ -441,3 +441,19 @@ $direction-config: (
     }
   }
 }
+
+.connecting-from-target {
+  .react-flow__handle.target:not(.react-flow__node-arrow__handle__target) {
+    z-index: -1;
+  }
+}
+
+.connecting-from-source {
+  .react-flow__handle.source:not(.react-flow__node-arrow__handle__source) {
+    z-index: -1;
+  }
+}
+
+.react-flow__handle.connectingto:not(.valid) {
+  background-color: $red;
+}

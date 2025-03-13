@@ -17,7 +17,9 @@ import {
 import type { Application } from '../../declarations.js'
 import { UserService, getOptions } from './users.class.js'
 import { userPath, userMethods } from './users.shared.js'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import _ from 'lodash'
+import { Unprocessable } from '@feathersjs/errors'
 
 export * from './users.class.js'
 export * from './users.schema.js'
@@ -46,17 +48,30 @@ export const user = (app: Application) => {
       all: [schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
       find: [
         iff(isProvider('external'), (context: any) => {
+          const mailFilterParam = _.get(context, 'params.query.email.$ilike')
+          if (!mailFilterParam) {
+            throw new Unprocessable('Email filter is required')
+          }
           delete context.params.query.id
         })
       ],
       get: [
-        iff(isProvider('external'), (context: any) => {
+        (context: any) => {
+          // id is always set to self, i.e. when getting other users we need to force delete it
           delete context.params.query.id
-        })
+        }
       ],
-      create: [schemaHooks.validateData(userDataValidator), schemaHooks.resolveData(userDataResolver)],
-      patch: [schemaHooks.validateData(userPatchValidator), schemaHooks.resolveData(userPatchResolver)],
-      remove: []
+      create: [
+        disallow('external'),
+        schemaHooks.validateData(userDataValidator),
+        schemaHooks.resolveData(userDataResolver)
+      ],
+      patch: [
+        disallow('external'),
+        schemaHooks.validateData(userPatchValidator),
+        schemaHooks.resolveData(userPatchResolver)
+      ],
+      remove: [disallow('external')]
     },
     after: {
       all: [],
@@ -74,7 +89,7 @@ export const user = (app: Application) => {
         iff(isProvider('external'), (context: any) => {
           const user = context.result
           if (user.id !== context.params.user.id) {
-            context.result.data = context.result = {
+            context.result = {
               id: user.id,
               email: user.email
             }

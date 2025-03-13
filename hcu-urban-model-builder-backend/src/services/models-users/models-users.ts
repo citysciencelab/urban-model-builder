@@ -20,6 +20,7 @@ import { modelsUsersPath, modelsUsersMethods } from './models-users.shared.js'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { Roles } from '../../client.js'
 import { isServerCall } from '../../utils/is-server-call.js'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
 
 export * from './models-users.class.js'
 export * from './models-users.schema.js'
@@ -51,19 +52,17 @@ export const modelsUsers = (app: Application) => {
           if (context?.params?.query?.modelId == null) {
             throw new Error('modelId is required and must be a number')
           }
-          if (context.params.query.modelId) {
-            // get the model with current users permissions
-            const model = await context.app
-              .service('models')
-              .get(context.params.query.modelId as number, { user: context.params.user })
-            if (model.role == null || model.role < Roles.co_owner) {
-              throw new Error("You don't have the permission to list permissions for this model")
-            }
+          // get the model with current users permissions
+          const model = await context.app
+            .service('models')
+            .get(context.params.query.modelId as number, { user: context.params.user })
+          if (model.role == null || model.role < Roles.co_owner) {
+            throw new Forbidden("You don't have the permission to list permissions for this model")
           }
           return context
         })
       ],
-      get: [iff(isProvider('external'), disallow())],
+      get: [disallow('external')],
       create: [
         schemaHooks.validateData(modelsUsersDataValidator),
         schemaHooks.resolveData(modelsUsersDataResolver),
@@ -77,7 +76,7 @@ export const modelsUsers = (app: Application) => {
             const permissionData = context.data as ModelsUsersData
             // Scenario: Permission is added, but it should be an owner role, but only one owner is allowed
             if (permissionData.role > Roles.co_owner) {
-              throw new Error('There can only be one owner')
+              throw new BadRequest('There can only be one owner')
             }
             // get the model with current users permissions
             const model = await context.app
@@ -85,7 +84,7 @@ export const modelsUsers = (app: Application) => {
               .get(permissionData.modelId, { user: context.params.user })
             // Scenario: Permission is added, the user must have role >= co-owner
             if (model.role == null || model.role < Roles.co_owner) {
-              throw new Error("You don't have the permission to add a user to this model")
+              throw new Forbidden("You don't have the permission to add a user to this model")
             }
           }
         }
@@ -105,12 +104,11 @@ export const modelsUsers = (app: Application) => {
 
             // only owner and co-owner can change a user's role
             if (usersRole == null || usersRole < Roles.co_owner) {
-              throw new Error("You don't have the permission to change a user's role for this model")
+              throw new Forbidden("You don't have the permission to change a user's role for this model")
             }
-
             // a user cannot change to roles "higher" than their own
             if (usersRole < permission.role) {
-              throw new Error("You don't have the permission to change a user's role for this model")
+              throw new Forbidden("You don't have the permission to change a user's role for this model")
             }
           }
         }
@@ -127,12 +125,12 @@ export const modelsUsers = (app: Application) => {
             // Scenario: Owners cannot be deleted (there is only one owner)
             // TODO: specialised custom method to transfer ownership
             if (permission.role == Roles.owner) {
-              throw new Error('Owners cannot be removed')
+              throw new BadRequest('Owners cannot be removed')
             }
 
             // Scenario: Permission is changed, the user must have role >= co-owner
             if (model.role == null || model.role < Roles.co_owner) {
-              throw new Error("You don't have the permission to change a user's role for this model")
+              throw new Forbidden("You don't have the permission to change a user's role for this model")
             }
 
             // Scenario: Co-Owners cannot delete other Co-Owners or Owners
@@ -141,7 +139,7 @@ export const modelsUsers = (app: Application) => {
               permission.role >= Roles.co_owner &&
               permission.userId != context.params!.user!.id
             ) {
-              throw new Error("You don't have the permission to remove the other users permission")
+              throw new Forbidden("You don't have the permission to remove the other users permission")
             }
           }
         }

@@ -14,9 +14,14 @@ import {
   scenarioValuesQueryResolver
 } from './scenarios-values.schema.js'
 
-import type { Application } from '../../declarations.js'
+import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
 import { ScenarioValuesService, getOptions } from './scenarios-values.class.js'
 import { scenarioValuesPath, scenarioValuesMethods } from './scenarios-values.shared.js'
+import { Roles } from '../../client.js'
+import { addScenarioValuesModelPermissionFilterQuery } from '../../hooks/scenarios-values/add-model-permission-filter-query.js'
+import { iff, isProvider } from 'feathers-hooks-common'
+import { checkScenarioValuePermission } from '../../hooks/scenarios-values/check-model-permission.js'
+import { checkScenarioValueModelVersionState } from '../../hooks/scenarios-values/check-model-version-state.js'
 
 export * from './scenarios-values.class.js'
 export * from './scenarios-values.schema.js'
@@ -44,17 +49,33 @@ export const scenarioValues = (app: Application) => {
         schemaHooks.validateQuery(scenarioValuesQueryValidator),
         schemaHooks.resolveQuery(scenarioValuesQueryResolver)
       ],
-      find: [],
-      get: [],
+      find: [addScenarioValuesModelPermissionFilterQuery(Roles.viewer)],
+      get: [addScenarioValuesModelPermissionFilterQuery(Roles.viewer)],
       create: [
         schemaHooks.validateData(scenarioValuesDataValidator),
-        schemaHooks.resolveData(scenarioValuesDataResolver)
+        schemaHooks.resolveData(scenarioValuesDataResolver),
+        iff(
+          isProvider('external'),
+          checkScenarioValuePermission('data.scenariosId', Roles.collaborator),
+          checkScenarioValueModelVersionState('data.scenariosId')
+        )
       ],
       patch: [
         schemaHooks.validateData(scenarioValuesPatchValidator),
-        schemaHooks.resolveData(scenarioValuesPatchResolver)
+        schemaHooks.resolveData(scenarioValuesPatchResolver),
+        iff(
+          isProvider('external'),
+          checkScenarioValuePermission(`params.${STASH_BEFORE_KEY}.scenariosId`, Roles.collaborator),
+          checkScenarioValueModelVersionState(`params.${STASH_BEFORE_KEY}.scenariosId`)
+        )
       ],
-      remove: []
+      remove: [
+        iff(
+          isProvider('external'),
+          checkScenarioValuePermission(`params.${STASH_BEFORE_KEY}.scenariosId`, Roles.collaborator),
+          checkScenarioValueModelVersionState(`params.${STASH_BEFORE_KEY}.scenariosId`)
+        )
+      ]
     },
     after: {
       all: []
