@@ -17,6 +17,7 @@
   <modal.body>
     <BsForm
       @formLayout="vertical"
+      @showValidations={{gt @changeset.errors.length 0}}
       @model={{@changeset}}
       @onSubmit={{@onSubmit}}
       as |form|
