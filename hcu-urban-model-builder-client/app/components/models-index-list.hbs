@@ -80,10 +80,19 @@
                 {{time-ago @intl.primaryLocale model.updatedAt}}
               </span>
               {{! Created By }}
-              <span>
-                <FaIcon @icon="user" @fixedWidth={{true}} />
-                {{model.createdBy.email}}
-              </span>
+              {{#if
+                (not
+                  (and
+                    @hideOtherUsers
+                    (not (eq model.createdBy.id @user.currentUserId))
+                  )
+                )
+              }}
+                <span>
+                  <FaIcon @icon="user" @fixedWidth={{true}} />
+                  {{model.createdBy.email}}
+                </span>
+              {{/if}}
             </div>
           </div>
           {{! Actions }}
