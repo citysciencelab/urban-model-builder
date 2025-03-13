@@ -347,7 +347,6 @@ function Flow({
     _: MouseEvent | TouchEvent,
     params: OnConnectStartParams,
   ) => {
-    console.log("connectionStart", _, params);
     setConnectingHandle(params);
 
     if (
