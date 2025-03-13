@@ -113,6 +113,7 @@ components:
     is_client_side: Clientseitige Berechnung?
     controls: Simulationseinstellungen
     default_speed: Standard
+    disabled_tooltip: Es kann erst simuliert werden, wenn wenigstens ein Knoten als Ausgabeparameter definiert it
   share_modal:
     title: Modell teilen
     intro: Hier können Sie das Modell mit anderen Nutzern teilen.

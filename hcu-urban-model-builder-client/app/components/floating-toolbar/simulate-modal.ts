@@ -134,6 +134,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     return !!this.simulationError;
   }
 
+  get isSimulationPossible() {
+    const nodes = this.store
+      .peekAll<Node>('node')
+      .filter((item) => item.isOutputParameter);
+    return nodes && nodes.length > 0;
+  }
+
   get inMemoryScenario(): Map<string, number> {
     // from the store get the current default scenario
     const defaultScenario = this.store

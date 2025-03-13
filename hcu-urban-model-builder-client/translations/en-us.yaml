@@ -113,6 +113,7 @@ components:
     is_client_side: Is client side calculation?
     controls: Simulation Control
     default_speed: Normal speed
+    disabled_tooltip: It is only possible if at least one primitive is defined as an output parameter
   share_modal:
     title: Share model
     intro: Here you can share the model with other users.

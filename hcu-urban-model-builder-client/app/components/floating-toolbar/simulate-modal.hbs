@@ -1,5 +1,6 @@
 <BasicDropdown
   @horizontalPosition="center"
+  @disabled={{not this.isSimulationPossible}}
   @verticalPosition="above"
   @renderInPlace={{true}}
   @onOpen={{this.onOpen}}
@@ -200,8 +201,14 @@
     </div>
 
   </modal.Content>
-  <modal.Trigger {{on "click" (fn this.removePinOnClose modal)}}>
-    <BsButton @type="secondary">
+  <modal.Trigger
+    {{on "click" (fn this.removePinOnClose modal)}}
+    class={{if this.isSimulationPossible "" "disabled"}}
+  >
+    {{#unless this.isSimulationPossible}}
+      <BsTooltip @title={{t "components.simulate_modal.disabled_tooltip"}} />
+    {{/unless}}
+    <BsButton @type="secondary" disabled={{not this.isSimulationPossible}}>
       {{t "actions.simulate"}}
     </BsButton>
   </modal.Trigger>
