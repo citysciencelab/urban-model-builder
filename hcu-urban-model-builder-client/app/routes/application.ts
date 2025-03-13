@@ -4,6 +4,7 @@ import type RouterService from '@ember/routing/router-service';
 import type Transition from '@ember/routing/transition';
 import { service } from '@ember/service';
 import type ModelVersionChannelManagerService from 'hcu-urban-model-builder-client/services/model-version-channel-manager';
+import { action } from '@ember/object';
 
 export default class ApplicationRoute extends Route {
   @service declare router: RouterService;
@@ -26,6 +27,14 @@ export default class ApplicationRoute extends Route {
 
     if (transition.to?.name === 'authenticated.index') {
       this.router.replaceWith('models');
+    }
+  }
+
+  @action
+  error(err: any) {
+    if (err.code === 404) {
+      this.router.transitionTo('not-found');
+      return false;
     }
   }
 }

@@ -18,5 +18,7 @@ Router.map(function () {
   });
   this.route('login');
   this.route('demo');
+  // catch all 404 handling
   this.route('not-found', { path: '*path' });
+  this.route('not-found');
 });
