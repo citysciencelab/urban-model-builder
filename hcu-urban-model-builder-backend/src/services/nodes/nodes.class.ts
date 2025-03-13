@@ -7,7 +7,7 @@ import type { Nodes, NodesData, NodesPatch, NodesQuery } from './nodes.schema.js
 
 export type { Nodes, NodesData, NodesPatch, NodesQuery }
 
-export interface NodesParams extends KnexAdapterParams<NodesQuery> { }
+export interface NodesParams extends KnexAdapterParams<NodesQuery> {}
 
 // By default calls the standard Knex adapter service methods but can be customized with your own functionality.
 export class NodesService<ServiceParams extends Params = NodesParams> extends KnexService<
@@ -15,13 +15,16 @@ export class NodesService<ServiceParams extends Params = NodesParams> extends Kn
   NodesData,
   ServiceParams,
   NodesPatch
-> { }
+> {}
 
 export const getOptions = (app: Application): KnexAdapterOptions => {
   return {
-    paginate: app.get('paginate'),
+    paginate: {
+      default: 10000,
+      max: 10000
+    },
     id: 'id',
     Model: app.get('postgresqlClient'),
-    name: 'nodes',
+    name: 'nodes'
   }
 }
