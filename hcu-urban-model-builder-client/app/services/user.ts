@@ -7,6 +7,9 @@ export default class UserService extends Service {
   @service declare store: Store;
 
   get currentUserId() {
-    return `${this.session.data.authenticated.userinfo.id}`;
+    if (this.session?.data?.authenticated?.userinfo?.id) {
+      return `${this.session.data.authenticated.userinfo.id}`;
+    }
+    return null;
   }
 }
