@@ -82,7 +82,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       : new Map<string, number>()
 
     const simulationAdapter = new SimulationAdapter(this.app, data.id, nodeIdToParamValueMap, logger)
-    simulationAdapter.simulate()
+    await simulationAdapter.simulate()
     return params?.serializeForUMP ? simulationAdapter.getResultsForUMP() : simulationAdapter.getResults()
   }
 
