@@ -4,6 +4,7 @@ import _ from 'lodash'
 import type { Params } from '@feathersjs/feathers'
 import type { Application } from '../../../declarations.js'
 import type { Processes, ProcessesDetails } from './processes.schema.js'
+import { Type } from '@feathersjs/typebox'
 export type { Processes, ProcessesDetails }
 export interface ProcessesServiceOptions {
   app: Application
@@ -73,13 +74,7 @@ export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesP
       acc[_.snakeCase(node.name)] = {
         title: node.name,
         description: node.description,
-        schema: {
-          type: 'array',
-          description: node.description,
-          items: {
-            type: 'number'
-          }
-        }
+        schema: Type.Array(Type.Any(), { description: node.description })
       }
       return acc
     }, {})
