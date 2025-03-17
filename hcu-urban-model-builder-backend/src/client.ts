@@ -100,6 +100,9 @@ export const createClient = <Configuration = any>(
   return client
 }
 
-export { SimulationAdapter } from './shared/simulation-adapter/simulation-adapter.js'
+export {
+  SimulationAdapter,
+  NODE_TYPE_TO_PARAMETER_NAME_MAP
+} from './shared/simulation-adapter/simulation-adapter.js'
 export { transformFeatures, GEOMETRY_KEY } from './shared/simulation-adapter/utils.js'
 export { OgcApiFeaturesClient } from './shared/simulation-adapter/ogc-api-features-client.js'
