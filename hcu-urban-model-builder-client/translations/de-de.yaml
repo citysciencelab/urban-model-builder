@@ -37,6 +37,7 @@ actions:
   close: Schließen
   delete: Löschen
   simulate: Simulieren
+  publish: Veröffentlichen*
   confirm_delete_model: Sind Sie sicher, dass Sie dieses Modell löschen möchten?
   confirm_remove_own_permissions: Sie sind dabei, Ihre Berechtigungen zu entfernen. Möchten Sie wirklich fortfahren?
   confirm_change_own_permissions: Sie sind dabei, Ihre Berechtigungen zu ändern. Möchten Sie wirklich fortfahren?
@@ -112,6 +113,7 @@ components:
   publish_dialog:
     title: Modell veröffentlichen
     intro: Ein veröffentlichtes Modell ist für alle Benutzer sichtbar, die Version kann dann nicht mehr veröffentlicht werden.
+    disclaimer: '*Mit Klick auf Veröffentlichen bestätigen Sie, dass das von Ihnen erstellte Model unter der <a href="https://www.gnu.org/licenses/gpl-3.0.de.html" target="_blank">GPL-3.0 Lizenz</a> veröffentlicht wird.'
   simulate_modal:
     title: Simulationsergebnisse
     is_client_side: Clientseitige Berechnung?

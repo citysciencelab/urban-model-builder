@@ -44,13 +44,18 @@
         @property="notes"
       />
     </BsForm>
+
+    <p>
+      {{{t "components.publish_dialog.disclaimer"}}}
+    </p>
+
   </modal.body>
   <modal.footer>
     <Ui::ModalButtons
       @onCancel={{this.onHide}}
       @onSubmit={{this.onSubmit}}
       @cancelText={{t "actions.cancel"}}
-      @submitText={{t "actions.save"}}
+      @submitText={{t "actions.publish"}}
     />
   </modal.footer>
 </BsModal>
