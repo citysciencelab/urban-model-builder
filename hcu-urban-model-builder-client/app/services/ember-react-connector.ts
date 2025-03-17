@@ -8,6 +8,7 @@ import type StoreEventEmitterService from './store-event-emitter';
 import type Model from '@ember-data/model';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 import type EventBus from './event-bus';
+import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
 
 export default class EmberReactConnectorService extends Service {
   @service declare store: Store;
@@ -51,6 +52,11 @@ export default class EmberReactConnectorService extends Service {
     }
     record.deleteRecord();
     await record.save();
+  }
+
+  @action
+  peekAll(type: 'node' | 'edge' | 'scenarios-value') {
+    return this.store.peekAll<Node | Edge | ScenariosValue>(type);
   }
 
   @action

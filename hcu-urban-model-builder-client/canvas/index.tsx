@@ -52,6 +52,7 @@ import {
 import { GhostNode } from "./lib/nodes/ghost-node.tsx";
 import { EditableEdge } from "./lib/edges/editable.tsx";
 import { useEmberEventListeners } from "./lib/utils/use-ember-event-listeners.ts";
+import { NodeParamsMapProvider } from "./lib/context/node-params-map.tsx";
 
 type FlowOptions = {
   disabled?: boolean;
@@ -474,7 +475,9 @@ interface AppProps {
 function App({ nodes, edges, flowOptions }: AppProps) {
   return (
     <ReactFlowProvider>
-      <Flow nodes={nodes} edges={edges} flowOptions={flowOptions} />
+      <NodeParamsMapProvider>
+        <Flow nodes={nodes} edges={edges} flowOptions={flowOptions} />
+      </NodeParamsMapProvider>
     </ReactFlowProvider>
   );
 }

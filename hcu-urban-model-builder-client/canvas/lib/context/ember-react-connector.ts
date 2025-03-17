@@ -9,6 +9,7 @@ export type NodeActions = {
   create: (type: 'edge' | 'node', data: any) => Promise<any>;
   save: (type: 'edge' | 'node', id: string, data: any) => Promise<any>;
   delete: (type: 'edge' | 'node', id: string) => Promise<void>;
+  peekAll(type: 'node' | 'edge' | 'scenarios-value'): any[];
   pushSelection: (type: 'edge' | 'node', id: string) => void;
   removeSelection: (type: 'edge' | 'node', id: string) => void;
   onSidebarInserted: (element: HTMLElement) => void;
@@ -48,14 +49,16 @@ export type NodeActions = {
       eventName:
         | 'node:selected'
         | 'node:unselected'
-        | 'primitive-modal:create-clicked',
+        | 'primitive-modal:create-clicked'
+        | 'scenario-value-changed',
       callback: (...args: any[]) => void,
     ) => void;
     off: (
       eventName:
         | 'node:selected'
         | 'node:unselected'
-        | 'primitive-modal:create-clicked',
+        | 'primitive-modal:create-clicked'
+        | 'scenario-value-changed',
       callback: (...args: any[]) => void,
     ) => void;
     emit: (
