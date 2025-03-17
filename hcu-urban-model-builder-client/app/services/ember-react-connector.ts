@@ -9,6 +9,7 @@ import type Model from '@ember-data/model';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 import type EventBus from './event-bus';
 import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
+import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 
 export default class EmberReactConnectorService extends Service {
   @service declare store: Store;
