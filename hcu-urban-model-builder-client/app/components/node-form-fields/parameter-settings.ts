@@ -5,6 +5,7 @@ import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/trac
 import { tracked } from '@glimmer/tracking';
 import type IntlService from 'ember-intl/services/intl';
 import { inject as service } from '@ember/service';
+import type ApplicationStateService from 'hcu-urban-model-builder-client/services/application-state';
 export interface NodeFormFieldsParameterSettingsSignature {
   // The arguments accepted by the component
   Args: {
@@ -22,6 +23,7 @@ export interface NodeFormFieldsParameterSettingsSignature {
 }
 
 export default class NodeFormFieldsParameterSettingsComponent extends Component<NodeFormFieldsParameterSettingsSignature> {
+  @service declare applicationState: ApplicationStateService;
   @service declare intl: IntlService;
 
   @tracked
@@ -31,6 +33,14 @@ export default class NodeFormFieldsParameterSettingsComponent extends Component<
     { value: 'slider', label: 'slider_type' },
     { value: 'select', label: 'select_type' },
   ];
+
+  get isInputVisible() {
+    if (this.applicationState.isDemoMode) {
+      return false;
+    }
+
+    return this.args.inputVisible;
+  }
 
   get filteredParameterTypes() {
     if (this.args.type == 'boolean') {

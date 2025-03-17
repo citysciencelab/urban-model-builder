@@ -43,11 +43,15 @@ export const DefaultNodeToolbar = memo(
         offset={props.offset || 8}
       >
         {props.children}
-        {props.allowGhost && (
-          <button onClick={createGhost} className="default-toolbar__ghost-button">
-            <span>👻</span>
-          </button>
-        )}
+        {!emberReactConnector.applicationState.isDemoMode &&
+          props.allowGhost && (
+            <button
+              onClick={createGhost}
+              className="default-toolbar__ghost-button"
+            >
+              <span>👻</span>
+            </button>
+          )}
         <button onClick={deleteNode}>
           <Icon icon="close" />
         </button>

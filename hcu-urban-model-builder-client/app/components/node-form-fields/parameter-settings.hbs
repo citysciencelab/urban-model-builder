@@ -1,10 +1,10 @@
-{{#if (or @inputVisible @outputVisible)}}
+{{#if (or this.isInputVisible @outputVisible)}}
   <@acc.item
     @value={{"interface-scenario"}}
     @title={{t "components.parameter_settings.title"}}
   >
     <fieldset class="parameter__settings" {{did-insert this.prepare}}>
-      {{#if @inputVisible}}
+      {{#if this.isInputVisible}}
         {{! INPUT }}
         <h6>
           {{t "components.parameter_settings.input"}}
@@ -121,7 +121,7 @@
         {{/if}}
       {{/if}}
       {{! DIVIDER }}
-      {{#if (and @inputVisible @outputVisible)}}
+      {{#if (and this.isInputVisible @outputVisible)}}
         <hr />
       {{/if}}
       {{! OUTPUT }}

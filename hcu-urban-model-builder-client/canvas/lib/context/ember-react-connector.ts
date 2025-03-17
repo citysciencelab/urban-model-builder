@@ -66,6 +66,9 @@ export type NodeActions = {
       ...data: any[]
     ) => void;
   };
+  applicationState: {
+    isDemoMode: boolean;
+  };
 };
 
 export const EmberReactConnectorContext = createContext<NodeActions>(null);
