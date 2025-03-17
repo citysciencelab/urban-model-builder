@@ -101,7 +101,11 @@ routes:
 
 components:
   edit_state_badge:
-    tooltip: Diese Version kann nicht mehr bearbeitet werden
+    view_mode:
+      tooltip: Diese Version kann nicht mehr bearbeitet werden
+    demo_mode:
+      title: Demo Modus
+      tooltip: Dieses Modell ist im Demo-Modus. Änderungen werden nicht gespeichert.
   clone_dialog:
     title: Modell klonen
     intro: Hier erstellen Sie ein neues Modell auf der Grundlage der aktuellen Modellversion.

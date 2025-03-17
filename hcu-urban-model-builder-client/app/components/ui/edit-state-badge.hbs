@@ -4,8 +4,17 @@
       {{t "components.model_info.view_mode"}}
     </span>
     <BsTooltip
-      @title={{t "components.edit_state_badge.tooltip"}}
+      @title={{t "components.edit_state_badge.view_mode.tooltip"}}
       @placement="bottom"
     />
   {{/unless}}
+  {{#if this.applicationState.isDemoMode}}
+    <span class="badge rounded-pill badge-warning text-bg-light">
+      {{t "components.edit_state_badge.demo_mode.title"}}
+    </span>
+    <BsTooltip
+      @title={{t "components.edit_state_badge.demo_mode.tooltip"}}
+      @placement="bottom"
+    />
+  {{/if}}
 </div>
