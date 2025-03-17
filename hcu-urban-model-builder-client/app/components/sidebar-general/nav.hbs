@@ -1,15 +1,17 @@
 <div class="sidebar__bar">
   <ul class="nav nav-flush flex-column mb-auto text-center">
     {{#each this.navItems as |navItem|}}
-      <li class="nav-item">
-        <a
-          href="javascript:void(0)"
-          class="nav-link {{if (eq @activeView navItem.id) "active"}}"
-          {{on "click" (fn @selectActiveView navItem.id)}}
-        >
-          <SvgIcon @icon={{navItem.icon}} @size="md" />
-        </a>
-      </li>
+      {{#unless (and (not @modelVersion.canEdit) (eq navItem.id "settings"))}}
+        <li class="nav-item">
+          <a
+            href="javascript:void(0)"
+            class="nav-link {{if (eq @activeView navItem.id) 'active'}}"
+            {{on "click" (fn @selectActiveView navItem.id)}}
+          >
+            <SvgIcon @icon={{navItem.icon}} @size="md" />
+          </a>
+        </li>
+      {{/unless}}
     {{/each}}
   </ul>
 

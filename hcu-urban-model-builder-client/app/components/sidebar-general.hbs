@@ -1,7 +1,7 @@
 {{#let @model as |modelVersion|}}
   <div
     class="sidebar__container sidebar__container--left
-    {{if this.isMinimized "sidebar__container--minimized"}}"
+      {{if this.isMinimized 'sidebar__container--minimized'}}"
   >
     <div class="sidebar">
       <SidebarGeneral::Nav
@@ -9,6 +9,7 @@
         @isMinimized={{this.isMinimized}}
         @minimize={{this.minimize}}
         @selectActiveView={{this.selectActiveView}}
+        @modelVersion={{modelVersion}}
       />
       {{#unless this.isMinimized}}
         {{#if this.sidebarViewComponent}}
