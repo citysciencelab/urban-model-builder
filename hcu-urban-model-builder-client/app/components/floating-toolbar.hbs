@@ -1,2 +1,12 @@
 <FloatingToolbar::PrimitivesModal @disabled={{@disabled}} />
 <FloatingToolbar::SimulateModal @model={{@model}} />
+{{#if this.applicationState.isDemoMode}}
+  <BsButton
+    @type="secondary"
+    class="btn-round"
+    @size="md"
+    @onClick={{this.modelDialogs.onShowSettingsDialog}}
+  >
+    <SvgIcon @icon="settings" @size="md" />
+  </BsButton>
+{{/if}}
