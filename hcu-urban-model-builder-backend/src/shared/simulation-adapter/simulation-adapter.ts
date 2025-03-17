@@ -34,14 +34,14 @@ type SimulationResult = {
   times: number[]
 }
 
-const NODE_TYPE_TO_PARAMETER_NAME_MAP = {
+export const NODE_TYPE_TO_PARAMETER_NAME_MAP = {
   [NodeType.Stock]: 'initial',
   [NodeType.Variable]: 'value',
   [NodeType.Flow]: 'rate',
   [NodeType.State]: 'startActive',
   [NodeType.Transition]: 'value',
   [NodeType.Population]: 'populationSize'
-}
+} as const
 
 export class SimulationAdapter<T extends ClientApplication | Application> {
   private app: ClientApplication
