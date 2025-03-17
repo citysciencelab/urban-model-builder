@@ -14,7 +14,7 @@ export const BaseNode = memo(
       <div className="react-flow__node-base__content">
         <DefaultNodeHandles type={handleType} isConnectable={isConnectable} />
 
-        <BaseNodeData type={type} data={data} />
+        <BaseNodeData id={id} type={type} data={data} />
 
         <DefaultNodeToolbar
           nodeId={id}

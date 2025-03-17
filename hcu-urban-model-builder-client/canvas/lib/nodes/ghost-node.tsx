@@ -41,6 +41,7 @@ export const GhostNode = memo(
         <DefaultNodeHandles isConnectable={isConnectable} type={handelType} />
         {parentType && (
           <BaseNodeData
+            id={ghostNodeModel?.get("id")}
             type={parentType}
             data={{ emberModel: ghostNodeModel }}
           />

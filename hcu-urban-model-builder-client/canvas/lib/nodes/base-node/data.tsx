@@ -1,75 +1,85 @@
-import { memo, useMemo } from "react";
-import { ReactFlowNodeType } from "../../declarations";
+import { memo, useContext, useMemo } from "react";
+import { reactFlowNodeToNodeType, ReactFlowNodeType } from "../../declarations";
 import { Icon, IconNames } from "../../utils/icon.tsx";
+import { NodeParamsMapContext } from "../../context/node-params-map.tsx";
+import {
+  NODE_TYPE_TO_PARAMETER_NAME_MAP,
+  NodeType,
+} from "hcu-urban-model-builder-backend";
 
 interface EmberModel {
+  // eslint-disable-next-line no-unused-vars
   get(key: string): any;
 }
 
 interface BaseNodeDataProps {
+  id: string;
   type: string;
   data: {
     emberModel?: EmberModel;
   };
 }
 
-const tagsNodeMap: Record<string, (emberModel: EmberModel) => string[]> = {
-  [ReactFlowNodeType.Variable]: (emberModel: EmberModel) => {
-    const value = emberModel.get("data.value");
+type NodeData = Record<string, any>;
+
+const tagsNodeMap: Record<string, (data: NodeData) => string[]> = {
+  [ReactFlowNodeType.Variable]: (data: NodeData) => {
+    const value = data.value;
 
     if (!value) {
       return [];
     }
-    const unit = emberModel.get("data.units");
+    const unit = data.units;
     return [unit ? `${value} ${unit}` : `${value}`];
   },
 
-  [ReactFlowNodeType.Stock]: (emberModel: EmberModel) => {
-    const value = emberModel.get("data.value");
+  [ReactFlowNodeType.Stock]: (data: NodeData) => {
+    const value = data.value;
 
     if (!value) {
       return [];
     }
-    const unit = emberModel.get("data.units");
+    const unit = data.units;
     return [unit ? `${value} ${unit}` : `${value}`];
   },
 
-  [ReactFlowNodeType.OgcApiFeatures]: (emberModel: EmberModel) => {
-    const url = emberModel.get("data.collectionId");
+  [ReactFlowNodeType.OgcApiFeatures]: (data: NodeData) => {
+    const url = data.collectionId;
     if (!url) {
       return [];
     }
 
-    const properties = emberModel.get("data.query.properties");
+    const properties = data.query?.properties;
     if (!properties || properties.length === 0) {
       return [url];
     }
 
     return [url, properties.join(", ")];
   },
-  [ReactFlowNodeType.Population]: (emberModel: EmberModel) => {
-    const populationSize = emberModel.get("data.populationSize");
 
-    const placementType = emberModel.get("data.geoPlacementType");
+  [ReactFlowNodeType.Population]: (data: NodeData) => {
+    const populationSize = data.populationSize;
+
+    const placementType = data.geoPlacementType;
 
     return [populationSize, placementType].filter((v) => !!v);
   },
 
-  [ReactFlowNodeType.State]: (emberModel: EmberModel) => {
-    const startActive = emberModel.get("data.startActive");
+  [ReactFlowNodeType.State]: (data: NodeData) => {
+    const startActive = data.startActive;
     if (!startActive) {
       return [];
     }
     return [startActive];
   },
 
-  [ReactFlowNodeType.Action]: (emberModel: EmberModel) => {
-    const action = emberModel.get("data.action");
+  [ReactFlowNodeType.Action]: (data: NodeData) => {
+    const action = data.action;
     if (!action) {
       return [];
     }
 
-    const trigger = emberModel.get("data.trigger");
+    const trigger = data.trigger;
     if (!trigger) {
       return [];
     }
@@ -77,18 +87,35 @@ const tagsNodeMap: Record<string, (emberModel: EmberModel) => string[]> = {
   },
 };
 
-export const BaseNodeData = memo(({ type, data }: BaseNodeDataProps) => {
+const isParamKey = (
+  type: NodeType,
+): type is keyof typeof NODE_TYPE_TO_PARAMETER_NAME_MAP => {
+  return type in NODE_TYPE_TO_PARAMETER_NAME_MAP;
+};
+
+export const BaseNodeData = memo(({ id, type, data }: BaseNodeDataProps) => {
+  const nodeParamsMap = useContext(NodeParamsMapContext);
   const emberModel = data.emberModel;
 
   const tags = useMemo(() => {
     if (emberModel) {
       const tagsFn = tagsNodeMap[type];
-      if (tagsFn) {
-        return tagsFn(emberModel);
+      const data = emberModel.get("data");
+      if (data && tagsFn) {
+        const dataCopy = { ...data };
+        if (nodeParamsMap && nodeParamsMap.has(id)) {
+          const backendType = reactFlowNodeToNodeType(type as any);
+          if (isParamKey(backendType)) {
+            const key = NODE_TYPE_TO_PARAMETER_NAME_MAP[backendType];
+            dataCopy[key] = nodeParamsMap.get(id);
+          }
+        }
+
+        return tagsFn(dataCopy);
       }
     }
     return [];
-  }, [data]);
+  }, [data, nodeParamsMap]);
 
   return (
     <>
