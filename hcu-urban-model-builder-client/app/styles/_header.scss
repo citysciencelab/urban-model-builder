@@ -1,3 +1,9 @@
+.ember-application .navbar {
+  height: 72px;
+  display: flex;
+  align-items: center;
+}
+
 .navbar.bg-dark {
   background-color: $color-secondary !important;
 

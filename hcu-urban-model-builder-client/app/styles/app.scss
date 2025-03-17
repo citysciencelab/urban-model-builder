@@ -79,9 +79,6 @@ $force-width: 1200px;
 .react-wrapper {
   min-width: $force-width !important;
 }
-.navbar {
-  display: block;
-}
 // end - switch-off responsive design
 
 @mixin make-input() {
