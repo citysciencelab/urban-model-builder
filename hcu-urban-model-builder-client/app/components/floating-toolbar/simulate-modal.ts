@@ -165,6 +165,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         );
       }) as Scenario;
 
+    if (!defaultScenario) {
+      return new Map<string, number>();
+    }
+
     const scenarioValues = this.store
       .peekAll<ScenariosValue>('scenarios-value')
       .filter((item) => {
