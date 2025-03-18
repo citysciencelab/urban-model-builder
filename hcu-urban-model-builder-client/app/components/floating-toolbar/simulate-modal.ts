@@ -391,8 +391,12 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action
   async getScatterPlotDataset(simulateResult: SimulationResult) {
     const series = [];
+
     for (const [nodeId, value] of Object.entries(simulateResult.nodes)) {
       const populationNode = await this.store.findRecord<Node>('node', nodeId);
+
+      console.log(populationNode.name);
+
       const [edge] = (await populationNode.targetEdgesWithGhosts).filter(
         (edge) => edge.type === EdgeType.AgentPopulation,
       );
@@ -403,6 +407,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       });
 
       if (populationNode?.type === NodeType.Population) {
+        let timeIndex = 0;
         for (const current of value.series) {
           const datasets = [];
           if (Array.isArray(current)) {
@@ -448,7 +453,12 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
             }
           }
 
-          series.push(datasets);
+          if (series[timeIndex]) {
+            series[timeIndex]!.push(...datasets);
+          } else {
+            series[timeIndex] = datasets;
+          }
+          timeIndex++;
         }
       }
     }
