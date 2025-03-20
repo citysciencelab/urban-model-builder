@@ -22,6 +22,7 @@ export const DefaultNodeToolbar = memo(
       await emberReactConnector.create("node", {
         type: NodeType.Ghost,
         ghostParentId: props.nodeId,
+        parentId: node.parentId ?? null,
         position: {
           x: node.position.x + 10,
           y: node.position.y + 10,
