@@ -21,4 +21,6 @@ Router.map(function () {
   // catch all 404 handling
   this.route('not-found', { path: '*path' });
   this.route('not-found');
+  this.route('impressum');
+  this.route('datenschutz');
 });

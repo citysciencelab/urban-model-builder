@@ -4,6 +4,9 @@
   font-style: normal;
   font-weight: $headings-font-weight;
   line-height: $headings-line-height;
+  .content-page & {
+    margin-bottom: 1rem;
+  }
 }
 
 h1,

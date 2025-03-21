@@ -9,6 +9,9 @@ general:
   demo: Demo
   Yes: Ja
   No: Nein
+  imprint: Impressum
+  privacy_policy: Datenschutz
+  legal: Rechtliches
 
 pagination:
   meta: Zeige {start} - {end} von {total}

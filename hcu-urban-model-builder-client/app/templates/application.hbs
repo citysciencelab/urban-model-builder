@@ -6,8 +6,7 @@
   @fluid={{false}}
   @collapsed={{false}}
   @toggleBreakpoint={{null}}
-  id="navbar-main"
-  as |navbar|
+  id="navbar-main" as |navbar|
 >
   <div class="navbar-header">
     <navbar.toggle />
@@ -35,7 +34,25 @@
       </navbar.nav>
     </navbar.content>
   {{/if}}
-  <ul class="nav navbar-nav">
+  <navbar.nav as |nav|>
+    <nav.dropdown as |dd|>
+      <dd.toggle>
+        {{t "general.legal"}}
+        <span class="caret"></span>
+      </dd.toggle>
+      <dd.menu as |ddm|>
+        <ddm.item>
+          <ddm.link-to @route="impressum">
+            {{t "general.imprint"}}
+          </ddm.link-to>
+        </ddm.item>
+        <ddm.item>
+          <ddm.link-to @route="datenschutz">
+            {{t "general.privacy_policy"}}
+          </ddm.link-to>
+        </ddm.item>
+      </dd.menu>
+    </nav.dropdown>
     <LangSwitch />
     {{#if this.session.isAuthenticated}}
       <li class="nav-item navbar-text">
@@ -55,7 +72,7 @@
         </button>
       </li>
     {{/if}}
-  </ul>
+  </navbar.nav>
 </BsNavbar>
 
 <div id="ember-bootstrap-wormhole"></div>

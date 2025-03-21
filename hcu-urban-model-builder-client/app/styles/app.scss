@@ -170,6 +170,10 @@ main {
   display: grid;
 }
 
+.content-page {
+  margin-top: get-spacer(5);
+}
+
 .react-wrapper {
   flex-grow: 1;
   position: relative;
