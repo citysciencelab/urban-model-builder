@@ -4,6 +4,7 @@ import { Icon, IconNames } from "../../utils/icon.tsx";
 import { NodeParamsMapContext } from "../../context/node-params-map.tsx";
 import {
   NODE_TYPE_TO_PARAMETER_NAME_MAP,
+  Nodes,
   NodeType,
 } from "hcu-urban-model-builder-backend";
 
@@ -20,13 +21,15 @@ interface BaseNodeDataProps {
   };
 }
 
-type NodeData = Record<string, any>;
+const isValid = (value: any) => typeof value === "number" || value;
+
+type NodeData = Nodes["data"];
 
 const tagsNodeMap: Record<string, (data: NodeData) => string[]> = {
   [ReactFlowNodeType.Variable]: (data: NodeData) => {
     const value = data.value;
 
-    if (!value) {
+    if (!isValid(value)) {
       return [];
     }
     const unit = data.units;
@@ -36,7 +39,7 @@ const tagsNodeMap: Record<string, (data: NodeData) => string[]> = {
   [ReactFlowNodeType.Stock]: (data: NodeData) => {
     const value = data.value;
 
-    if (!value) {
+    if (!isValid(value)) {
       return [];
     }
     const unit = data.units;
@@ -58,32 +61,43 @@ const tagsNodeMap: Record<string, (data: NodeData) => string[]> = {
   },
 
   [ReactFlowNodeType.Population]: (data: NodeData) => {
+    const values = [];
+
     const populationSize = data.populationSize;
+    if (isValid(populationSize)) {
+      values.push(populationSize);
+    }
 
     const placementType = data.geoPlacementType;
+    if (placementType) {
+      values.push(placementType);
+    }
 
-    return [populationSize, placementType].filter((v) => !!v);
+    return values;
   },
 
   [ReactFlowNodeType.State]: (data: NodeData) => {
     const startActive = data.startActive;
-    if (!startActive) {
+    if (!isValid(startActive)) {
       return [];
     }
     return [startActive];
   },
 
   [ReactFlowNodeType.Action]: (data: NodeData) => {
+    const values = [];
+
     const action = data.action;
-    if (!action) {
-      return [];
+    if (action) {
+      values.push(action);
     }
 
     const trigger = data.trigger;
-    if (!trigger) {
-      return [];
+    if (trigger) {
+      values.push(trigger);
     }
-    return [action, trigger];
+
+    return values;
   },
 };
 
