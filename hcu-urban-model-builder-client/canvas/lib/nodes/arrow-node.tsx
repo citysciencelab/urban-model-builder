@@ -36,6 +36,8 @@ const tagsNodeMap: Record<string, (emberModel: EmberModel) => string[]> = {
   },
 };
 
+const normalHandleTypes = ["target", "source"] as const;
+
 const positions = [
   Position.Top,
   Position.Right,
@@ -138,15 +140,17 @@ export const ArrowNode = memo(
           "react-flow__node-arrow__content " + `--direction-${direction}`
         }
       >
-        {normalTargetHandles.map((position) => (
-          <Handle
-            type={"target"}
-            id={`target-${positions.indexOf(position) + 1 === positions.indexOf(direction) ? 0 : 1}`}
-            key={`target-${position}`}
-            position={position}
-            isConnectable={isConnectable}
-          />
-        ))}
+        {normalTargetHandles.map((position) =>
+          normalHandleTypes.map((type) => (
+            <Handle
+              type={type}
+              id={`${type}-${(positions.indexOf(position) + 1) % 4 === positions.indexOf(direction) ? 0 : 1}`}
+              key={`${type}-${position}`}
+              position={position}
+              isConnectable={isConnectable}
+            />
+          )),
+        )}
 
         {isVertical && <SpecialHandle />}
 
