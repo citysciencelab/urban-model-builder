@@ -446,6 +446,7 @@ function Flow({
       nodesDraggable={!flowOptions.disabled}
       nodesConnectable={!flowOptions.disabled}
       nodesFocusable={!flowOptions.disabled}
+      deleteKeyCode={["Backspace", "Delete"]}
       panOnDrag={true}
       fitView
       className={
