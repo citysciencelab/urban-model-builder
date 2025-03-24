@@ -78,6 +78,10 @@ models:
       name: Name
       description: Description
     ghost_warning: This is a ghost node
+    delete:
+      confirmation:
+        single: Are you sure you want to delete the node [{name}]?
+        multiple: Are you sure you want to delete the selected nodes?
 
 routes:
   application:

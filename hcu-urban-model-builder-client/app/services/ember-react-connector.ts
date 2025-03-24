@@ -11,12 +11,15 @@ import type EventBus from './event-bus';
 import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
 import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type ApplicationStateService from './application-state';
+import { NodeType } from 'hcu-urban-model-builder-backend';
+import type IntlService from 'ember-intl/services/intl';
 
 export default class EmberReactConnectorService extends Service {
   @service declare applicationState: ApplicationStateService;
   @service declare store: Store;
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare eventBus: EventBus;
+  @service declare intl: IntlService;
 
   @tracked selected: (Node | Edge)[] = [];
   @tracked currentModel: ModelsVersion | null = null;
@@ -98,7 +101,24 @@ export default class EmberReactConnectorService extends Service {
 
   @action
   confirmDeleteNodes(nodeIds: string[]) {
-    return true; // confirmation removed
+    if (nodeIds.length > 1) {
+      return confirm(this.intl.t('models.nodes.delete.confirmation.multiple'));
+    }
+
+    if (nodeIds.length === 0) {
+      return false;
+    }
+    const node = this.store.peekRecord<Node>('node', nodeIds[0]!);
+
+    if ([NodeType.Agent, NodeType.Folder].includes(node!.type)) {
+      return confirm(
+        this.intl.t('models.nodes.delete.confirmation.single', {
+          name: node!.name,
+        }),
+      );
+    }
+
+    return true;
   }
 
   private saveRecord(record: Model, rawData: any) {

@@ -78,6 +78,10 @@ models:
       name: Name
       description: Beschreibung
     ghost_warning: Dies ist ein Geisterknoten
+    delete:
+      confirmation:
+        single: Sind Sie sicher, dass Sie den Knoten [{name}] löschen möchten?
+        multiple: Sind Sie sicher, dass Sie die ausgewählten Knoten löschen möchten?
 
 routes:
   application:
