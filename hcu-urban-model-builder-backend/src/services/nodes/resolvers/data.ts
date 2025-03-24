@@ -9,6 +9,9 @@ const defaultNodeDataByType = {
       properties: [],
       skipGeometry: true
     }
+  },
+  [NodeType.Converter]: {
+    interpolation: 'Linear'
   }
 } satisfies Partial<Record<NodeType, Nodes['data']>>
 
