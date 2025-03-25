@@ -81,7 +81,7 @@ describe('models service', () => {
         width: null,
         parentId: null,
         isParameter: false,
-        isOutputParameter: false
+        isOutputParameter: true
       }
 
       const childrenPerWomanVar = await app.service('nodes').create({
@@ -300,7 +300,7 @@ describe('models service', () => {
         width: null,
         parentId: null,
         isParameter: false,
-        isOutputParameter: false
+        isOutputParameter: true
       }
 
       const initFlow = await app.service('nodes').create({
@@ -462,7 +462,7 @@ describe('models service', () => {
         width: null,
         parentId: null,
         isParameter: false,
-        isOutputParameter: false
+        isOutputParameter: true
       }
 
       const initFlow = await app.service('nodes').create({
@@ -638,7 +638,7 @@ describe('models service', () => {
       const baseNodeData = {
         modelsVersionsId: modelVersion.id,
         isParameter: false,
-        isOutputParameter: false
+        isOutputParameter: true
       }
 
       const personAgent = await app.service('nodes').create({
@@ -964,7 +964,7 @@ describe('models service', () => {
       const baseNodeData = {
         modelsVersionsId: modelVersion.id,
         isParameter: false,
-        isOutputParameter: false
+        isOutputParameter: true
       }
 
       const personAgent = await app.service('nodes').create({
@@ -1086,7 +1086,7 @@ describe('models service', () => {
         modelsVersionsId: modelVersion.id,
         parentId: null,
         isParameter: false,
-        isOutputParameter: false
+        isOutputParameter: true
       }
 
       const ogcFeaturesApiNode = await app.service('nodes').create({
