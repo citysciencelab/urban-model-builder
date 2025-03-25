@@ -45,6 +45,7 @@ export const modelsUsersDataResolver = resolve<
       }
       throw new BadRequest('User not found')
     }
+    return value
   },
   userEmail: async (_value, _message, _context) => {
     // userEmail is only temporary, remove it
