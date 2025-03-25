@@ -34,7 +34,8 @@ export const modelsVersionsSchema = Type.Object(
     updatedAt: Nullable(Type.String({ format: 'date-time' })),
     deletedAt: Nullable(Type.String({ format: 'date-time' })),
     role: Nullable(Type.Number()),
-    publishedToUMPAt: Nullable(Type.String({ format: 'date-time' }))
+    publishedToUMPAt: Nullable(Type.String({ format: 'date-time' })),
+    publishedToUMPApprovedAt: Nullable(Type.String({ format: 'date-time' }))
   },
   { $id: 'ModelsVersions', additionalProperties: false }
 )

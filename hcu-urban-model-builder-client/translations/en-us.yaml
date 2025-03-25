@@ -121,6 +121,7 @@ components:
     title: Publish model
     intro: A published model is visible to all users, the version can then no longer be published.
     disclaimer: '*By clicking on Publish, you confirm that the model you have created will be published under the <a href="https://www.gnu.org/licenses/gpl-3.0.de.html" target="_blank">GPL 3.0 licence</a>.'
+    ump_warning: Please send an email with information about the model to cut@hcu-hamburg.de so that the publication on the Urban Model Platform can be checked and approved
   simulate_modal:
     title: Simulation Results
     is_client_side: Is client side calculation?

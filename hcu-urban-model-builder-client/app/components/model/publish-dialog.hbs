@@ -38,6 +38,11 @@
           {{t (concat "general" "." label)}}
         </el.control>
       </form.element>
+      {{#if (eq "Yes" this.changeset.publishedToUMP)}}
+        <BsAlert @type="warning" @dismissible={{false}}>
+          {{t "components.publish_dialog.ump_warning"}}
+        </BsAlert>
+      {{/if}}
       <form.element
         @controlType="textarea"
         @label={{t "models.models_version.attributes.notes"}}
