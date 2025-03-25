@@ -15,7 +15,7 @@ export interface FormModelPublish {
 }
 
 export interface FormModelShare {
-  selectedUser: null | User;
+  userMail: string;
   selectedRole: null | { key: string; value: string };
   model: null | ModelModel;
 }

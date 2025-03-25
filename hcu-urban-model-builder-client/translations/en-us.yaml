@@ -134,10 +134,8 @@ components:
     no_permissions_yet: No permissions yet
     user_label: User
     role_label: Role
-    search_user_placeholder: "Search users..."
-    search_message: "Type to search"
-    loading_message: "Loading..."
-    no_matches_message: "No results found"
+    user_mail_label: User Email
+    user_not_found_error: Could not find user with this email address
   settings_dialog:
     title: Model settings
     intro: Here you can edit the (simulation) settings of the model.

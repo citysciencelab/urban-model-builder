@@ -46,15 +46,7 @@ export const user = (app: Application) => {
     },
     before: {
       all: [schemaHooks.validateQuery(userQueryValidator), schemaHooks.resolveQuery(userQueryResolver)],
-      find: [
-        iff(isProvider('external'), (context: any) => {
-          const mailFilterParam = _.get(context, 'params.query.email.$ilike')
-          if (!mailFilterParam) {
-            throw new Unprocessable('Email filter is required')
-          }
-          delete context.params.query.id
-        })
-      ],
+      find: [disallow('external')],
       get: [
         (context: any) => {
           // id is always set to self, i.e. when getting other users we need to force delete it

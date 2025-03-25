@@ -64,8 +64,8 @@ export const modelsUsers = (app: Application) => {
       ],
       get: [disallow('external')],
       create: [
-        schemaHooks.validateData(modelsUsersDataValidator),
         schemaHooks.resolveData(modelsUsersDataResolver),
+        schemaHooks.validateData(modelsUsersDataValidator),
         async (context) => {
           // server calls are allowed to create without the permission check
           if (isServerCall(context.params)) {
