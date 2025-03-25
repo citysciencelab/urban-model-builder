@@ -22,6 +22,7 @@ export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesP
   async find(_params?: ServiceParams): Promise<Processes> {
     const query = this.app.service('models-versions').createQuery({})
     query.where('publishedToUMPAt', 'IS NOT', null)
+    query.where('publishedToUMPApprovedAt', 'IS NOT', null)
     // join on models to get the model name
     query.leftJoin('models as models', 'models.id', 'models_versions.modelId')
     query.select('models.internalName as modelName', 'models.description as modelDescription')
@@ -42,6 +43,7 @@ export class ProcessesService<ServiceParams extends ProcessesParams = ProcessesP
   async get(id: string, _params?: ServiceParams): Promise<ProcessesDetails> {
     const modelQuery = this.app.service('models-versions').createQuery({})
     modelQuery.where('publishedToUMPAt', 'IS NOT', null)
+    modelQuery.where('publishedToUMPApprovedAt', 'IS NOT', null)
     modelQuery.leftJoin('models as models', 'models.id', 'models_versions.modelId')
     modelQuery.select('models.internalName as modelName', 'models.description as modelDescription')
 
