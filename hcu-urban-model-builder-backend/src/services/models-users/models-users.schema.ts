@@ -7,6 +7,7 @@ import type { HookContext } from '../../declarations.js'
 import { dataValidator, queryValidator } from '../../validators.js'
 import type { ModelsUsersService } from './models-users.class.js'
 import { Roles } from '../../client.js'
+import { BadRequest } from '@feathersjs/errors'
 
 // Main data model schema
 export const modelsUsersSchema = Type.Object(
@@ -30,7 +31,27 @@ export const modelsUsersDataSchema = Type.Pick(modelsUsersSchema, ['role', 'mode
 })
 export type ModelsUsersData = Static<typeof modelsUsersDataSchema>
 export const modelsUsersDataValidator = getValidator(modelsUsersDataSchema, dataValidator)
-export const modelsUsersDataResolver = resolve<ModelsUsers, HookContext<ModelsUsersService>>({})
+export const modelsUsersDataResolver = resolve<
+  ModelsUsers & { userEmail?: string },
+  HookContext<ModelsUsersService>
+>({
+  userId: async (value, message, context) => {
+    // resolve userId from userEmail
+    if (!value) {
+      const users = await context.app.service('users').find({ query: { email: message.userEmail } })
+      if (users.total > 0) {
+        message.userId = users.data[0].id
+        return users.data[0].id
+      }
+      throw new BadRequest('User not found')
+    }
+    return value
+  },
+  userEmail: async (_value, _message, _context) => {
+    // userEmail is only temporary, remove it
+    return undefined
+  }
+})
 
 // Schema for updating existing entries
 export const modelsUsersPatchSchema = Type.Partial(modelsUsersSchema, {

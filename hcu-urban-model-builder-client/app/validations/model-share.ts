@@ -1,13 +1,20 @@
 // validations/employee.js
-import { validatePresence } from 'ember-changeset-validations/validators';
+import {
+  validatePresence,
+  validateFormat,
+} from 'ember-changeset-validations/validators';
 import type IntlService from 'ember-intl/services/intl';
 
 export default function (intl: IntlService) {
   return {
-    selectedUser: [
+    userMail: [
       validatePresence({
         presence: true,
-        description: intl.t('components.share_modal.user_label'),
+        description: intl.t('components.share_modal.user_mail_label'),
+      }),
+      validateFormat({
+        type: 'email',
+        description: intl.t('components.share_modal.user_mail_label'),
       }),
     ],
     selectedRole: [

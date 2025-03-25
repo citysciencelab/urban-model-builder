@@ -16,7 +16,7 @@
       {{t "components.share_modal.intro"}}
     </p>
 
-    <h5>
+    <h5 class="mb-2">
       {{t "components.share_modal.title"}}
     </h5>
     <BsForm
@@ -26,28 +26,13 @@
       as |form|
     >
       <div class="row model__share__row">
-        {{! User search }}
+        {{! User Email }}
         <form.element
-          @label={{t "components.share_modal.user_label"}}
+          @type="text"
+          @label={{t "components.share_modal.user_mail_label"}}
+          @property="userMail"
           class="col-5"
-          @property="selectedUser"
-        >
-          <PowerSelect
-            @searchEnabled={{true}}
-            @search={{this.lookupUsers}}
-            @selected={{this.changeset.selectedUser}}
-            @onChange={{this.onUserChange}}
-            @searchMessage={{t "components.share_modal.search_message"}}
-            @loadingMessage={{t "components.share_modal.loading_message"}}
-            @noMatchesMessage={{t "components.share_modal.no_matches_message"}}
-            @searchPlaceholder={{t
-              "components.share_modal.search_user_placeholder"
-            }}
-            as |user|
-          >
-            {{user.email}}
-          </PowerSelect>
-        </form.element>
+        />
         {{! Role select }}
         <form.element
           @label={{t "components.share_modal.role_label"}}
@@ -73,7 +58,7 @@
 
     <hr />
 
-    <h5>
+    <h5 class="mb-2">
       {{t "components.share_modal.current_permissions"}}
     </h5>
 

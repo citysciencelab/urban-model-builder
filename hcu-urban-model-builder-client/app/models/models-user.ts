@@ -13,6 +13,6 @@ export default class ModelsUser extends Model {
   @belongsTo('user', { async: true, inverse: 'modelsUsers' })
   declare user: AsyncBelongsTo<UserModel>;
 
-  @attr('string', { readOnly: true }) declare userEmail: string;
+  @attr('string', { readOnly: false }) declare userEmail: string;
   @attr('number') declare role: Roles;
 }

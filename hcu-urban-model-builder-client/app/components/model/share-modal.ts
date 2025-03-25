@@ -40,7 +40,6 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
   @tracked changeset!: EmberChangeset;
   @tracked formModel!: FormModelShare;
 
-  @tracked selectedUser: UserModel | null = null;
   @tracked currentPermissions: ModelsUser[] = [];
 
   @tracked
@@ -69,7 +68,7 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
 
   async initChangeset() {
     this.formModel = {
-      selectedUser: null,
+      userMail: '',
       selectedRole: null,
       model: await this.args.model,
     };
@@ -124,25 +123,6 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
     await this.initChangeset();
   }
 
-  @action async lookupUsers(term: string): Promise<UserModel[]> {
-    const users = (await this.store.query('user', {
-      email: {
-        $ilike: `%${term}%`,
-      },
-    })) as UserModel[];
-
-    const ninIds = this.currentPermissions.map(
-      (permission) => permission.user.id,
-    ) as string[];
-    return users.filter(
-      (user: UserModel) => !ninIds.includes(user.id as string),
-    );
-  }
-
-  @action onUserChange(user: UserModel) {
-    this.changeset.set('selectedUser', user);
-  }
-
   @action onHide() {
     this.args.onClose();
     return false;
@@ -156,11 +136,27 @@ export default class ModelShareModalComponent extends Component<ModelShareModalS
 
       const record = this.store.createRecord('models-user', {
         model: this.formModel.model,
-        user: this.formModel.selectedUser,
+        userEmail: this.formModel.userMail,
         role: this.formModel.selectedRole?.value,
       }) as ModelsUser;
 
-      await record.save();
+      try {
+        await record.save();
+      } catch (error) {
+        // re-initialize changeset with error
+        this.changeset = Changeset(
+          this.formModel,
+          lookupValidator(this.Validation),
+          this.Validation,
+        );
+        // set error on changeset
+        this.changeset.addError(
+          'userMail',
+          this.intl.t('components.share_modal.user_not_found_error'),
+        );
+
+        return false;
+      }
 
       await this.loadPermissions();
 

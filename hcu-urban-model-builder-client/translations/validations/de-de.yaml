@@ -22,3 +22,4 @@ wrongLength: '{description} hat die falsche Länge (sollte {is} Zeichen lang sei
 empty: '{description} kann nicht leer sein'
 between: '{description} muss zwischen {min} und {max} Zeichen liegen'
 atLeastOne: '{description} muss zwischen Zeichen {on} liegen'
+email: '{description} muss eine gültige E-Mail-Adresse sein'
