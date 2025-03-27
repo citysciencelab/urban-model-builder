@@ -1,0 +1,10 @@
+networks:
+  default:
+    name: hcu-model-builder-network
+
+services:
+  migrate:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.migrate
+    env_file: ./config/.env
