@@ -152,6 +152,11 @@ $force-width: 1200px;
 
 @import "./react-canvas";
 
+html,
+body {
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
   text-underline-offset: 3px;

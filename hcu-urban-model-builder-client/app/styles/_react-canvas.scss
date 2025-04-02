@@ -7,6 +7,7 @@ $ghost-node-opacity: 0.66;
 .react-flow {
   z-index: unset !important;
 }
+
 .react-flow__resize-control.line {
   border-color: $node-selected-color;
   z-index: 1;
