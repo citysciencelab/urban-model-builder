@@ -12,6 +12,7 @@ general:
   imprint: Impressum
   privacy_policy: Datenschutz
   legal: Rechtliches
+  terms_of_service: Nutzungsbedingungen
 
 pagination:
   meta: Zeige {start} - {end} von {total}
@@ -92,7 +93,7 @@ routes:
       title: Alle
       list_of_models: Liste meiner Modelle
       add_model: Modell erstellen
-      total: Modelle gesamt 
+      total: Modelle gesamt
       create_new_title: Neues Modell erstellen
       edit_title: Modell <em>{name}</em> bearbeiten
       no_models_found: Keine Modelle gefunden
@@ -102,7 +103,7 @@ routes:
   public_models:
     title: Öffentliche Modelle
     list_of_models: Liste der öffentlichen Modelle
-  login: 
+  login:
     title: Login
   demo:
     title: Demo
@@ -198,7 +199,7 @@ components:
       boolean_type: Boolcher Wert
       slider_type: Schieberegler
       select_type: Wertehilfe
-  unit_selection: 
+  unit_selection:
     unit_label: Einheit
     unitless: Ohne Einheit
   model_info:

@@ -23,4 +23,5 @@ Router.map(function () {
   this.route('not-found');
   this.route('impressum');
   this.route('datenschutz');
+  this.route('nutzungsbedingungen');
 });

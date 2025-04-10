@@ -12,6 +12,7 @@ general:
   imprint: Imprint
   privacy_policy: Privacy Policy
   legal: Legal
+  terms_of_service: Terms of Service
 
 pagination:
   meta: Showing {start} - {end} of {total}
@@ -22,7 +23,7 @@ pagination:
 messages:
   error: Error
   warning: Warning
-  general_error: Please try again. If the problem persists, please contact support. 
+  general_error: Please try again. If the problem persists, please contact support.
   form_error: There is an error in the form. Please fix it to save.
   saving: Saving…
 
@@ -47,7 +48,7 @@ actions:
 
 node-toolbar:
   title: Primitives
-  
+
 models:
   node:
     error: Error in node
@@ -60,7 +61,7 @@ models:
     states:
       published: Published
       draft: Draft
-    version_settings: 
+    version_settings:
       title: Version settings
       actions: Actions
   models_version:
@@ -102,7 +103,7 @@ routes:
   public_models:
     title: Public Models
     list_of_models: List of Public Models
-  login: 
+  login:
     title: Login
   demo:
     title: Demo
@@ -198,7 +199,7 @@ components:
       boolean_type: Boolean
       slider_type: Slider
       select_type: Select
-  unit_selection: 
+  unit_selection:
     unit_label: Unit
     unitless: Unitless
   model_info:
