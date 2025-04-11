@@ -7,17 +7,17 @@ export { Nodes, NodesData, NodesPatch, NodesQuery }
 
 export enum NodeType {
   Stock = 0,
-  Variable,
-  Flow,
-  Converter,
-  State,
-  Transition,
-  Action,
-  Population,
-  Agent,
-  Folder,
-  Ghost,
-  OgcApiFeatures
+  Variable = 1,
+  Flow = 2,
+  Converter = 3,
+  State = 4,
+  Transition = 5,
+  Action = 6,
+  Population = 7,
+  Agent = 8,
+  Folder = 9,
+  Ghost = 10,
+  OgcApiFeatures = 11
 }
 
 export type NodesClientService = Pick<NodesService<Params<NodesQuery>>, (typeof nodesMethods)[number]>
