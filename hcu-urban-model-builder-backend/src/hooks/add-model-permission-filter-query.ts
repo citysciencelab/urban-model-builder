@@ -26,9 +26,17 @@ export const addModelPermissionFilterQuery = (minRequiredRole: Roles) => {
     }
     const query = service.createQuery(context.params)
 
+    const postgresqlClient = context.app.get('postgresqlClient')
+
     query
       .join('models_versions', `${service.options.name}.modelsVersionsId`, '=', 'models_versions.id')
-      .join('models_users', 'models_versions.modelId', '=', 'models_users.modelId')
+      .join('models_users', function () {
+        this.on('models_versions.modelId', '=', 'models_users.modelId').andOn(
+          'models_users.userId',
+          '=',
+          postgresqlClient.raw('?', [userId])
+        )
+      })
       .where(function () {
         this.where(function () {
           this.where('models_users.userId', userId).andWhere('models_users.role', '>=', minRequiredRole)
