@@ -294,7 +294,9 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       const newNode = await this.app.service('nodes').create(
         {
           ...createNodeData,
-          modelsVersionsId: newDraftModelVersion.id
+          modelsVersionsId: newDraftModelVersion.id,
+          parentId: null,
+          ghostParentId: null
         },
         {
           user: params?.user
