@@ -30,7 +30,7 @@ export const addModelPermissionFilterQuery = (minRequiredRole: Roles) => {
 
     query
       .join('models_versions', `${service.options.name}.modelsVersionsId`, '=', 'models_versions.id')
-      .join('models_users', function () {
+      .leftJoin('models_users', function () {
         this.on('models_versions.modelId', '=', 'models_users.modelId').andOn(
           'models_users.userId',
           '=',
