@@ -288,6 +288,10 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     })
 
     const nodeMigrationMap = new Map<string, string>()
+    const newNodeIdToOldRelationMap = new Map<
+      string,
+      { parentId?: string | null; ghostParentId?: string | null }
+    >()
     for (const node of nodes.data) {
       const createNodeData = _.pick(node, Object.keys(nodesDataSchema.properties))
 
@@ -303,6 +307,10 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         }
       )
       nodeMigrationMap.set(node.id, newNode.id)
+      newNodeIdToOldRelationMap.set(newNode.id, {
+        parentId: node.parentId,
+        ghostParentId: node.ghostParentId
+      })
     }
 
     const newNodes = await this.app.service('nodes').find({
@@ -313,13 +321,14 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     })
 
     for (const newNode of newNodes.data) {
+      const nodeRelations = newNodeIdToOldRelationMap.get(newNode.id)
       let newParentId = null
       let newGhostParentId = null
-      if (newNode.parentId && nodeMigrationMap.has(newNode.parentId)) {
-        newParentId = nodeMigrationMap.get(newNode.parentId)
+      if (nodeRelations?.parentId && nodeMigrationMap.has(nodeRelations.parentId)) {
+        newParentId = nodeMigrationMap.get(nodeRelations.parentId)
       }
-      if (newNode.ghostParentId && nodeMigrationMap.has(newNode.ghostParentId)) {
-        newGhostParentId = nodeMigrationMap.get(newNode.ghostParentId)
+      if (nodeRelations?.ghostParentId && nodeMigrationMap.has(nodeRelations.ghostParentId)) {
+        newGhostParentId = nodeMigrationMap.get(nodeRelations.ghostParentId)
       }
       if (newParentId || newGhostParentId) {
         await this.app.service('nodes').patch(
