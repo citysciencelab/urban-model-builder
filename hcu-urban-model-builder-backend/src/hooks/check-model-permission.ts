@@ -4,6 +4,7 @@ import type { HookContext } from '../declarations.ts'
 import { Roles, ServiceTypes } from '../client.js'
 import _ from 'lodash'
 import { Forbidden } from '@feathersjs/errors'
+import { isServerCall } from '../utils/is-server-call.js'
 
 export const checkModelPermission = (
   fkIdField: string,
@@ -12,6 +13,11 @@ export const checkModelPermission = (
 ) => {
   return async (context: HookContext) => {
     checkContext(context, 'before', ['create', 'patch', 'remove'])
+
+    const user = context.params?.user
+    if (isServerCall(context.params) && !user) {
+      return
+    }
 
     if (Array.isArray(context.data)) {
       throw new Error('Batch creation of nodes is not supported')
