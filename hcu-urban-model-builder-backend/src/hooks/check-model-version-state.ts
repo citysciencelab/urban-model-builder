@@ -1,11 +1,10 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/hook.html
 import { checkContext } from 'feathers-hooks-common'
-import type { HookContext } from '../declarations.js'
+import type { HookContext, ServiceNamesWithGet } from '../declarations.js'
 import _ from 'lodash'
-import { ServiceTypes } from '../client.js'
 import { Forbidden } from '@feathersjs/errors'
 
-export const checkModelVersionState = (fkIdField: string, fkServiceName: keyof ServiceTypes) => {
+export const checkModelVersionState = (fkIdField: string, fkServiceName: ServiceNamesWithGet) => {
   return async (context: HookContext) => {
     checkContext(context, 'before', ['create', 'patch', 'remove'])
 

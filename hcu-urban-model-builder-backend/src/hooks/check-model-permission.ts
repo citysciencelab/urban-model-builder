@@ -1,14 +1,14 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/hook.html
 import { checkContext } from 'feathers-hooks-common'
-import type { HookContext } from '../declarations.ts'
-import { Roles, ServiceTypes } from '../client.js'
+import type { HookContext, ServiceNamesWithGet } from '../declarations.ts'
+import { Roles } from '../client.js'
 import _ from 'lodash'
 import { Forbidden } from '@feathersjs/errors'
 import { isServerCall } from '../utils/is-server-call.js'
 
 export const checkModelPermission = (
   fkIdField: string,
-  fkServiceName: keyof ServiceTypes,
+  fkServiceName: ServiceNamesWithGet,
   minRole: Roles
 ) => {
   return async (context: HookContext) => {
