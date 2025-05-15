@@ -57,9 +57,10 @@ app.hooks({
             'ogcapi/jobs',
             'ogcapi/processes/:processId/execution',
             'ogcapi/jobs/:jobId/results'
-          ].includes(context.path),
+          ].includes(context.path) && !context.path.startsWith('admin/'),
         authenticate('oidc')
-      )
+      ),
+      iff((context) => context.path.startsWith('admin/'), adminTokenAuthenticate)
     ],
     create: [
       (context) => {

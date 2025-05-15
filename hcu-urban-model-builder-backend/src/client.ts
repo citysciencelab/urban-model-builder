@@ -7,6 +7,12 @@ const authenticationClient =
   authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { adminPublicModelVersionsClient } from './services/admin/public-model-versions/public-model-versions.shared.js'
+export type {
+  AdminPublicModelVersions,
+  AdminPublicModelVersionsQuery
+} from './services/admin/public-model-versions/public-model-versions.shared.js'
+
 import { scenarioValuesClient } from './services/scenarios-values/scenarios-values.shared.js'
 export type {
   ScenarioValues,
@@ -97,6 +103,7 @@ export const createClient = <Configuration = any>(
   client.configure(modelsUsersClient)
   client.configure(scenariosClient)
   client.configure(scenarioValuesClient)
+  client.configure(adminPublicModelVersionsClient)
   return client
 }
 
