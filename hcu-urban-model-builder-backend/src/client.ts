@@ -7,6 +7,20 @@ const authenticationClient =
   authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { adminPublicModelVersionsUnapproveClient } from './services/admin/public-model-versions/unapprove/unapprove.shared.js'
+export type {
+  AdminPublicModelVersionsUnapprove,
+  AdminPublicModelVersionsUnapproveQuery,
+  AdminPublicModelVersionsUnapprovePatch
+} from './services/admin/public-model-versions/unapprove/unapprove.shared.js'
+
+import { adminPublicModelVersionsApproveClient } from './services/admin/public-model-versions/approve/approve.shared.js'
+export type {
+  AdminPublicModelVersionsApprove,
+  AdminPublicModelVersionsApproveQuery,
+  AdminPublicModelVersionsApprovePatch
+} from './services/admin/public-model-versions/approve/approve.shared.js'
+
 import { adminPublicModelVersionsClient } from './services/admin/public-model-versions/public-model-versions.shared.js'
 export type {
   AdminPublicModelVersions,
@@ -104,6 +118,8 @@ export const createClient = <Configuration = any>(
   client.configure(scenariosClient)
   client.configure(scenarioValuesClient)
   client.configure(adminPublicModelVersionsClient)
+  client.configure(adminPublicModelVersionsApproveClient)
+  client.configure(adminPublicModelVersionsUnapproveClient)
   return client
 }
 

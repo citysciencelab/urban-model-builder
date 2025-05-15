@@ -15,6 +15,7 @@ import { BadRequest } from '@feathersjs/errors'
 import { iff, stashBefore } from 'feathers-hooks-common'
 import { authenticate } from '@feathersjs/authentication'
 import { errorHandler as errorHandlerHook } from './hooks/error-handler.js'
+import { adminTokenAuthenticate } from './hooks/admin-token-authenticate.js'
 
 const app: Application = koa(feathers())
 
@@ -75,7 +76,12 @@ app.hooks({
           delete context.data.updatedAt
         }
       },
-      stashBefore(STASH_BEFORE_KEY)
+      iff(
+        (context) =>
+          context.path !== 'admin/public-model-versions/approve' &&
+          context.path !== 'admin/public-model-versions/unapprove',
+        stashBefore(STASH_BEFORE_KEY)
+      )
     ],
     update: [
       () => {
