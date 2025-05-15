@@ -7,6 +7,7 @@ import type {
   AdminPublicModelVersionsApprovePatch,
   AdminPublicModelVersionsApproveQuery
 } from './approve.schema.js'
+import { BadRequest } from '@feathersjs/errors'
 
 export type {
   AdminPublicModelVersionsApprove,
@@ -33,7 +34,9 @@ export class AdminPublicModelVersionsApproveService {
     _data: AdminPublicModelVersionsApprovePatch,
     params?: AdminPublicModelVersionsApproveParams
   ) {
-    console.log('-->')
+    if (id == null) {
+      throw new BadRequest('Not allowed to approve multiple models at once')
+    }
 
     return this.app.service('models-versions').patch(id, {
       publishedToUMPApprovedAt: new Date().toISOString()

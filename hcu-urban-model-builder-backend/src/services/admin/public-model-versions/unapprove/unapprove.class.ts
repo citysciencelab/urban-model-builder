@@ -7,6 +7,7 @@ import type {
   AdminPublicModelVersionsUnapprovePatch,
   AdminPublicModelVersionsUnapproveQuery
 } from './unapprove.schema.js'
+import { BadRequest } from '@feathersjs/errors'
 
 export type {
   AdminPublicModelVersionsUnapprove,
@@ -34,6 +35,10 @@ export class AdminPublicModelVersionsUnapproveService {
     _data: AdminPublicModelVersionsUnapprovePatch,
     params?: AdminPublicModelVersionsUnapproveParams
   ) {
+    if (id == null) {
+      throw new BadRequest('Not allowed to unapprove multiple models at once')
+    }
+
     return this.app.service('models-versions').patch(id, {
       publishedToUMPApprovedAt: null
     })
