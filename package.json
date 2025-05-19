@@ -5,7 +5,8 @@
   "scripts": {
     "setup": "./scripts/setup.sh",
     "deploy:latest": "./scripts/deploy.sh",
-    "feathers-client:version": "npx zx ./scripts/update-client-version.mjs"
+    "feathers-client:version": "npx zx ./scripts/update-client-version.mjs",
+    "hash-password": "cd ./hcu-urban-model-builder-backend && npm run hash-password"
   },
   "author": "",
   "license": "ISC",

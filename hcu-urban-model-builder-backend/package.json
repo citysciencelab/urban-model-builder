@@ -50,7 +50,8 @@
     "migrate:make": "npm run knex -- migrate:make",
     "migrate:revert": "npm run knex migrate:down",
     "knex": "node --enable-source-maps  --import ./ts-node.register.mjs ./node_modules/.bin/knex",
-    "postversion": "npm run bundle:client"
+    "postversion": "npm run bundle:client",
+    "hash-password": "node ./scripts/hash-password.mjs"
   },
   "dependencies": {
     "@feathersjs/adapter-commons": "^5.0.33",
