@@ -35,11 +35,6 @@ export class AdminPublicModelVersionsService {
       }
     })
   }
-
-  async approve() {
-    console.log('approve')
-    return {}
-  }
 }
 
 export const getOptions = (app: Application) => {
