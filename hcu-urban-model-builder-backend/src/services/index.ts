@@ -1,3 +1,6 @@
+import { adminPublicModelVersionsUnapprove } from './admin/public-model-versions/unapprove/unapprove.js'
+import { adminPublicModelVersionsApprove } from './admin/public-model-versions/approve/approve.js'
+import { adminPublicModelVersions } from './admin/public-model-versions/public-model-versions.js'
 import { jobResults } from './ogcapi/jobs/results/results.js'
 import { processesExecution } from './ogcapi/processes/execution/execution.js'
 import { jobs } from './ogcapi/jobs/jobs.js'
@@ -15,6 +18,9 @@ import type { Application } from '../declarations.js'
 import { touchParent } from '../utils/touch-parent.js'
 
 export const services = (app: Application) => {
+  app.configure(adminPublicModelVersionsUnapprove)
+  app.configure(adminPublicModelVersionsApprove)
+  app.configure(adminPublicModelVersions)
   app.configure(jobResults)
   app.configure(jobs)
   app.configure(processesExecution)

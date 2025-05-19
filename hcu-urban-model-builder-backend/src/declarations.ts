@@ -1,5 +1,5 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/typescript.html
-import { HookContext as FeathersHookContext, NextFunction } from '@feathersjs/feathers'
+import { HookContext as FeathersHookContext, NextFunction, ServiceMethods } from '@feathersjs/feathers'
 import { Application as FeathersApplication } from '@feathersjs/koa'
 import { ApplicationConfiguration } from './configuration.js'
 
@@ -39,3 +39,7 @@ declare module '@feathersjs/feathers' {
 }
 
 export const STASH_BEFORE_KEY = 'stashBefore'
+
+export type ServiceNamesWithGet = {
+  [K in keyof ServiceTypes]: ServiceTypes[K] extends Pick<ServiceMethods<any>, 'get'> ? K : never
+}[keyof ServiceTypes]

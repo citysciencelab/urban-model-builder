@@ -93,7 +93,8 @@ export const modelsVersionsQueryProperties = Type.Pick(modelsVersionsSchema, [
   'algorithm',
   'globals',
   'createdAt',
-  'publishedToUMPAt'
+  'publishedToUMPAt',
+  'publishedToUMPApprovedAt'
 ])
 export const modelsVersionsQuerySchema = Type.Intersect(
   [
