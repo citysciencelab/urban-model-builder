@@ -16,11 +16,30 @@ import { iff, stashBefore } from 'feathers-hooks-common'
 import { authenticate } from '@feathersjs/authentication'
 import { errorHandler as errorHandlerHook } from './hooks/error-handler.js'
 import { adminTokenAuthenticate } from './hooks/admin-token-authenticate.js'
+import feathersSwagger from 'feathers-swagger'
 
 const app: Application = koa(feathers())
 
 // Load our app configuration (see config/ folder)
 app.configure(configuration(configurationValidator))
+
+if (process.env.NODE_ENV !== 'production') {
+  app.configure(
+    feathersSwagger({
+      specs: {
+        info: {
+          title: 'A test',
+          description: 'A description',
+          version: '1.0.0'
+        }
+      },
+      include: {
+        paths: ['admin', 'ogcapi']
+      },
+      ui: feathersSwagger.swaggerUI({})
+    })
+  )
+}
 
 // Set up Koa middleware
 app.use(cors())

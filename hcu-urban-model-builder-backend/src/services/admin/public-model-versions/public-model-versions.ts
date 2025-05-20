@@ -1,12 +1,14 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.html
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
+import feathersSwagger from 'feathers-swagger'
 
 import {
   adminPublicModelVersionsQueryValidator,
   adminPublicModelVersionsResolver,
   adminPublicModelVersionsExternalResolver,
-  adminPublicModelVersionsQueryResolver
+  adminPublicModelVersionsQueryResolver,
+  adminPublicModelVersionsSchema
 } from './public-model-versions.schema.js'
 
 import type { Application } from '../../../declarations.js'
@@ -26,7 +28,12 @@ export const adminPublicModelVersions = (app: Application) => {
     // A list of all methods this service exposes externally
     methods: adminPublicModelVersionsMethods,
     // You can add additional custom events to be sent to clients here
-    events: []
+    events: [],
+    docs: feathersSwagger.createSwaggerServiceOptions({
+      schemas: {
+        adminPublicModelVersionsSchema
+      }
+    })
   })
 
   // Initialize hooks

@@ -5,6 +5,7 @@ import { ApplicationConfiguration } from './configuration.js'
 
 import { User } from './services/users/users.js'
 import { JobQueueAdapter } from './utils/job-queue-adapter/base.js'
+import { ServiceSwaggerOptions } from 'feathers-swagger'
 
 export type { NextFunction }
 
@@ -43,3 +44,9 @@ export const STASH_BEFORE_KEY = 'stashBefore'
 export type ServiceNamesWithGet = {
   [K in keyof ServiceTypes]: ServiceTypes[K] extends Pick<ServiceMethods<any>, 'get'> ? K : never
 }[keyof ServiceTypes]
+
+declare module '@feathersjs/feathers' {
+  interface ServiceOptions {
+    docs?: ServiceSwaggerOptions
+  }
+}
