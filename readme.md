@@ -1,4 +1,8 @@
-# HCU Urban Model Builder
+# Urban Model Builder
+
+## Architecture Overview
+![Model Builder Architecture](https://github.com/user-attachments/assets/f07ee343-63f7-4979-b0de-e88c02893429)
+
 
 ## Getting started for Dev
 
