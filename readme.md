@@ -4,7 +4,9 @@
 The Urban Model Builder is a collaborative webtool for creating and sharing simulation models. It is based on the Node.js [simulation library](github.com/scottfr/simulation) and comes with a full frontend, backend and Keycloak as an authentication and authorization management system. 
 
 ## Architecture Overview
-![Model Builder Architecture](https://github.com/user-attachments/assets/f07ee343-63f7-4979-b0de-e88c02893429)
+
+<img width="3042" alt="Model Builder Architecture" src="https://github.com/user-attachments/assets/4a83ea9e-be75-40bf-8486-29e800d4861c" />
+
 
 
 ## Getting started for Dev
