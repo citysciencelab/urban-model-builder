@@ -85,6 +85,8 @@ models:
         multiple: Sind Sie sicher, dass Sie die ausgewählten Knoten löschen möchten?
 
 routes:
+  index:
+    title: Startseite
   application:
     title: "Urban Model Builder"
   models:

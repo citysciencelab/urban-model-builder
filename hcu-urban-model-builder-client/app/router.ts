@@ -8,7 +8,7 @@ export default class Router extends EmberRouter {
 
 Router.map(function () {
   this.route('authenticate');
-  this.route('authenticated', { path: '/' }, function () {
+  this.route('authenticated', function () {
     this.route('models', { resetNamespace: true }, function () {
       this.route('versions', { path: '/:id' }, function () {
         this.route('show', { path: '/version/:version_id' });
@@ -17,6 +17,7 @@ Router.map(function () {
     this.route('public-models', { resetNamespace: true });
   });
   this.route('login');
+  this.route('/');
   this.route('demo');
   // catch all 404 handling
   this.route('not-found', { path: '*path' });

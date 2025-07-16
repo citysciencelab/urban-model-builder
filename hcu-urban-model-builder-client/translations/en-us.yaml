@@ -85,6 +85,8 @@ models:
         multiple: Are you sure you want to delete the selected nodes?
 
 routes:
+  index:
+    title: Home
   application:
     title: "Urban Model Builder"
   models:
