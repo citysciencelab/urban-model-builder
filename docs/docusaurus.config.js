@@ -48,10 +48,7 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+
         },
         /*blog: {
           showReadingTime: true,
@@ -84,9 +81,15 @@ const config = {
         title: 'Urban Model Builder',
         logo: {
           alt: 'Urban Model Builder Logo',
-          src: 'img/logo.svg',
+          src: 'img/ModelBuilder_Logo.svg',
         },
         items: [
+          {
+            type: 'docSidebar',
+            sidebarId: 'documentationSidebar',
+            position: 'left',
+            label: 'Dokumentation',
+          },
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
