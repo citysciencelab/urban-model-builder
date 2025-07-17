@@ -1,7 +1,15 @@
 {{page-title (t "routes.index.title")}}
 
-<div class="container main-content vh-100 vw-100" style="background-color: #465166;">
+<div class="main-home vw-100" style="background-color: #465166;">
 
+<div class="hero-section text-center py-5">
+    <h1 class="display-3 text-white mb-4">
+        {{t "landingpage.subtitle"}}
+    </h1>
+    <LinkTo @route="signup" class="btn btn-primary btn-lg">
+        {{t "actions.getStarted"}}
+    </LinkTo>
+</div>
 
 
   <div class="card card--login">

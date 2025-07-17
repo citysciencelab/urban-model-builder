@@ -16,6 +16,7 @@ export default class ApplicationRoute extends Route {
   constructor(owner?: Owner) {
     super(owner);
     this.modelVersionChannelManager.listen();
+
   }
 
   async beforeModel(transition: Transition) {
