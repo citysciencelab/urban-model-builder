@@ -15,6 +15,7 @@ jobs:
     permissions:
       pages: write
       id-token: write
+
     steps:
     - uses: actions/checkout@v4
       with:
@@ -34,9 +35,8 @@ jobs:
 
     - name: Upload Build Artifact
       uses: actions/upload-pages-artifact@v3
-      working-directory: ./docs
       with:
-        path: build
+        path: docs/build
 
     - name: Deploy to GitHub Pages
       id: deployment
