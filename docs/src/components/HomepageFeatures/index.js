@@ -1,35 +1,34 @@
 import clsx from 'clsx';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
+import Translate, {translate} from '@docusaurus/Translate';
 
 const FeatureList = [
   {
     title: 'Kollaboration in Echtzeit',
     img: require('@site/static/img/modelbuilder_collaboration.png').default,
     description: (
-      <>
-        Arbeite gemeinsam mit deinem Team und anderen Stakeholdern an urbanen Modellen in Echtzeit.
-      </>
+      <Translate>
+        Arbeite gemeinsam mit deinem Team und anderen Stakeholdern an urbanen Modellen in Echtzeit.)
+      </Translate>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Integration der Städtischen Datenplattform',
     img: require('@site/static/img/modelbuilder_collaboration.png').default,
     description: (
-      <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
-      </>
+      <Translate>
+        Der Urban Model Builder ist vollständig in die Städtische Datenplattform integriert, um den Zugriff auf städtische Daten zu erleichtern.
+      </Translate>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'System Dynamics und Agentenbasierte Modellierung',
     img: require('@site/static/img/modelbuilder_collaboration.png').default,
     description: (
-      <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
-      </>
+      <Translate>
+        Der Urban Model Builder unterstützt sowohl System Dynamics als auch agentenbasierte Modellierung, um verschiedene Aspekte städtischer Systeme zu modellieren.
+      </Translate>
     ),
   },
 ];

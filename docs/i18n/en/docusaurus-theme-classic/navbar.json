@@ -1,0 +1,22 @@
+{
+  "title": {
+    "message": "Urban Model Builder",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "Urban Model Builder Logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.Dokumentation": {
+    "message": "Documentation",
+    "description": "Navbar item with label Dokumentation"
+  },
+  "item.label.Tutorials": {
+    "message": "Tutorials",
+    "description": "Navbar item with label Tutorials"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

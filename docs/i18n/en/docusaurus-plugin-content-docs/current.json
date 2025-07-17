@@ -1,0 +1,22 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.documentationSidebar.category.Basiswissen": {
+    "message": "Basic knowledge",
+    "description": "The label for category Basiswissen in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Basiswissen.link.generated-index.description": {
+    "message": "Erhalte hier eine Übersicht über die Grundlagen der Modellierung von städtischen Prozessen.",
+    "description": "The generated-index page description for category Basiswissen in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Modellierungsleitfaden": {
+    "message": "Modeling guidelines",
+    "description": "The label for category Modellierungsleitfaden in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Model Land betreten": {
+    "message": "Enter model land",
+    "description": "The label for category Model Land betreten in sidebar documentationSidebar"
+  }
+}

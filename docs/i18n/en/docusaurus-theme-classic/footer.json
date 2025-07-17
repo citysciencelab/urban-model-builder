@@ -1,0 +1,50 @@
+{
+  "link.title.Docs": {
+    "message": "Docs",
+    "description": "The title of the footer links column with title=Docs in the footer"
+  },
+  "link.title.Community": {
+    "message": "Community",
+    "description": "The title of the footer links column with title=Community in the footer"
+  },
+  "link.title.Weiterführende Links": {
+    "message": "Further Links",
+    "description": "The title of the footer links column with title=Weiterführende Links in the footer"
+  },
+  "link.item.label.Tutorial": {
+    "message": "Tutorial",
+    "description": "The label of footer link with label=Tutorial linking to /docs/tutorials/tutorial1"
+  },
+  "link.item.label.Connected Urban Twins": {
+    "message": "Connected Urban Twins",
+    "description": "The label of footer link with label=Connected Urban Twins linking to https://connectedurbantwins.de"
+  },
+  "link.item.label.City Science Lab": {
+    "message": "City Science Lab",
+    "description": "The label of footer link with label=City Science Lab linking to https://citysciencelab.hamburg"
+  },
+  "copyright": {
+    "message": "Copyright © 2025 City Science Lab.",
+    "description": "The footer copyright"
+  },
+  "link.title.Übersicht": {
+    "message": "Overview",
+    "description": "The title of the footer links column with title=Übersicht in the footer"
+  },
+  "link.title.Gefördert durch": {
+    "message": "Funded by",
+    "description": "The title of the footer links column with title=Gefördert durch in the footer"
+  },
+  "link.item.label.Dokumentation": {
+    "message": "Documentation",
+    "description": "The label of footer link with label=Dokumentation linking to /docs/documentation/intro"
+  },
+  "logo.alt": {
+    "message": "City Science Lab Logo",
+    "description": "The alt text of footer logo"
+  },
+  "link.item.label.Built on Insight Maker's Open Source Simulation Library": {
+    "message": "Built on Insight Maker's Open Source Simulation Library",
+    "description": "The label of footer link with label=Built on Insight Maker's Open Source Simulation Library linking to https://github.com/scottfr/simulation"
+  }
+}

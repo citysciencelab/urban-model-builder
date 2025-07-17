@@ -20,10 +20,10 @@ const config = {
   },
 
   // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
+  url: 'https://citysciencelab.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: 'urban-model-builder',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -109,34 +109,22 @@ const config = {
         ],
       },
       footer: {
-        style: 'dark',
+        style: 'light',
         links: [
           {
-            title: 'Docs',
+            title: 'Übersicht',
             items: [
+              {
+                label: 'Dokumentation',
+                to: '/docs/documentation/intro',
+              },
               {
                 label: 'Tutorial',
-                to: '/docs/intro',
+                to: '/docs/tutorials/tutorial1',
               },
             ],
           },
-          {
-            title: 'Community',
-            items: [
-              {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              },
-              {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'X',
-                href: 'https://x.com/docusaurus',
-              },
-            ],
-          },
+
           {
             title: 'Weiterführende Links',
             items: [
@@ -148,10 +136,32 @@ const config = {
                 label: 'City Science Lab',
                 href: 'https://citysciencelab.hamburg',
               },
+              {
+                label: "Built on Insight Maker's Open Source Simulation Library",
+                href: 'https://github.com/scottfr/simulation',
+              },
+            ],
+          },
+          {
+            title: 'Gefördert durch',
+            items: [
+              {
+                html: `
+                  <div style="display: flex; align-items: left;">
+                    <img src="/img/__CUT_Förderlogos.svg" alt="Förderlogo" style="height: 100px;" />
+                  </div>
+                `,
+              },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} City Science Lab.`,
+        logo: {
+          alt: 'City Science Lab Logo',
+          src: 'img/CSL_Logo.png',
+          href: 'https://citysciencelab.hamburg',
+          width: 300
+        },
+        copyright: `Copyright © ${new Date().getFullYear()} City Science Lab at HafenCity University Hamburg. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
