@@ -5,9 +5,9 @@ on:
     branches:
     - documentation
 
-defaults:
-  run:
-    working-directory: ./docs
+#defaults:
+#  run:
+#    working-directory: ./docs
 
 jobs:
   deploy-book:
