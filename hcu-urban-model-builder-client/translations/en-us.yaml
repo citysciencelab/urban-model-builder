@@ -18,8 +18,9 @@ landingpage:
   title: Urban Model Builder
   subtitle: Create Your Own Urban Development Models
   description: The Urban Model Builder is an open-source web application that allows you to create and simulate complex urban models.
-  get_started: Get Started
-  learn_more: Learn More
+  get_started: Get Started 🖥️
+  demo: To the Demo 🚀
+  learn_more: Learn More 📚
   features:
     - title: Intuitive User Interface
       description: Easy drag-and-drop interface for building models.

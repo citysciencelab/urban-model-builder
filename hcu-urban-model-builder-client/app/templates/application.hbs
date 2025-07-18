@@ -34,7 +34,16 @@
       </navbar.nav>
     </navbar.content>
   {{/if}}
+  
   <navbar.nav as |nav|>
+    {{#unless this.session.isAuthenticated}}
+      <nav.item>
+        <nav.linkTo @route="login">
+            <FaIcon @icon="right-to-bracket" />
+          {{t "actions.login"}}
+        </nav.linkTo>
+      </nav.item>
+    {{/unless}}
     {{#unless (eq this.router.currentRouteName "index")}}
     <nav.dropdown as |dd|>
       <dd.toggle>
@@ -79,6 +88,7 @@
         </button>
       </li>
     {{/if}}
+    
   </navbar.nav>
 </BsNavbar>
 
