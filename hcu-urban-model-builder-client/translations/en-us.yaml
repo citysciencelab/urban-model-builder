@@ -15,19 +15,35 @@ general:
   terms_of_service: Terms of Service
 
 landingpage:
-  title: Urban Model Builder
-  subtitle: Create Your Own Urban Development Models
+  title: Create Your Own Models for Urban Development
+  subtitle: Open Source · Free · Collaborative
   description: The Urban Model Builder is an open-source web application that allows you to create and simulate complex urban models.
   get_started: Get Started 🖥️
   demo: To the Demo 🚀
   learn_more: Learn More 📚
-  features:
-    - title: Intuitive User Interface
-      description: Easy drag-and-drop interface for building models.
-    - title: Real-time Simulation
-      description: Simulate your models in real-time and analyze the results.
-    - title: Open Source
-      description: Fully open-source and customizable to your needs.
+  feature1:
+    title: Co-model the city! 
+    description: Collaborate with others in real-time to build and simulate urban models - such as population models, transportation models, and land use models. Share your models with the community, clone the models of others, and create versions of your models.
+  feature2:
+    title: ABM, SD and more
+    description: Create agent-based models (ABM), system dynamics models (SD), and other complex simulations - directly in your browser and without programming knowledge.
+  feature3:
+    title: (Realtime) Data from Urban Data Platforms
+    description: Use real-time data from urban data platforms like the Urban Data Platform Hamburg to simulate your models. Connect to OGC APIs, query data, and visualize results.
+  video_not_supported: Your browser does not support the video tag.
+  footer:
+    about_title: Developed as part of
+    about_text: Learn more about the Urban Model Builder and its features.
+    links_title: Links
+    link_about: About Urban Model Builder
+    link_contact: Contact
+    link_terms: Terms of Service
+    link_privacy: Privacy Policy
+    link_imprint: Imprint
+    faq: FAQ
+    contact_title: Kontakt
+    contact_address: Kontaktadresse
+    funded_by: Funded by
 
 pagination:
   meta: Showing {start} - {end} of {total}

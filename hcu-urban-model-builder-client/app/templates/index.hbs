@@ -6,9 +6,13 @@
 
     <div class="hero-section text-center py-5">
 
-        <h1 class="display-3 text-white mb-4 font-weight-bold">
-            {{t "landingpage.subtitle"}}
+        <h1 class="display-3 text-white mb-4 w-75 fw-bold">
+            {{t "landingpage.title"}}
         </h1>
+
+        <p class="lead text-white mb-5 w-75 fw-normal">
+            {{t "landingpage.subtitle"}}
+        </p>
 
         <div class="grid">
             <LinkTo @route="demo" class="btn btn-primary btn-lg text-wrap mx-2">
@@ -23,6 +27,87 @@
 </div>
 
 <div class="container main-content">
+
+    <div class="row my-5">
+        <div class="col-md-6">
+            <div class="rounded overflow-hidden bg-white p-2 h-100 d-flex align-items-center justify-content-center">
+                <video autoplay muted loop style="width: 100%; border-radius: 1rem;">
+                    <source src="/assets/videos/modelbuildervideo.mov" type="video/mp4">
+                    {{t "landingpage.video_not_supported"}}
+                </video>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card ">
+                <div class="card-header">
+                    <h2 class="h3">
+                        {{t "landingpage.feature1.title"}}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {{t "landingpage.feature1.description"}}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row my-5">
+        <div class="col-md-4">
+            <div class="card ">
+                <div class="card-header">
+                    <h2 class="h3">
+                        {{t "landingpage.feature2.title"}}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {{t "landingpage.feature2.description"}}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class=" overflow-hidden bg-white p-2 h-100 d-flex align-items-center justify-content-center">
+                <video autoplay loop muted style="width: 100%;">
+                    <source src="/assets/videos/SD.mov" type="video/mp4">
+                    {{t "landingpage.video_not_supported"}}
+                </video>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class=" overflow-hidden bg-white p-2 h-100 d-flex align-items-center justify-content-center">
+                <video autoplay loop muted style="width: 100%;">
+                    <source src="/assets/videos/ABM.mov" type="video/mp4">
+                    {{t "landingpage.video_not_supported"}}
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <div class="row my-5">
+         <div class="col-md-6">
+            <div class="overflow-hidden bg-white p-2 h-100 d-flex align-items-center justify-content-center">
+                <video autoplay loop muted style="width: 100%;">
+                    <source src="/assets/videos/API Features.mov" type="video/mp4">
+                    {{t "landingpage.video_not_supported"}}
+                </video>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card ">
+                <div class="card-header">
+                    <h2 class="h3">
+                        {{t "landingpage.feature3.title"}}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {{t "landingpage.feature3.description"}}
+                </div>
+            </div>
+        </div>
+       
+    </div>
+
+
     <div class="card card--login">
         <div class="card-header">
             <h2 class="h3">
@@ -39,3 +124,57 @@
     </div>
 
 </div>
+
+<footer class="footer text-white mt-5 py-4" style="background-color: #465166;">
+    <div class="container">
+        <div class="row text-center text-md-start">
+            <div class="col-md-4 mb-3 mb-md-0 ">
+                <h5>{{t "landingpage.footer.links_title"}}</h5>
+                <ul class="list-unstyled mt-2">
+                    <li>
+                        <LinkTo @route="datenschutz" class="text-white text-decoration-none">{{t
+                            "landingpage.footer.link_privacy"}}</LinkTo>
+                    </li>
+                    <li>
+                        <LinkTo @route="impressum" class="text-white text-decoration-none">{{t
+                            "landingpage.footer.link_imprint"}}</LinkTo>
+                    </li>
+                    <li>
+                        <LinkTo @route="nutzungsbedingungen" class="text-white text-decoration-none">{{t
+                            "landingpage.footer.link_terms"}}</LinkTo>
+                    </li>
+                </ul>
+                <ul class="list-unstyled mt-2">
+                    <li>
+                        <a href="https://connectedurbantwins.de" target="_blank" rel="noopener"
+                            class="text-white text-decoration-none">
+                            Connected Urban Twins
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://citysciencelab.hamburg" target="_blank" rel="noopener"
+                            class="text-white text-decoration-none">
+                            City Science Lab Hamburg
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <h5>{{t "landingpage.footer.about_title"}}</h5>
+                <p class="mt-2 text-start">
+                    <img src="/assets/images/CUT_Logo_white.svg" alt="Connected Urban Twins Logo"
+                        class="img-fluid text-start" style="max-height: 120px; float: left;">
+                </p>
+            </div>
+
+            <div class="col-md-4">
+                <h5>{{t "landingpage.footer.funded_by"}}</h5>
+                <p class="bg-white p-1 rounded mt-2">
+                    <img src="/assets/images/CUT_Funders.svg" alt="Funded By" class="img-fluid mt-2"
+                        style="max-height: 150px;">
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>

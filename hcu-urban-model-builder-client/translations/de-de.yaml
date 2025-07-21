@@ -15,19 +15,35 @@ general:
   terms_of_service: Nutzungsbedingungen
 
 landingpage:
-  title: Urban Model Builder
-  subtitle: Erstellen Sie Ihre eigenen Modelle für die Stadtentwicklung
+  title: Erstellen Sie Ihre eigenen Modelle für die Stadtentwicklung
+  subtitle: Open Source · Kostenlos · Kollaborativ
   description: Der Urban Model Builder ist eine Open-Source-Webanwendung, die es Ihnen ermöglicht, komplexe städtische Modelle zu erstellen und zu simulieren.
   get_started: Loslegen 🖥️
   demo: Zur Demo 🚀
   learn_more: Mehr erfahren 📚
-  features:
-    - title: Intuitive Benutzeroberfläche
-      description: Einfaches Drag-and-Drop-Interface zum Erstellen von Modellen.
-    - title: Echtzeit-Simulation
-      description: Simulieren Sie Ihre Modelle in Echtzeit und analysieren Sie die Ergebnisse.
-    - title: Open Source
-      description: Vollständig quelloffen und anpassbar für Ihre Bedürfnisse.
+  feature1:
+    title: Co-modelliere die Stadt!
+    description: Arbeite mit anderen zusammen, um städtische Modelle - wie Bevölkerungsmodelle, Verkehrsmodelle und Flächennutzungsmodelle - in Echtzeit zu erstellen und zu simulieren. Teile deine Modelle mit der Community, klone die Modelle anderer und erstelle Versionen deiner Modelle.
+  feature2:
+    title: ABM, SD und mehr
+    description: Erstelle agentenbasierte Modelle (ABM), System-Dynamics-Modelle (SD) und andere komplexe Simulationen - direkt in deinem Browser und ohne Programmierkenntnisse.
+  feature3:
+    title: (Echtzeit-)Daten von Urbanen Datenplattformen
+    description: Binde über OGC-API-Features Schnittstellen Daten von Urbanen Datenplattformen ein, um deine Modelle mit aktuellsten Daten zu versorgen.
+  video_not_supported: Ihr Browser unterstützt das Video-Tag nicht.
+  footer:
+    about_title: Entwickelt im Rahmen von
+    about_text: Der Urban Model Builder wurde im Rahmen von "Connected Urban Twins" am City Science Lab der HafenCity Universität Hamburg entwickelt
+    links_title: Links
+    link_about: Über Urban Model Builder
+    link_contact: Kontakt
+    link_terms: Nutzungsbedingungen
+    link_privacy: Datenschutz
+    link_imprint: Impressum
+    faq: FAQ
+    contact_title: Kontakt
+    contact_address: Kontaktadresse
+    funded_by: Gefördert durch
 
 pagination:
   meta: Zeige {start} - {end} von {total}
