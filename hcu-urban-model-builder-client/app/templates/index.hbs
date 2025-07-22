@@ -15,13 +15,18 @@
         </p>
 
         <div class="grid">
-            <LinkTo @route="demo" class="btn btn-primary btn-lg text-wrap mx-2">
+            <LinkTo @route="demo" class="btn btn-primary btn-lg text-wrap m-2">
                 {{t "landingpage.demo"}}
             </LinkTo>
 
-            <LinkTo @route="models" class="btn btn-primary btn-lg text-wrap mx-2">
+            <LinkTo @route="models" class="btn btn-primary btn-lg text-wrap m-2">
                 {{t "landingpage.get_started"}}
             </LinkTo>
+
+            <a href="https://citysciencelab.github.io/urban-model-builder/" target="_blank"
+                class="btn btn-primary btn-lg text-wrap m-2">
+                {{t "landingpage.learn_more"}}
+            </a>
         </div>
     </div>
 </div>
@@ -84,7 +89,7 @@
     </div>
 
     <div class="row my-5">
-         <div class="col-md-6 col-sm-12">
+        <div class="col-md-6 col-sm-12">
             <div class="overflow-hidden bg-white px-2 h-100 d-flex align-items-center justify-content-center">
                 <video autoplay loop muted style="width: 100%;">
                     <source src="/assets/videos/API Features.mov" type="video/mp4">
@@ -104,11 +109,11 @@
                 </div>
             </div>
         </div>
-       
+
     </div>
 </div>
 
-<div class="main-home " style="background-color: #a3c4ff;">
+<div class="main-home" style="background-color: #a3c4ff; min-height: auto;">
 
     <div class="container text-center py-5 landingpage">
         <h2 class="display-4 mb-4 fw-bold" style="color: #465166;">
@@ -118,14 +123,28 @@
             {{t "landingpage.comodeling_description"}}
         </p>
 
-        <div class="mb-4">
-            <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/p3ftnO9M6CE?si=VzJVycmyUuTgGxkA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <div class="mb-4 mx-auto">
+            <iframe class="w-75 rounded" height="320" style="border-radius: 1rem;"
+                src="https://www.youtube.com/embed/p3ftnO9M6CE?si=VzJVycmyUuTgGxkA" title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
+
 
         <LinkTo @route="models" class="btn btn-secondary btn-lg">
             {{t "landingpage.get_started"}}
         </LinkTo>
+
+        <LinkTo @route="demo" class="btn btn-secondary btn-lg text-wrap m-2">
+            {{t "landingpage.demo"}}
+        </LinkTo>
+
     </div>
+
+</div>
+
+<div class="container landingpage main-content">
 
 </div>
 
@@ -151,13 +170,13 @@
                 </ul>
                 <ul class="list-unstyled mt-2">
                     <li>
-                        <a href="https://connectedurbantwins.de" target="_blank" rel="noopener"
+                        <a href="https://connectedurbantwins.de" target="_blank" rel="noopener noreferrer"
                             class="text-white text-decoration-none">
                             Connected Urban Twins
                         </a>
                     </li>
                     <li>
-                        <a href="https://citysciencelab.hamburg" target="_blank" rel="noopener"
+                        <a href="https://citysciencelab.hamburg" target="_blank" rel="noopener noreferrer"
                             class="text-white text-decoration-none">
                             City Science Lab Hamburg
                         </a>
@@ -170,8 +189,11 @@
                 <p class="mt-2 text-start">
                     <img src="/assets/images/CUT_Logo_white.svg" alt="Connected Urban Twins Logo"
                         class="img-fluid text-start" style="max-height: 120px; float: left;">
+                </p>
+                <p class="text-start">
                     {{t "landingpage.footer.about_text"}}
-                    <br>
+                </p>
+                <p class="mt-2 text-start">
                     <img src="/assets/images/CSL_Logo_weis.png" alt="City Science Lab Logo"
                         class="img-fluid text-start mt-2" style="max-width: 250px; float: left;">
                 </p>

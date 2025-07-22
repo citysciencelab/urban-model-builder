@@ -1,7 +1,7 @@
 <div class="sidebar__bar">
   <ul class="nav nav-flush flex-column mb-auto text-center">
     {{#each this.navItems as |navItem|}}
-      {{#unless (and (not @modelVersion.canEdit) (eq navItem.id "settings"))}}
+      {{#if (not (and (not @modelVersion.canEdit) (eq navItem.id "settings")))}}
         <li class="nav-item">
           <a
             href="javascript:void(0)"
@@ -11,7 +11,7 @@
             <SvgIcon @icon={{navItem.icon}} @size="md" />
           </a>
         </li>
-      {{/unless}}
+      {{/if}}
     {{/each}}
   </ul>
 

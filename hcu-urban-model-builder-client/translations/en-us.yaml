@@ -20,7 +20,7 @@ landingpage:
   description: The Urban Model Builder is an open-source web application that allows you to create and simulate complex urban models.
   get_started: Get Started 🖥️
   demo: To the Demo 🚀
-  learn_more: Learn More 📚
+  learn_more: To the Documentation 📚
   feature1:
     title: Collaborate on "What If?" Scenarios with the Urban Model Builder
     description: Collaborate with others in real-time to build and simulate urban models - such as population models, transportation models, and land use models. Share your models with the community, clone the models of others, and create versions of your models.
@@ -137,7 +137,7 @@ routes:
         title: Show
   public_models:
     title: Public Models
-    list_of_models: List of Public Models
+    list_of_models: Public Models
   login:
     title: Login
   demo:
