@@ -19,25 +19,25 @@
                 {{t "landingpage.demo"}}
             </LinkTo>
 
-            <LinkTo @route="login" class="btn btn-primary btn-lg text-wrap mx-2">
+            <LinkTo @route="models" class="btn btn-primary btn-lg text-wrap mx-2">
                 {{t "landingpage.get_started"}}
             </LinkTo>
         </div>
     </div>
 </div>
 
-<div class="container main-content">
+<div class="container landingpage main-content">
 
     <div class="row my-5">
-        <div class="col-md-6">
-            <div class="rounded overflow-hidden bg-white p-2 h-100 d-flex align-items-center justify-content-center">
+        <div class="col-12 col-lg-6">
+            <div class="rounded overflow-hidden bg-white px-2 align-items-center justify-content-center">
                 <video autoplay muted loop style="width: 100%; border-radius: 1rem;">
                     <source src="/assets/videos/modelbuildervideo.mov" type="video/mp4">
                     {{t "landingpage.video_not_supported"}}
                 </video>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-12 col-lg-6">
             <div class="card ">
                 <div class="card-header">
                     <h2 class="h3">
@@ -53,7 +53,7 @@
     </div>
 
     <div class="row my-5">
-        <div class="col-md-4">
+        <div class="col-md-4 col-sm-12">
             <div class="card ">
                 <div class="card-header">
                     <h2 class="h3">
@@ -65,16 +65,16 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class=" overflow-hidden bg-white p-2 h-100 d-flex align-items-center justify-content-center">
+        <div class="col-md-4 col-sm-12">
+            <div class=" overflow-hidden bg-white px-2 h-100 d-flex align-items-center justify-content-center">
                 <video autoplay loop muted style="width: 100%;">
                     <source src="/assets/videos/SD.mov" type="video/mp4">
                     {{t "landingpage.video_not_supported"}}
                 </video>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class=" overflow-hidden bg-white p-2 h-100 d-flex align-items-center justify-content-center">
+        <div class="col-md-4 col-sm-12">
+            <div class=" overflow-hidden bg-white px-2 h-100 d-flex align-items-center justify-content-center">
                 <video autoplay loop muted style="width: 100%;">
                     <source src="/assets/videos/ABM.mov" type="video/mp4">
                     {{t "landingpage.video_not_supported"}}
@@ -84,15 +84,15 @@
     </div>
 
     <div class="row my-5">
-         <div class="col-md-6">
-            <div class="overflow-hidden bg-white p-2 h-100 d-flex align-items-center justify-content-center">
+         <div class="col-md-6 col-sm-12">
+            <div class="overflow-hidden bg-white px-2 h-100 d-flex align-items-center justify-content-center">
                 <video autoplay loop muted style="width: 100%;">
                     <source src="/assets/videos/API Features.mov" type="video/mp4">
                     {{t "landingpage.video_not_supported"}}
                 </video>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 col-sm-12">
             <div class="card ">
                 <div class="card-header">
                     <h2 class="h3">
@@ -106,27 +106,32 @@
         </div>
        
     </div>
+</div>
 
+<div class="main-home " style="background-color: #a3c4ff;">
 
-    <div class="card card--login">
-        <div class="card-header">
-            <h2 class="h3">
-                {{t "actions.login"}}
-            </h2>
+    <div class="container text-center py-5 landingpage">
+        <h2 class="display-4 mb-4 fw-bold" style="color: #465166;">
+            {{t "landingpage.comodeling"}}
+        </h2>
+        <p class="lead mb-5 w-75 mx-auto">
+            {{t "landingpage.comodeling_description"}}
+        </p>
+
+        <div class="mb-4">
+            <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/p3ftnO9M6CE?si=VzJVycmyUuTgGxkA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
-        <div class="card-body">
-            <LinkTo @route="demo" class="btn btn-secondary" aria-pressed="false">
-                <span>
-                    {{t "general.demo"}}
-                </span>
-            </LinkTo>
-        </div>
+
+        <LinkTo @route="models" class="btn btn-secondary btn-lg">
+            {{t "landingpage.get_started"}}
+        </LinkTo>
     </div>
 
 </div>
 
-<footer class="footer text-white mt-5 py-4" style="background-color: #465166;">
-    <div class="container">
+
+<footer class="footer text-white mt-5 py-4 " style="background-color: #465166;">
+    <div class="container landingpage">
         <div class="row text-center text-md-start">
             <div class="col-md-4 mb-3 mb-md-0 ">
                 <h5>{{t "landingpage.footer.links_title"}}</h5>
@@ -165,7 +170,12 @@
                 <p class="mt-2 text-start">
                     <img src="/assets/images/CUT_Logo_white.svg" alt="Connected Urban Twins Logo"
                         class="img-fluid text-start" style="max-height: 120px; float: left;">
+                    {{t "landingpage.footer.about_text"}}
+                    <br>
+                    <img src="/assets/images/CSL_Logo_weis.png" alt="City Science Lab Logo"
+                        class="img-fluid text-start mt-2" style="max-width: 250px; float: left;">
                 </p>
+
             </div>
 
             <div class="col-md-4">

@@ -75,11 +75,15 @@ $force-width: 1200px;
   width: $force-width !important;
   max-width: $force-width !important;
 }
-.navbar,
+//.navbar,
 .react-wrapper {
   min-width: $force-width !important;
 }
 // end - switch-off responsive design
+
+.landingpage {
+  width: 100% !important;
+}
 
 @mixin make-input() {
   display: block;
@@ -200,6 +204,8 @@ main {
   height: 100%;
 }
 #navbar-main {
+  width: 100% !important;
+  min-width: none !important;
   .nav-link.active {
     text-decoration: underline;
     text-decoration-thickness: 2px;

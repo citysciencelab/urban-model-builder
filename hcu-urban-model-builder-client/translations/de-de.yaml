@@ -15,14 +15,14 @@ general:
   terms_of_service: Nutzungsbedingungen
 
 landingpage:
-  title: Erstellen Sie Ihre eigenen Modelle für die Stadtentwicklung
+  title: Co-Modelliere deine Stadt
   subtitle: Open Source · Kostenlos · Kollaborativ
   description: Der Urban Model Builder ist eine Open-Source-Webanwendung, die es Ihnen ermöglicht, komplexe städtische Modelle zu erstellen und zu simulieren.
   get_started: Loslegen 🖥️
   demo: Zur Demo 🚀
   learn_more: Mehr erfahren 📚
   feature1:
-    title: Co-modelliere die Stadt!
+    title: Mit dem Urban Model Builder zu "Was wäre wenn?"-Szenarien
     description: Arbeite mit anderen zusammen, um städtische Modelle - wie Bevölkerungsmodelle, Verkehrsmodelle und Flächennutzungsmodelle - in Echtzeit zu erstellen und zu simulieren. Teile deine Modelle mit der Community, klone die Modelle anderer und erstelle Versionen deiner Modelle.
   feature2:
     title: ABM, SD und mehr
@@ -31,9 +31,12 @@ landingpage:
     title: (Echtzeit-)Daten von Urbanen Datenplattformen
     description: Binde über OGC-API-Features Schnittstellen Daten von Urbanen Datenplattformen ein, um deine Modelle mit aktuellsten Daten zu versorgen.
   video_not_supported: Ihr Browser unterstützt das Video-Tag nicht.
+  comodeling: Was ist Co-Modellierung?
+  comodeling_description: Co-Modellierung ist ein kollaborativer Prozess, bei dem mehrere Personen oder Organisationen gemeinsam an der Erstellung und Simulation von Modellen arbeiten. Dies ermöglicht es, verschiedene Perspektiven und Fachkenntnisse zu integrieren, um realistischere und umfassendere Modelle zu entwickeln. Der Urban Model Builder fördert die Co-Modellierung, indem er eine benutzerfreundliche Plattform bietet, auf der Nutzer gemeinsam an städtischen Modellen arbeiten können. Durch die Integration von Echtzeitdaten und die Möglichkeit, Modelle zu teilen und zu klonen, wird die Zusammenarbeit erleichtert und die Qualität der Modelle verbessert.
+
   footer:
     about_title: Entwickelt im Rahmen von
-    about_text: Der Urban Model Builder wurde im Rahmen von "Connected Urban Twins" am City Science Lab der HafenCity Universität Hamburg entwickelt
+    about_text: am
     links_title: Links
     link_about: Über Urban Model Builder
     link_contact: Kontakt
