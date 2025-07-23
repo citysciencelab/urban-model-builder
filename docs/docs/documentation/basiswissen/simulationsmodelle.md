@@ -17,3 +17,8 @@ Digitale Simulationsmodelle erlauben es, Szenarien durchzuspielen, ohne physisch
 
 Das Urban Model Builder ist ein Tool zur individuellen Modellierung von komplexen Systemen. Somit wird eine Vielzahl an persönlichen Annahmen getroffen, sowohl bezogen auf die übergeordnete Konzeption des Modells als auch bei den jeweiligen Werten und Funktionsbeschreibungen, die getroffen werden.
 :::
+
+:::tip Umgang mit Unsicherheiten
+
+
+:::
