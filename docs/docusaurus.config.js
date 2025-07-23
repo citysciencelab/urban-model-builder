@@ -96,6 +96,12 @@ const config = {
             position: 'left',
             label: 'Tutorials',
           },
+           {
+            type: 'docSidebar',
+            sidebarId: 'cheatsheetSidebar',
+            position: 'left',
+            label: 'Cheatsheet',
+          },
           //{to: '/blog', label: 'Blog', position: 'left'},
           {
             type: 'localeDropdown',
