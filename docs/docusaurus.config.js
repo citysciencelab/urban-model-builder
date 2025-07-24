@@ -102,6 +102,12 @@ const config = {
             position: 'left',
             label: 'Cheatsheet',
           },
+          {
+            type: 'docSidebar',
+            sidebarId: 'FunktionenSidebar',
+            position: 'left',
+            label: 'Funktionen',
+          },
           //{to: '/blog', label: 'Blog', position: 'left'},
           {
             type: 'localeDropdown',
