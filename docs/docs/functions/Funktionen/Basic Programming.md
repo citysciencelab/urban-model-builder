@@ -1,14 +1,10 @@
 ---
-sidebar_position: 5
+sidebar_position: 1
 ---
-
-# Funktionen
-
-## Basic Programming
 
 ### Variablen definieren
 
-```jsx title="Verwende den Operator <-, um Werte zuzuweisen:"
+```jsx title="Verwende den Operator <-, um den Variablen bestimmte Werte zuzuweisen:"
 x <- 5
 y <- x + 3  # y = 8
 x <- x * 2  # x = 10
@@ -51,7 +47,7 @@ else
 end if
 ```
 ### While Loops
-```jsx title="Code wiederholen, solange eine Bedingung erfüllt ist:"
+```jsx title="Der Code wird wiederholt, solange eine Bedingung erfüllt ist:"
 n <- 1
 while n < 100
   n <- n * 2
@@ -165,4 +161,3 @@ ElectricCar.constructor <- function(m, y, r)
   self.range <- r
 end function
 ```
-## Integrierte Funktionen 

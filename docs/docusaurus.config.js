@@ -96,17 +96,17 @@ const config = {
             position: 'left',
             label: 'Tutorials',
           },
-           {
-            type: 'docSidebar',
-            sidebarId: 'cheatsheetSidebar',
-            position: 'left',
-            label: 'Cheatsheet',
-          },
           {
             type: 'docSidebar',
             sidebarId: 'funktionenSidebar',
             position: 'left',
             label: 'Funktionen',
+          },
+          {
+            type: 'docSidebar',
+            sidebarId: 'cheatsheetSidebar',
+            position: 'left',
+            label: 'Cheatsheet',
           },
           //{to: '/blog', label: 'Blog', position: 'left'},
           {
