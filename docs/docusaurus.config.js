@@ -104,7 +104,7 @@ const config = {
           },
           {
             type: 'docSidebar',
-            sidebarId: 'FunktionenSidebar',
+            sidebarId: 'funktionenSidebar',
             position: 'left',
             label: 'Funktionen',
           },
