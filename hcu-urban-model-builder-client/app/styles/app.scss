@@ -75,11 +75,15 @@ $force-width: 1200px;
   width: $force-width !important;
   max-width: $force-width !important;
 }
-.navbar,
+//.navbar,
 .react-wrapper {
   min-width: $force-width !important;
 }
 // end - switch-off responsive design
+
+.landingpage {
+  width: 100% !important;
+}
 
 @mixin make-input() {
   display: block;
@@ -170,9 +174,24 @@ main {
   height: calc(100vh - 72px);
 }
 
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 72px);
+  padding: get-spacer(3);
+}
+
 .main-content {
   margin-top: get-spacer(3);
   display: grid;
+}
+
+.main-home {
+  display: grid;
+  min-height: calc(100vh - 72px);
+  overscroll-behavior: auto;
 }
 
 .content-page {
@@ -185,6 +204,8 @@ main {
   height: 100%;
 }
 #navbar-main {
+  width: 100% !important;
+  min-width: none !important;
   .nav-link.active {
     text-decoration: underline;
     text-decoration-thickness: 2px;

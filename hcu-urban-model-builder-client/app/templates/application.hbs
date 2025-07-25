@@ -8,9 +8,9 @@
   @toggleBreakpoint={{null}}
   id="navbar-main" as |navbar|
 >
-  <div class="navbar-header">
+  <div class="navbar-header ">
     <navbar.toggle />
-    <LinkTo @route="models.index" class="navbar-brand">
+    <LinkTo @route="index" class="navbar-brand">
       <img
         src="/assets/images/urban-model-builder-logo.svg"
         alt={{t "routes.application.title"}}
@@ -34,7 +34,17 @@
       </navbar.nav>
     </navbar.content>
   {{/if}}
+  
   <navbar.nav as |nav|>
+    {{#unless this.session.isAuthenticated}}
+      <nav.item>
+        <nav.linkTo @route="login">
+            <FaIcon @icon="right-to-bracket" />
+          {{t "actions.login"}}
+        </nav.linkTo>
+      </nav.item>
+    {{/unless}}
+    {{#unless (eq this.router.currentRouteName "index")}}
     <nav.dropdown as |dd|>
       <dd.toggle>
         {{t "general.legal"}}
@@ -58,6 +68,7 @@
         </ddm.item>
       </dd.menu>
     </nav.dropdown>
+    {{/unless}}
     <LangSwitch />
     {{#if this.session.isAuthenticated}}
       <li class="nav-item navbar-text">
@@ -77,6 +88,7 @@
         </button>
       </li>
     {{/if}}
+    
   </navbar.nav>
 </BsNavbar>
 
