@@ -98,7 +98,7 @@ const config = {
           },
           {
             type: 'docSidebar',
-            sidebarId: 'functionsSidebar',
+            sidebarId: 'funktionenSidebar',
             position: 'left',
             label: 'Funktionen',
           },
