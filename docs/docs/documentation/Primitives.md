@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 ---
-Wie viele Bausteine sind notwendig um Systeme in ihrer Komplexität modellieren zu können? - Keine einfache Frage! 
+Wie viele Bausteine sind notwendig um Systeme in ihrer Komplexität modellieren zu können? Keine einfache Frage! 
 
 Wir geben dir aber insgesamt **11 Funktionsbausteine** an die Hand, damit du dein individuelles System Dynamics bzw. agentenbasiertes Modell aufbauen kannst.
 Folgende Tabellen helfen dir die jeweiligen Primitives in ihren spezifischen Funktionsweisen zu verstehen und anwenden zu können.

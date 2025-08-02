@@ -50,31 +50,31 @@ Syntax: String.UpperCase()
 ```
 ### LowerCase
 ```jsx title="Wandelt alle Buchstaben in Kleinbuchstaben um:"
-Syntax: String.LowerCase()
+Syntax:     String.LowerCase()
 
-"HELLO".LowerCase() → "hello"
-"Text123!".LowerCase() → "text123!"
+Beispiel:   "HELLO".LowerCase() → "hello"
+            "Text123!".LowerCase() → "text123!"
 ```
 ### Join
 ```jsx title="Kombiniert Vektorelemente zu einer Zeichenfolge:"
-Syntax: Vector.Join(separator)
+Syntax:     Vector.Join(separator)
 
-{"a", "b", "c"}.Join("-") → "a-b-c"
-{2025, 7, 11}.Join("/") → "2025/7/11"
-{"red", "blue"}.Join(" & ") → "red & blue"
+Beispiel:   {"a", "b", "c"}.Join("-") → "a-b-c"
+            {2025, 7, 11}.Join("/") → "2025/7/11"
+            {"red", "blue"}.Join(" & ") → "red & blue"
 ```
 ### Trim
 ```jsx title="Entfernt Leerzeichen an beiden Enden:"
-Syntax: String.Trim()
+Syntax:     String.Trim()
 
-" text ".Trim() → "text"
-" \nTest\t".Trim() → "Test"
+Beispiel:   " text ".Trim() → "text"
+            " \nTest\t".Trim() → "Test"
 ```
 ### Parse
 ```jsx title="Wandelt eine numerische Zeichenfolge in eine Zahl um:"
-Syntax: String.Parse()
+Syntax:      String.Parse()
 
-"42".Parse() → 42
-"3.14".Parse() → 3.14
-"-100".Parse() → -100
+Beispiel:   "42".Parse() → 42
+            "3.14".Parse() → 3.14
+            "-100".Parse() → -100
 ```

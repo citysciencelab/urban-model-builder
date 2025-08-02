@@ -25,14 +25,15 @@ Im Gegensatz dazu bestehen **agentenbasierte Modelle** aus einer Vielzahl indivi
 
 Differenzialgleichungssysteme sind die Berechnungsgrundlage von **System Dynamics**, weil sie zeitabhängige Veränderungen von Zuständen in einem dynamischen System modellieren. Ein Differenzialgleichungssystem besteht aus mehreren gekoppelten Gleichungen, die beschreiben, wie sich Zustandsgrößen über die Zeit verändern.
 
-dxn/dt= fn(x1,x2….xn,t)
+dx<sub>n</sub>/dt= f<sub>n</sub>(x<sub>1</sub>,x<sub>2</sub>….x<sub>n</sub>,t)
 
-Jede Gleichung beschreibt die Änderungsrate einer Zustandsgröße xi , wie sie sich pro Zeiteinheit verändert in Abhängigkeit von anderen Größen.
-Stocks - Zustandsgrößen xi(t)
-Flows - Änderungsraten dxi/dt
-Feedback loops - Kopplung zwischen Gleichungen (zB fi hängt von xk ab)
-Simulation - Numerische Lösung dieser Gleichungen über die Zeit 
+Jede Gleichung beschreibt die Änderungsrate einer Zustandsgröße x<sub>i</sub> , wie sie sich pro Zeiteinheit verändert in Abhängigkeit von anderen Größen.
+
+<p>Stocks - Zustandsgrößen x<sub>n</sub>(t)</p>
+<p>Flows - Änderungsraten dx<sub>n</sub>/dt</p>
+<p>Feedback loops - Kopplung zwischen Gleichungen (zB f<sub>n</sub> hängt von x<sub>n</sub> ab)</p>
+<p>Simulation - Numerische Lösung dieser Gleichungen über die Zeit</p> 
 
 In **agentbasierten Modellen** wird, statt globalen Gleichungen für das gesamte System wie bei SD, das Verhalten einzelner, autonomer Agenten beschrieben, die einfachen Regeln folgen, mit ihrer Umwelt interagieren und sich gegenseitig beeinflussen. Das globale Systemverhalten emeritiert aus dem Zusammenspiel vieler individueller Agenten.
-Agentenbasierte Modelle basieren typischerweise nicht auf Differentialgleichungssystemen, sondern auf regelbasierten Systemen, wie logischen Entscheidungsregeln oder zeitdiskreten Simulationen in Schritten,stochastischen Prozessen wie Übergangswahrscheinlichkeiten zwischen Zuständen, oder Event-basierten Modellierung wie Ereignisse den Zustand einzelner Agenten ändern zu bestimmten Zeitpunkten (z.B. Agent stirbt bei Kontakt mit Virus)
+Agentenbasierte Modelle basieren typischerweise nicht auf Differentialgleichungssystemen, sondern auf regelbasierten Systemen, wie logischen Entscheidungsregeln oder zeitdiskreten Simulationen in Schritten,stochastischen Prozessen wie Übergangswahrscheinlichkeiten zwischen Zuständen, oder Event-basierten Modellierung wie Ereignisse den Zustand einzelner Agenten ändern zu bestimmten Zeitpunkten.
 

@@ -4,10 +4,10 @@ sidebar_position: 8
 # Programming
 ### Variables
 ```jsx title="Weist einen Wert zur späteren Verwendung zu:"
-Syntax: variable <- value
+Syntax:   variable <- value
 
-x <- 10 → x^2 → 100
-a <- 3; b <- a + 5 → b → 8
+Beispiel: x <- 10 → x^2 → 100
+          a <- 3; b <- a + 5 → b → 8
 ```
 ### If-Then-Else Statement
 ```jsx title="Führt Code basierend auf Bedingungen aus:"
@@ -20,6 +20,7 @@ Else
   code
 End If
 
+Beispiel:
 x <- 5; 
 If x > 10 Then 
 'Big' 
@@ -35,6 +36,7 @@ While condition
   code
 End Loop
 
+Beispiel:
 x <- 1; 
 While x < 5 
 x <- x * 2 
@@ -49,6 +51,7 @@ For item in vector
   code
 End Loop
 
+Beispiel:
 sum <- 0; 
 For x in {1, 2, 3} 
 sum <- sum + x 
@@ -63,6 +66,7 @@ Function Name(params)
   code
 End Function
 
+Beispiel:
 Function Double(x) 
 x * 2 
 End Function
@@ -76,6 +80,7 @@ var <- Function(params)
   code
 End Function
 
+Beispiel:
 square <- Function(x) 
 x^2 
 End Function
@@ -84,15 +89,16 @@ square(3) → 9
 ```
 ### Single-Line Anonymous Functions
 ```jsx title="Kompakte anonyme Funktion:"
-Syntax: Function(x) expression
+Syntax:   Function(x) expression
 
-{1, 2, 3}.Map(Function(x) x + 1) → {2, 3, 4}
-{5, 10, 15}.Filter(Function(x) x > 5) → {10, 15}
+Beispiel: {1, 2, 3}.Map(Function(x) x + 1) → {2, 3, 4}
+          {5, 10, 15}.Filter(Function(x) x > 5) → {10, 15}
 ```
 ### Throwing Errors
 ```jsx title="Löst manuell einen Fehler aus:"
 Syntax: throw 'message'
 
+Beispiel:
 If x < 0 Then 
 throw 'Negative not allowed' 
 End If
@@ -106,6 +112,7 @@ Catch err
   handle error
 End Try
 
+Beispiel:
 Try
 Ln(-1) 
 Catch e 

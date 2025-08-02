@@ -4,19 +4,19 @@ sidebar_position: 9
 # User Input Functions
 ### Alert
 ```jsx title="Zeigt ein Meldungsfeld an:"
-Syntax: Alert("message")
+Syntax:     Alert("message")
 
-Alert("Simulation started")
+Beispiel:   Alert("Simulation started")
 ```
 ### Prompt
 ```jsx title="Ruft Benutzereingaben ab:"
-Syntax: Prompt("message", default)
+Syntax:     Prompt("message", default)
 
-age <- Prompt("Enter age", 18).Parse()
+Beispiel:   age <- Prompt("Enter age", 18).Parse()
 ```
 ### Confirm
 ```jsx title="Erhält eine Ja/Nein-Bestätigung:"
-Syntax: Confirm("message")
+Syntax:     Confirm("message")
 
-runAdvanced <- Confirm("Enable advanced mode?")
+Beispiel:   runAdvanced <- Confirm("Enable advanced mode?")
 ```
