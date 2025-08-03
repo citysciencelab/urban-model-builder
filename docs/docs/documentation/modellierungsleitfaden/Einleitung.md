@@ -1,14 +1,20 @@
 ---
 sidebar_position: 1
 ---
+# On Boarding 
+## Reise durch das Model Land
+Modelle helfen uns, die komplexe Wirklichkeit zu verstehen, Handlungsoptionen zu testen und informierte Entscheidungen zu treffen. Jedes Modell bedeutet somit: Vereinfachung, Interpretation und Verantwortung. Der Umgang mit solchen Aufgaben, lässt sich am anschaulichsten in der Metapher des Model Lands erzählen - jenem abstrakten Land voller mathematischer Zusammenhänge und Berechnungen, was exploriert werden möchte! Basierend auf dem Buch "Escape from Model Land - How mathematical models can lead us astray and what we can do about it" von Erica Thompson entwickelten wir den [„Guide to Model Land- Ein Leitfaden zu ethischen Fragestellungen für Modelle und Simulationen in digitalen Stadtzwillingen“](https://www.connectedurbantwins.de/app/uploads/2024/08/2024-07-22_City-Science-Lab_Guide-To-Model-Land_EN.pdf). Dieser Leitfaden bietet dir einen allgemeinen praktischen Überblick und spannende Denkanstöße zu dem Aufbau, der Simulation und Interpretation von digitalen Modellen. Mit jeder Simulation bewegen wir uns nämlich in Model Land. 
 
-Hier findest du eine Übersicht über die wichtigsten Aspekte zur Nutzung des Tools. Der Leitfaden bietet dir eine strukturierte Herangehensweise an die Modellierung und hilft dir, komplexe Systeme zu verstehen und zu simulieren. Der [„Guide to Model Land- Ein Leitfaden zu ethischen Fragestellungen für Modelle und Simulationen in digitalen Stadtzwillingen“](https://www.connectedurbantwins.de/app/uploads/2024/08/2024-07-22_City-Science-Lab_Guide-To-Model-Land_EN.pdf) wurde ebenfalls im Rahmen des CUT Projekts verfasst und bietet eine praktische Orientierung und etwaige Hinweise zu dem Aufbau, der Simulation und Interpretation von digitalen Modellen. Mit jeder Simulation bewegen wir uns in „Model Land“ – dem abstrakten Land der mathematischen Zusammenhänge und Berechnungen. Mit der Nutzung des Urban Model Builders erstellst du dein eigenes Model Land, bewegst dich darin, lädst andere Nutzer darin ein und verlässt es mit neuen Erkenntnissen. Bevor das Model Land betreten wird, muss der Nutzer im Vorhinein bereits wichtige Entscheidungen treffen bezüglich des Erstellens des Modells. Da ein Modell Prozesse der Realität annähernd abzubilden vermag, sollte sich der Nutzer über folgende Fragen Gedanken machen: 
-1. Welches Problem liegt meiner Modellierung zugrunde? 
-2. Wie kann ich die Realität so gut wie möglich in ein Modell übersetzen? 
-3. Welche Daten, Parameter und Relationen sind notwendig? 
-4. Welche Daten, Parameter und Relationen lasse ich bewusst aus? 
-5. Welchem Zweck soll das Modell dienen? Welche Erkenntnisse möchte ich daraus mitnehmen? 
-6. Wie viel Komplexität ist für die jeweilige Fragestellung notwendig?
+Auch mit der Nutzung des Urban Model Builders erstellst du dein eigenes Model Land, bewegst dich darin, lädst andere Nutzer darin ein und verlässt es mit neuen Erkenntnissen. 
+Die folgenden drei Kapitel:
+1. Model Land betreten - Modell erstellen
+2. Model Land navigieren - Modell simulieren 
+3. Model Land verlassen - Modellergebnisse verwenden
+
+nehmen dich erzählerisch mit auf die Erkundung der Anwendung des Urban Model Builders und viel mehr, was noch dahinter steckt!
+
+
+
 
 
 
