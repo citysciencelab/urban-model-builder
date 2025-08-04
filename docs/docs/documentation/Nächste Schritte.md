@@ -1,6 +1,7 @@
 ---
 sidebar_position: 9
 ---
+
 ## Ausblick
 Mit einem Blick in die Zukunft gerichtet, hoffen wir, dass…
 

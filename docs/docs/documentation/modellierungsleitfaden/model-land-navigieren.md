@@ -13,13 +13,13 @@ Um dir eine möglichst resiliente und standhafte Meinung zu bilden, bist du davo
 
 Die herrschenden Umstände, Bedingungen und Abhängigkeiten kannst du auf globaler und lokaler Ebene konfigurieren - ganz so als würdest du die Klimazone für das Modell auf globaler Ebene und das Wetter auf lokaler Ebene einrichten!
 
-Unter den [Modell-Einstellungen](/Primitives.md) setzt du die globalen Parameter.
+- Unter den [Modell-Einstellungen](../Einstellungen/Modell-%20Einstellungen) setzt du die globalen Parameter.
 
-Die [Szenario-Einstellungen](/Primitives.md) ermöglichen es dir unterschiedliche Konfigurationen auszuprobieren.
+- Die [Szenario-Einstellungen](../Einstellungen/Szenario-%20Einstellungen) ermöglichen es dir unterschiedliche Konfigurationen auszuprobieren.
 
-Du gehst einen Weg entlang, für den du dich entschieden hast. Auf der Karte siehst du langsam, wie sich der Weg nach und nach schrittweise aufbaut. Die [Simulation](/Primitives.md) wird durchgeführt und zeigt dir letztendlich dein Ankunftsziel an. Ob es das Ziel ist, was du erwartet hast, wo du hin wolltest, ob es dein Endziel oder nur ein Zwischenstopp ist, entscheidest du. Natürlich kannst du deine Mitreisenden nach ihrer Sichtweise fragen! - Mache die Ergebnisse transparent,  [veröffentliche das Modell](/Primitives.md) mit der ganzen Community oder [teile das Modell](/Primitives.md) mit ausgewählten Usern.
+Du gehst einen Weg entlang, für den du dich entschieden hast. Auf der Karte siehst du langsam, wie sich der Weg nach und nach schrittweise aufbaut. Die [Simulation](../Simulation%20durchführen) wird durchgeführt und zeigt dir letztendlich dein Ankunftsziel an. Ob es das Ziel ist, was du erwartet hast, wo du hin wolltest, ob es dein Endziel oder nur ein Zwischenstopp ist, entscheidest du. Natürlich kannst du deine Mitreisenden nach ihrer Sichtweise fragen! - Mache die Ergebnisse transparent,  [veröffentliche das Modell](../Publizieren/Modell%20veröffentlichen) mit der ganzen Community oder [teile das Modell](../Publizieren/Modell%20teilen) mit ausgewählten Usern.
 
-Du möchtest dir einen Weg merken, aber einen anderen noch ausprobieren? Erstelle unterschiedliche [Modellversionen](/Primitives.md) und halte deine Reise fest!
+Du möchtest dir einen Weg merken, aber einen anderen noch ausprobieren? Erstelle unterschiedliche [Modellversionen](../Einstellungen/Versions-Einstellungen) und halte deine Reise fest!
 
 Zukunft ist nicht vorhersagen, sondern entdecken!
 
