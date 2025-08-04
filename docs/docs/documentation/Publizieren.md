@@ -1,8 +1,27 @@
 ---
-sidebar_position: 11
+sidebar_position: 8
 ---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-Dein Modell und dessen Ergebnisse können sich sehen lassen!
+<Tabs>
+  <TabItem value="modellteilen" label="Modell teilen">
+    Arbeite in Echtzeit und gemeinsam mit anderen Usern an einem Modell! Indem du dein Modell teilst, lädst du andere User dazu ein das Modell mitzugestalten und ihre individuellen Sichtweisen einfließen zu lassen. 
+
+## Einstellungen
+Unter den Versionseinstellungen findest du die Funktion "Teilen" mit folgenden Einstellungsmöglichkeiten:
+
+| Eingabefelder     | Beschreibung       |
+| ----------- |----------- |
+| E-Mail   |  E-Mailadresse des Empfängers   |
+| Rolle |  Zuteilung der Erlaubnis des Empfängers       |
+| Keine Berechtigung | Der Empfänger ist (noch) nicht autorisiert und das Modell wird ihm nicht angezeigt |
+| Ansicht| Der Empfänger kann das Modell ausschließlich ansehen und nicht direkt bearbeiten |
+| Mitarbeiter | Als Mitarbeiter kann der Empfänger das Modell bearbeiten/klonen und einen neuen Entwurf anlegen|
+| Co-Inhaber | Neben dem Ersteller kann der Co-Inhaber das Modell zusätzlich zu der Bearbeitung teilen und veröffentlichen|
+  </TabItem>
+  <TabItem value="modellveröffentlichen" label="Modell veröffentlichen">
+    Dein Modell und dessen Ergebnisse können sich sehen lassen!
 Mache dein Modell erfahrbar für andere User der Urban Model Builders - Community! 
 
 ## Einstellungen
@@ -27,15 +46,5 @@ Vielfältige Szenarien explorieren und Systeme im gemeinsamen Austausch co-model
 Die Modellierung von komplexen Systemen ist längst schon nicht mehr ausschließlich die Aufgabe spezialisierter Softwareingenieure. Mit dem Aufkommen von Open-Source- Tools und webbasierten Plattformen hat sich das Feld deutlich demokratisiert und hat es offenbar bis zu dir geschafft! Ganz einfach in deinem Browser und ohne Installation kannst du das komplett kostenfreie Angebot des Urban Model Builders testen.
 Das Tool basiert auf der open-source Simulationsbibliothek simulation. Unter https://github.com/citysciencelab/urban-model-builder findest du den genauen Aufbau der Softwarearchitektur des Tools und eine Anleitung zum Nachbauen!
 
-## Ausblick
-Mit einem Blick in die Zukunft gerichtet, hoffen wir, dass…
-
-… der Urban Model Builder eine ansprechende Plattform bietet, um den Ansatz der Co- und Multimodellierung voranzutreiben
-
-… durch die Möglichkeit eine breite Streuung von Ergebnissen zu generieren, 
-
-… der Datenaustausch und die Kommunikation zwischen unterschiedlichen Abteilungen und Fachdisziplinen zu fördern 
-
-… Anregungen geschaffen werden, neue flexible Tools zu entwickeln 
-
-… Prozesse (vor allem im Kontext der Stadtplanung) reflektiert, hinterfragt und optimiert werden können
+  </TabItem>
+ </Tabs> 
