@@ -1,6 +1,9 @@
+---
+sidebar_position: 11
+---
 
 Dein Modell und dessen Ergebnisse können sich sehen lassen!
-Mache dein Modell sichtbar und nutzbar für andere User des Urban Model Builders! 
+Mache dein Modell erfahrbar für andere User der Urban Model Builders - Community! 
 
 ## Einstellungen
 
@@ -33,6 +36,6 @@ Mit einem Blick in die Zukunft gerichtet, hoffen wir, dass…
 
 … der Datenaustausch und die Kommunikation zwischen unterschiedlichen Abteilungen und Fachdisziplinen zu fördern 
 
-… Anregungen geschaffen werden, neue flexible Tools zu entwickeln (-> Vielfältige Anwendungsbereiche, flexibel für andere Schnittstellen und Front-Ends)
+… Anregungen geschaffen werden, neue flexible Tools zu entwickeln 
 
 … Prozesse (vor allem im Kontext der Stadtplanung) reflektiert, hinterfragt und optimiert werden können

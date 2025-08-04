@@ -1,5 +1,10 @@
+---
+sidebar_position: 10
+---
 
-Arbeite in Echtzeit und gemeinsam mit anderen Usern an einem Modell! Indem du dein Modell teilst, lädst du andere User dazu ein, das Model Land mitzugestalten und ihre individuellen Perspektiven einfließen zu lassen. 
+Arbeite in Echtzeit und gemeinsam mit anderen Usern an einem Modell! Indem du dein Modell teilst, lädst du andere User dazu ein das Modell mitzugestalten und ihre individuellen Sichtweisen einfließen zu lassen. 
+
+Unter den Versionseinstellungen findest du die Funktion "Teilen" mit folgenden Einstellungsmöglichkeiten:
 
 | Eingabefelder     | Beschreibung       |
 | ----------- |----------- |
