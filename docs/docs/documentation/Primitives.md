@@ -99,8 +99,8 @@ Ein Converter ist ein Modellierungselement, das eine Berechnung, Transformation 
 | Beschreibung | Text        |     Zur Erläuterung von getroffenen Annahmen und wichtigen Infos       |
 | Eingabe | In Abhängigkeit der verbundenen Primitves | Übernimmt den Eingangswert eines anderen Primitves; by Default ist die zeitliche Dimension festgelegt |
 | **Mapping** | | Stellt grafisch die Input-Output-Beziehung dar
-| Eingabe | x-Wert  | Wenn ein bestimmter Eingangswert angenommen wird, berechnet der Converter einen entsprechenden Ausgangswert |
-| Ausgabe | y-Wert | Der Ausgangswert kann von anderen Primitves, die auf den Converter verweisen, übernommen werden.
+| Eingabe* | x-Wert  | Wenn ein bestimmter Eingangswert angenommen wird, berechnet der Converter einen entsprechenden Ausgangswert |
+| Ausgabe* | y-Wert | Der Ausgangswert kann von anderen Primitves, die auf den Converter verweisen, übernommen werden.
 | Interpolation | Auswahloption (Linear und Discrete) | Um Werte zwischen den definierten Punkten zu berechnen, können zwei Interpolationsmethoden angewendet werden. Linear: glatter, geradliniger Verlauf (geeignet für kontinuierliche Prozesse) Diskret: stufenweiser, sprunghafter Verlauf (geeignet für Schwellenwerte oder Kategorisierungen)
 | **Validierung** |
 | Einheit | Text (Suchfunktion), Auswahloption | Konkretisiert das System und stellt sicher, dass die Werte mit Einheiten sinnvoll miteinander verrechnet werden.
@@ -109,6 +109,8 @@ Ein Converter ist ein Modellierungselement, das eine Berechnung, Transformation 
 | Maximale Einschränkung | Boolean | Setzung einer oberen Grenze |
 | Maximaler Wert | Numerischer Wert | Option eine obere Grenze einzustellen |
 
+*Pflichtfelder für Berechnung
+
 ## States
 Ein State in der agentenbasierten Modellierung bezeichnet einen Zustand (oder verschiedene Modi), der die aktuelle Situation oder Konfiguration eines Agenten, die sein Verhalten und seine Reaktion im Modell beeinflusst. Die Agenten wechseln von einem State in einen anderen, ausgelöst durch Regeln, Wahrscheinlichkeiten oder Umwelteinflüsse.
 
@@ -116,12 +118,13 @@ Ein State in der agentenbasierten Modellierung bezeichnet einen Zustand (oder ve
 | ----------- | ----------- |----------- |
 | Name     | Text     |      Für eine eindeutige Zuordnung und Differenzierung des Primitives im Modell     |
 | Beschreibung | Text        |     Zur Erläuterung von getroffenen Annahmen und wichtigen Infos       |
-| Aktiv zum Start | Numerischer Wert, [Wert eines Primitives], Funktionen | Definition der Anfangsbedingung |
+| Aktiv zum Start* | Numerischer Wert, [Wert eines Primitives], Funktionen | Definition der Anfangsbedingung |
 | Vorhaltezeit | Numerischer Wert, [Wert eines Primitives], Funktionen | Gibt an, wie lange ein Zustand aktiv bleibt, bevor automatisch in den nächsten Zustand gewechselt wird (falls definiert) |
 | **Schnittstelle & Szenario** |
 | Eingabe | Auswahl (keine Parameter, Boolscher Wert) | Wenn als Ausgabeparameter gewählt, gibt dies Aufschluss über den Zustand des Systems im Zeitverlauf. Es werden Wirkungen von Entscheidungen, Änderungen oder externen Faktoren sichtbar.|
 | Ausgabeparameter | Boolean | Wenn als Ausgabeparameter gewählt, gibt dies Aufschluss über den Zustand des Systems im Zeitverlauf. Es werden Wirkungen von Entscheidungen, Änderungen oder externen Faktoren sichtbar.|
 
+*Pflichtfelder für Berechnung
 
 ## Transitions
 Transitions bezeichnen die Übergänge zwischen den Zuständen (States) eines Agenten. Sie beschreiben wann und unter welchen Bedingungen ein Agent von einem Zustand in einen anderen wechselt.
@@ -130,8 +133,8 @@ Transitions bezeichnen die Übergänge zwischen den Zuständen (States) eines Ag
 | ----------- | ----------- |----------- |
 | Name     | Text     |      Für eine eindeutige Zuordnung und Differenzierung des Primitives im Modell    |
 | Beschreibung | Text        |     Zur Erläuterung von getroffenen Annahmen und wichtigen Infos       |
-| Trigger | Auswahloption (Condition, Probability, Timeout) | Legt fest unter welcher Bedingung/Wahrscheinlichkeit/Zeitüberschreitung der Übergang von einem Zustand zum nächsten erfolgt |
-| Wert | Numerischer Wert, [Wert eines Primitives], Funktionen | Input zur Berechnung|
+| Trigger* | Auswahloption (Condition, Probability, Timeout) | Legt fest unter welcher Bedingung/Wahrscheinlichkeit/Zeitüberschreitung der Übergang von einem Zustand zum nächsten erfolgt |
+| Wert* | Numerischer Wert, [Wert eines Primitives], Funktionen | Input zur Berechnung|
 | Neuberechnen | Boolean | Legt fest, ob die Bedingung während der Berechnung kontinuierlich geprüft und bei jeder Zustandsänderung neu berechnet wird. Ohne Neuberechnung: Triggerbedingung wird nur einmal geprüft; Mit Neuberechnung: Bedingung wird laufend geprüft (in jedem Zeitschritt). |
 | Wiederholen | Boolean | Legt fest, ob derselbe Übergang mehrfach ausgelöst werden darf, auch wenn er schon einmal durchlaufen wurde. Ohne Wiederholung: Übergang findet nur einmal statt; Mit Wiederholung: Übergang kann beliebig oft durchlaufen werden, solange der Trigger zutrifft.|
 | **Validierung** |
@@ -141,6 +144,8 @@ Transitions bezeichnen die Übergänge zwischen den Zuständen (States) eines Ag
 | Maximale Einschränkung | Boolean | Setzung einer oberen Grenze |
 | Maximaler Wert | Numerischer Wert | Option eine obere Grenze einzustellen |
 
+*Pflichtfelder für Berechnung
+
 ## Actions
 Actions sind die konkreten Handlungen, die ein Agent während eines Zustandes oder bei einem Zustandswechsels (Transitions) ausführt. Sie bestimmen das sichtbare Verhalten eines Agenten innerhalb des Modells. Sie sind opelrationale Verhaltensregeln, wie beispielsweise sich bewegen, mit anderen Agenten interagieren, Ressourcen verbrauchen etc.
 
@@ -148,11 +153,13 @@ Actions sind die konkreten Handlungen, die ein Agent während eines Zustandes od
 | ----------- | ----------- |----------- |
 | Name     | Text     |      Für eine eindeutige Zuordnung und Differenzierung des Primitives im Modell     |
 | Beschreibung | Text        |     Zur Erläuterung von getroffenen Annahmen und wichtigen Infos       |
-| Aktion | Numerischer Wert, [Wert eines Primitives], Funktionen| Auszuführende Algorithmen |
-| Trigger | Auswahloption (Condition, Probability, Timeout) | Auslöser für eine Zustandsänderung |
-| Wert | Numerischer Wert, [Wert eines Primitives], Funktionen | Input zur Berechnung|
+| Aktion* | Numerischer Wert, [Wert eines Primitives], Funktionen| Auszuführende Algorithmen |
+| Trigger* | Auswahloption (Condition, Probability, Timeout) | Auslöser für eine Zustandsänderung |
+| Wert* | Numerischer Wert, [Wert eines Primitives], Funktionen | Input zur Berechnung|
 | Neuberechnen | Boolean | Legt fest, ob die Bedingung während der Berechnung kontinuierlich geprüft und bei jeder Zustandsänderung neu berechnet wird. Ohne Neuberechnung: Triggerbedingung wird nur einmal geprüft; Mit Neuberechnung: Bedingung wird laufend geprüft (in jedem Zeitschritt). |
 | Wiederholen | Boolean | Legt fest, ob derselbe Übergang mehrfach ausgelöst werden darf, auch wenn er schon einmal durchlaufen wurde. Ohne Wiederholung: Übergang findet nur einmal statt; Mit Wiederholung: Übergang kann beliebig oft durchlaufen werden, solange der Trigger zutrifft.|
+
+*Pflichtfelder für Berechnung
 
 ## Agent
 Ein Agent ist eine autonome Entität, die eigene Zustände, Eigenschaften und Verhaltensregeln besitzt und mit ihrer Umwelt und anderen Agenten interagieren kann. Als individuelles Modellobjekte können Agenten eigenständige Entscheidungen treffen, zustandsabhängig handeln, sich verändern und lokal interagieren.
@@ -164,6 +171,7 @@ Ein Agent ist eine autonome Entität, die eigene Zustände, Eigenschaften und Ve
 | **Schnittstelle & Szenario** | 
 | Ausgabeparameter | Boolean | Wenn als Ausgabeparameter gewählt, gibt dies Aufschluss über den Zustand des Systems im Zeitverlauf. Es werden Wirkungen von Entscheidungen, Änderungen oder externen Faktoren sichtbar. |
 
+
 ## Population
 Eine Population bezeichnet eine Gesamtheit alles Agenten eines bestimmten Typs innerhalb eines Modells. Diese kollektive Menge an Agenten haben gemeinsame Eigenschaften oder Verhaltenstype, agieren sowohl in einer gemeinsamen Umwelt als auch untereinander.
 
@@ -171,17 +179,19 @@ Eine Population bezeichnet eine Gesamtheit alles Agenten eines bestimmten Typs i
 | ----------- | ----------- |----------- |
 | Name     | Text     |      Für eine eindeutige Zuordnung und Differenzierung des Primitives im Modell     |
 | Beschreibung | Text        |     Zur Erläuterung von getroffenen Annahmen und wichtigen Infos       |
-| Größe der Bevölkerung | Numerischer Wert | Beschreibt die Anzahl der Entitäten in einer Population |
+| Größe der Bevölkerung* | Numerischer Wert | Beschreibt die Anzahl der Entitäten in einer Population |
 | Einheit | Text (Suchfunktion), Auswahloption |
-| Geo Breite | Numerischer Wert | Definiert die geografische Breite auf einer simulierten Karte |
-| Geo Höhe | Numerischer Wert | Definiert die geografische Länge auf einer simulierten Karte |
+| Geo Breite* | Numerischer Wert | Definiert die geografische Breite auf einer simulierten Karte |
+| Geo Höhe* | Numerischer Wert | Definiert die geografische Länge auf einer simulierten Karte |
 | Geo Wrap Around | Boolean | Bestimmt, ob Agenten, die eine Kartenkante überschreiten, auf der „anderen Seite wieder erscheinen“ |
-| Geo Platzierungstyp | Auswahloption (Benutzerdefinierte Funktion, Ellipse, Grid, Network, Random) | Legt fest, wie Agenten initial auf der Karte verteilt werden |
+| Geo Platzierungstyp* | Auswahloption (Benutzerdefinierte Funktion, Ellipse, Grid, Network, Random) | Legt fest, wie Agenten initial auf der Karte verteilt werden |
 | Geo Platzierungsfunktion | Funktion | Bestimmt die Regel oder Formel, nach der die Verteilung erfolgt |
 | Netzwerktyp | Auswahloption (Benutzerdefinierte Funktion, Keine) | Legt fest, ob und wie die Agenten untereinander Netzwerke aufbauen |
 | Netzwerkfunktion | Funktion | Legt fest, ob und wie die Agenten untereinander Netzwerke aufbauen | 
 | **Schnittstelle & Szenario** | 
 | Ausgabeparameter | Boolean | Wenn als Ausgabeparameter gewählt, gibt dies Aufschluss über den Zustand des Systems im Zeitverlauf. Es werden Wirkungen von Entscheidungen, Änderungen oder externen Faktoren sichtbar. |
+
+*Pflichtfelder für Berechnung
 
 ## Folder
 Ein Folder ist ein strukturgebendes Element, welches die Organisation eines Modells vereinfacht. In einem Ordner können manuell ausgewählte Modellteile gesammelt, gruppiert und bewegt werden.

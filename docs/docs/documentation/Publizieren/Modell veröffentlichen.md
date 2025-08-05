@@ -3,6 +3,7 @@ Dein Modell und dessen Ergebnisse können sich sehen lassen!
 Mache dein Modell erfahrbar für andere User der Urban Model Builders - Community! 
 
 ## Einstellungen
+Unter den Versionseinstellungen in der Sidebar findest du die Funktion "Veröffentlichen" mit folgenden Einstellungsmöglichkeiten:
 
 | Eingabefelder     | Beschreibung       |
 | ----------- |----------- |

@@ -5,7 +5,7 @@ sidebar_position: 8
 Arbeite in Echtzeit und gemeinsam mit anderen Usern an einem Modell! Indem du dein Modell teilst, lädst du andere User dazu ein das Modell mitzugestalten und ihre individuellen Sichtweisen einfließen zu lassen. 
 
 ## Einstellungen
-Unter den Versionseinstellungen findest du die Funktion "Teilen" mit folgenden Einstellungsmöglichkeiten:
+Unter den Versionseinstellungen in der Sidebar findest du die Funktion "Teilen" mit folgenden Einstellungsmöglichkeiten:
 
 | Eingabefelder     | Beschreibung       |
 | ----------- |----------- |

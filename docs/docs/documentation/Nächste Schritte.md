@@ -3,14 +3,30 @@ sidebar_position: 9
 ---
 
 ## Ausblick
-Mit einem Blick in die Zukunft gerichtet, hoffen wir, dass…
+Mit einem Blick in die Zukunft gerichtet, hoffen wir, dass ...
 
-… der Urban Model Builder eine ansprechende Plattform bietet, um den Ansatz der Co- und Multimodellierung voranzutreiben
+![Co-Multimodellierung](./img/Co-Multimodellierung.png)
 
-… durch das vielfältige Potenzial des Tools eine breite Streuung von Ergebnissen generiert werden kann 
+... der Urban Model Builder eine anregende und inspirierende Plattform bietet, um den Ansatz der Co- und 
+    Multimodellierung voranzutreiben 
 
-… der Datenaustausch und die Kommunikation zwischen interdisziplinären Abteilungen und Fachdisziplinen gefördert werden kann
+![ModelllandschaftundExploration](./img/ModelllandschaftundExploration.png)
 
-… Anregungen geschaffen werden, neue flexible Tools zu entwickeln 
+... durch die vielseitige Einsetzbarkeit des Tools eine breit gefächerte Modelllandschaft zur Exploration von "Was-wäre-wenn..."-Szenarien entsteht 
 
-… Prozesse (vor allem im Kontext der Stadtplanung) reflektiert, hinterfragt und optimiert werden können
+![Interdisziplinarität](./img/Interdisziplinarität.png)
+
+... der Datenaustausch und die Kommunikation zwischen interdisziplinären Abteilungen und Fachdisziplinen gefördert werden kann
+
+![APIundInteroperabilität](./img/APIundInteroperabilität.png)
+
+... durch Ergänzungen weiterer API Schnittstellen vermehrt verschlossene Datensilos aufgebrochen werden können und die Zahl von interoperablen Anwendundungsfällen steigt
+
+![Partizipation](./img/Partizipation.png)
+
+... öffentliches Interesse an der Partizipation von Stadtentwicklungsprozessen gefördert wird 
+
+![KollaborativeProzessoptimierung](./img/KollaborativeProzessoptimierung.png)
+
+... durch das kollaborative Arbeiten bestehende Prozesse reflektiert, hinterfragt und optimiert werden können
+
