@@ -15,10 +15,20 @@ Digitale Simulationsmodelle erlauben es, Szenarien durchzuspielen, ohne physisch
 
 :::tip Annahmen treffen
 
-Das Urban Model Builder ist ein Tool zur individuellen Modellierung von komplexen Systemen. Somit wird eine Vielzahl an persönlichen Annahmen getroffen, sowohl bezogen auf die übergeordnete Konzeption des Modells als auch bei den jeweiligen Werten und Funktionsbeschreibungen, die getroffen werden.
+Das Urban Model Builder ist ein Tool zur individuellen Modellierung von komplexen Systemen. Somit wird eine Vielzahl an persönlichen Annahmen getroffen, sowohl bezogen auf die übergeordnete Konzeption des Modells als auch bei den jeweiligen Werten und Funktionsbeschreibungen, die getroffen werden müssen. 
+
+- Halte Annhamen explizit und nachvollziehbar fest
+- Begründe, warum du sie triffst und welche Alternativen denkbar wären 
+- Überprüfe, ob sie unter neuen Erkenntnissen noch gültig sind 
+
 :::
 
 :::tip Umgang mit Unsicherheiten
 
+Unsicherheiten gehören unvermeidbar zur Modellierung - sei es durch ungenaue Daten, variable Parameter oder unklare Zukunftsszenarien. 
+
+- Gehe offen mit Unsicherheiten um
+- Nutze Szenarien und Validierungen, um Bandbreiten von Ergebnissen sichtbar zu machen
+- Simulationen sind keine Vorhersagen, sondern Hilfsmittel zur Orientierung 
 
 :::

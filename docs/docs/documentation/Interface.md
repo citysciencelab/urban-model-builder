@@ -40,20 +40,19 @@ Auf der linken Seite ist eine einklappbare Sidebar, wo sich die Modellinformatio
 Mit einem Klick auf das jeweilige Primitive öffnet sich auf der rechten Seite der Arbeitsfläche das Einstellungsfenster für die entsprechenden Parameter.
 
 ## Handhabung 
-### Grundlegende Handhabung 
 
-#### 1. Elemente platzieren 
+### 1. Elemente platzieren 
 Wähle in der unteren ActiveBar ein Modellierungselement aus. Es wird automatisch auf der Arbeitsoberfläche platziert.
 :::tip Hinweis
 Erstelle eine Geistervariable eines Primitives, indem du es auswählst und auf das Geist- Icon klickst. Dadurch kannst du dein Modell übersichtlicher strukturieren und Primitves an einer anderen Stelle im Modell platzieren, ohne ein Gewirr von langen Verbindungen! 
 :::
-#### 2. Elemente verbinden
+### 2. Elemente verbinden
 Um die Modellierungselemente in Abhängigkeit zu setzen, verbinde sie grafisch miteinander. Indem du den Mauszeiger über einen der Knotenpunkte des Ausgangs-Primitives bewegst, wird dieser zum Fadenkreuz. Halte die linke Maustaste gedrückt und ziehe das Fadenkreuz zu dem Knotenpunkt des Primitives, welches du mit dem anderen in Relation bringen möchtest. Die erstellte Verbindung wird dir in Form eines Pfeils dargestellt, der dir gleichzeitig die Richtung der Abhängigkeit anzeigt. Das Primitive, auf das die Pfeilspitze zeigt, verwendet den Wert des anderen Primitves als Input.  
 :::tip Hinweis
 Bei den Primitves *Flow* und *Transition* sind die Knotenpunkte in ihrer Funktionsweise definiert. Die Richtung wird durch gekennzeichnete In- und Outputpfeile vorgeschrieben. Du kannst die Ausrichtung dieser festgelegten Richtung ändern, indem du das Primitve auswählst und auf das Rotation- Icon klickst.
 :::
 
-#### 3. Parameter setzen 
+### 3. Parameter setzen 
 Nach Auswahl eines Elements kannst du im Eigenschaftenfenster die gewünschten Parameter setzen. Füge individuelle Gleichungen ein oder nutze die bereits integrierten Funktionen. Den Wert des verbunden Primitves kannst du als einen Inputwert nehmen, indem du (nach dem grafischen Verbinden) auf den Button unter dem Werteingabe-Feld klickst.
 :::tip Hinweis
 Achte darauf, dass der Name des Primitves und die Bezeichnung in den eckigen Klammern im Werteingabe-Feld des verbundenen Primitves übereinstimmen (Leerzeichen beachten). Benennst du im Laufe des Modellierungsprozesses Primitives um, musst du diese in den Wertefeldern anpassen, sonst kann das Modell nicht berechnet werden. 
@@ -64,5 +63,5 @@ Mit dem Klick auf den Löschen- Button im Eigenschaftenfenster, entfernst du **n
 
 :::
 
-#### 4. Simulation starten 
+### 4. Simulation starten 
 Über die Schaltfläche "Simulieren" wird das Modell mit den gesetzten Parametern berechnet. Dabei öffnet sich in der Mitte der Arbeitsoberfläche ein neues Fenster, in dem die Simulationsergebnisse in Form einen Liniendiagramms oder eines Streuungsdiagramms angezeigt werden. Die Geschwindigkeit des Aufbaus der Anzeige kannst reguliert werden.

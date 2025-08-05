@@ -20,17 +20,12 @@ Ist eine einfache, numerische Methode zur Lösung von Differentialgleichungen. I
 x(t+delta t)= x(t) + delta t* dx/dt (t)
 
 
-Aktueller Wert der Zustandsgröße (Stock)
+x(t) : Aktueller Wert der Zustandsgröße (Stock)
 
-Zeitschritt 
+delta t : Zeitschritt 
 
-Änderungsrate 
+dx/dt (t) : Änderungsrate 
 
-Beispiel: einfaches Bevölkerungswachstum (Stock: Bevölkerung P; Flow: Geburten B= r*P r=Geburtenrate) 
-
-Differenzialgleichung: dP/dt= r*P
-
-Mit Euler Verfahren: P(t+delta t) = P(t) + delta t* (r*P(t))
 
 #### Runge-Kutta Verfahren
 

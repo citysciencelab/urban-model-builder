@@ -25,6 +25,7 @@ Stock (dt. Bestände) bilden akkumulierte Größen bzw. Werte, die sich im Laufe
 
 *Pflichtfelder für Berechnung
 
+---
 ## Flow
 Flows (dt. Flüsse/Ströme) beschreiben die Geschwindigkeit, mit der sich ein Bestand aufbaut oder abbaut, und wirken damit direkt auf die Änderungsrate eines Stocks. Ein Flow ist eine zeitabhängige Rate, die angibt, wie schnell etwas in einen Stock hinein- oder aus ihm hinausfließt. Sie sind temporär aktiv, indem sie den Bestand verändern, aber selbst keine Werte speichern. Zudem können sie von anderen Variablen abhängen. Es gibt verschiedene Typen von Flows - zum einen statische/absolute und variable/relative In- und Outflows. 
 
@@ -44,6 +45,7 @@ Flows (dt. Flüsse/Ströme) beschreiben die Geschwindigkeit, mit der sich ein Be
 
 *Pflichtfelder für Berechnung
 
+---
 ## OGC API Features
 Die OGC API Features ist ein moderner Standard des Open Geospatial Consortium (OGC) zur Bereitstellung und Abfrage von Geodaten über Webschnittstellen. Dies ermöglicht eine einfache Integration in Webanwendungen und fördert die Interoperabilität zwischen verschiedenen Systemen. Das Masterportal Hamburg stellt über die OGC API- Features eine Vielzahl von Datensätzen aus dem Geoportal zur Verfügung.  
 
@@ -70,6 +72,7 @@ Die OGC API Features ist ein moderner Standard des Open Geospatial Consortium (O
 
 *Pflichtfelder für Berechnung
 
+---
 ## Variablen
 In der Systemdynamik beschreiben Variablen größenveränderliche Einflussfaktoren, die nicht direkt Bestände (Stocks) sind und im Gegensatz zu diesen keine Speicherfunktion der Werte aufweisen. Sie sind Berechnungsgrößen, die Flüsse oder andere Variablen beeinflussen. Sie fungieren als Rechenhilfen, indem sie die Struktur vereinfachen und 
 ermöglichen Modulare Modellierung.
@@ -90,6 +93,7 @@ ermöglichen Modulare Modellierung.
 
 *Pflichtfelder für Berechnung
 
+---
 ## Converter
 Ein Converter ist ein Modellierungselement, das eine Berechnung, Transformation oder Ableitung aus anderen Variablen oder Konstanten durchführt. Er ist funktional gleichzusetzen mit einer Hilfsvariablen und speichert keine Werte, sondern wird bei jeder Simulationszeit neu berechnet.
 
@@ -111,6 +115,7 @@ Ein Converter ist ein Modellierungselement, das eine Berechnung, Transformation 
 
 *Pflichtfelder für Berechnung
 
+---
 ## States
 Ein State in der agentenbasierten Modellierung bezeichnet einen Zustand (oder verschiedene Modi), der die aktuelle Situation oder Konfiguration eines Agenten, die sein Verhalten und seine Reaktion im Modell beeinflusst. Die Agenten wechseln von einem State in einen anderen, ausgelöst durch Regeln, Wahrscheinlichkeiten oder Umwelteinflüsse.
 
@@ -126,6 +131,7 @@ Ein State in der agentenbasierten Modellierung bezeichnet einen Zustand (oder ve
 
 *Pflichtfelder für Berechnung
 
+---
 ## Transitions
 Transitions bezeichnen die Übergänge zwischen den Zuständen (States) eines Agenten. Sie beschreiben wann und unter welchen Bedingungen ein Agent von einem Zustand in einen anderen wechselt.
 
@@ -146,6 +152,7 @@ Transitions bezeichnen die Übergänge zwischen den Zuständen (States) eines Ag
 
 *Pflichtfelder für Berechnung
 
+---
 ## Actions
 Actions sind die konkreten Handlungen, die ein Agent während eines Zustandes oder bei einem Zustandswechsels (Transitions) ausführt. Sie bestimmen das sichtbare Verhalten eines Agenten innerhalb des Modells. Sie sind opelrationale Verhaltensregeln, wie beispielsweise sich bewegen, mit anderen Agenten interagieren, Ressourcen verbrauchen etc.
 
@@ -161,6 +168,7 @@ Actions sind die konkreten Handlungen, die ein Agent während eines Zustandes od
 
 *Pflichtfelder für Berechnung
 
+---
 ## Agent
 Ein Agent ist eine autonome Entität, die eigene Zustände, Eigenschaften und Verhaltensregeln besitzt und mit ihrer Umwelt und anderen Agenten interagieren kann. Als individuelles Modellobjekte können Agenten eigenständige Entscheidungen treffen, zustandsabhängig handeln, sich verändern und lokal interagieren.
 
@@ -171,7 +179,7 @@ Ein Agent ist eine autonome Entität, die eigene Zustände, Eigenschaften und Ve
 | **Schnittstelle & Szenario** | 
 | Ausgabeparameter | Boolean | Wenn als Ausgabeparameter gewählt, gibt dies Aufschluss über den Zustand des Systems im Zeitverlauf. Es werden Wirkungen von Entscheidungen, Änderungen oder externen Faktoren sichtbar. |
 
-
+---
 ## Population
 Eine Population bezeichnet eine Gesamtheit alles Agenten eines bestimmten Typs innerhalb eines Modells. Diese kollektive Menge an Agenten haben gemeinsame Eigenschaften oder Verhaltenstype, agieren sowohl in einer gemeinsamen Umwelt als auch untereinander.
 
@@ -193,6 +201,7 @@ Eine Population bezeichnet eine Gesamtheit alles Agenten eines bestimmten Typs i
 
 *Pflichtfelder für Berechnung
 
+---
 ## Folder
 Ein Folder ist ein strukturgebendes Element, welches die Organisation eines Modells vereinfacht. In einem Ordner können manuell ausgewählte Modellteile gesammelt, gruppiert und bewegt werden.
 

@@ -137,14 +137,16 @@ Car <- {
 }
 Car.make  # = "Toyota"
 ```
-```jsx title="Füge Verhaltensregeln den Funktionen hinzu:"
+```jsx title="Füge Verhaltensregeln zu Funktionen hinzu:"
 Car.fullInfo <- function()
   self.make + " (" + self.year + ")"
 end function
 ```
 ### Inheritance
-```jsx title=""
-
+```jsx title="Erstellt Objekte, die von anderen erben, mit "new" :"
+Truck <- new Car
+Truck.make <- "Ford"
+Truck.year <- 2022
 ```
 ### Constructors
 ```jsx title="Füge Verhaltensregeln den Funktionen hinzu:"
