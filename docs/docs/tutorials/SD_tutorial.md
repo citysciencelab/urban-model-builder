@@ -48,7 +48,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 ![VariableErstellen](./img/4_SD.png)
 
 ---
-# 5. Formel für Flow "Zufluss" setzen
+# 5. Gleichung für Flow "Zufluss" setzen
 ✔︎ Öffne die Parameter Einstellung des Flows "Zufluss", indem du darauf klickst
 
 ✔︎ Addiere den Wert "Niederschlag" zu dem Wert des einströmenden Bachlaufs
@@ -78,7 +78,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 ![OutflowAnlegen](./img/9_SD.png)
 
 ---
-# 8. Formel für Flow "Verdunstung" setzen
+# 8. Gleichung für Flow "Verdunstung" setzen
 ✔︎ Öffne die Parameter Einstellung des Flows "Verdunstung"
 
 ✔︎ Addiere den Wert "Verdunstungsrate" zu dem Wert des ausströmenden Bachlaufs
@@ -89,6 +89,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 ✔︎ Öffne die Modell Einstellung in der Sidebar 
 
 ✔︎ Setze die Werte wie folgt:
+
 Start: 0
 Länge: 365 
 Intervall: 1 
@@ -100,3 +101,5 @@ Einheit: Tage
 ✔︎ Starte die Berechnung der Simulation, indem du auf den "Simulieren"-Button in der Activebar klickst
 
 ![Simulation](./img/12_SD.png)
+
+# Und fertig ist dein erstes System Dynamics Modell!
