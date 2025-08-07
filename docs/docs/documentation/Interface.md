@@ -30,7 +30,7 @@ Auf der Arbeitsoberfläche befindet sich zentral im unteren Bereich die ActiveBa
 Auf der linken Seite der Arbeitsoberfläche befindet sich eine einklappbare SideBar, in der sich übergeordnete Einstellungen finden lassen. Dazu zählen die allgemeinen Modellinformationen (Modellname, Versionsnummer und Beschreibung), die Szenario- Einstellungen, die Versionseinstellungen und die globalen Modelleinstellungen. 
 
 ### 5. Primitive- Einstellungsfenster
-Mit einem Klick auf das jeweilige Primitve öffnet sich auf der rechten Seite der Arbeitsoberfläche das Einstellungsfenster für die entsprechenden Parameter. Unter [Primitives](/Primitives.md) findest du eine detaillierte Beschreibung zu der Art der Eingaben und die Bedeutung der Parametersetzung.
+Mit einem Klick auf das jeweilige Primitve öffnet sich auf der rechten Seite der Arbeitsoberfläche das Einstellungsfenster für die entsprechenden Parameter. Unter [Primitives](Primitives.md) findest du eine detaillierte Beschreibung zu der Art der Eingaben und die Bedeutung der Parametersetzung.
 
 
 

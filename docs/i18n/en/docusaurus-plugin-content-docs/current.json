@@ -18,5 +18,21 @@
   "sidebar.documentationSidebar.category.Model Land betreten": {
     "message": "Enter model land",
     "description": "The label for category Model Land betreten in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Modellierungsleitfaden.link.generated-index.description": {
+    "message": "To model is to understand - Um als Beginner in der Welt der Modellierung Fuß zu fassen, ist es wichtig, nicht nur die technisch-mathematischen Grundlagen zu verstehen, sondern auch ein sozio-kulturelles Verständnis zu entwickeln. Dieser Leitfaden bietet dir eine praktische Orientierung.",
+    "description": "The generated-index page description for category Modellierungsleitfaden in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Einstellungen": {
+    "message": "Einstellungen",
+    "description": "The label for category Einstellungen in sidebar documentationSidebar"
+  },
+  "sidebar.documentationSidebar.category.Publizieren": {
+    "message": "Publizieren",
+    "description": "The label for category Publizieren in sidebar documentationSidebar"
+  },
+  "sidebar.funktionenSidebar.category.Integrierte Funktionen": {
+    "message": "Integrierte Funktionen",
+    "description": "The label for category Integrierte Funktionen in sidebar funktionenSidebar"
   }
 }

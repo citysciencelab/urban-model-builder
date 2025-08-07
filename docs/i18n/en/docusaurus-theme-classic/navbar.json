@@ -22,5 +22,9 @@
   "item.label.Cheatsheet": {
     "message": "Cheatsheet",
     "description": "Navbar item with label Cheatsheet"
+  },
+  "item.label.Funktionen": {
+    "message": "Functions",
+    "description": "Navbar item with label Funktionen"
   }
 }
