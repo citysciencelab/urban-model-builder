@@ -1,13 +1,14 @@
 ---
 sidebar_position: 4
 ---
-Wie viele Bausteine sind notwendig um Systeme in ihrer Komplexität modellieren zu können? Keine einfache Frage! 
 
-Wir geben dir aber insgesamt **11 Funktionsbausteine** an die Hand, damit du dein individuelles System Dynamics bzw. agentenbasiertes Modell aufbauen kannst.
+
+Aktuell existieren im Urban Model Builder **11 Funktionsbausteine**, mit denen du dein System Dynamics bzw. agentenbasiertes Modell aufbauen kannst.
 Folgende Tabellen helfen dir die jeweiligen Primitives in ihren spezifischen Funktionsweisen zu verstehen und anwenden zu können.
 
+
 ## Stock
-Stock (dt. Bestände) bilden akkumulierte Größen bzw. Werte, die sich im Laufe der Zeit ansammeln oder abbauen- ähnlich wie Wasser in einem Tank. Ein Stock ist eine zustandsbestimmende Variable in einem dynamischen System. Es speichert den aktuellen Wert eines bestimmten Aspekts des Systems und ändert sich durch Zuflüsse (Inflows) oder Abflüsse (Outflows), die mit ihm verbunden sind.
+Ein Stock (dt. Bestand) beinhaltet sich akkumulierende Größen bzw. Werte, die sich im Laufe der Zeit ansammeln oder abbauen. Stelle dir Wasser in einem Tank vor. Ein Stock ist eine zustandsbestimmende Variable in einem dynamischen System. Es speichert den aktuellen Wert eines bestimmten Aspekts des Systems und ändert sich durch Zuflüsse (Inflows) oder Abflüsse (Outflows), die mit ihm verbunden sind.
 
 | Eingabefelder     | Art der Eingabe |    Zweck        |
 | ----------- | ----------- |----------- |
@@ -27,7 +28,7 @@ Stock (dt. Bestände) bilden akkumulierte Größen bzw. Werte, die sich im Laufe
 
 ---
 ## Flow
-Flows (dt. Flüsse/Ströme) beschreiben die Geschwindigkeit, mit der sich ein Bestand aufbaut oder abbaut, und wirken damit direkt auf die Änderungsrate eines Stocks. Ein Flow ist eine zeitabhängige Rate, die angibt, wie schnell etwas in einen Stock hinein- oder aus ihm hinausfließt. Sie sind temporär aktiv, indem sie den Bestand verändern, aber selbst keine Werte speichern. Zudem können sie von anderen Variablen abhängen. Es gibt verschiedene Typen von Flows - zum einen statische/absolute und variable/relative In- und Outflows. 
+Flows (dt. Flüsse/Ströme) beschreiben die Geschwindigkeit, mit der sich ein Bestand auf- oder abbaut, und wirken damit direkt auf die Änderungsrate eines Stocks. Ein Flow ist eine zeitabhängige Rate, die angibt, wie schnell etwas in einen Stock hinein- oder aus ihm hinausfließt. Flows sind temporär aktiv, indem sie den Bestand verändern, aber selbst keine Werte speichern. Zudem können sie von anderen Variablen abhängen. Es gibt verschiedene Typen von Flows - zum einen statische/absolute und variable/relative In- und Outflows. 
 
 | Eingabefelder     | Art der Eingabe |    Zweck        |
 | ----------- | ----------- |----------- |
@@ -47,7 +48,7 @@ Flows (dt. Flüsse/Ströme) beschreiben die Geschwindigkeit, mit der sich ein Be
 
 ---
 ## OGC API Features
-Die OGC API Features ist ein moderner Standard des Open Geospatial Consortium (OGC) zur Bereitstellung und Abfrage von Geodaten über Webschnittstellen. Dies ermöglicht eine einfache Integration in Webanwendungen und fördert die Interoperabilität zwischen verschiedenen Systemen. Das Masterportal Hamburg stellt über die OGC API- Features eine Vielzahl von Datensätzen aus dem Geoportal zur Verfügung.  
+Die [OGC API Features](https://ogcapi.ogc.org/features/) ist ein moderner Standard des Open Geospatial Consortium (OGC) zur Bereitstellung und Abfrage von Geodaten über Webschnittstellen. Dies ermöglicht eine einfache Integration in Webanwendungen und fördert die Interoperabilität zwischen verschiedenen Systemen. Die Urban Data Platform Hamburg stellt beispielsweise über die OGC API- Features eine Vielzahl von Geodatensätzen zur Verfügung und ist in dadurch eine wichtige Datenquelle für den Urban Model Builder.
 
 | Eingabefelder     | Art der Eingabe |    Zweck        |
 | ----------- | ----------- |----------- |
@@ -74,8 +75,8 @@ Die OGC API Features ist ein moderner Standard des Open Geospatial Consortium (O
 
 ---
 ## Variablen
-In der Systemdynamik beschreiben Variablen größenveränderliche Einflussfaktoren, die nicht direkt Bestände (Stocks) sind und im Gegensatz zu diesen keine Speicherfunktion der Werte aufweisen. Sie sind Berechnungsgrößen, die Flüsse oder andere Variablen beeinflussen. Sie fungieren als Rechenhilfen, indem sie die Struktur vereinfachen und 
-ermöglichen Modulare Modellierung.
+Variablen sind veränderbare Einflussfaktoren, die nicht direkt Bestände (Stocks) sind und im Gegensatz zu diesen keine Speicherfunktion der Werte aufweisen. Sie sind Berechnungsgrößen, die Flüsse oder andere Variablen beeinflussen. Sie fungieren als Rechenhilfen, indem sie die Struktur vereinfachen und 
+ermöglichen eine modulare Modellierung.
 
 | Eingabefelder     | Art der Eingabe |    Zweck        |
 | ----------- | ----------- |----------- |
@@ -104,7 +105,7 @@ Ein Converter ist ein Modellierungselement, das eine Berechnung, Transformation 
 | Eingabe | In Abhängigkeit der verbundenen Primitves | Übernimmt den Eingangswert eines anderen Primitves; by Default ist die zeitliche Dimension festgelegt |
 | **Mapping** | | Stellt grafisch die Input-Output-Beziehung dar
 | Eingabe* | x-Wert  | Wenn ein bestimmter Eingangswert angenommen wird, berechnet der Converter einen entsprechenden Ausgangswert |
-| Ausgabe* | y-Wert | Der Ausgangswert kann von anderen Primitves, die auf den Converter verweisen, übernommen werden.
+| Ausgabe* | y-Wert | Der Ausgangswert kann von anderen Primitives, auf die der Converter verweist, übernommen werden.
 | Interpolation | Auswahloption (Linear und Discrete) | Um Werte zwischen den definierten Punkten zu berechnen, können zwei Interpolationsmethoden angewendet werden. Linear: glatter, geradliniger Verlauf (geeignet für kontinuierliche Prozesse) Diskret: stufenweiser, sprunghafter Verlauf (geeignet für Schwellenwerte oder Kategorisierungen)
 | **Validierung** |
 | Einheit | Text (Suchfunktion), Auswahloption | Konkretisiert das System und stellt sicher, dass die Werte mit Einheiten sinnvoll miteinander verrechnet werden.
@@ -117,7 +118,7 @@ Ein Converter ist ein Modellierungselement, das eine Berechnung, Transformation 
 
 ---
 ## States
-Ein State in der agentenbasierten Modellierung bezeichnet einen Zustand (oder verschiedene Modi), der die aktuelle Situation oder Konfiguration eines Agenten, die sein Verhalten und seine Reaktion im Modell beeinflusst. Die Agenten wechseln von einem State in einen anderen, ausgelöst durch Regeln, Wahrscheinlichkeiten oder Umwelteinflüsse.
+Ein State in der agentenbasierten Modellierung bezeichnet einen Zustand (oder verschiedene Modi), der die aktuelle Situation oder Konfiguration eines Agenten, die sein Verhalten und seine Reaktion im Modell beeinflusst. Die Agenten wechseln von einem State in einen anderen, ausgelöst durch Regeln, Wahrscheinlichkeiten oder Umwelteinflüsse. Ein State kann immer nur einen wahr/falsch Wert annehmen, der den aktuellen Zustand des Agenten beschreibt.
 
 | Eingabefelder     | Art der Eingabe |    Zweck        |
 | ----------- | ----------- |----------- |
@@ -154,7 +155,7 @@ Transitions bezeichnen die Übergänge zwischen den Zuständen (States) eines Ag
 
 ---
 ## Actions
-Actions sind die konkreten Handlungen, die ein Agent während eines Zustandes oder bei einem Zustandswechsels (Transitions) ausführt. Sie bestimmen das sichtbare Verhalten eines Agenten innerhalb des Modells. Sie sind opelrationale Verhaltensregeln, wie beispielsweise sich bewegen, mit anderen Agenten interagieren, Ressourcen verbrauchen etc.
+Actions sind die konkreten Handlungen, die ein Agent während eines Zustandes oder bei einem Zustandswechsels (Transitions) ausführt. Sie bestimmen das sichtbare Verhalten eines Agenten innerhalb des Modells. Sie sind operationale Verhaltensregeln, wie ein Agent sich beispielsweise bewegt, mit anderen Agenten interagiert, Ressourcen verbraucht etc.
 
 | Eingabefelder     | Art der Eingabe |    Zweck        |
 | ----------- | ----------- |----------- |
@@ -181,7 +182,7 @@ Ein Agent ist eine autonome Entität, die eigene Zustände, Eigenschaften und Ve
 
 ---
 ## Population
-Eine Population bezeichnet eine Gesamtheit alles Agenten eines bestimmten Typs innerhalb eines Modells. Diese kollektive Menge an Agenten haben gemeinsame Eigenschaften oder Verhaltenstype, agieren sowohl in einer gemeinsamen Umwelt als auch untereinander.
+Eine Population bezeichnet eine Gesamtheit aller Agenten eines bestimmten Typs innerhalb eines Modells. Diese kollektive Menge an Agenten haben gemeinsame Eigenschaften oder Verhaltenstype, agieren sowohl in einer gemeinsamen Umwelt als auch untereinander.
 
 | Eingabefelder     | Art der Eingabe |    Zweck        |
 | ----------- | ----------- |----------- |
