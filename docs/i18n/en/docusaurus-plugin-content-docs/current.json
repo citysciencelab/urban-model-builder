@@ -8,7 +8,7 @@
     "description": "The label for category Basiswissen in sidebar documentationSidebar"
   },
   "sidebar.documentationSidebar.category.Basiswissen.link.generated-index.description": {
-    "message": "Erhalte hier eine Übersicht über die Grundlagen der Modellierung von städtischen Prozessen.",
+    "message": "Get an overview of the basics of modeling urban processes.",
     "description": "The generated-index page description for category Basiswissen in sidebar documentationSidebar"
   },
   "sidebar.documentationSidebar.category.Modellierungsleitfaden": {
@@ -20,19 +20,19 @@
     "description": "The label for category Model Land betreten in sidebar documentationSidebar"
   },
   "sidebar.documentationSidebar.category.Modellierungsleitfaden.link.generated-index.description": {
-    "message": "To model is to understand - Um als Beginner in der Welt der Modellierung Fuß zu fassen, ist es wichtig, nicht nur die technisch-mathematischen Grundlagen zu verstehen, sondern auch ein sozio-kulturelles Verständnis zu entwickeln. Dieser Leitfaden bietet dir eine praktische Orientierung.",
+    "message": "To model is to understand - To understand the world of modeling as a beginner, it is important to not only grasp the technical and mathematical foundations but also to develop a socio-cultural understanding. This guide provides you with practical orientation.",
     "description": "The generated-index page description for category Modellierungsleitfaden in sidebar documentationSidebar"
   },
   "sidebar.documentationSidebar.category.Einstellungen": {
-    "message": "Einstellungen",
+    "message": "Settings",
     "description": "The label for category Einstellungen in sidebar documentationSidebar"
   },
   "sidebar.documentationSidebar.category.Publizieren": {
-    "message": "Publizieren",
+    "message": "Publish",
     "description": "The label for category Publizieren in sidebar documentationSidebar"
   },
   "sidebar.funktionenSidebar.category.Integrierte Funktionen": {
-    "message": "Integrierte Funktionen",
+    "message": "Integrated functions",
     "description": "The label for category Integrierte Funktionen in sidebar funktionenSidebar"
   }
 }

@@ -1,8 +1,8 @@
 {
-  "label": "Basic Knowledge",
+  "label": "Basiswissen",
   "position": 2,
   "link": {
     "type": "generated-index",
-    "description": "Get an overview of the fundamentals of modeling urban processes."
+    "description": "Erhalte hier eine Übersicht über die Grundlagen der Modellierung von städtischen Prozessen."
   }
 }

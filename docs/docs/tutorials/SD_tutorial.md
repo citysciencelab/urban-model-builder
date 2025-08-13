@@ -15,11 +15,11 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 
 ---
 # 2. Stock "Wasserstand" erstellen
-✔︎ Füge einen Stock hinzu, welches du über das Plus-Icon in der Activbar findest
+✔︎ Füge einen Stock hinzu, welchen du über das Plus-Icon in der Activebar findest
 
 ✔︎ Klicke auf den platzierten Stock und nenne ihn "Wasserstand"
 
-✔︎ Setze einen Startwert in das Wert-Eingabefeld von bspw. ```20000``` m<sup>3</sup>
+✔︎ Setze einen Startwert in das Wert-Eingabefeld von bspw. ```20000``` m<sup>3</sup>. Wenn du die Einheit hinzufügen möchtest, kannst du das unter dem Reiter "Validierung" im Primitive-Einstellungsfenster tun.
 
 ✔︎ Stelle den Stock als Output-Parameter ein
 
@@ -29,7 +29,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 # 3. Inflow "Zufluss" anlegen
 ✔︎ Füge einen Flow hinzu und nenne ihn "Zufluss"
 
-✔︎ Setze einen konstanten Wert von ```500``` m<sup>3</sup> pro Tag, ausgelöst durch einen Wasserlauf
+✔︎ Setze einen konstanten Wert von ```500``` m<sup>3</sup> pro Tag, ausgelöst durch einen Wasserlauf. Wenn du die Einheit hinzufügen möchtest, kannst du das unter dem Reiter "Validierung" im Primitive-Einstellungsfenster tun.
 
 ✔︎ Verbinde nun den Ausgangs-Knotenpunkt des Flows mit einem Knotenpunkt des Stocks
 
@@ -41,7 +41,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 # 4. Variable "Niederschlag" erstellen
 ✔︎ Füge eine Variable mit dem Namen "Niederschlag" hinzu
 
-✔︎ Setze zB einen konstanten Wert von ```10```<sup>3</sup> pro Tag
+✔︎ Setze zB einen konstanten Wert von ```10```<sup>3</sup> pro Tag. Wenn du die Einheit hinzufügen möchtest, kannst du das unter dem Reiter "Validierung" im Primitive-Einstellungsfenster tun.
 
 ✔︎ Verbinde die Variable mit dem oberen oder unteren Knotenpunkt des Flows
 
@@ -59,7 +59,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 # 6. Outflow "Verdunstung" anlegen
 ✔︎ Füge einen zweiten Flow hinzu und nenne ihn "Verdunstung"
 
-✔︎ Setze einen konstanten Wert von ```400``` m<sup>3</sup> pro Tag, ausgelöst durch einen kleinen Bachlauf
+✔︎ Setze einen konstanten Wert von ```400``` m<sup>3</sup> pro Tag
 
 ✔︎ Verbinde nun einen Knotenpunkt des Stocks mit dem Eingangss-Knotenpunkt des Flows 
 
@@ -102,4 +102,5 @@ Einheit: Tage
 
 ![Simulation](./img/12_SD.png)
 
-# Und fertig ist dein erstes System Dynamics Modell!
+
+Fertig ist dein erstes System Dynamics Modell!

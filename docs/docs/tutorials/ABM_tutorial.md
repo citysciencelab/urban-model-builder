@@ -4,7 +4,7 @@ sidebar_position: 2
 # Agent-Based Model
 
 # Krankheitsausbreitung
-Stell dir vor, du möchtest simulieren, wie sich ein Krankheitserreger innerhalb einer Bevölkerungsgruppe über einen bestimmten Zeitraum ausbreitet. Dabei beeinflussen sich die Agenten gegenseitig- sie stecken sich gegenseitig an, wenn sie zufällig aufeinander treffen. Zustände ändern sich somit ständig von "anfällig" über "infiziert" bishin zu "genesen". Die folgende Schritt-für-Schritt- Anleitung zeigt dir, wie du in nur wenigen Schritten dein erstes agentenbasiertes Modell aufbaust!
+Stell dir vor, du möchtest simulieren, wie sich ein Krankheitserreger innerhalb einer Bevölkerungsgruppe über einen bestimmten Zeitraum ausbreitet. Dabei beeinflussen sich die Agenten gegenseitig - sie stecken sich gegenseitig an, wenn sie zufällig aufeinander treffen. Zustände ändern sich somit ständig von "anfällig" über "infiziert" bishin zu "genesen". Die folgende Schritt-für-Schritt-Anleitung zeigt dir, wie du in nur wenigen Schritten dein erstes agentenbasiertes Modell aufbaust!
 
 ---
 # 1. Neues Modell
@@ -65,7 +65,7 @@ Stell dir vor, du möchtest simulieren, wie sich ein Krankheitserreger innerhalb
 
 ✔︎ Setze den Wert auf```Self.Index()=1 and Years=5```
 
-✔︎ Lasse den Wert bei jedem Zeitschritt "Neuberechnen"
+✔︎ Lasse den Wert bei jedem Zeitschritt "neuberechnen"
 
 ![ModellErstellen](./img/6_ABM.png)
 
@@ -192,4 +192,4 @@ Einheit: Jahre
 ![ModellErstellen](./img/15_ABM.png)
 
 
-# Und fertig ist dein erstes agentenbasiertes Modell!
+Fertig ist dein erstes agentenbasiertes Modell!

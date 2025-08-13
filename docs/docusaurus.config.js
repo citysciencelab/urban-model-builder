@@ -174,7 +174,7 @@ const config = {
               {
                 html: `
                   <div style="display: flex; align-items: left;">
-                    <img src="/img/__CUT_Förderlogos.svg" alt="Förderlogo" style="height: 100px;" />
+                    <img src="./img/Funder_Logo.svg" alt="Förderlogo" style="height: 100px;" />
                   </div>
                 `,
               },

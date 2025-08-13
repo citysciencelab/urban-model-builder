@@ -3,193 +3,175 @@ sidebar_position: 2
 ---
 # Agent-Based Model
 
-# Krankheitsausbreitung
-Stell dir vor, du möchtest simulieren, wie sich ein Krankheitserreger innerhalb einer Bevölkerungsgruppe über einen bestimmten Zeitraum ausbreitet. Dabei beeinflussen sich die Agenten gegenseitig- sie stecken sich gegenseitig an, wenn sie zufällig aufeinander treffen. Zustände ändern sich somit ständig von "anfällig" über "infiziert" bishin zu "genesen". Die folgende Schritt-für-Schritt- Anleitung zeigt dir, wie du in nur wenigen Schritten dein erstes agentenbasiertes Modell aufbaust!
+# Disease Spread
+Imagine you want to simulate how a pathogen spreads within a population over a certain period of time. Agents influence each other — they infect one another when they meet by chance. States constantly change from "susceptible" to "infected" to "recovered." The following step-by-step guide shows you how to build your first agent-based model in just a few steps!
 
 ---
-# 1. Neues Modell
-✔︎ Erstelle ein neues Modell und nenne es "Krankheitsausbreitung"
+# 1. Create a new model
+✔︎ Create a new model and name it "Disease Spread"
 
-![ModellErstellen](./img/1_ABM.png)
-
----
-# 2. Agent-Typ "Person" erstellen
-✔︎ Füge einen Agenten hinzu und nenne ihn "Person"
-
-✔︎ Ziehe das Fenster des Primitives auf dem Canvas größer, um die nächsten Primitives hinein zu platzieren
-
-![AgentEinfügen](./img/2_ABM.png)
+![CreateModel](./img/1_ABM.png)
 
 ---
-# 3. State "anfällig" erstellen
-✔︎ Füge ein State im Agenten "Person" hinzu und nenne ihn "anfällig"
+# 2. Create agent type "Person"
+✔︎ Add an agent and name it "Person"
 
-✔︎ Zum Startzeitpunkt ist dieser Zustand korrekt, somit setze den Parameter auf ```true```
+✔︎ Resize the primitive's window on the canvas to fit the next primitives inside
 
-✔︎ Die Vorhaltezeit beträgt ```0```
-
-![ModellErstellen](./img/3_ABM.png)
+![AddAgent](./img/2_ABM.png)
 
 ---
-# 4. State "infiziert" erstellen
+# 3. Create state "susceptible"
+✔︎ Add a state to the "Person" agent and name it "susceptible"
 
-✔︎ Füge ein State im Agenten "Person" hinzu und nenne ihn "infiziert"
+✔︎ At the start time, this state is correct, so set the parameter to ```true```
 
-✔︎ Verbinde den State "anfällig" mit dem State "infizieren"
+✔︎ Holding time: ```0```
 
-✔︎ Zum Startzeitpunkt ist dieser Zustand ```not [anfällig]```. Hierzu kannst du den Wert des verbundenen Primitives "anfällig" übernehmen
-
-✔︎ Die Vorhaltezeit beträgt ```0```
-
-![ModellErstellen](./img/4_ABM.png)
+![CreateState](./img/3_ABM.png)
 
 ---
-# 5. State "genesen" erstellen
+# 4. Create state "infected"
+✔︎ Add a state to the "Person" agent and name it "infected"
 
-✔︎ Füge ein State im Agenten "Person" hinzu und nenne ihn "genesen"
+✔︎ Connect the "susceptible" state to the "infected" state
 
-✔︎ Zum Startzeitpunkt ist dieser Zustand nicht korrekt, somit setze den Parameter auf```false```
+✔︎ At the start time, this state is ```not [susceptible]```. You can use the value from the connected "susceptible" primitive
 
-✔︎ Die Vorhaltezeit beträgt ```0```
+✔︎ Holding time: ```0```
 
-![ModellErstellen](./img/5_ABM.png)
-
----
-# 6. Transition "Krankheitserreger" erstellen
-
-✔︎ Füge eine Transition im Agenten "Person" hinzu und nenne ihn "Krankheitserreger"
-
-✔︎ Verbinde den State "anfällig" mit dem State "infiziert" über diese Transition
-
-✔︎ Der Auslöser ist eine "Condition" und bedingt sich durch Kontakt zu anderen Agenten nach 5 Jahren
-
-✔︎ Setze den Wert auf```Self.Index()=1 and Years=5```
-
-✔︎ Lasse den Wert bei jedem Zeitschritt "Neuberechnen"
-
-![ModellErstellen](./img/6_ABM.png)
+![CreateState](./img/4_ABM.png)
 
 ---
-# 7. Transition "Erholung" erstellen
+# 5. Create state "recovered"
+✔︎ Add a state to the "Person" agent and name it "recovered"
 
-✔︎ Füge eine Transition im Agenten "Person" hinzu und nenne ihn "Erholung"
+✔︎ At the start time, this state is false, so set the parameter to ```false```
 
-✔︎ Verbinde den State "infiziert" mit dem State "genesen" über diese Transition
+✔︎ Holding time: ```0```
 
-✔︎ Der Auslöser ist eine "Probability". Die Annahme ist, dass pro Zeitschritt 9% der infizierten Personen sich erholen.
-
-✔︎ Setze den Wert auf ```0.09```
-
-✔︎ Lasse den Wert bei jedem Zeitschritt "Neuberechnen"
-
-![ModellErstellen](./img/7_ABM.png)
+![CreateState](./img/5_ABM.png)
 
 ---
-# 8. Transition "Übertragung" erstellen
+# 6. Create transition "Pathogen"
+✔︎ Add a transition to the "Person" agent and name it "Pathogen"
 
-✔︎ Füge eine Transition im Agenten "Person" hinzu und nenne ihn "Übertragung"
+✔︎ Connect the "susceptible" state to the "infected" state via this transition
 
-✔︎ Verbinde den State "anfällig" mit dem State "infiziert" über diese Transition
+✔︎ The trigger is a "Condition" caused by contact with other agents after 5 years
 
-✔︎ Der Auslöser ist eine "Probability". Die Wahrscheinlichkeit infiziert zu werden, hängt von der Population ab, die wir im späteren Verlauf modellieren.
+✔︎ Set value to ```Self.Index()=1 and Years=5```
 
-![ModellErstellen](./img/8_ABM.png)
+✔︎ Recalculate value at every time step
 
----
-# 9. Action "Erreger einfangen" erstellen
-
-✔︎ Füge eine Action im Agenten "Person" hinzu und nenne ihn "Erreger einfangen"
-
-✔︎ Verbinde den State "anfällig" mit dieser Action 
-
-✔︎ Der Auslöser ist eine "Condition" und bedingt sich ebenfalls durch die Population, die wir im nächsten Schritt modellieren.
-
-![ModellErstellen](./img/9_ABM.png)
+![CreateTransition](./img/6_ABM.png)
 
 ---
-# 10. Population erstellen
+# 7. Create transition "Recovery"
+✔︎ Add a transition to the "Person" agent and name it "Recovery"
 
-✔︎ Füge eine Population hinzu, die durch die Verbindung zum Agenten "Person" das Verhalten auf eine ganze Population anwendet
+✔︎ Connect the "infected" state to the "recovered" state via this transition
 
-✔︎ Setze die Werte wie folgt:
+✔︎ The trigger is "Probability". The assumption is that 9% of infected individuals recover per time step.
 
-Größe der Bevölkerung: ```100```
+✔︎ Set value to ```0.09```
 
-Geo Breite: ```200```
+✔︎ Recalculate value at every time step
 
-Geo Höhe: ```200```
-
-Geo Platzierung: "Random"
-
-Netzwerktyp: "keine"
-
-✔︎ Stelle die Population als Output-Parameter ein
-
-![ModellErstellen](./img/10_ABM.png)
+![CreateTransition](./img/7_ABM.png)
 
 ---
-# 11. Gleichungen für Action "Erreger einfangen" setzen
+# 8. Create transition "Transmission"
+✔︎ Add a transition to the "Person" agent and name it "Transmission"
 
-✔︎ Verbinde die Population mit der Action "Erreger einfangen" im Agenten "Person"
+✔︎ Connect the "susceptible" state to the "infected" state via this transition
 
-✔︎ Setze die Aktionsfunktion auf ```Self.moveTowards([Population].FindState([infiziert]).FindNearest(Self), -0.5)```
+✔︎ The trigger is "Probability". The probability of infection depends on the population, which we will model later.
 
-✔︎ Setze den Wert auf ```[anfällig] and [Population].FindState([infiziert]).count()> 0```
-
-
-![ModellErstellen](./img/11_ABM.png)
+![CreateTransition](./img/8_ABM.png)
 
 ---
-# 12. Gleichungen für Transition "Übertragung" setzen
+# 9. Create action "Catch Pathogen"
+✔︎ Add an action to the "Person" agent and name it "Catch Pathogen"
 
-✔︎ Verbinde die Population mit der Transition "Übertragung" im Agenten "Person"
+✔︎ Connect the "susceptible" state to this action
 
-✔︎ Setze den Wert auf: 
+✔︎ The trigger is a "Condition" that also depends on the population we will model next.
+
+![CreateAction](./img/9_ABM.png)
+
+---
+# 10. Create population
+✔︎ Add a population that applies the agent "Person" behavior to the entire population
+
+✔︎ Set values as follows:
+
+Population size: ```100```  
+Geo width: ```200```  
+Geo height: ```200```  
+Geo placement: "Random"  
+Network type: "none"
+
+✔︎ Set population as output parameter
+
+![CreatePopulation](./img/10_ABM.png)
+
+---
+# 11. Equations for action "Catch Pathogen"
+✔︎ Connect the population to the "Catch Pathogen" action in the "Person" agent
+
+✔︎ Set action function to ```Self.moveTowards([Population].FindState([infected]).FindNearest(Self), -0.5)```
+
+✔︎ Set condition to ```[susceptible] and [Population].FindState([infected]).count()> 0```
+
+![CreateEquations](./img/11_ABM.png)
+
+---
+# 12. Equations for transition "Transmission"
+✔︎ Connect the population to the "Transmission" transition in the "Person" agent
+
+✔︎ Set value to:
 ```
-infectors <- [Population].FindState([infiziert]).FindNearby(Self, 25)
-
+infectors <- [Population].FindState([infected]).FindNearby(Self, 25)
 probInfect <- min(1, infectors.Map(1/(distance(x, Self))^.75))
-
 1 - Product(Join(1, 1 - probInfect))
 ```
-✔︎ Lasse den Wert bei jedem Zeitschritt "Neuberechnen"
 
-![ModellErstellen](./img/12_ABM.png)
+✔︎ Recalculate value at every time step
 
----
-# 13. Variable "Prozentsatz Infizierte" erstellen
-
-✔︎ Füge eine Variable hinzu und nenne sie "Prozentsatz Infizierte"
-
-✔︎ Verbinde die Population mit dieser Variablen
-
-✔︎ Setze den Wert auf ```[Population].FindState([infiziert]).Count()/[Population].FindAll().Count()*100```
-
-✔︎ Stelle die Variable ebenfalls als Output-Parameter ein
-
-![ModellErstellen](./img/13_ABM.png)
+![CreateEquations](./img/12_ABM.png)
 
 ---
-# 14. Simulationseinstellungen
+# 13. Create variable "Percentage Infected"
+✔︎ Add a variable named "Percentage Infected"
 
-✔︎ Öffne die Modell Einstellung in der Sidebar 
+✔︎ Connect the population to this variable
 
-✔︎ Setze die Werte wie folgt:
+✔︎ Set value to ```[Population].FindState([infected]).Count()/[Population].FindAll().Count()*100```
 
-Start: 0
-Länge: 20 
-Intervall: 1 
-Einheit: Jahre
+✔︎ Set variable as output parameter
 
-![ModellErstellen](./img/14_ABM.png)
+![CreateVariable](./img/13_ABM.png)
 
 ---
-# 15. Simulation starten 
-✔︎ Starte die Berechnung der Simulation, indem du auf den "Simulieren"-Button in der Activebar klickst
+# 14. Simulation settings
+✔︎ Open model settings in the sidebar
 
-✔︎ Schaue dir das Streudiagramm an, indem du auf den "Scatter-Plot" Reiter klickst 
+✔︎ Set values as follows:
 
-![ModellErstellen](./img/15_ABM.png)
+Start: 0  
+Length: 20  
+Interval: 1  
+Unit: Years
 
+![Settings](./img/14_ABM.png)
 
-# Und fertig ist dein erstes agentenbasiertes Modell!
+---
+# 15. Run simulation
+✔︎ Start the simulation by clicking the "Simulate" button in the Activebar
+
+✔︎ View the scatter plot by clicking the "Scatter-Plot" tab
+
+![RunSimulation](./img/15_ABM.png)
+
+Your first agent-based model is complete!
