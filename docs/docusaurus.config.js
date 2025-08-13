@@ -90,7 +90,7 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/docusaurus-social-card.jpg',
+      image: 'img/modelbuilder-social-card.jpg',
       navbar: {
         title: 'Urban Model Builder',
         logo: {
@@ -174,7 +174,7 @@ const config = {
               {
                 html: `
                   <div style="display: flex; align-items: left;">
-                    <img src="./img/Funder_Logo.svg" alt="Förderlogo" style="height: 100px;" />
+                    <img src="https://citysciencelab.github.io/urban-model-builder/en/img/Funder_Logo.svg" alt="Förderlogo" style="height: 100px;" />
                   </div>
                 `,
               },

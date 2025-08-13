@@ -13,20 +13,22 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
-        <Heading as="h1" className="hero__title">
-          <Translate>Urban Model Builder</Translate>
+        <img src="./img/comodeling_illustration_blue.png" alt="Urban Model Builder Illustration" className={clsx(styles.heroImage)}/>
+        <Heading as="h1" className="hero__title ">
+          <Translate>Urban Model Builder - Handbuch</Translate>
         </Heading>
-        <p className="hero__subtitle">
-          <Translate>Ein Open-Source-Werkzeugkasten für die kollaborative Entwicklung von städtischen Modellen</Translate>
-          </p>
+        <p className={clsx('hero__subtitle', styles.heroSubtitle)}>
+          <Translate>Auf dieser Seite findest du eine Sammlung von Tutorials und Ressourcen, die dir helfen, den Urban Model Builder effektiv zu nutzen.</Translate>
+        </p>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
             to="/docs/documentation/intro">
-            <Translate>Loslegen</Translate>
+            <Translate>Zur Dokumentation</Translate>
           </Link>
           
         </div>
+
       </div>
     </header>
   );

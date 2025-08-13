@@ -5,7 +5,11 @@ import Translate, {translate} from '@docusaurus/Translate';
 
 const FeatureList = [
   {
-    title: 'Kollaboration in Echtzeit',
+    title: (
+      <Translate>
+        Kollaboration in Echtzeit
+      </Translate>
+    ),
     img: require('@site/static/img/modelbuilder_collaboration.png').default,
     description: (
       <Translate>
@@ -14,8 +18,12 @@ const FeatureList = [
     ),
   },
   {
-    title: 'Integration der Städtischen Datenplattform',
-    img: require('@site/static/img/modelbuilder_collaboration.png').default,
+    title: (
+      <Translate>
+        Integration der Städtischen Datenplattform
+      </Translate>
+    ),
+    img: require('@site/static/img/modelbuilder_dataplatform.png').default,
     description: (
       <Translate>
         Der Urban Model Builder ist vollständig in die Städtische Datenplattform integriert, um den Zugriff auf städtische Daten zu erleichtern.
@@ -23,8 +31,12 @@ const FeatureList = [
     ),
   },
   {
-    title: 'System Dynamics und Agentenbasierte Modellierung',
-    img: require('@site/static/img/modelbuilder_collaboration.png').default,
+    title: (
+      <Translate>
+        System Dynamics und Agentenbasierte Modellierung
+      </Translate>
+    ),
+    img: require('@site/static/img/modelbuilder_sd_abm.png').default,
     description: (
       <Translate>
         Der Urban Model Builder unterstützt sowohl System Dynamics als auch agentenbasierte Modellierung, um verschiedene Aspekte städtischer Systeme zu modellieren.

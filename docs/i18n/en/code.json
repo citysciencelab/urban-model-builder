@@ -329,7 +329,7 @@
     "message": "An open-source toolkit for collaborative development of urban models"
   },
   "Loslegen": {
-    "message": "Loslegen"
+    "message": "To the documentation"
   },
   "Arbeite gemeinsam mit deinem Team und anderen Stakeholdern an urbanen Modellen in Echtzeit.)": {
     "message": "Work together with your team and other stakeholders on urban models in real-time."
@@ -339,5 +339,23 @@
   },
   "Der Urban Model Builder unterstützt sowohl System Dynamics als auch agentenbasierte Modellierung, um verschiedene Aspekte städtischer Systeme zu modellieren.": {
     "message": "The urban model builder supports both system dynamics and agent-based modeling to model different aspects of urban systems."
+  },
+  "Urban Model Builder - Handbuch": {
+    "message": "Urban Model Builder - Manual"
+  },
+  "Auf dieser Seite findest du eine Sammlung von Tutorials und Ressourcen, die dir helfen, den Urban Model Builder effektiv zu nutzen.": {
+    "message": "On this page, you will find a collection of tutorials and resources to help you effectively use the Urban Model Builder."
+  },
+  "Zur Dokumentation": {
+    "message": "To the documentation"
+  },
+  "Kollaboration in Echtzeit": {
+    "message": "Realtime collaboration"
+  },
+  "Integration der Städtischen Datenplattform": {
+    "message": "Integration of the Urban Data Platform"
+  },
+  "System Dynamics und Agentenbasierte Modellierung": {
+    "message": "System Dynamics and Agent-Based Modeling"
   }
 }
