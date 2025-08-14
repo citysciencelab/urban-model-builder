@@ -17,7 +17,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 # 2. Stock "Wasserstand" erstellen
 ✔︎ Füge einen Stock hinzu, welchen du über das Plus-Icon in der Activebar findest
 
-✔︎ Klicke auf den platzierten Stock und nenne ihn "Wasserstand"
+✔︎ Öffne die Parameter Einstellung des platzierten Stocks, indem du darauf klickst und nenne ihn "Wasserstand"
 
 ✔︎ Setze einen Startwert in das Wert-Eingabefeld von bspw. ```20000``` m<sup>3</sup>. Wenn du die Einheit hinzufügen möchtest, kannst du das unter dem Reiter "Validierung" im Primitive-Einstellungsfenster tun.
 
@@ -31,7 +31,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 
 ✔︎ Setze einen konstanten Wert von ```500``` m<sup>3</sup> pro Tag, ausgelöst durch einen Wasserlauf. Wenn du die Einheit hinzufügen möchtest, kannst du das unter dem Reiter "Validierung" im Primitive-Einstellungsfenster tun.
 
-✔︎ Verbinde nun den Ausgangs-Knotenpunkt des Flows mit einem Knotenpunkt des Stocks
+✔︎ Verbinde nun den Ausgangs-Knotenpunkt des Flows "Zufluss" mit einem Knotenpunkt des Stocks "Wasserstand"
 
 ✔︎ Achte darauf, dass der Verbindungspfeil zum Stock zeigt 
 
@@ -43,7 +43,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 
 ✔︎ Setze zB einen konstanten Wert von ```10```<sup>3</sup> pro Tag. Wenn du die Einheit hinzufügen möchtest, kannst du das unter dem Reiter "Validierung" im Primitive-Einstellungsfenster tun.
 
-✔︎ Verbinde die Variable mit dem oberen oder unteren Knotenpunkt des Flows
+✔︎ Verbinde die Variable "Niederschlag" mit dem oberen oder unteren Knotenpunkt des Flows "Zufluss"
 
 ![VariableErstellen](./img/4_SD.png)
 
@@ -61,7 +61,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 
 ✔︎ Setze einen konstanten Wert von ```400``` m<sup>3</sup> pro Tag
 
-✔︎ Verbinde nun einen Knotenpunkt des Stocks mit dem Eingangs-Knotenpunkt des Flows 
+✔︎ Verbinde nun einen Knotenpunkt des Stocks "Wasserstand" mit dem Eingangs-Knotenpunkt des Flows "Verdunstung"
 
 ✔︎ Achte darauf, dass der Verbindungspfeil weg vom Stock zeigt
 
@@ -73,7 +73,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 
 ✔︎ Setze sie abhängig vom Wasserstand zB ```Wasserstand * 0.002``` (-> 0,2% pro Tag)
 
-✔︎ Verbinde die Variable mit dem oberen oder unteren Knotenpunkt des Flows "Verdunstung"
+✔︎ Verbinde die Variable "Verdunstungsrate" mit dem oberen oder unteren Knotenpunkt des Flows "Verdunstung"
 
 ![OutflowAnlegen](./img/9_SD.png)
 
