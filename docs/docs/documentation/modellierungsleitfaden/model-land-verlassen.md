@@ -16,5 +16,5 @@ Also erzählst du Geschichten:
 
 Du erinnerst dich an deine Verantwortung: Viele Menschen verlassen sich auf deine Modelle. Daher ist es wichtig, dass du dein Model Land immer so eindeutig wie möglich beschreibst, um Missverständnissen und falschen Erwartungen an die Reise entgegen zu wirken. Du erklärst nicht nur die Ergebnisse, sondern auch die Grenzen. Du machst mit deinen unterschiedlichen Szenarien und Modellversionen deutlich, dass es nicht nur den einen Weg gibt. Mit neuen Entwürfen von Modellen, verstehst du, dass ein System auf verschiedene Arten beschrieben werden kann - in unterschiedlichen Maßstäben, Detailgraden, Komplexitäten, Fokusschwerpunkten. Sie können auf Annahmen anderer User basieren und durch deine Sichtweise auf die Welt verändert werden, die wiederum die Inspiration für andere User sein können, um ihre Reise ins Model Land zu starten. 
 
-Bist du bereit für deine nächste Reise?
+Bist du bereit dein Abenteuer anzutreten?
 

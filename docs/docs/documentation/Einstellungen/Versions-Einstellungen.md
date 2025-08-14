@@ -29,5 +29,5 @@ Du kannst keine einzelnen Entwürfe löschen, sondern ausschließlich das komple
 - Teamarbeit: In kollaborativen Projekten können verschiedene Bearbeitende nachvollziehen, wer wann was verändert hat
 :::tip
 
-Wenn du veröffentlichte Modelle als Basis deines Modells nehmen möchtest, erstellst du entweder einen neuen Entwurf (sofern du die Berechtigung hast) oder du klonst es, sodass du es bearebiten kannst.
+Wenn du veröffentlichte Modelle als Basis deines Modells nehmen möchtest, erstellst du entweder einen neuen Entwurf (sofern du die Berechtigung hast) oder du klonst es, sodass du es bearbeiten kannst.
 :::

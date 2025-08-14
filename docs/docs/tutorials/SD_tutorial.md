@@ -61,7 +61,7 @@ Stell dir vor, du möchtest wissen, wie sich die Wassermenge in einem See über 
 
 ✔︎ Setze einen konstanten Wert von ```400``` m<sup>3</sup> pro Tag
 
-✔︎ Verbinde nun einen Knotenpunkt des Stocks mit dem Eingangss-Knotenpunkt des Flows 
+✔︎ Verbinde nun einen Knotenpunkt des Stocks mit dem Eingangs-Knotenpunkt des Flows 
 
 ✔︎ Achte darauf, dass der Verbindungspfeil weg vom Stock zeigt
 
