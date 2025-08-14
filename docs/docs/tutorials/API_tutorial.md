@@ -4,7 +4,7 @@ sidebar_position: 2
 # OGC API Feature
 
 # Bevölkerungsprognose Hamburg
-Stell dir vor, du möchtest wissen, wie sich die Bevölkerungszahl in Hamburg in den nächsten Jahren verändern könnte. Als Initialwert nimmst du den realen Datensatz der aktuellen Volkszählung. Durch Zu- und Abwanderungen verändert sich das System dynamisch über die Zeit. Die folgende Schritt-für-Schritt- Anleitung zeigt dir, wie du in nur wenigen Schritten dein erstes System Dynamics Modell mit realem Datensatz-Feature aufbaust!
+Stell dir vor, du möchtest wissen, wie sich die Bevölkerungszahl in Hamburg in den nächsten Jahren verändern könnte. Als Initialwert nimmst du den realen Datensatz der aktuellesten Volkszählung von 2023. Durch Wachstum anhand von Geburten und Abnahmen durch Sterbefälle verändert sich das System dynamisch über die Zeit. Die folgende Schritt-für-Schritt- Anleitung zeigt dir, wie du in nur wenigen Schritten dein erstes System Dynamics Modell mit realem Datensatz-Feature aufbaust!
 
 ---
 # 1. Neues Modell
