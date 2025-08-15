@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 # Das "Model Land"
-
+## Ein Ort der Abstraktheit und Komplexität
 Modelle helfen uns, die komplexe Wirklichkeit zu verstehen, Handlungsoptionen zu testen und informierte Entscheidungen zu treffen. Jedes Modell bedeutet somit Vereinfachung, Interpretation und Verantwortung. Der Umgang mit solchen Aufgaben, lässt sich anschaulich in der Metapher des Model Lands[^1] erzählen - jenem abstrakten Land voller mathematischer Zusammenhänge und Berechnungen, das exploriert werden kann! 
 
 Basierend auf der Metapher des Model Lands, möchten wir dir mit diesem kurzen Leitfaden eine Orientierung geben, wie du dich in der Welt der Modellierung zurechtfinden kannst. Dabei wollen wir nicht nur erste technisch-mathematischen Grundlagen, sondern auch ein sozio-kulturelles Verständnis vermitteln.

@@ -1,8 +1,9 @@
 ---
 sidebar_position: 3
 ---
-
 # Model Land navigieren
+
+## Modell simulieren
 
 Du befindest dich mitten im Model Land und stehst vor einer Vielzahl an Optionen, Weggabelungen, Kreuzungen, ja vielleicht sogar Sackgassen und Baustellen. Du hast einen Teil der realen Welt codiert und daraus dein Modell aufgebaut. Im Model Land existiert nun eine ganz eigene Logik, die du alleine oder zusammen mit einem Team konzipiert hast. Exploriere die Vielzahl an Möglichkeiten, die Wege, die Aktivitäten, die Umgebung. Die Welt ist aufregend und du kannst sie während deiner Reise aktiv verändern, optimieren und lenken. Du fragst dich vielleicht oft "Was-wäre-wenn...?". Hier ist ein Ort, um genau diesen Fragen auf den Grund zu gehen! 
 

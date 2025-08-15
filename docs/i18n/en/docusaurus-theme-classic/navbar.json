@@ -26,5 +26,9 @@
   "item.label.Funktionen": {
     "message": "Functions",
     "description": "Navbar item with label Funktionen"
+  },
+  "item.label.BacktoTool": {
+    "message": "Back to Tool",
+    "description": "Navbar item with label Back to Tool"
   }
 }

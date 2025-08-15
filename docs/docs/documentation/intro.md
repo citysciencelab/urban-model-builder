@@ -11,7 +11,7 @@ Schön, dass du da bist und mehr über den Urban Model Builder erfahren möchtes
 
 Der Urban Model Builder ist ein freizugängliches webbasiertes Tool zum kollaborativen Erstellen, Simulieren, Versionieren und Teilen von digitalen Simulationsmodellen. Das Tool basiert auf der Open-Source [Simulationsbibliothek des InsightMaker Tools](https://github.com/scottfr/simulation) und ist über GitHub frei verfügbar. Mit dem Urban Model Builder können insbesondere System Dynamics und Agentbased Modelle co-modelliert werden. Das Low-Code Interface ermöglicht es, auf einer grafischen Arbeitsoberfläche verschiedene Bausteine miteinander zu verbinden und damit Simulationsmodelle zu erstellen. Auf Grundlage der Eingabe eigener Parameterwerte oder realer Datensätze werden Simulationsberechnungen in Echtzeit durchgeführt. 
 
-### Key-Features: 
+### Key-Features 
 - Open source (GPL-3.0 License)
 - System Dynamics und agentenbasierte Modellierung
 - Integrierte OGC API Schnittstelle zur Anbindung von Geodaten

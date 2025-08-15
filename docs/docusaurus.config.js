@@ -124,6 +124,11 @@ const config = {
           },
           //{to: '/blog', label: 'Blog', position: 'left'},
           {
+            href: 'https://modelbuilder.comodeling.city/',
+            label: 'Zurück zum Tool',
+            position: 'right',
+          },
+          {
             type: 'localeDropdown',
             position: 'right',
           },

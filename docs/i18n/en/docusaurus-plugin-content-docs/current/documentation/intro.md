@@ -14,7 +14,7 @@ It is built on the open-source [simulation library of the InsightMaker tool](htt
 With the Urban Model Builder, you can co-model System Dynamics and Agent-Based models in particular.  
 The low-code interface lets you connect different building blocks on a graphical workspace to create simulation models. Based on your own parameter values or real datasets, simulation calculations are performed in real time.
 
-### Key Features:
+### Key Features
 - Open source (GPL-3.0 License)
 - System Dynamics and agent-based modeling
 - Integrated OGC API interface for connecting geospatial data
