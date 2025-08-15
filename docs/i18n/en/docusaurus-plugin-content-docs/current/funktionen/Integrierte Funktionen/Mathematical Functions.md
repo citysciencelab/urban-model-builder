@@ -3,49 +3,49 @@ sidebar_position: 1
 ---
 # Mathematical Functions
 ### Round
-```jsx title="Rundet zum nächsten Integer:"
+```jsx title="Rounds to the nearest integer:"
 Syntax:     Round(value)
 
-Beispiel:   Round(3.5) → 4
+Example:   Round(3.5) → 4
             Round(-1.4) → -1
 ```
 ### Ceiling
-```jsx title="Rundet auf zum nächsten Integer:"
+```jsx title="Rounds up to the nearest integer:"
 Syntax:     Ceiling(value)
 
-Beispiel:   Ceiling(3.01) → 4
+Example:   Ceiling(3.01) → 4
             Ceiling(-1.99) → -1
 ```
 ### Floor
-```jsx title="Rundet ab zum nächsten Integer:"
+```jsx title="Rounds down to the nearest integer:"
 Syntax:     Floor(value)
 
-Beispiel:   Floor(3.99) → 3
+Example:   Floor(3.99) → 3
             Floor(-1.01) → -2
 ```
 ### Cos/ArcCos 
-```jsx title="Cosinus- und inverse Cosinusfunktion (im Bogenmaß) :"
+```jsx title="Cosine and inverse cosine function (in radians):"
 Syntax:     Cos(angle), ArcCos(value)
 
-Beispiel:   Cos(Pi) → -1 
+Example:   Cos(Pi) → -1 
             Cos(0) → 1 
             ArcCos(1) → 0
             ArcCos(0.5) → Pi/3
 ```
 ### Sin/ArcSin
-```jsx title="Sinus- und inverse Sinusfunktion (im Bogenmaß):"
+```jsx title="Sine and inverse sine function (in radians):"
 Syntax:     Sin(angle), ArcSin(value)
 
-Beispiel:   Sin(Pi/2) → 1 
+Example:   Sin(Pi/2) → 1 
             Sin(0) → 0 
             ArcSin(1) → Pi/2
             ArcSin(0.5) → Pi/6
 ```
 ### Tan/ArcTan
-```jsx title="Tangens- und inverse Tangensfunktion (im Bogenmaß):"
+```jsx title="Tangent and inverse tangent function (in radians):"
 Syntax:     Tan(angle), ArcTan(value)
 
-Beispiel:   Tan(Pi/4) → 1 
+Example:   Tan(Pi/4) → 1 
             Tan(0) → 0 
             ArcTan(1) → Pi/4
             ArcTan(-1) → -Pi/4

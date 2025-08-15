@@ -4,52 +4,52 @@ sidebar_position: 4
 # Agent Functions
 
 ### FindAll
-```jsx title="Gibt alle Agenten in einer Population zurück. Nützlich für Massenaktionen oder Analysen:"
+```jsx title="Returns all agents in a population. Useful for mass actions or analyses:"
 Syntax:     [Population].FindAll()
 
-Beispiel:   [People].FindAll().Count()
+Example:   [People].FindAll().Count()
             Mean([Trees].FindAll().Map(x.Value([Height])))
 ```
 ### FindState
-```jsx title="Gibt alle Agenten in einem bestimmten Zustand zurück:"
+```jsx title="Returns all agents in a specific state:"
 Syntax:     [Population].FindState([State])
 
-Beispiel:   [Cells].FindState([Infected])
+Example:   [Cells].FindState([Infected])
             [Students].FindState([Studying])
 ```
 ### FindNotState
-```jsx title="Gibt Agenten zurück, die sich nicht in einem bestimmten Zustand befinden:"
+```jsx title="Returns agents that are not in a specific state:"
 Syntax:     [Population].FindNotState([State])
 
-Beispiel:   [Patients].FindNotState([Recovered])
+Example:   [Patients].FindNotState([Recovered])
             Mean([Trees].FindNotState([Burned]).Map(x.Value([Height])))
 ```
 ### FindIndex
-```jsx title="Gibt den Agenten an einem bestimmten Index zurück (beginnend bei 1):"
+```jsx title="Returns the agent at a specific index (starting from 1):"
 Syntax:     [Population].FindIndex(Index)
 
-Beispiel:   [Fish].FindIndex(1)
+Example:   [Fish].FindIndex(1)
             [Books].FindIndex(5)
 ```
 ### FindNearby
-```jsx title="Gibt Agenten innerhalb einer festgelegten Entfernung zu einem Ziel zurück:"
+```jsx title="Returns agents within a specified distance to a target:"
 Syntax:     [Population].FindNearby(Target, Distance)
 
-Beispiel:   [Trees].FindNearby(PollutedArea, 50)
+Example:   [Trees].FindNearby(PollutedArea, 50)
             [Fish].FindNearby(FoodSource, 20)
 ```
 ### FindNearest
-```jsx title="Gibt den/die nächstgelegene(n) Agent(en) zu einem Ziel zurück:"
+```jsx title="Returns the nearest agent(s) to a target:"
 Syntax:     [Population].FindNearest(Target, Count=1)
 
-Beispiel:   [Customers].FindNearest(Store)
+Example:   [Customers].FindNearest(Store)
             [EmergencyVehicles].FindNearest(AccidentSite, 5)
 ```
 ### FindFurthest
-```jsx title="Gibt den/die Agenten zurück, der/die am weitesten von einem Ziel entfernt ist/sind:"
+```jsx title="Returns the agent(s) furthest from a target:"
 Syntax:     [Population].FindFurthest(Target, Count=1)
 
-Beispiel:   [FireStations].FindFurthest(Fire, 3)
+Example:   [FireStations].FindFurthest(Fire, 3)
             [RetailStores].FindFurthest(Mall)
 ```
 ### Value

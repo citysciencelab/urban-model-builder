@@ -3,89 +3,89 @@ sidebar_position: 1
 ---
 # Time Functions
 ### Seconds
-```jsx title="Berechnet die aktuelle Zeit in Sekunden:"
+```jsx title="Calculates the current time in seconds:"
 Syntax:     Seconds()
 
-Beispiel:   Seconds()*1000 → Zeit in Millisekunden
-            Seconds()/60 → Rechnet Sekunden in Minuten um
+Example:   Seconds()*1000 → Time in milliseconds
+            Seconds()/60 → Converts seconds to minutes
             IfThenElse(Seconds() > 3600, 'Hour passed', 'Still running')
 ```
 ### Minutes
-```jsx title="Berechnet die aktuelle Zeit in Minuten:"
+```jsx title="Calculates the current time in minutes:"
 Syntax:     Minutes()
 
-Beispiel:   Minutes()*60 → Rechnet Minuten in Sekunden um
+Example:   Minutes()*60 → Converts minutes to seconds
             IfThenElse(Minutes() > 30, 'More than 30 mins', 'Less than 30 mins')
 ```
 ### Hours
-```jsx title="Berechnet die aktuelle Zeit in Stunden:"
+```jsx title="Calculates the current time in hours:"
 Syntax:     Minutes()
 
-Beispiel:   Hours()*60 → Rechnet Stunden in Minuten um
+Example:   Hours()*60 → Converts hours to minutes
             IfThenElse(Hours() >= 24, 'Day passed', 'Less than a day')
 ```
 ### Days
-```jsx title="Berechnet die aktuelle Zeit in Tagen:"
+```jsx title="Calculates the current time in days:"
 Syntax:     Days()
 
-Beispiel:   Days()*24 → Rechnet Tage in Stunden um
-            Days()/7 → Rechnet Tage in Wochen um
+Example:   Days()*24 → Converts days to hours
+            Days()/7 → Converts days to weeks
 ```
 ### Weeks
-```jsx title="Berechnet die aktuelle Zeit in Wochen:"
+```jsx title="Calculates the current time in weeks:"
 Syntax:     Weeks()
 
-Beispiel:   Weeks()*7 → Rechnet Wochen in Tage um
+Example:   Weeks()*7 → Converts weeks to days
 ```
 ### Months
-```jsx title="Berechnet die aktuelle Zeit in Monaten:"
+```jsx title="Calculates the current time in months:"
 Syntax:     Months()
 
-Beispiel:   Months()/12 → Rechnet Monate in Jahre um
+Example:   Months()/12 → Converts months to years
 ```
 ### Years
-```jsx title="Berechnet die aktuelle Zeit in Jahre:"
+```jsx title="Calculates the current time in years:"
 Syntax:     Years()
 
-Beispiel:   Years()*12 → Rechnet Jahre in Monate um
-            Years()*365 → Rechnet Jahre in Tage um
+Example:   Years()*12 → Converts years to months
+            Years()*365 → Converts years to days
 ```
 ### Time
-```jsx title="Berechnet die exakte aktuelle Zeit (inkl. Einheiten):"
+```jsx title="Calculates the exact current time (including units):"
 Syntax:     Time()
 
-Beispiel:   Time() - TimeStart() → Berechnet die verstrichene Zeit seit dem Start der Simulation
-            TimeEnd() - Time() → Berechnet die übrige Zeit bis zum Ende der Simulation 
+Example:   Time() - TimeStart() → Calculates the elapsed time since the start of the simulation
+            TimeEnd() - Time() → Calculates the remaining time until the end of the simulation 
 ```
 ### TimeStart
-```jsx title="Berechnet die exakte aktuelle Zeit:"
+```jsx title="Calculates the exact current time:"
 Syntax:     TimeStart()
 
-Beispiel:   Time() - TimeStart() → Berechnet die verstrichene Zeit seit dem Start der Simulation
-            TimeEnd() - Time() → Berechnet die übrige Zeit bis zum Ende der Simulation 
+Example:   Time() - TimeStart() → Calculates the elapsed time since the start of the simulation
+            TimeEnd() - Time() → Calculates the remaining time until the end of the simulation 
 ```
 ### TimeStep
-```jsx title="Definiert ein Zeitabschnitt-Intervall für zeitbasierte Funktionen:"
+```jsx title="Defines a time interval for time-based functions:"
 Syntax:     TimeStep()
 
-Beispiel:   TimeLength() / TimeStep() → Anzahl der Zeitschritte 
+Example:   TimeLength() / TimeStep() → Number of time steps 
 ```
 ### TimeLength
-```jsx title="Berechnet die Dauer einer Zeitspanne:"
+```jsx title="Calculates the duration of a time period:"
 Syntax:     TimeLength()
 
-Beispiel:   (Time() - TimeStart()) / TimeLength() → Berechnet prozentual die verstrichene Zeit der Simulation
+Example:   (Time() - TimeStart()) / TimeLength() → Calculates the elapsed time of the simulation as a percentage
 ```
 ### TimeEnd
-```jsx title="Definiert einen Endzeitpunkt einer Zeitspanne:"
+```jsx title="Defines an endpoint of a time period:"
 Syntax:     TimeEnd()
 
-Beispiel:   TimeStart() + TimeLength() = TimeEnd()
+Example:   TimeStart() + TimeLength() = TimeEnd()
 ```
 ### Seasonal
-```jsx title="Modelliert Saisonalität mithilfe einer Sinuswelle:"
+```jsx title="Models seasonality using a sine wave:"
 Syntax:     Seasonal(Peak=0)
 
-Beispiel:   Seasonal({9 Months}) * 0.5 + 1 → Hochpunkt im September
-            Seasonal({3 Months}) + Seasonal({9 Months}) → Zwei saisonale Hochpunkte
+Example:   Seasonal({9 Months}) * 0.5 + 1 → Peak in September
+            Seasonal({3 Months}) + Seasonal({9 Months}) → Two seasonal peaks
 ```

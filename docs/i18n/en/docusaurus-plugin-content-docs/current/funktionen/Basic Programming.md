@@ -2,27 +2,26 @@
 sidebar_position: 2
 ---
 
-### Variablen definieren
-
-```jsx title="Verwende den Operator <-, um den Variablen bestimmte Werte zuzuweisen:"
+### Defining Variables
+```jsx title="Use the operator <- to assign specific values to variables:"
 x <- 5
 y <- x + 3  # y = 8
 x <- x * 2  # x = 10
 ```
 :::tip Block-Scoping
 
-Innerhalb eines Blocks deklarierte Variablen sind außerhalb des Blocks nicht zugänglich.
+Variables declared within a block are not accessible outside the block.
 
 :::
 
-### Kommentare
-```jsx title="Verwende Kommentare, um den Code lesbarer zu machen. Diese werden bei der Ausführung ignoriert:"
+### Comments
+```jsx title="Use comments to make the code more readable. These are ignored during execution:"
 # This is a comment 
 // Also a comment
 1 + /* this is ignored */ 2  # = 3
 ```
-### Funktionen definieren
-```jsx title="Definiere Funktionen in Kurz- oder Langform:"
+### Defining Functions
+```jsx title="Define functions in short or long form:"
 # Short form
 addThree(a, b, c) <- a + b + c
 
@@ -31,13 +30,12 @@ function addThree(a, b, c)
   a + b + c
 end function
 ```
-
 ```jsx title="Default values:"
 power(a, b = 2) <- a^b
 power(3)  # = 9
 ```
 ### If-Then-Else Statements
-```jsx title="Nutze konditionale Logik:"
+```jsx title="Use conditional logic:"
 if age > 18 then
   "Adult"
 else if age > 12 then
@@ -47,7 +45,7 @@ else
 end if
 ```
 ### While Loops
-```jsx title="Der Code wird wiederholt, solange eine Bedingung erfüllt ist:"
+```jsx title="The code is repeated as long as a condition is met:"
 n <- 1
 while n < 100
   n <- n * 2
@@ -55,14 +53,14 @@ end loop
 # n = 128
 ```
 ### For Loops
-```jsx title="Der Code wird in einer festgelegte Anzahl ausgeführt:"
+```jsx title="The code is executed a fixed number of times:"
 sum <- 0
 for i from 1 to 5
   sum <- sum + i
 end loop
 # sum = 15
 ```
-```jsx title="Mit benutzerdefinierten Schritten:"
+```jsx title="With custom steps:"
 for i from 2 to 10 by 2
   sum <- sum + i
 end loop
@@ -74,47 +72,47 @@ for val in {3, -1, 7}
 end loop
 ```
 ### Returning Values
-```jsx title="Der letzte Ausdruck in einem Block wird zurückgegeben, sofern „return“ nicht explizit verwendet wird:"
+```jsx title="The last expression in a block is returned unless 'return' is explicitly used:"
 return 2 + 2  # = 4
 ```
 ### Error Handling
-```jsx title="Verwende Try-Catch, um Fehler sicher zu behandeln:"
+```jsx title="Use Try-Catch to handle errors safely:"
 Try
   result <- someRiskyFunction()
 Catch err
   result <- "Error occurred"
 End Try
 ```
-```jsx title="Benutzerdefinierte Fehler auslösen:"
+```jsx title="Throw custom errors:"
 if x.length() = 0 then
   throw "x must not be empty"
 end if
 ```
 ### Destructuring Assignment
-```jsx title="Schnelles Zuweisen von Elementen aus einem Vektor:"
+```jsx title="Quickly assign elements from a vector:"
 a, b <- {100, 200}
 # a = 100, b = 200
 ```
-## Funktionale Programmierung
+## Functional Programming
 
-### First-Class Funktionen
-```jsx title="Weise Variablen Funktionen zu:"
+### First-Class Functions
+```jsx title="Assign functions to variables:"
 myFunc <- mean
 myFunc(4, 6, 8)  # = 6
 ```
-```jsx title="Nutze die Map-Funktion mit einem Funktionsvektor, um bestimmte Werte aus einem Datensatz zu erhalten:"
+```jsx title="Use the Map function with a function vector to get specific values from a dataset:"
 {Min, Max}.Map(x(5, 8, 2))  # = {2, 8}
 ```
-### Anonyme Funktionen
-```jsx title="Definiere Funktionen ohne Namen:"
+### Anonymous Functions
+```jsx title="Define functions without names:"
 f <- function(x, y) sqrt(x^2 + y^2)
 f(6, 8)  # = 10
 ```
-```jsx title="Hilfreich bei Funktionen wie Map() und Filter():"
+```jsx title="Useful for functions like Map() and Filter():"
 {1, 2, 3}.map(function(n) n^2)  # = {1, 4, 9}
 ```
 ### Closures
-```jsx title="Hilfreich bei Funktionen wie Map() und Filter():"
+```jsx title="Useful for functions like Map() and Filter():"
 function makeCounter()
   count <- 0
   function()
@@ -129,27 +127,27 @@ c()  # = 2
 ```
 ## Object-Oriented Programming (OOP)
 
-### Objekte definieren
-```jsx title="Objekte sind benannte Vektoren:"
+### Defining Objects
+```jsx title="Objects are named vectors:"
 Car <- {
   make: "Toyota",
   year: 2020
 }
 Car.make  # = "Toyota"
 ```
-```jsx title="Füge Verhaltensregeln zu Funktionen hinzu:"
+```jsx title="Add behaviors to functions:"
 Car.fullInfo <- function()
   self.make + " (" + self.year + ")"
 end function
 ```
 ### Inheritance
-```jsx title="Erstellt Objekte, die von anderen erben, mit "new" :"
+```jsx title="Create objects that inherit from others using 'new':"
 Truck <- new Car
 Truck.make <- "Ford"
 Truck.year <- 2022
 ```
 ### Constructors
-```jsx title="Füge Verhaltensregeln den Funktionen hinzu:"
+```jsx title="Add behaviors to functions:"
 Car.fullInfo <- function()
   self.make + " (" + self.year + ")"
 end function

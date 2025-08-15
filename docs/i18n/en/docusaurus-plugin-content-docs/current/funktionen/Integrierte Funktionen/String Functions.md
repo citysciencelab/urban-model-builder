@@ -3,7 +3,7 @@ sidebar_position: 7
 ---
 # String Functions
 ### Length
-```jsx title="Gibt die Anzahl der Zeichen in einer Zeichenfolge zurück:"
+```jsx title="Returns the number of characters in a string:"
 Syntax: String.Length()
 
 "abc".Length() → 3
@@ -11,7 +11,7 @@ Syntax: String.Length()
 "Hello, world!".Length() → 13
 ```
 ### Range
-```jsx title="Extrahiert Teile einer Zeichenfolge:"
+```jsx title="Extracts parts of a string:"
 Syntax: String.Range(positions)
 
 "abcdef".Range(2:4) → "bcd"
@@ -19,7 +19,7 @@ Syntax: String.Range(positions)
 "TestString".Range(1:4) → "Test"
 ```
 ### Split
-```jsx title="Teilt eine Zeichenfolge mithilfe von Trennzeichen auf:"
+```jsx title="Splits a string using delimiters:"
 Syntax: String.Split(delimiter)
 
 "a,b,c".Split(",") → {"a", "b", "c"}
@@ -27,7 +27,7 @@ Syntax: String.Split(delimiter)
 "word1 word2".Split(" ") → {"word1", "word2"}
 ```
 ### IndexOf
-```jsx title="Findet die Startposition eines Teilstrings:"
+```jsx title="Finds the starting position of a substring:"
 Syntax: String.IndexOf(substring)
 
 "abcabc".IndexOf("b") → 2
@@ -35,14 +35,14 @@ Syntax: String.IndexOf(substring)
 "UrbanModelBuilder".IndexOf("Builder") → 11
 ```
 ### Contains
-```jsx title="Überprüft, ob eine Zeichenfolge eine Teilzeichenfolge enthält:"
+```jsx title="Checks if a string contains a substring:"
 Syntax: String.Contains(substring)
 
 "hello".Contains("ell") → true
 "abc123".Contains("123") → true
 ```
 ### UpperCase
-```jsx title="Wandelt alle Buchstaben in Großbuchstaben um:"
+```jsx title="Converts all letters to uppercase:"
 Syntax: String.UpperCase()
 
 "hello".UpperCase() → "HELLO"

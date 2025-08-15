@@ -3,93 +3,93 @@ sidebar_position: 3
 ---
 # Random Number Functions
 ### Uniform Distribution
-```jsx title="Generiert eine Zufallszahl zwischen zwei Werten. Standardmäßig 0 und 1:"
+```jsx title="Generates a random number between two values. Defaults to 0 and 1:"
 Syntax:     Rand(Min, Max)
 
-Beispiel:   Rand() → random number between 0 and 1
+Example:   Rand() → random number between 0 and 1
             Rand(5, 15)
 ```
 ### Normal Distribution
-```jsx title="Gibt einen normalverteilten Wert mit einem angegebenen Mittelwert und einer angegebenen Standardabweichung zurück (Standardwerte: 0 und 1):"
+```jsx title="Returns a normally distributed value with a specified mean and standard deviation (defaults: 0 and 1):"
 Syntax:     RandNormal(Mean, StdDev)
 
-Beispiel:   RandNormal()
+Example:   RandNormal()
             RandNormal(100, 15)
 ```
 ### Lognormal Distribution
-```jsx title="Generiert eine Zufallszahl, die einer logarithmischen Normalverteilung folgt:"
+```jsx title="Generates a random number following a lognormal distribution:"
 Syntax:     RandLognormal(Mean, StdDev)
 
-Beispiel:   RandLognormal(0, 0.5)
+Example:   RandLognormal(0, 0.5)
             RandLognormal(1, 0.25)
 ```
 ### Binary Distribution
-```jsx title="Gibt mit der angegebenen Wahrscheinlichkeit „true“ zurück, andernfalls „false“. Der Standardwert ist 0,5:"
+```jsx title="Returns 'true' with the given probability, otherwise 'false'. Default is 0.5:"
 Syntax:     RandBoolean(Probability)
 
-Beispiel:   RandBoolean() → fair coin flip
+Example:   RandBoolean() → fair coin flip
             RandBoolean(0.8)
 ```
 ### Binomial Distribution
-```jsx title="Gibt die Anzahl der Erfolge aus einer festgelegten Anzahl von Versuchen mit fester Erfolgschance zurück:"
+```jsx title="Returns the number of successes from a fixed number of trials with a fixed success probability:"
 Syntax:     RandBinomial(Count, Probability)
 
-Beispiel:   RandBinomial(10, 0.5)
+Example:   RandBinomial(10, 0.5)
             RandBinomial(20, 0.3)
 ```
 ### Negative Binomial Distribution
-```jsx title="Gibt die Anzahl der Versuche zurück, die erforderlich sind, um eine bestimmte Anzahl von Erfolgen zu erreichen:"
+```jsx title="Returns the number of trials required to achieve a specific number of successes:"
 Syntax:     RandNegativeBinomial(Successes, Probability)
 
-Beispiel:   RandNegativeBinomial(5, 0.25)
+Example:   RandNegativeBinomial(5, 0.25)
             RandNegativeBinomial(3, 0.5)
 ```
 ### Poisson Distribution
-```jsx title="Simuliert, wie oft ein Ereignis in einem bestimmten Zeitraum auftritt:"
+```jsx title="Simulates how often an event occurs within a specific time period:"
 Syntax:     RandPoisson(Lambda)
 
-Beispiel:   RandPoisson(5)
+Example:   RandPoisson(5)
             RandPoisson(10)
 ```
 ### Triangular Distribution
-```jsx title="Gibt einen Wert zwischen einem Minimum und einem Maximum zurück, mit einem wahrscheinlichsten (Spitzen-)Wert:"
+```jsx title="Returns a value between a minimum and a maximum, with a most likely (peak) value:"
 Syntax:     RandTriangular(Min, Max, Peak)
 
-Beispiel:   RandTriangular(0, 10, 5)
+Example:   RandTriangular(0, 10, 5)
             RandTriangular(1, 100, 30)
 ```
 ### Exponential Distribution
-```jsx title="Modelliert die Zeit zwischen unabhängigen Ereignissen, die mit konstanter Rate stattfinden:"
+```jsx title="Models the time between independent events that occur at a constant rate:"
 Syntax:     RandExp(Lambda)
 
-Beispiel:   RandExp(1)
+Example:   RandExp(1)
             RandExp(0.5)
 ```
 ### Gamma Distribution
-```jsx title="Generiert eine Zufallszahl mit Gamma-Verteilung basierend auf Form (Alpha) und Rate (Beta):"
+```jsx title="Generates a random number with a gamma distribution based on shape (alpha) and rate (beta):"
 Syntax:     RandGamma(Alpha, Beta)
 
-Beispiel:   RandGamma(2, 2)
+Example:   RandGamma(2, 2)
             RandGamma(1, 0.5)
 ```
 ### Beta Distribution
-```jsx title="Generiert eine Zufallszahl mit Beta-Verteilung unter Verwendung von zwei Formparametern:"
+```jsx title="Generates a random number with a beta distribution using two shape parameters:"
 Syntax:     RandBeta(Alpha, Beta)
 
-Beispiel:   RandBeta(2, 5)
+Example:   RandBeta(2, 5)
             RandBeta(1, 1)
 ```
 ### Custom Distribution
-```jsx title="Generiert eine Zahl aus einer benutzerdefinierten Verteilung unter Verwendung von x-Werten und deren Wahrscheinlichkeiten:"
+```jsx title="Generates a number from a custom distribution using x-values and their probabilities:"
 Syntax:     RandDist(X, Y)
 
-Beispiel:   RandDist({1, 2, 3}, {0.2, 0.5, 0.3})
+Example:   RandDist({1, 2, 3}, {0.2, 0.5, 0.3})
             RandDist({-1, 0, 1}, {0.25, 0.5, 0.25})
 ```
 ### SetRandSeed
-```jsx title="Behebt den Seed des Zufallszahlengenerators für reproduzierbare Ergebnisse:"
+```jsx title="Fixes the seed of the random number generator for reproducible results:"
 Syntax:     SetRandSeed(Seed)
 
-Beispiel:   SetRandSeed(123)
+Example:   SetRandSeed(123)
             SetRandSeed(83940)
 ```
