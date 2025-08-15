@@ -4,7 +4,7 @@ sidebar_position: 2
 # OGC API Feature
 
 # Bevölkerungsprognose Hamburg
-Stell dir vor, du möchtest wissen, wie sich die Bevölkerungszahl in Hamburg in den nächsten Jahren verändern könnte. Als Initialwert nimmst du den realen Datensatz der aktuellesten Volkszählung von 2023. Durch Wachstum anhand von Geburten und Abnahmen durch Sterbefälle verändert sich das System dynamisch über die Zeit. Die folgende Schritt-für-Schritt- Anleitung zeigt dir, wie du in nur wenigen Schritten dein erstes System Dynamics Modell mit realem Datensatz-Feature aufbaust!
+Stell dir vor, du möchtest wissen, wie sich die Bevölkerungszahl in Hamburg in den nächsten Jahren verändern könnte. Als Initialwert nimmst du den realen Datensatz der aktuellesten Volkszählung von 2023. Durch Wachstum anhand der Geburtenzahlen und Abnahmen durch die Sterbefälle im Jahr 2023 in Hamburg verändert sich das System dynamisch über die Zeit. Die folgende Schritt-für-Schritt- Anleitung zeigt dir, wie du in nur wenigen Schritten dein erstes System Dynamics Modell mit realem Datensatz-Feature aufbaust!
 
 ---
 # 1. Neues Modell
@@ -59,7 +59,7 @@ Wertfeld:```Bevölkerung```
 # 5. Inflow "Wachstum" erstellen
 ✔︎ Füge einen Flow hinzu und nenne ihn "Wachstum"
 
-✔︎ Verbinde nun den Ausgangs-Knotenpunkt des Flows mit einem Knotenpunkt des Stocks
+✔︎ Verbinde nun den Ausgangs-Knotenpunkt des Flows mit einem Knotenpunkt des Stocks "Aktuelle Bevölkerung"
 
 ✔︎ Achte darauf, dass der Verbindungspfeil zum Stock zeigt 
 ![ApiFeatureErstellen](./img/7_API.png)
@@ -70,7 +70,7 @@ Wertfeld:```Bevölkerung```
 
 ✔︎ Setze den Wert auf ```0.0096```
 
-✔︎ Verbinde die Variable mit dem oberen oder unteren Knotenpunkt des Flows
+✔︎ Verbinde die Variable mit dem oberen oder unteren Knotenpunkt des Flows "Wachstum"
 ![ApiFeatureErstellen](./img/8_API.png)
 
 ---
@@ -84,7 +84,7 @@ Wertfeld:```Bevölkerung```
 # 8. Outflow "Abnahme" erstellen
 ✔︎ Füge einen Flow hinzu und nenne ihn "Abnahme"
 
-✔︎ Verbinde nun einen Knotenpunkt des Stocks "Aktuelle Bevölkerung" mit dem Eingangs-Knotenpunkt des Flows "Abnahme"
+✔︎ Verbinde nun einen Knotenpunkt des Stocks "Aktuelle Bevölkerung" mit dem Eingangs-Knotenpunkt des Flows 
 ![ApiFeatureErstellen](./img/10_API.png)
 
 ---
@@ -93,7 +93,7 @@ Wertfeld:```Bevölkerung```
 
 ✔︎ Setze den Wert auf ```0.01```
 
-✔︎ Verbinde die Variable "Sterberate" mit dem oberen oder unteren Knotenpunkt des Flows "Abnahme"
+✔︎ Verbinde die Variable mit dem oberen oder unteren Knotenpunkt des Flows "Abnahme"
 ![ApiFeatureErstellen](./img/11_API.png)
 
 ---
