@@ -10,10 +10,10 @@ const FeatureList = [
         Kollaboration in Echtzeit
       </Translate>
     ),
-    img: require('@site/static/img/modelbuilder_collaboration.png').default,
+    img: require('@site/static/img/modelbuilder_collaboration_whiteBG.png').default,
     description: (
       <Translate>
-        Arbeite gemeinsam mit deinem Team und anderen Stakeholdern an urbanen Modellen in Echtzeit.)
+        Arbeite gemeinsam mit deinem Team und anderen Stakeholdern an urbanen Modellen in Echtzeit.
       </Translate>
     ),
   },
@@ -23,7 +23,7 @@ const FeatureList = [
         Integration der Städtischen Datenplattform
       </Translate>
     ),
-    img: require('@site/static/img/modelbuilder_dataplatform.png').default,
+    img: require('@site/static/img/modelbuilder_dataplatform_whiteBG.png').default,
     description: (
       <Translate>
         Der Urban Model Builder ist vollständig in die Städtische Datenplattform integriert, um den Zugriff auf städtische Daten zu erleichtern.
@@ -36,7 +36,7 @@ const FeatureList = [
         System Dynamics und Agentenbasierte Modellierung
       </Translate>
     ),
-    img: require('@site/static/img/modelbuilder_sd_abm.png').default,
+    img: require('@site/static/img/modelbuilder_sd_abm_whiteBG.png').default,
     description: (
       <Translate>
         Der Urban Model Builder unterstützt sowohl System Dynamics als auch agentenbasierte Modellierung, um verschiedene Aspekte städtischer Systeme zu modellieren.

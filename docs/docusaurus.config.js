@@ -183,7 +183,7 @@ const config = {
         ],
         logo: {
           alt: 'City Science Lab Logo',
-          src: 'img/CSL_Logo.png',
+          src: 'img/CSL_Logo_whiteBG.png',
           href: 'https://citysciencelab.hamburg',
           width: 300
         },
