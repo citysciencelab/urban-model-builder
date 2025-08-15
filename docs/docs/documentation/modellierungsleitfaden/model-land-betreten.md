@@ -29,3 +29,4 @@ Nicht nur für das Erkennen von möglichen Fehlern, sondern auch für die Chance
 
 Diese Reise als Visionär, Planer, Gestalter, Expediteur, Geschichtenerzähler und Träumer anderer Zukünfte, trittst du nie alleine an. Du bewegst dich zugleich immer in einem gesellschaftlichen Raum voller indviduellen Werten, Annahmen, Prägungen, Interpretationen, Interessen und Wünschen, die dein Model Land beeinflussen! Andererseits - kann dein Model Land vielleicht bald auch Einfluss auf diesen Raum nehmen?
 
+![ModellLandBetreten](./img/ModelLandBetreten.png)

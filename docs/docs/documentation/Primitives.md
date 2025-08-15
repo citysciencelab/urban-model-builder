@@ -72,6 +72,9 @@ Die [OGC API Features](https://ogcapi.ogc.org/features/) ist ein moderner Standa
 | Vorschau | Anzeige | Zeigt den strukturellen Aufbau der abzufragenden Daten an. |
 
 *Pflichtfelder für Berechnung
+:::tip Hinweis
+Achte darauf, wie die Datensätze aufgebaut sind, welche Daten sie beinhalten oder ausschließen und welche Eingaben für die jeweiligen Key-Value Paare erforderlich sind! Folge dem Link zu weiteren Informationen der API in dem Primitive Einstellungsfenster, um wichtige Details zu erfahren!
+:::
 
 ---
 ## Variablen

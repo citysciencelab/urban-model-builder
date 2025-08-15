@@ -22,3 +22,5 @@ Du gehst einen Weg entlang, für den du dich entschieden hast. Auf der Karte sie
 Du möchtest dir einen Weg merken, aber einen anderen noch ausprobieren? Erstelle unterschiedliche [Modellversionen](../Einstellungen/Versions-Einstellungen) und halte deine Reise fest.
 
 Zukunft ist nicht vorhersagen, sondern entdecken. 
+
+![ModellLandNavigieren](./img/ModelLandNavigieren.png)

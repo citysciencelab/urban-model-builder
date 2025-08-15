@@ -42,3 +42,5 @@ Invite other travelers along for the journey:
 You decide: Who gets access? Who doesn’t? Will you involve those your model represents?
 
 As a visionary, planner, designer, explorer, storyteller, and dreamer of other futures, you never travel alone. You always move within a social space full of individual values, assumptions, backgrounds, interpretations, interests, and aspirations — all of which shape your Model Land.  And perhaps, before long, your Model Land will start shaping that social space in return.
+
+![ModellLandBetreten](./img/ModelLandBetreten.png)

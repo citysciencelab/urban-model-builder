@@ -45,3 +45,7 @@ So, what if you had a tool that made it easier to make informed, data-driven dec
 1. First, you can test the demo version, which gives you access to individual [building blocks](Primitives.md) to experiment with.
 2. Convinced? Then create your own account – it’s as easy as signing up with your email address – and start modeling!
 3. Interested in further developing the tool? Learn more about the Urban Model Builder’s architecture on [GitHub](https://github.com/citysciencelab/urban-model-builder).
+
+:::tip Help us improve the tool!
+If you've tried the Urban Model Builder, feel free to give us your feedback [here](https://cloud.hcu-hamburg.de/nextcloud/apps/forms/s/cwkLF3iAM6LEmt6YwZWD7nre)! 
+:::

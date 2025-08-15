@@ -26,3 +26,5 @@ With new model drafts, you come to understand that a system can be described in 
 They may build on the assumptions of other users, be reshaped by your worldview, and in turn inspire others to begin their own journey into Model Land.
 
 Are you ready for your adventure?
+
+![ModellLandVerlassen](./img/ModelLandVerlassen.png)

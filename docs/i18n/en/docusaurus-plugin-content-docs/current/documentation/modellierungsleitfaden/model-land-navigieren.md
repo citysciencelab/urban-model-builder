@@ -28,3 +28,5 @@ Make your results transparent: [publish the model](../Publizieren/Modell%20verö
 Want to remember one path but try another? Create different [model versions](../Einstellungen/Versions-Einstellungen) to document your journey.
 
 The future is not about prediction — it’s about discovery.
+
+![ModellLandNavigieren](./img/ModelLandNavigieren.png)

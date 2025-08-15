@@ -18,3 +18,4 @@ Du erinnerst dich an deine Verantwortung: Viele Menschen verlassen sich auf dein
 
 Bist du bereit dein Abenteuer anzutreten?
 
+![ModellLandVerlassen](./img/ModelLandVerlassen.png)

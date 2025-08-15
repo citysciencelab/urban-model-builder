@@ -80,7 +80,9 @@ For example, the Urban Data Platform Hamburg provides a wide range of geospatial
 | Preview           | Display | Shows structure of the queried data |
 
 *Required for calculation
-
+:::tip Note
+Pay attention to how the records are structured, what data they include or exclude, and what inputs are required for each key-value pair! Follow the link to further information about the API in the primitive settings window to learn important details!
+:::
 ---
 
 ## Variable

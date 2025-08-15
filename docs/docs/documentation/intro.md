@@ -36,4 +36,6 @@ Eine integrierte, resiliente und zukunftsfähige Stadtentwicklung mithilfe von u
 2. Überzeugt? Dann erstelle dir einen eigenen Account - ganz einfach mit deiner E-Mailadresse und beginne mit dem Modellieren!
 3. Interessiert an der Weiterentwicklung des Tools? Erfahre mehr über die Architektur des Urban Model Builders auf [GitHub](https://github.com/citysciencelab/urban-model-builder).
 
-
+:::tip Hilf uns, das Tool zu verbessern!
+Wenn du den Urban Model Builder ausprobiert hast, kannst du uns [hier](https://cloud.hcu-hamburg.de/nextcloud/apps/forms/s/cwkLF3iAM6LEmt6YwZWD7nre) gerne dein Feedback geben! 
+:::
