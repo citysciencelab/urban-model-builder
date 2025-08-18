@@ -21,6 +21,7 @@ landingpage:
   get_started: Loslegen
   demo: Zur Demo
   learn_more: Zur Dokumentation
+  video_credits: Video von <a href="mailto:hv@worksaboutcontact.com" target="_blank">Heiko Volkmer</a> / <a href="https://www.worksaboutcontact.com" target="_blank">worksaboutcontact</a>
   feature1:
     title: Mit dem Urban Model Builder zu "Was wäre wenn?"-Szenarien
     description: Arbeite mit anderen zusammen, um städtische Modelle - wie Bevölkerungsmodelle, Verkehrsmodelle und Flächennutzungsmodelle - in Echtzeit zu erstellen und zu simulieren. Teile deine Modelle mit der Community, klone die Modelle anderer und erstelle Versionen deiner Modelle.
