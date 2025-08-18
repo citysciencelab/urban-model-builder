@@ -174,7 +174,7 @@ components:
     no_permissions_yet: No permissions yet
     user_label: User
     role_label: Role
-    user_mail_label: User Email
+    user_mail_label: Recipient Email
     user_not_found_error: Could not find user with this email address
   settings_dialog:
     title: Model settings
@@ -297,7 +297,7 @@ components:
     residency_label: Residency
     value_control_help_text: Currently controlled as scenario parameter
   stock:
-    value_label: Value
+    value_label: Initial Value
   transition:
     trigger: Trigger
     trigger_options:

@@ -174,7 +174,7 @@ components:
     no_permissions_yet: Bisher keine Berechtigungen
     user_label: Benutzer
     role_label: Rolle
-    user_mail_label: Nutzer E-Mail
+    user_mail_label: Empfänger E-Mail
     user_not_found_error: Benutzer mit dieser E-Mail-Adresse konnte nicht gefunden werden
   settings_dialog:
     title: Modelleinstellungen
@@ -286,7 +286,7 @@ components:
       Grid: Grid
       Network: Network
       Random: Random
-    geo_placement_function_label: Geo Platzierungsfunktions
+    geo_placement_function_label: Geo Platzierungsfunktion
     network_type_label: Netzwerktyp
     network_type_options:
       "Custom Function": Benutzerdefinierte Funktion
@@ -297,15 +297,15 @@ components:
     residency_label: Vorhaltezeit
     value_control_help_text: Derzeit als Szenario-Parameter gesteuert
   stock:
-    value_label: Wert
+    value_label: Anfangswert
   transition:
-    trigger: Trigger
+    trigger: Auslöser
     trigger_options:
       Condition: Condition
       Probability: Probability
       Timeout: Timeout
     value: Wert
-    recalculate: Neuberechnen
+    recalculate: Neu berechnen
     repeat: Wiederholen
   validation:
     title: Validierung
