@@ -105,16 +105,18 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
     const lowerCaseUnit = unit.toLowerCase();
     for (const category of this._units) {
       for (const key in category) {
-        if (Array.isArray(category[key])) {
+        const categoryValue = (category as any)[key];
+        if (Array.isArray(categoryValue)) {
           if (
-            category[key].some((u: string) => u.toLowerCase() === lowerCaseUnit)
+            categoryValue.some((u: string) => u.toLowerCase() === lowerCaseUnit)
           ) {
             return true;
           }
-        } else if (typeof category[key] === 'object') {
-          for (const subKey in category[key]) {
-            if (
-              category[key][subKey].some(
+        } else if (typeof categoryValue === 'object' && categoryValue !== null) {
+          for (const subKey in categoryValue) {
+            const subCategoryValue = categoryValue[subKey];
+            if (Array.isArray(subCategoryValue) &&
+              subCategoryValue.some(
                 (u: string) => u.toLowerCase() === lowerCaseUnit,
               )
             ) {
