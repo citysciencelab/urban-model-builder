@@ -12,6 +12,10 @@ const defaultNodeDataByType = {
   },
   [NodeType.Converter]: {
     interpolation: 'Linear'
+  },
+  [NodeType.Population]: {
+    geoPlacementType: 'Random',
+    networkType: 'None'
   }
 } satisfies Partial<Record<NodeType, Nodes['data']>>
 

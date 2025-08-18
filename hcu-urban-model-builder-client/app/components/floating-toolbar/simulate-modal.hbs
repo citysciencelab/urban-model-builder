@@ -200,6 +200,15 @@
                 </menu.item>
               </dd.menu>
             </BsDropdown>
+
+            <BsButton
+              @type="outline-secondary"
+              class="btn-sm ms-2"
+              {{on "click" this.downloadSimulationResults}}
+              disabled={{not this.simulationResult}}
+            >
+              <FaIcon @icon="download" @prefix="fas" />
+            </BsButton>
           </div>
         {{/if}}
       </BsForm>

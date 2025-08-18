@@ -424,19 +424,25 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
             );
 
             for (const stateLocation of current) {
-              const location = {
-                id: stateLocation.id,
-                value: stateLocation.location,
-              };
+              // Type guard to ensure we're working with an object that has the expected properties
+              if (typeof stateLocation === 'object' && stateLocation !== null &&
+                  'id' in stateLocation && 'location' in stateLocation && 'state' in stateLocation) {
+                const location = {
+                  id: stateLocation.id,
+                  value: stateLocation.location,
+                };
 
-              populationData.push(location);
-              for (const states of allStates) {
-                if (stateLocation.state.includes(states.id!)) {
-                  stateLocationsMap.get(states)!.push(location);
-                } else {
-                  stateLocationsMap
-                    .get(states)!
-                    .push({ id: stateLocation.id, value: null });
+                populationData.push(location);
+                for (const states of allStates) {
+                  // Convert state ID to number for comparison since stateLocation.state contains numbers
+                  const stateIdAsNumber = parseInt(states.id!, 10);
+                  if (stateLocation.state.includes(stateIdAsNumber)) {
+                    stateLocationsMap.get(states)!.push(location);
+                  } else {
+                    stateLocationsMap
+                      .get(states)!
+                      .push({ id: stateLocation.id, value: null });
+                  }
                 }
               }
             }
@@ -599,5 +605,75 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     ) {
       this.floatingToolbarDropdownManager.isSimulateDropdownPinned = false;
     }
+  }
+
+  @action
+  async downloadSimulationResults() {
+    if (!this.simulationResult) {
+      return;
+    }
+
+    // Get the model name from the related model
+    const model = await this.args.model.model;
+    const modelName = model?.internalName || 'model';
+
+    // Transform simulationResult to use node names instead of UUIDs
+    const resultsWithNodeNames = {
+      times: this.simulationResult.times,
+      nodes: {} as Record<string, any>
+    };
+
+    // Replace node UUIDs with node names in the results
+    for (const [nodeId, nodeData] of Object.entries(this.simulationResult.nodes)) {
+      try {
+        const node = await this.store.findRecord<Node>('node', nodeId);
+        const nodeName = node.name || nodeId; // fallback to UUID if name is empty
+        resultsWithNodeNames.nodes[nodeName] = nodeData;
+      } catch (error) {
+        // If node can't be found, keep the original UUID
+        resultsWithNodeNames.nodes[nodeId] = nodeData;
+      }
+    }
+
+    // Transform scenario to use node names instead of UUIDs
+    const scenarioWithNodeNames: Record<string, number> = {};
+    for (const [nodeId, value] of this.inMemoryScenario.entries()) {
+      try {
+        const node = await this.store.findRecord<Node>('node', nodeId);
+        const nodeName = node.name || nodeId; // fallback to UUID if name is empty
+        scenarioWithNodeNames[nodeName] = value;
+      } catch (error) {
+        // If node can't be found, keep the original UUID
+        scenarioWithNodeNames[nodeId] = value;
+      }
+    }
+
+    // Prepare the data for download
+    const downloadData = {
+      metadata: {
+        modelId: this.args.model.id,
+        modelName: modelName,
+        version: `${this.args.model.majorVersion}.${this.args.model.minorVersion}.${this.args.model.draftVersion}`,
+        timeStart: this.args.model.timeStart,
+        timeLength: this.args.model.timeLength,
+        timeEnd: this.simulationEndTime,
+        downloadTimestamp: new Date().toISOString(),
+      },
+      scenario: scenarioWithNodeNames,
+      results: resultsWithNodeNames,
+    };
+
+    // Create and download the file
+    const jsonString = JSON.stringify(downloadData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `simulation-results-${modelName}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 }

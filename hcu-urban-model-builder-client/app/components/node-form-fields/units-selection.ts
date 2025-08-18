@@ -27,7 +27,32 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
 
   // FIXME: i18n ⚡️ impact on functionality expected
   @tracked _units = unitsCollection;
-  @tracked _value = '';
+  @tracked _localValue = '';
+  private _previousNodeId: string | null = null;
+
+  constructor(owner: unknown, args: NodeFormFieldsUnitsSelectionSignature['Args']) {
+    super(owner, args);
+    this._previousNodeId = this.args.changeset.model.id;
+  }
+
+  willUpdate() {
+    // Check if we switched to a different node and reset local value if so
+    const currentNodeId = this.args.changeset.model.id;
+    if (currentNodeId !== this._previousNodeId) {
+      this._localValue = '';
+      this._previousNodeId = currentNodeId;
+    }
+  }
+
+  get _value() {
+    // Always get the current value from the changeset to ensure it updates when switching between nodes
+    const currentValue = get(this.args.changeset.dataProxy, this.args.property) as string;
+    return currentValue || this._localValue || '';
+  }
+
+  set _value(value: string) {
+    this._localValue = value;
+  }
 
   @action async setUnit(unit: string, isAdd: boolean) {
     // set it to the current node changeset
@@ -80,16 +105,18 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
     const lowerCaseUnit = unit.toLowerCase();
     for (const category of this._units) {
       for (const key in category) {
-        if (Array.isArray(category[key])) {
+        const categoryValue = (category as any)[key];
+        if (Array.isArray(categoryValue)) {
           if (
-            category[key].some((u: string) => u.toLowerCase() === lowerCaseUnit)
+            categoryValue.some((u: string) => u.toLowerCase() === lowerCaseUnit)
           ) {
             return true;
           }
-        } else if (typeof category[key] === 'object') {
-          for (const subKey in category[key]) {
-            if (
-              category[key][subKey].some(
+        } else if (typeof categoryValue === 'object' && categoryValue !== null) {
+          for (const subKey in categoryValue) {
+            const subCategoryValue = categoryValue[subKey];
+            if (Array.isArray(subCategoryValue) &&
+              subCategoryValue.some(
                 (u: string) => u.toLowerCase() === lowerCaseUnit,
               )
             ) {
@@ -102,13 +129,8 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
     return false;
   }
 
-  @action didInsert() {
-    this._value =
-      (get(this.args.changeset.model, this.args.property) as string) || '';
-  }
-
   @action onInputChange(newValue: string) {
-    this._value = newValue;
+    this._localValue = newValue;
   }
 
   @action onInputEnter(e: KeyboardEvent) {
@@ -150,7 +172,7 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
       }
     }
 
-    this._value = unit;
+    this._localValue = unit;
     this.setUnit(unit, true);
   }
 

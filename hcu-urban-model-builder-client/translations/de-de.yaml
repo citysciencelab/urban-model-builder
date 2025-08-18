@@ -21,6 +21,7 @@ landingpage:
   get_started: Loslegen
   demo: Zur Demo
   learn_more: Zur Dokumentation
+  video_credits: Video von <a href="mailto:hv@worksaboutcontact.com" target="_blank">Heiko Volkmer</a> / <a href="https://www.worksaboutcontact.com" target="_blank">worksaboutcontact</a>
   feature1:
     title: Mit dem Urban Model Builder zu "Was wäre wenn?"-Szenarien
     description: Arbeite mit anderen zusammen, um städtische Modelle - wie Bevölkerungsmodelle, Verkehrsmodelle und Flächennutzungsmodelle - in Echtzeit zu erstellen und zu simulieren. Teile deine Modelle mit der Community, klone die Modelle anderer und erstelle Versionen deiner Modelle.
@@ -76,6 +77,7 @@ actions:
   close: Schließen
   delete: Löschen
   simulate: Simulieren
+  download: Herunterladen
   publish: Veröffentlichen*
   confirm_delete_model: Sind Sie sicher, dass Sie dieses Modell löschen möchten?
   confirm_remove_own_permissions: Sie sind dabei, Ihre Berechtigungen zu entfernen. Möchten Sie wirklich fortfahren?
@@ -173,7 +175,7 @@ components:
     no_permissions_yet: Bisher keine Berechtigungen
     user_label: Benutzer
     role_label: Rolle
-    user_mail_label: Nutzer E-Mail
+    user_mail_label: Empfänger E-Mail
     user_not_found_error: Benutzer mit dieser E-Mail-Adresse konnte nicht gefunden werden
   settings_dialog:
     title: Modelleinstellungen
@@ -285,7 +287,7 @@ components:
       Grid: Grid
       Network: Network
       Random: Random
-    geo_placement_function_label: Geo Platzierungsfunktions
+    geo_placement_function_label: Geo Platzierungsfunktion
     network_type_label: Netzwerktyp
     network_type_options:
       "Custom Function": Benutzerdefinierte Funktion
@@ -296,15 +298,15 @@ components:
     residency_label: Vorhaltezeit
     value_control_help_text: Derzeit als Szenario-Parameter gesteuert
   stock:
-    value_label: Wert
+    value_label: Anfangswert
   transition:
-    trigger: Trigger
+    trigger: Auslöser
     trigger_options:
       Condition: Condition
       Probability: Probability
       Timeout: Timeout
     value: Wert
-    recalculate: Neuberechnen
+    recalculate: Neu berechnen
     repeat: Wiederholen
   validation:
     title: Validierung

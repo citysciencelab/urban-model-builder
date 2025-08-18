@@ -6,13 +6,7 @@
     @onChange={{fn (mut-number @changeset.dataProxy.data.populationSize)}}
   />
 
-  <NodeFormFields::UnitsSelection
-    @form={{@form}}
-    @modelsVersion={{@modelsVersion}}
-    @changeset={{@changeset}}
-    @el={{@el}}
-    @property="data.geoUnits"
-  />
+
 
   <@form.element
     @controlType="text"
@@ -68,6 +62,7 @@
     @property="data.networkFunction"
   />
 
+
   <NodeFormFields::ParameterSettings
     @acc={{acc}}
     @form={{@form}}
@@ -78,4 +73,23 @@
     @outputVisible={{true}}
     @disabled={{@disabled}}
   />
+
+
+ <acc.item
+    @value="units"
+    @title={{t "components.validation.title"}}
+  >
+    <fieldset>
+      <NodeFormFields::UnitsSelection
+        @form={{@form}}
+        @modelsVersion={{@modelsVersion}}
+        @changeset={{@changeset}}
+        @el={{@el}}
+        @property="data.geoUnits"
+      />
+    </fieldset>
+  </acc.item>
+
+
+
 </BsAccordion>
