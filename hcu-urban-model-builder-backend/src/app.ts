@@ -91,8 +91,8 @@ app.hooks({
     patch: [
       (context) => {
         if (!context.params.isTouch) {
-          delete context.data.createdAt
-          delete context.data.updatedAt
+          delete context.data?.createdAt
+          delete context.data?.updatedAt
         }
       },
       iff(
