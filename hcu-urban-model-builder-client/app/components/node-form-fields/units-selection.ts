@@ -27,7 +27,32 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
 
   // FIXME: i18n ⚡️ impact on functionality expected
   @tracked _units = unitsCollection;
-  @tracked _value = '';
+  @tracked _localValue = '';
+  private _previousNodeId: string | null = null;
+
+  constructor(owner: unknown, args: NodeFormFieldsUnitsSelectionSignature['Args']) {
+    super(owner, args);
+    this._previousNodeId = this.args.changeset.model.id;
+  }
+
+  willUpdate() {
+    // Check if we switched to a different node and reset local value if so
+    const currentNodeId = this.args.changeset.model.id;
+    if (currentNodeId !== this._previousNodeId) {
+      this._localValue = '';
+      this._previousNodeId = currentNodeId;
+    }
+  }
+
+  get _value() {
+    // Always get the current value from the changeset to ensure it updates when switching between nodes
+    const currentValue = get(this.args.changeset.dataProxy, this.args.property) as string;
+    return currentValue || this._localValue || '';
+  }
+
+  set _value(value: string) {
+    this._localValue = value;
+  }
 
   @action async setUnit(unit: string, isAdd: boolean) {
     // set it to the current node changeset
@@ -102,13 +127,8 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
     return false;
   }
 
-  @action didInsert() {
-    this._value =
-      (get(this.args.changeset.model, this.args.property) as string) || '';
-  }
-
   @action onInputChange(newValue: string) {
-    this._value = newValue;
+    this._localValue = newValue;
   }
 
   @action onInputEnter(e: KeyboardEvent) {
@@ -150,7 +170,7 @@ export default class NodeFormFieldsUnitsSelectionComponent extends Component<Nod
       }
     }
 
-    this._value = unit;
+    this._localValue = unit;
     this.setUnit(unit, true);
   }
 
