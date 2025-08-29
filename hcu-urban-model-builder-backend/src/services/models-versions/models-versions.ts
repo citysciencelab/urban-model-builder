@@ -87,11 +87,29 @@ export const modelsVersions = (app: Application) => {
             'algorithm',
             'globals',
             'customUnits',
+            'ogcEndpoints',
             'publishedToUMPAt'
           )
         ),
         schemaHooks.validateData(modelsVersionsPatchValidator),
-        schemaHooks.resolveData(modelsVersionsPatchResolver)
+        schemaHooks.resolveData(modelsVersionsPatchResolver),
+        // JSONB serialization hook - AFTER validation to avoid schema conflicts
+        (context) => {
+          if (context.data && typeof context.data === 'object' && !Array.isArray(context.data)) {
+            const data = context.data as any;
+            
+            // Handle ogcEndpoints JSONB serialization
+            if (data.ogcEndpoints !== undefined) {
+              data.ogcEndpoints = JSON.stringify(data.ogcEndpoints);
+            }
+            
+            // Handle customUnits JSONB serialization if needed
+            if (data.customUnits !== undefined && typeof data.customUnits === 'object') {
+              data.customUnits = JSON.stringify(data.customUnits);
+            }
+          }
+          return context;
+        }
       ],
       remove: [disallow('external')],
       joinChannel: [
@@ -104,7 +122,43 @@ export const modelsVersions = (app: Application) => {
       ]
     },
     after: {
-      all: []
+      all: [
+        // JSONB deserialization hook
+        (context) => {
+          const deserializeResult = (result: any) => {
+            if (result && typeof result === 'object') {
+              // Deserialize ogcEndpoints from JSONB string back to array
+              if (typeof result.ogcEndpoints === 'string') {
+                try {
+                  result.ogcEndpoints = JSON.parse(result.ogcEndpoints);
+                } catch (error) {
+                  result.ogcEndpoints = [];
+                }
+              }
+              
+              // Deserialize customUnits from JSONB string back to object
+              if (typeof result.customUnits === 'string') {
+                try {
+                  result.customUnits = JSON.parse(result.customUnits);
+                } catch (error) {
+                  result.customUnits = null;
+                }
+              }
+            }
+            return result;
+          };
+
+          if (Array.isArray(context.result)) {
+            // Handle array results (find operations)
+            context.result = context.result.map(deserializeResult);
+          } else if (context.result) {
+            // Handle single result (get, create, patch operations)
+            context.result = deserializeResult(context.result);
+          }
+
+          return context;
+        }
+      ]
     },
     error: {
       all: []

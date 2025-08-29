@@ -76,6 +76,7 @@ actions:
   share: Share
   close: Close
   delete: Delete
+  add: Add
   simulate: Simulate
   download: Download
   publish: Publish*
@@ -205,6 +206,7 @@ components:
     search_placeholder: 'Search…'
     nothing_found: Nothing found
   ogc_api:
+    endpoint_label: OGC API Endpoint
     more_info: Mehr Informationen zur API
     total: Total items
     matching: Matching items
@@ -248,6 +250,25 @@ components:
     settings: Settings
     name_placeholder: Name…
     description_placeholder: Description…
+    ogc_endpoints_label: OGC API Features Endpoints
+    add_ogc_endpoint: Add Endpoint
+    add_ogc_endpoint_title: Add New OGC API Features Endpoint
+    endpoint_name_label: Name
+    endpoint_name_placeholder: e.g. My Custom API
+    endpoint_url_label: Base URL
+    urban_data_platforms_title: Urban Data Platform Connections
+    urban_data_platforms_description: Manage connections to various Urban Data Platforms and OGC API Features endpoints.
+    default_endpoint: Default
+    remove_endpoint: Remove connection
+    no_endpoints_configured: No connections configured yet
+    add_new_endpoint: Add New Connection
+    add_endpoint_modal_title: New Urban Data Platform Connection
+    add_endpoint_modal_subtitle: Add Urban Data Platform Connection
+    add_endpoint_modal_description: Add a new connection to an Urban Data Platform or OGC API Features endpoint.
+    endpoint_name_help: Enter a meaningful name for this connection.
+    endpoint_url_placeholder: https://api.example.com/datasets/v1
+    endpoint_url_help: The base URL of the OGC API Features endpoint.
+    add_endpoint_button: Add Connection
   scenarios:
     title: Scenario
     no_parameters: No Parameters

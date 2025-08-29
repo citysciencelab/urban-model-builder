@@ -13,6 +13,7 @@ export interface NodeFormFieldsOgcApiFeaturesPropertyQuerySignature {
   // The arguments accepted by the component
   Args: {
     changeset: TrackedChangeset<Node>;
+    baseUrl?: string;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -47,6 +48,7 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
       const res = await this.ogcApiFeatures.getQueryableProperties(
         apiId,
         collectionId,
+        this.args.baseUrl
       );
 
       return Object.entries(res).map(([id, value]) => ({

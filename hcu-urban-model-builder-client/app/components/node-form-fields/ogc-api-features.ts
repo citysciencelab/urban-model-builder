@@ -18,13 +18,16 @@ export interface NodeFormFieldsOgcApiFeaturesSignature {
   // The arguments accepted by the component
   Args: {
     changeset: TrackedChangeset<Node>;
+    modelsVersion: any; // ModelsVersion with ogcEndpoints
+    form: any;
+    node: any;
+    errors: any;
+    disabled?: boolean;
   };
   // Any blocks yielded by the component
   Blocks: {
     default: [];
   };
-  // The element to which `...attributes` is applied in the component template
-  Element: null;
 }
 
 export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<NodeFormFieldsOgcApiFeaturesSignature> {
@@ -44,9 +47,24 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     this.args.changeset.dataProxy.data = data;
   }
 
+  get availableOgcEndpoints() {
+    return this.args.modelsVersion?.ogcEndpoints || [];
+  }
+
+  get selectedEndpoint() {
+    const endpointId = this.nodeData.endpointId;
+    return this.availableOgcEndpoints.find((endpoint: any) => endpoint.id === endpointId) ||
+           this.availableOgcEndpoints.find((endpoint: any) => endpoint.isDefault) ||
+           this.availableOgcEndpoints[0];
+  }
+
+  get currentBaseUrl() {
+    return this.selectedEndpoint?.baseUrl || 'https://api.hamburg.de/datasets/v1';
+  }
+
   @cached
   get availableApis() {
-    return new TrackedAsyncData(this.ogcApiFeatures.getAvailableApis());
+    return new TrackedAsyncData(this.ogcApiFeatures.getAvailableApis(this.currentBaseUrl));
   }
 
   get selectedApi() {
@@ -65,7 +83,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
         return null;
       }
 
-      return this.ogcApiFeatures.getAvailableCollections(apiId);
+      return this.ogcApiFeatures.getAvailableCollections(apiId, this.currentBaseUrl);
     };
     return new TrackedAsyncData(fetch());
   }
@@ -96,6 +114,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
       const properties = await this.ogcApiFeatures.getPropertiesSchema(
         apiId,
         collectionId,
+        this.currentBaseUrl
       );
 
       return Object.entries(properties).map(([id, property]) => ({
@@ -135,6 +154,18 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     };
 
     return new TrackedAsyncData(fetch());
+  }
+
+  @action
+  onEndpointSelected(endpoint: any) {
+    this.nodeData.endpointId = endpoint.id;
+    // Reset API and collection selection when endpoint changes
+    delete this.nodeData.apiId;
+    delete this.nodeData.collectionId;
+    this.nodeData = {
+      ...this.nodeData,
+    };
+    this.resetQuery();
   }
 
   get previewFeatures() {
@@ -235,7 +266,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     async (apiId: string, collectionId: string, query: any) => {
       await timeout(this.DEBOUNCE_MS);
 
-      return this.ogcApiFeatures.fetchFeatures(apiId, collectionId, query);
+      return this.ogcApiFeatures.fetchFeatures(apiId, collectionId, query, this.currentBaseUrl);
     },
   );
 }

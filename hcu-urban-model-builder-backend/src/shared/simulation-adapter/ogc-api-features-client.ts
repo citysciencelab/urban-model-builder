@@ -46,9 +46,9 @@ type FilterQuery = {
 export class OgcApiFeaturesClient {
   client: AxiosInstance
 
-  constructor() {
+  constructor(baseURL: string = 'https://api.hamburg.de/datasets/v1') {
     this.client = axios.create({
-      baseURL: 'https://api.hamburg.de/datasets/v1',
+      baseURL,
       headers: {
         Accept: 'application/json'
       }

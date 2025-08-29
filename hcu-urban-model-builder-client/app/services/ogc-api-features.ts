@@ -2,26 +2,36 @@ import Service from '@ember/service';
 import { OgcApiFeaturesClient } from 'hcu-urban-model-builder-backend/';
 
 export default class OgcApiFeaturesService extends Service {
-  private client = new OgcApiFeaturesClient();
+  private clientCache = new Map<string, OgcApiFeaturesClient>();
 
-  async getAvailableApis() {
-    return this.client.getApis();
+  private getClient(baseUrl?: string): OgcApiFeaturesClient {
+    const url = baseUrl || 'https://api.hamburg.de/datasets/v1';
+
+    if (!this.clientCache.has(url)) {
+      this.clientCache.set(url, new OgcApiFeaturesClient(url));
+    }
+
+    return this.clientCache.get(url)!;
   }
 
-  async getAvailableCollections(apiId: string) {
-    return this.client.getCollections(apiId);
+  async getAvailableApis(baseUrl?: string) {
+    return this.getClient(baseUrl).getApis();
   }
 
-  async getQueryableProperties(apiId: string, collectionId: string) {
-    return this.client.getQueryableProperties(apiId, collectionId);
+  async getAvailableCollections(apiId: string, baseUrl?: string) {
+    return this.getClient(baseUrl).getAvailableCollections(apiId);
   }
 
-  async getPropertiesSchema(apiId: string, collectionId: string) {
-    return this.client.getPropertiesSchema(apiId, collectionId);
+  async getQueryableProperties(apiId: string, collectionId: string, baseUrl?: string) {
+    return this.getClient(baseUrl).getQueryableProperties(apiId, collectionId);
   }
 
-  async fetchFeatures(apiId: string, collectionId: string, query?: any) {
-    return this.client.fetchFeatures(apiId, collectionId, query);
+  async getPropertiesSchema(apiId: string, collectionId: string, baseUrl?: string) {
+    return this.getClient(baseUrl).getPropertiesSchema(apiId, collectionId);
+  }
+
+  async fetchFeatures(apiId: string, collectionId: string, query?: any, baseUrl?: string) {
+    return this.getClient(baseUrl).fetchFeatures(apiId, collectionId, query);
   }
 }
 

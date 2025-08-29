@@ -38,6 +38,13 @@ export default class ModelsVersion extends Model {
 
   @attr() declare customUnits: { data: { [key: string]: string[] } };
 
+  @attr() declare ogcEndpoints: Array<{
+    id: string;
+    name: string;
+    baseUrl: string;
+    isDefault: boolean;
+  }>;
+
   @belongsTo('model', { async: true, inverse: 'modelsVersions' })
   declare model: AsyncBelongsTo<ModelModel>;
 
