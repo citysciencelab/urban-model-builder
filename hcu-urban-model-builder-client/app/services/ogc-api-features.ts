@@ -4,15 +4,29 @@ import { OgcApiFeaturesClient } from 'hcu-urban-model-builder-backend/';
 export default class OgcApiFeaturesService extends Service {
   private clientCache = new Map<string, OgcApiFeaturesClient>();
 
+  // Debug method to clear cache
+  clearCache() {
+    console.log('[Frontend Service] Clearing client cache');
+    this.clientCache.clear();
+  }
+
   private getClient(baseUrl?: string): OgcApiFeaturesClient {
     const url = baseUrl || 'https://api.hamburg.de/datasets/v1';
     console.log(`[Frontend Service] getClient called with URL: ${url}`);
 
     if (!this.clientCache.has(url)) {
       console.log(`[Frontend Service] Creating new client for URL: ${url}`);
-      this.clientCache.set(url, new OgcApiFeaturesClient(url));
+      const client = new OgcApiFeaturesClient(url);
+      this.clientCache.set(url, client);
+
+      // Debug: Log the actual baseURL of the axios client
+      console.log(`[Frontend Service] Created client with axios baseURL: ${(client as any).client.defaults.baseURL}`);
     } else {
       console.log(`[Frontend Service] Using cached client for URL: ${url}`);
+      const cachedClient = this.clientCache.get(url)!;
+
+      // Debug: Log the actual baseURL of the cached axios client
+      console.log(`[Frontend Service] Cached client has axios baseURL: ${(cachedClient as any).client.defaults.baseURL}`);
     }
 
     return this.clientCache.get(url)!;

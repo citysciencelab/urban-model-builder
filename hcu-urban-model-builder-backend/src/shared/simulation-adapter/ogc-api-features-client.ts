@@ -78,7 +78,8 @@ export class OgcApiFeaturesClient {
   async getCollections(apiId: string): Promise<Collection[]> {
     try {
       console.log(`[OGC] Fetching collections for API: ${apiId}`)
-      const url = `${apiId}/collections`;
+      // For single API endpoints, use collections directly from root
+      const url = apiId ? `${apiId}/collections` : 'collections';
       console.log(`[OGC] Full URL: ${this.client.defaults.baseURL}/${url}`)
       
       const response = await this.client.get(url)
@@ -117,8 +118,10 @@ export class OgcApiFeaturesClient {
     collectionId: string,
     query: FilterQuery = {}
   ): Promise<FeaturesResponse> {
+    // For single API endpoints, use collections directly from root
+    const baseUrl = apiId ? `${apiId}/collections` : 'collections';
     const collectionData = await this.client.get<FeaturesResponse>(
-      `${apiId}/collections/${collectionId}/items`,
+      `${baseUrl}/${collectionId}/items`,
       {
         params: this.serializeFeatureQuery(query),
         headers: {
@@ -140,7 +143,8 @@ export class OgcApiFeaturesClient {
   }
 
   async getQueryableProperties(apiId: string, collectionId: string): Promise<Record<string, Property>> {
-    const response = await this.client.get(`${apiId}/collections/${collectionId}/queryables`, {
+    const baseUrl = apiId ? `${apiId}/collections` : 'collections';
+    const response = await this.client.get(`${baseUrl}/${collectionId}/queryables`, {
       headers: {
         Accept: 'application/schema+json'
       }
@@ -150,7 +154,8 @@ export class OgcApiFeaturesClient {
   }
 
   async getPropertiesSchema(apiId: string, collectionId: string): Promise<Record<string, Property>> {
-    const response = await this.client.get(`${apiId}/collections/${collectionId}/schema`, {
+    const baseUrl = apiId ? `${apiId}/collections` : 'collections';
+    const response = await this.client.get(`${baseUrl}/${collectionId}/schema`, {
       headers: {
         Accept: 'application/schema+json'
       }

@@ -12,32 +12,35 @@
     </PowerSelect>
   </@form.element>
 
-  <@form.element @label={{t "components.ogc_api.apis_label"}}>
-    <PowerSelect
-      @options={{if this.availableApis.isResolved this.availableApis.value null}}
-      @selected={{this.selectedApi}}
-      @searchEnabled={{true}}
-      @searchField="title"
-      @disabled={{not this.availableApis.isResolved}}
-      @onChange={{this.onApiSelected}}
-      as |api|
-    >
-      {{or api.title api.id "Unnamed API"}}
-    </PowerSelect>
-  </@form.element>
-
-  {{#if this.selectedApi}}
-    <div class="api-info">
-      {{t "components.ogc_api.more_info"}}
-      <a
-        href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
-        target="_blank"
-        rel="noopener noreferrer"
+  {{!-- Only show API selection for multi-API endpoints --}}
+  {{#unless this.isSingleApiEndpoint}}
+    <@form.element @label={{t "components.ogc_api.apis_label"}}>
+      <PowerSelect
+        @options={{if this.availableApis.isResolved this.availableApis.value null}}
+        @selected={{this.selectedApi}}
+        @searchEnabled={{true}}
+        @searchField="title"
+        @disabled={{not this.availableApis.isResolved}}
+        @onChange={{this.onApiSelected}}
+        as |api|
       >
-        {{this.selectedApi.title}}
-      </a>
-    </div>
-  {{/if}}
+        {{or api.title api.id "Unnamed API"}}
+      </PowerSelect>
+    </@form.element>
+
+    {{#if this.selectedApi}}
+      <div class="api-info">
+        {{t "components.ogc_api.more_info"}}
+        <a
+          href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {{this.selectedApi.title}}
+        </a>
+      </div>
+    {{/if}}
+  {{/unless}}
 
   <@form.element
     @label={{t "components.ogc_api.collection_label"}}

@@ -67,6 +67,10 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     return this.selectedEndpoint?.baseUrl || 'https://api.hamburg.de/datasets/v1';
   }
 
+  get isSingleApiEndpoint() {
+    return this.selectedEndpoint?.apiType === 'single-api';
+  }
+
   @cached
   get availableApis() {
     return new TrackedAsyncData(this.ogcApiFeatures.getAvailableApis(this.currentBaseUrl));
@@ -76,6 +80,12 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     if (!this.availableApis.isResolved) {
       return null;
     }
+
+    // For single-API endpoints, return null since we don't show API selection
+    if (this.isSingleApiEndpoint) {
+      return null;
+    }
+
     return (
       this.availableApis.value?.find((api) => api.id === this.nodeData.apiId) ??
       null
@@ -86,22 +96,35 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     const apiId = this.nodeData.apiId;
     const baseUrl = this.currentBaseUrl;
 
+    // For single-API endpoints, use empty string as apiId to access collections directly
+    let effectiveApiId = apiId;
+    if (this.isSingleApiEndpoint) {
+      effectiveApiId = ""; // Use empty string for single API endpoints
+      // Auto-set the apiId for single API endpoints to empty string
+      if (apiId !== "") {
+        setTimeout(() => {
+          this.nodeData.apiId = "";
+          this.nodeData = { ...this.nodeData };
+        }, 0);
+      }
+    }
+
     // Only create new TrackedAsyncData if the key parameters actually changed
-    if (!this._collectionsData || this._lastApiId !== apiId || this._lastBaseUrl !== baseUrl) {
-      console.log(`[Component ${this.instanceId}] Creating new TrackedAsyncData for apiId: ${apiId}, baseUrl: ${baseUrl}`);
+    if (!this._collectionsData || this._lastApiId !== effectiveApiId || this._lastBaseUrl !== baseUrl) {
+      console.log(`[Component ${this.instanceId}] Creating new TrackedAsyncData for apiId: ${effectiveApiId}, baseUrl: ${baseUrl}`);
       console.log(`[Component ${this.instanceId}] Previous values - apiId: ${this._lastApiId}, baseUrl: ${this._lastBaseUrl}`);
 
-      this._lastApiId = apiId;
+      this._lastApiId = effectiveApiId;
       this._lastBaseUrl = baseUrl;
 
-      if (!apiId) {
-        console.log(`[Component ${this.instanceId}] No apiId provided, returning empty resolved TrackedAsyncData`);
+      if (!this.isSingleApiEndpoint && !effectiveApiId) {
+        console.log(`[Component ${this.instanceId}] No apiId provided for multi-API endpoint, returning empty resolved TrackedAsyncData`);
         this._collectionsData = new TrackedAsyncData(Promise.resolve(null));
       } else {
         const fetch = async () => {
-          console.log(`[Component ${this.instanceId}] Fetching collections for apiId: ${apiId}, baseUrl: ${baseUrl}`);
+          console.log(`[Component ${this.instanceId}] Fetching collections for apiId: ${effectiveApiId}, baseUrl: ${baseUrl}`);
           try {
-            const result = await this.ogcApiFeatures.getAvailableCollections(apiId, baseUrl);
+            const result = await this.ogcApiFeatures.getAvailableCollections(effectiveApiId, baseUrl);
             console.log(`[Component ${this.instanceId}] Collections fetch result:`, result);
             return result;
           } catch (error) {
@@ -135,7 +158,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     console.log(`[Component] Looking for collectionId:`, this.nodeData.collectionId);
 
     const result = this.availableCollections.value?.find(
-      (collection) => collection.id === this.nodeData.collectionId,
+      (collection: any) => collection.id === this.nodeData.collectionId,
     ) ?? null;
 
     console.log(`[Component] selectedCollection result:`, result);
@@ -143,7 +166,12 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   }
 
   get isCollectionSelectDisabled() {
-    const hasApiId = !!this.nodeData.apiId;
+    // For single-API endpoints, we always have an effective API (empty string)
+    let hasApiId = !!this.nodeData.apiId;
+    if (this.isSingleApiEndpoint) {
+      hasApiId = true; // Single API endpoints always have an effective API
+    }
+
     const isResolved = this.availableCollections.isResolved;
     const isRejected = this.availableCollections.state === 'REJECTED';
 
@@ -151,6 +179,8 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
 
     console.log(`[Component] isCollectionSelectDisabled: ${disabled}`);
     console.log(`[Component] nodeData.apiId: ${this.nodeData.apiId}`);
+    console.log(`[Component] hasApiId (effective): ${hasApiId}`);
+    console.log(`[Component] isSingleApiEndpoint: ${this.isSingleApiEndpoint}`);
     console.log(`[Component] availableCollections.isResolved: ${isResolved}`);
     console.log(`[Component] availableCollections.state: ${this.availableCollections.state}`);
 
@@ -190,7 +220,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
       return [];
     }
     return (
-      this.nodeData.query?.['properties']?.map((id) =>
+      this.nodeData.query?.['properties']?.map((id: string) =>
         this.propertiesSchema.value!.find((property) => property.id === id),
       ) ?? []
     );
@@ -220,7 +250,13 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   onEndpointSelected(endpoint: any) {
     this.nodeData.endpointId = endpoint.id;
     // Reset API and collection selection when endpoint changes
-    delete this.nodeData.apiId;
+    if (endpoint.apiType === 'single-api') {
+      // For single API endpoints, set apiId to empty string
+      this.nodeData.apiId = "";
+    } else {
+      // For multi API endpoints, clear the apiId
+      delete this.nodeData.apiId;
+    }
     delete this.nodeData.collectionId;
     this.nodeData = {
       ...this.nodeData,
@@ -347,7 +383,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
       }
 
       this.nodeData.dataTransform!.valueProperties =
-        this.nodeData.dataTransform!.valueProperties?.filter((id) =>
+        this.nodeData.dataTransform!.valueProperties?.filter((id: string) =>
           currentProperties.includes(id),
         ) || [];
     }
