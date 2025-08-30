@@ -15,13 +15,16 @@ type FeaturesResponse = {
 
 type Api = {
   id: string
-  title: string
-  description: string
+  title?: string
+  name?: string
+  description?: string
 }
 
 type Collection = {
   id: string
-  title: string
+  title?: string
+  name?: string
+  description?: string
 }
 
 type Property = {
@@ -56,17 +59,57 @@ export class OgcApiFeaturesClient {
   }
 
   async getApis(): Promise<Api[]> {
-    const response = await this.client.get('/')
-    return response.data.apis
+    try {
+      const response = await this.client.get('/')
+      const apis = response.data.apis || []
+      
+      // Ensure each API has proper display properties
+      return apis.map((api: any) => ({
+        id: api.id,
+        title: api.title || api.name || api.id,
+        description: api.description || ''
+      }))
+    } catch (error) {
+      console.error('Error fetching APIs:', error)
+      return []
+    }
   }
 
   async getCollections(apiId: string): Promise<Collection[]> {
-    const response = await this.client.get(`${apiId}/collections`)
-    return response.data.collections
+    try {
+      console.log(`[OGC] Fetching collections for API: ${apiId}`)
+      const url = `${apiId}/collections`;
+      console.log(`[OGC] Full URL: ${this.client.defaults.baseURL}/${url}`)
+      
+      const response = await this.client.get(url)
+      console.log(`[OGC] Response status:`, response.status)
+      console.log(`[OGC] Response headers:`, response.headers)
+      console.log(`[OGC] Raw response data:`, response.data)
+      
+      const collections = response.data.collections || []
+      console.log(`[OGC] Raw collections:`, collections)
+      
+      // Ensure each collection has proper display properties
+      const processedCollections = collections.map((collection: any) => ({
+        id: collection.id,
+        title: collection.title || collection.name || collection.id,
+        name: collection.name,
+        description: collection.description
+      }))
+      
+      console.log(`[OGC] Processed collections:`, processedCollections)
+      return processedCollections
+    } catch (error) {
+      console.error(`[OGC] Error fetching collections for API ${apiId}:`, error)
+      return []
+    }
   }
 
   async getAvailableCollections(apiId: string): Promise<Collection[]> {
-    return this.getCollections(apiId)
+    console.log(`[OGC] getAvailableCollections called for API: ${apiId}`)
+    const result = await this.getCollections(apiId)
+    console.log(`[OGC] getAvailableCollections returning:`, result)
+    return result
   }
 
   async fetchFeatures(

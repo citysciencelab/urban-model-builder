@@ -12,7 +12,7 @@
     </PowerSelect>
   </@form.element>
 
-  <@form.element @label={{t "components.ogc_api.apis_label"}} @property="apiId">
+  <@form.element @label={{t "components.ogc_api.apis_label"}}>
     <PowerSelect
       @options={{if this.availableApis.isResolved this.availableApis.value null}}
       @selected={{this.selectedApi}}
@@ -22,7 +22,7 @@
       @onChange={{this.onApiSelected}}
       as |api|
     >
-      {{api.title}}
+      {{or api.title api.id "Unnamed API"}}
     </PowerSelect>
   </@form.element>
 
@@ -41,7 +41,6 @@
 
   <@form.element
     @label={{t "components.ogc_api.collection_label"}}
-    @property="collectionId"
   >
     <PowerSelect
       @options={{if this.availableCollections.isResolved this.availableCollections.value null}}
@@ -50,7 +49,7 @@
       @onChange={{this.onCollectionSelected}}
       as |collection|
     >
-      {{collection.title}}
+      {{or collection.title collection.id "Unnamed Collection"}}
     </PowerSelect>
   </@form.element>
 

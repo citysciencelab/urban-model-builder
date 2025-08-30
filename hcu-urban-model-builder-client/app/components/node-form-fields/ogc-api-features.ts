@@ -32,12 +32,17 @@ export interface NodeFormFieldsOgcApiFeaturesSignature {
 
 export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<NodeFormFieldsOgcApiFeaturesSignature> {
   readonly DEBOUNCE_MS = 250;
+  readonly instanceId = Math.random().toString(36).substr(2, 9);
 
   @service declare ogcApiFeatures: OgcApiFeaturesService;
 
   @tracked showPreviewModal = false;
   @tracked jsonPointer = '';
   @tracked jsonPointerValue = '';
+
+  private _collectionsData: TrackedAsyncData<any> | null = null;
+  private _lastApiId: string | undefined = undefined;
+  private _lastBaseUrl: string | undefined = undefined;
 
   get nodeData() {
     return this.args.changeset.dataProxy.data;
@@ -77,34 +82,83 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     );
   }
 
-  @cached
   get availableCollections() {
     const apiId = this.nodeData.apiId;
+    const baseUrl = this.currentBaseUrl;
 
-    const fetch = async () => {
+    // Only create new TrackedAsyncData if the key parameters actually changed
+    if (!this._collectionsData || this._lastApiId !== apiId || this._lastBaseUrl !== baseUrl) {
+      console.log(`[Component ${this.instanceId}] Creating new TrackedAsyncData for apiId: ${apiId}, baseUrl: ${baseUrl}`);
+      console.log(`[Component ${this.instanceId}] Previous values - apiId: ${this._lastApiId}, baseUrl: ${this._lastBaseUrl}`);
+
+      this._lastApiId = apiId;
+      this._lastBaseUrl = baseUrl;
+
       if (!apiId) {
-        return null;
+        console.log(`[Component ${this.instanceId}] No apiId provided, returning empty resolved TrackedAsyncData`);
+        this._collectionsData = new TrackedAsyncData(Promise.resolve(null));
+      } else {
+        const fetch = async () => {
+          console.log(`[Component ${this.instanceId}] Fetching collections for apiId: ${apiId}, baseUrl: ${baseUrl}`);
+          try {
+            const result = await this.ogcApiFeatures.getAvailableCollections(apiId, baseUrl);
+            console.log(`[Component ${this.instanceId}] Collections fetch result:`, result);
+            return result;
+          } catch (error) {
+            console.error(`[Component ${this.instanceId}] Error fetching collections:`, error);
+            throw error;
+          }
+        };
+
+        this._collectionsData = new TrackedAsyncData(fetch());
+        console.log(`[Component ${this.instanceId}] Created new TrackedAsyncData, initial state:`, this._collectionsData.state);
       }
+    }
 
-      return this.ogcApiFeatures.getAvailableCollections(apiId, this.currentBaseUrl);
-    };
-    return new TrackedAsyncData(fetch());
-  }
+    return this._collectionsData;
+  }  get selectedCollection() {
+    console.log(`[Component] selectedCollection getter called`);
+    console.log(`[Component] availableCollections.state:`, this.availableCollections.state);
+    console.log(`[Component] availableCollections.isResolved:`, this.availableCollections.isResolved);
 
-  get selectedCollection() {
-    if (!this.availableCollections.isResolved) {
+    if (this.availableCollections.state === 'REJECTED') {
+      console.error(`[Component] Collections request was rejected:`, this.availableCollections.error);
       return null;
     }
-    return (
-      this.availableCollections.value?.find(
-        (collection) => collection.id === this.nodeData.collectionId,
-      ) ?? null
-    );
+
+    if (!this.availableCollections.isResolved) {
+      console.log(`[Component] Collections not resolved yet, returning null`);
+      return null;
+    }
+
+    console.log(`[Component] availableCollections.value:`, this.availableCollections.value);
+    console.log(`[Component] Looking for collectionId:`, this.nodeData.collectionId);
+
+    const result = this.availableCollections.value?.find(
+      (collection) => collection.id === this.nodeData.collectionId,
+    ) ?? null;
+
+    console.log(`[Component] selectedCollection result:`, result);
+    return result;
   }
 
-  @cached
   get isCollectionSelectDisabled() {
-    return !(this.nodeData.apiId && this.availableCollections.isResolved);
+    const hasApiId = !!this.nodeData.apiId;
+    const isResolved = this.availableCollections.isResolved;
+    const isRejected = this.availableCollections.state === 'REJECTED';
+
+    const disabled = !(hasApiId && isResolved && !isRejected);
+
+    console.log(`[Component] isCollectionSelectDisabled: ${disabled}`);
+    console.log(`[Component] nodeData.apiId: ${this.nodeData.apiId}`);
+    console.log(`[Component] availableCollections.isResolved: ${isResolved}`);
+    console.log(`[Component] availableCollections.state: ${this.availableCollections.state}`);
+
+    if (isRejected) {
+      console.error(`[Component] Collections disabled because request was rejected:`, this.availableCollections.error);
+    }
+
+    return disabled;
   }
 
   @cached
@@ -210,18 +264,44 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   }
 
   @action
+  retryCollections() {
+    console.log(`[Component ${this.instanceId}] Retrying collections fetch - not needed without cache`);
+    // Force re-evaluation by accessing the getter (this will create a new TrackedAsyncData)
+    const collections = this.availableCollections;
+    console.log(`[Component] Forced re-evaluation, new state:`, collections.state);
+  }
+
+  @action
   onApiSelected(api: NonNullable<this['availableApis']['value']>[number]) {
+    console.log(`[Component ${this.instanceId}] onApiSelected called with api:`, api);
+    console.log(`[Component ${this.instanceId}] Setting apiId to:`, api.id);
+
+    // Explicitly invalidate the collections cache
+    this._collectionsData = null;
+    this._lastApiId = undefined;
+    this._lastBaseUrl = undefined;
+
     this.nodeData.apiId = api.id;
     delete this.nodeData.collectionId;
     this.nodeData = {
       ...this.nodeData,
     };
+
+    console.log(`[Component ${this.instanceId}] nodeData after API selection:`, this.nodeData);
     this.resetQuery();
+
+    // Force re-evaluation of availableCollections by accessing it
+    setTimeout(() => {
+      console.log(`[Component ${this.instanceId}] After API selection - checking collections state:`, this.availableCollections.state);
+      console.log(`[Component ${this.instanceId}] After API selection - collections value:`, this.availableCollections.value);
+    }, 100);
   }
 
   @action
   onCollectionSelected(collection: { id: string }) {
+    console.log(`[Component] onCollectionSelected called with collection:`, collection);
     this.nodeData.collectionId = collection.id;
+    console.log(`[Component] Set collectionId to:`, collection.id);
     this.resetQuery();
   }
 
