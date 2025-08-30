@@ -250,6 +250,11 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   ) {
     const createObjectData = _.pick(currentModelVersion, Object.keys(modelsVersionsDataSchema.properties))
 
+    // Ensure ogcEndpoints is a valid JSON array
+    if (createObjectData.ogcEndpoints === undefined || createObjectData.ogcEndpoints === null) {
+      createObjectData.ogcEndpoints = []
+    }
+
     // TODO: ensure createdBy is set on a hook using params
     const newDraftModelVersion = await this.app.service('models-versions').create(
       {

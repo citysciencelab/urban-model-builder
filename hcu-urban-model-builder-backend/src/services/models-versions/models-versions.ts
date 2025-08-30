@@ -72,7 +72,38 @@ export const modelsVersions = (app: Application) => {
         disallow('external'),
         schemaHooks.validateData(modelsVersionsDataValidator),
         schemaHooks.resolveData(modelsVersionsDataResolver),
-        setCreatedBy
+        setCreatedBy,
+        // JSONB serialization hook for create operations
+        (context) => {
+          if (context.data && typeof context.data === 'object' && !Array.isArray(context.data)) {
+            const data = context.data as any;
+            
+            // Handle ogcEndpoints JSONB serialization
+            if (data.ogcEndpoints !== undefined) {
+              // Ensure it's a valid array before stringifying
+              if (Array.isArray(data.ogcEndpoints)) {
+                data.ogcEndpoints = JSON.stringify(data.ogcEndpoints);
+              } else if (typeof data.ogcEndpoints === 'string') {
+                try {
+                  // Try to parse and re-stringify to ensure valid JSON
+                  const parsed = JSON.parse(data.ogcEndpoints);
+                  data.ogcEndpoints = JSON.stringify(Array.isArray(parsed) ? parsed : []);
+                } catch (error) {
+                  data.ogcEndpoints = JSON.stringify([]);
+                }
+              } else {
+                // If it's neither array nor string, default to empty array
+                data.ogcEndpoints = JSON.stringify([]);
+              }
+            }
+            
+            // Handle customUnits JSONB serialization if needed
+            if (data.customUnits !== undefined && typeof data.customUnits === 'object') {
+              data.customUnits = JSON.stringify(data.customUnits);
+            }
+          }
+          return context;
+        }
       ],
       patch: [
         checkModelPermission(`params.${STASH_BEFORE_KEY}.id`, 'models-versions', Roles.viewer),
@@ -100,7 +131,21 @@ export const modelsVersions = (app: Application) => {
             
             // Handle ogcEndpoints JSONB serialization
             if (data.ogcEndpoints !== undefined) {
-              data.ogcEndpoints = JSON.stringify(data.ogcEndpoints);
+              // Ensure it's a valid array before stringifying
+              if (Array.isArray(data.ogcEndpoints)) {
+                data.ogcEndpoints = JSON.stringify(data.ogcEndpoints);
+              } else if (typeof data.ogcEndpoints === 'string') {
+                try {
+                  // Try to parse and re-stringify to ensure valid JSON
+                  const parsed = JSON.parse(data.ogcEndpoints);
+                  data.ogcEndpoints = JSON.stringify(Array.isArray(parsed) ? parsed : []);
+                } catch (error) {
+                  data.ogcEndpoints = JSON.stringify([]);
+                }
+              } else {
+                // If it's neither array nor string, default to empty array
+                data.ogcEndpoints = JSON.stringify([]);
+              }
             }
             
             // Handle customUnits JSONB serialization if needed
