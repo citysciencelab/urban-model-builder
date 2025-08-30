@@ -99,6 +99,9 @@ export const populationNodeSchema = Type.Object({
 
 export const ogcFeatureNodeSchema = Type.Object(
   {
+    endpointId: Type.Optional(Type.String()),
+    baseUrl: Type.Optional(Type.String()),
+    apiType: Type.Optional(Type.String()),
     apiId: Type.Optional(Type.String()),
     collectionId: Type.Optional(Type.String()),
     query: Type.Optional(

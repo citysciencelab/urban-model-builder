@@ -280,13 +280,21 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   @cached
   get currentQueryResult() {
     const fetch = async () => {
-      const apiId = this.nodeData.apiId;
       const collectionId = this.nodeData.collectionId;
       const query = this.nodeData.query;
 
-      if (!apiId || !collectionId || !query) {
+      if (!collectionId || !query) {
         return null;
       }
+
+      // For Single API endpoints, use empty string as apiId
+      const apiId = this.isSingleApiEndpoint ? "" : this.nodeData.apiId;
+
+      if (!this.isSingleApiEndpoint && !apiId) {
+        return null;
+      }
+
+      console.log(`[UI] currentQueryResult - fetching data for apiId: "${apiId}", collectionId: "${collectionId}"`);
 
       return this.queryTask.perform(apiId, collectionId, {
         ...query,
@@ -300,6 +308,10 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   @action
   onEndpointSelected(endpoint: any) {
     this.nodeData.endpointId = endpoint.id;
+    // Store baseUrl and apiType for simulation
+    this.nodeData.baseUrl = endpoint.baseUrl;
+    this.nodeData.apiType = endpoint.apiType;
+
     // Reset API and collection selection when endpoint changes
     if (endpoint.apiType === 'single-api') {
       // For single API endpoints, set apiId to empty string
@@ -421,20 +433,29 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
 
   filterAfterPropertiesSelected() {
     const currentProperties = [...(this.nodeData.query?.properties ?? [])];
+
+    // Initialize dataTransform if it doesn't exist
+    if (!this.nodeData.dataTransform) {
+      this.nodeData.dataTransform = {
+        keyProperty: undefined,
+        valueProperties: []
+      };
+    }
+
     if (currentProperties.length > 0) {
       if (
-        this.nodeData.dataTransform?.keyProperty &&
+        this.nodeData.dataTransform.keyProperty &&
         !currentProperties.includes(this.nodeData.dataTransform.keyProperty)
       ) {
-        this.nodeData.dataTransform!.keyProperty = undefined;
+        this.nodeData.dataTransform.keyProperty = undefined;
       }
 
       if (!this.nodeData.query?.skipGeometry) {
         currentProperties.push(GEOMETRY_KEY);
       }
 
-      this.nodeData.dataTransform!.valueProperties =
-        this.nodeData.dataTransform!.valueProperties?.filter((id: string) =>
+      this.nodeData.dataTransform.valueProperties =
+        this.nodeData.dataTransform.valueProperties?.filter((id: string) =>
           currentProperties.includes(id),
         ) || [];
     }
