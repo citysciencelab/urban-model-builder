@@ -71,6 +71,22 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     return this.selectedEndpoint?.apiType === 'single-api';
   }
 
+  get collectionInfoUrl() {
+    const baseUrl = this.currentBaseUrl;
+    const collectionId = this.nodeData.collectionId;
+
+    if (!collectionId) return '#';
+
+    if (this.isSingleApiEndpoint) {
+      // For single API endpoints: baseUrl/collections/collectionId
+      return `${baseUrl}/collections/${collectionId}`;
+    } else {
+      // For multi API endpoints: baseUrl/apiId/collections/collectionId
+      const apiId = this.nodeData.apiId;
+      return apiId ? `${baseUrl}/${apiId}/collections/${collectionId}` : '#';
+    }
+  }
+
   @cached
   get availableApis() {
     return new TrackedAsyncData(this.ogcApiFeatures.getAvailableApis(this.currentBaseUrl));
@@ -196,34 +212,69 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     const apiId = this.nodeData.apiId;
     const collectionId = this.nodeData.collectionId;
 
+    console.log(`[Component] propertiesSchema getter called with apiId: ${apiId}, collectionId: ${collectionId}`);
+
     const fetch = async () => {
-      if (!apiId || !collectionId) {
+      // For single API endpoints, apiId can be an empty string, which is valid
+      if ((!apiId && !this.isSingleApiEndpoint) || !collectionId) {
+        console.log(`[Component] propertiesSchema: Missing required parameters. apiId: ${apiId}, collectionId: ${collectionId}, isSingleApiEndpoint: ${this.isSingleApiEndpoint}`);
         return null;
       }
 
-      const properties = await this.ogcApiFeatures.getPropertiesSchema(
-        apiId,
-        collectionId,
-        this.currentBaseUrl
-      );
+      console.log(`[Component] propertiesSchema: Fetching properties for apiId: ${apiId}, collectionId: ${collectionId}, baseUrl: ${this.currentBaseUrl}`);
 
-      return Object.entries(properties).map(([id, property]) => ({
-        id: id,
-        ...property,
-      }));
+      try {
+        const properties = await this.ogcApiFeatures.getPropertiesSchema(
+          apiId,
+          collectionId,
+          this.currentBaseUrl
+        );
+
+        console.log(`[Component] propertiesSchema: Raw properties received:`, properties);
+        console.log(`[Component] propertiesSchema: Number of properties:`, Object.keys(properties || {}).length);
+
+        const mappedProperties = Object.entries(properties || {}).map(([id, property]) => ({
+          id: id,
+          ...property,
+          title: (property as any).title || id, // Use id as fallback for title
+          type: (property as any).type || 'string', // Default type
+        }));
+
+        console.log(`[Component] propertiesSchema: Mapped properties:`, mappedProperties);
+        console.log(`[Component] propertiesSchema: Number of mapped properties:`, mappedProperties.length);
+        console.log(`[Component] propertiesSchema: First few mapped properties:`, mappedProperties.slice(0, 3));
+
+        return mappedProperties;
+      } catch (error) {
+        console.error(`[Component] propertiesSchema: Error fetching properties:`, error);
+        return [];
+      }
     };
     return new TrackedAsyncData(fetch());
   }
 
   get selectedProperties() {
+    console.log(`[Component] selectedProperties getter called`);
+    console.log(`[Component] propertiesSchema.isResolved: ${this.propertiesSchema.isResolved}`);
+    console.log(`[Component] propertiesSchema.state: ${this.propertiesSchema.state}`);
+    console.log(`[Component] propertiesSchema.value:`, this.propertiesSchema.value);
+
     if (!this.propertiesSchema.isResolved || !this.propertiesSchema.value) {
+      console.log(`[Component] selectedProperties: Properties not resolved or empty, returning []`);
       return [];
     }
-    return (
-      this.nodeData.query?.['properties']?.map((id: string) =>
+
+    const queryProperties = this.nodeData.query?.['properties'];
+    console.log(`[Component] selectedProperties: Query properties:`, queryProperties);
+
+    const selected = (
+      queryProperties?.map((id: string) =>
         this.propertiesSchema.value!.find((property) => property.id === id),
       ) ?? []
     );
+
+    console.log(`[Component] selectedProperties: Selected properties:`, selected);
+    return selected;
   }
 
   @cached

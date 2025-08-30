@@ -63,11 +63,29 @@ export default class OgcApiFeaturesService extends Service {
   }
 
   async getQueryableProperties(apiId: string, collectionId: string, baseUrl?: string) {
-    return this.getClient(baseUrl).getQueryableProperties(apiId, collectionId);
+    console.log(`[Frontend Service] getQueryableProperties called with apiId: ${apiId}, collectionId: ${collectionId}, baseUrl: ${baseUrl}`);
+    try {
+      const result = await this.getClient(baseUrl).getQueryableProperties(apiId, collectionId);
+      console.log(`[Frontend Service] getQueryableProperties result:`, result);
+      console.log(`[Frontend Service] getQueryableProperties result keys:`, Object.keys(result || {}));
+      return result;
+    } catch (error) {
+      console.error(`[Frontend Service] Error in getQueryableProperties:`, error);
+      throw error;
+    }
   }
 
   async getPropertiesSchema(apiId: string, collectionId: string, baseUrl?: string) {
-    return this.getClient(baseUrl).getPropertiesSchema(apiId, collectionId);
+    console.log(`[Frontend Service] getPropertiesSchema called with apiId: ${apiId}, collectionId: ${collectionId}, baseUrl: ${baseUrl}`);
+    try {
+      const result = await this.getClient(baseUrl).getPropertiesSchema(apiId, collectionId);
+      console.log(`[Frontend Service] getPropertiesSchema result:`, result);
+      console.log(`[Frontend Service] getPropertiesSchema result keys:`, Object.keys(result || {}));
+      return result;
+    } catch (error) {
+      console.error(`[Frontend Service] Error in getPropertiesSchema:`, error);
+      throw error;
+    }
   }
 
   async fetchFeatures(apiId: string, collectionId: string, query?: any, baseUrl?: string) {

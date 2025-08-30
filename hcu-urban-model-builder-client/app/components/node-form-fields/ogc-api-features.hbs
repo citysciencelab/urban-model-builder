@@ -56,6 +56,19 @@
     </PowerSelect>
   </@form.element>
 
+  {{#if this.selectedCollection}}
+    <div class="api-info">
+      {{t "components.ogc_api.collection_info"}}
+      <a
+        href="{{this.collectionInfoUrl}}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {{this.selectedCollection.title}}
+      </a>
+    </div>
+  {{/if}}
+
   {{#let (not @changeset.dataProxy.data.collectionId) as |isDisabled|}}
     <@form.element
       @label={{t "components.ogc_api.limit_label"}}
@@ -101,7 +114,7 @@
       @onChange={{this.onPropertiesSelected}}
       as |property|
     >
-      {{property.title}}
+      {{or property.title property.id "Unnamed Property"}}
     </PowerSelectMultiple>
   </@form.element>
 

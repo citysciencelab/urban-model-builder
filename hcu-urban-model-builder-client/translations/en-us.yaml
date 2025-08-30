@@ -208,6 +208,7 @@ components:
   ogc_api:
     endpoint_label: OGC API Endpoint
     more_info: Mehr Informationen zur API
+    collection_info: More information about the collection
     total: Total items
     matching: Matching items
     in_limit: Within limit

@@ -143,25 +143,84 @@ export class OgcApiFeaturesClient {
   }
 
   async getQueryableProperties(apiId: string, collectionId: string): Promise<Record<string, Property>> {
-    const baseUrl = apiId ? `${apiId}/collections` : 'collections';
-    const response = await this.client.get(`${baseUrl}/${collectionId}/queryables`, {
-      headers: {
-        Accept: 'application/schema+json'
-      }
-    })
-
-    return response.data.properties
+    try {
+      const baseUrl = apiId ? `${apiId}/collections` : 'collections';
+      const url = `${baseUrl}/${collectionId}/queryables`;
+      
+      console.log(`[OGC] Fetching queryable properties for API: ${apiId}, Collection: ${collectionId}`);
+      console.log(`[OGC] Queryables URL: ${this.client.defaults.baseURL}/${url}`);
+      
+      const response = await this.client.get(url, {
+        params: {
+          f: 'application/schema+json'
+        },
+        headers: {
+          Accept: 'application/schema+json'
+        }
+      });
+      
+      console.log(`[OGC] Queryables response status:`, response.status);
+      console.log(`[OGC] Queryables response headers:`, response.headers);
+      console.log(`[OGC] Queryables raw response data:`, response.data);
+      
+      const properties = response.data.properties || {};
+      console.log(`[OGC] Processed queryable properties:`, properties);
+      console.log(`[OGC] Number of queryable properties:`, Object.keys(properties).length);
+      
+      return properties;
+    } catch (error) {
+      console.error(`[OGC] Error fetching queryable properties for API ${apiId}, Collection ${collectionId}:`, error);
+      console.error(`[OGC] Error details:`, {
+        message: (error as any).message,
+        status: (error as any).response?.status,
+        statusText: (error as any).response?.statusText,
+        url: (error as any).config?.url,
+        method: (error as any).config?.method
+      });
+      return {};
+    }
   }
 
   async getPropertiesSchema(apiId: string, collectionId: string): Promise<Record<string, Property>> {
-    const baseUrl = apiId ? `${apiId}/collections` : 'collections';
-    const response = await this.client.get(`${baseUrl}/${collectionId}/schema`, {
-      headers: {
-        Accept: 'application/schema+json'
-      }
-    })
-
-    return response.data.properties
+    try {
+      const baseUrl = apiId ? `${apiId}/collections` : 'collections';
+      const url = `${baseUrl}/${collectionId}/schema`;
+      
+      console.log(`[OGC] Fetching properties schema for API: ${apiId}, Collection: ${collectionId}`);
+      console.log(`[OGC] Schema URL: ${this.client.defaults.baseURL}/${url}`);
+      
+      const response = await this.client.get(url, {
+        params: {
+          f: 'application/schema+json'
+        },
+        headers: {
+          Accept: 'application/schema+json'
+        }
+      });
+      
+      console.log(`[OGC] Schema response status:`, response.status);
+      console.log(`[OGC] Schema response headers:`, response.headers);
+      console.log(`[OGC] Schema raw response data:`, response.data);
+      
+      const properties = response.data.properties || {};
+      console.log(`[OGC] Processed schema properties:`, properties);
+      console.log(`[OGC] Number of schema properties:`, Object.keys(properties).length);
+      
+      return properties;
+    } catch (error) {
+      console.error(`[OGC] Error fetching properties schema for API ${apiId}, Collection ${collectionId}:`, error);
+      console.error(`[OGC] Error details:`, {
+        message: (error as any).message,
+        status: (error as any).response?.status,
+        statusText: (error as any).response?.statusText,
+        url: (error as any).config?.url,
+        method: (error as any).config?.method
+      });
+      
+      // Fallback: Try queryables endpoint if schema fails
+      console.log(`[OGC] Schema failed, trying queryables endpoint as fallback...`);
+      return this.getQueryableProperties(apiId, collectionId);
+    }
   }
 
   private serializeFeatureQuery(query: FilterQuery) {
