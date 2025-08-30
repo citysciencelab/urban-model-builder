@@ -256,19 +256,32 @@ components:
     endpoint_name_label: Name
     endpoint_name_placeholder: e.g. My Custom API
     endpoint_url_label: Base URL
-    urban_data_platforms_title: Urban Data Platform Connections
+    urban_data_platforms_title: Data Sources
     urban_data_platforms_description: Manage connections to various Urban Data Platforms and OGC API Features endpoints.
     default_endpoint: Default
     remove_endpoint: Remove connection
     no_endpoints_configured: No connections configured yet
     add_new_endpoint: Add New Connection
     add_endpoint_modal_title: New Urban Data Platform Connection
-    add_endpoint_modal_subtitle: Add Urban Data Platform Connection
-    add_endpoint_modal_description: Add a new connection to an Urban Data Platform or OGC API Features endpoint.
     endpoint_name_help: Enter a meaningful name for this connection.
     endpoint_url_placeholder: https://api.example.com/datasets/v1
     endpoint_url_help: The base URL of the OGC API Features endpoint.
     add_endpoint_button: Add Connection
+    # API Type Detection
+    api_type_multi: Multi-API
+    api_type_single: Single API
+    api_type_unknown: Unknown
+    api_type_check_button: Check API Type
+    api_type_checking: Checking API type...
+    api_type_loading: Loading...
+    api_type_multi_detected: "Multi-API detected:"
+    api_type_multi_description: This endpoint contains a list of multiple APIs (like Hamburg Open Data).
+    api_type_single_detected: "Single API detected:"
+    api_type_single_description: This endpoint provides direct OGC API Features or Processes.
+    api_type_unknown_detected: "Unknown API type:"
+    api_type_unknown_description: The endpoint structure could not be clearly identified as OGC API.
+    api_type_error: "Error checking:"
+    api_type_error_default: Unknown error while checking the endpoint
   scenarios:
     title: Scenario
     no_parameters: No Parameters

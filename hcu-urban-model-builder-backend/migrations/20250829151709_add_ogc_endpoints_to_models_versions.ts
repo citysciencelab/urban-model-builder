@@ -10,7 +10,7 @@ export async function up(knex: Knex): Promise<void> {
     ogcEndpoints: JSON.stringify([
       {
         id: 'hamburg-api',
-        name: 'Hamburg Open Data API',
+        name: 'Urban Data Platform Hamburg',
         baseUrl: 'https://api.hamburg.de/datasets/v1',
         isDefault: true
       }

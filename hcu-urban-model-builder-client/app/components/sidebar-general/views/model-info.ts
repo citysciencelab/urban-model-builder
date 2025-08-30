@@ -33,6 +33,11 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
   @tracked showAddModal = false;
   @tracked newEndpointName = '';
   @tracked newEndpointUrl = '';
+  @tracked isCheckingApiType = false;
+  @tracked detectedApiType: 'multi-api' | 'single-api' | 'unknown' | null = null;
+  @tracked apiTypeError: string | null = null;
+
+  private apiTypeCheckTimer: ReturnType<typeof setTimeout> | null = null;
 
   get validator() {
     return lookupValidator(modelValidator(this.intl));
@@ -53,9 +58,10 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
       const defaultEndpoints = [
         {
           id: 'hamburg-api',
-          name: 'Hamburg Open Data API',
+          name: 'Urban Data Platform Hamburg',
           baseUrl: 'https://api.hamburg.de/datasets/v1',
-          isDefault: true
+          isDefault: true,
+          apiType: 'multi-api' as const
         }
       ];
 
@@ -72,12 +78,18 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
     this.showAddModal = true;
     this.newEndpointName = '';
     this.newEndpointUrl = '';
+    this.detectedApiType = null;
+    this.apiTypeError = null;
+    this.isCheckingApiType = false;
   }
 
   @action closeAddEndpointModal() {
     this.showAddModal = false;
     this.newEndpointName = '';
     this.newEndpointUrl = '';
+    this.detectedApiType = null;
+    this.apiTypeError = null;
+    this.isCheckingApiType = false;
   }
 
   @action updateEndpointName(event: Event) {
@@ -88,6 +100,81 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
   @action updateEndpointUrl(event: Event) {
     const target = event.target as HTMLInputElement;
     this.newEndpointUrl = target.value;
+
+    // Clear previous detection results
+    this.detectedApiType = null;
+    this.apiTypeError = null;
+
+    // Clear existing timer
+    if (this.apiTypeCheckTimer) {
+      clearTimeout(this.apiTypeCheckTimer);
+    }
+
+    // Trigger API type detection with debounce if URL looks valid
+    if (this.newEndpointUrl && this.isValidUrl(this.newEndpointUrl)) {
+      this.apiTypeCheckTimer = setTimeout(() => {
+        this.detectApiType();
+      }, 1000); // 1 second debounce
+    }
+  }
+
+  /**
+   * Validates if the given string is a valid URL
+   */
+  private isValidUrl(urlString: string): boolean {
+    try {
+      new URL(urlString);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Detects the type of OGC API by making a request to the endpoint
+   */
+  @action async detectApiType() {
+    if (!this.newEndpointUrl || this.isCheckingApiType) {
+      return;
+    }
+
+    this.isCheckingApiType = true;
+    this.apiTypeError = null;
+
+    try {
+      const response = await fetch(this.newEndpointUrl);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Check if the response contains an array of APIs (multi-api)
+      // Example: https://api.hamburg.de/datasets/v1
+      if (Array.isArray(data.apis) && data.apis.length > 0) {
+        this.detectedApiType = 'multi-api';
+      }
+      // Check if the response contains collections (single-api)
+      // Example: https://api.pdok.nl/lv/bgt/ogc/v1/ or https://gis.lfrz.gv.at/api/geodata/i009501/ogc/features/v1/
+      else if (data.collections ||
+               (data.links && Array.isArray(data.links)) ||
+               (data.conformsTo && Array.isArray(data.conformsTo)) ||
+               data.title ||
+               data.description) {
+        this.detectedApiType = 'single-api';
+      }
+      // If neither, mark as unknown
+      else {
+        this.detectedApiType = 'unknown';
+      }
+    } catch (error) {
+      console.error('Error detecting API type:', error);
+      this.apiTypeError = error instanceof Error ? error.message : this.intl.t('components.model_info.api_type_error_default');
+      this.detectedApiType = null;
+    } finally {
+      this.isCheckingApiType = false;
+    }
   }
 
   @action async addOgcEndpoint() {
@@ -99,7 +186,8 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
       id: `custom-${Date.now()}`,
       name: this.newEndpointName,
       baseUrl: this.newEndpointUrl,
-      isDefault: false
+      isDefault: false,
+      apiType: this.detectedApiType || 'unknown'
     };
 
     // Get current endpoints and ensure it's an array

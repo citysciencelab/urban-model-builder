@@ -263,12 +263,25 @@ components:
     no_endpoints_configured: Noch keine Verbindungen konfiguriert
     add_new_endpoint: Neue Verbindung hinzufügen
     add_endpoint_modal_title: Neue Verbindung zu einem OGC API Features Endpunkt
-    add_endpoint_modal_subtitle: Urban Data Platform Verbindung hinzufügen
-    add_endpoint_modal_description: Fügen Sie eine neue Verbindung zu einer Urban Data Platform oder einem OGC API Features Endpunkt hinzu.
     endpoint_name_help: Geben Sie einen aussagekräftigen Namen für diese Verbindung ein.
     endpoint_url_placeholder: https://api.example.com/datasets/v1
     endpoint_url_help: Die Basis-URL des OGC API Features Endpunkts.
     add_endpoint_button: Verbindung hinzufügen
+    # API Type Detection
+    api_type_multi: Multi-API
+    api_type_single: Einzelne API
+    api_type_unknown: Unbekannt
+    api_type_check_button: API-Typ prüfen
+    api_type_checking: Überprüfe API-Typ...
+    api_type_loading: Lädt...
+    api_type_multi_detected: "Multi-API erkannt:"
+    api_type_multi_description: Dieser Endpunkt enthält eine Liste mehrerer APIs (wie Hamburg Open Data).
+    api_type_single_detected: "Einzelne API erkannt:"
+    api_type_single_description: Dieser Endpunkt stellt direkt OGC API Features oder Processes bereit.
+    api_type_unknown_detected: "Unbekannter API-Typ:"
+    api_type_unknown_description: Die Endpunkt-Struktur konnte nicht eindeutig als OGC API identifiziert werden.
+    api_type_error: "Fehler beim Prüfen:"
+    api_type_error_default: Unbekannter Fehler beim Prüfen des Endpunkts
   scenarios:
     title: Szenario
     no_parameters: Keine Parameter
