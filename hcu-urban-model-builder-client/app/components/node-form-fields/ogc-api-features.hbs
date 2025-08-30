@@ -14,7 +14,7 @@
 
   <@form.element @label={{t "components.ogc_api.apis_label"}} @property="apiId">
     <PowerSelect
-      @options={{this.availableApis.value}}
+      @options={{if this.availableApis.isResolved this.availableApis.value null}}
       @selected={{this.selectedApi}}
       @searchEnabled={{true}}
       @searchField="title"
@@ -44,7 +44,7 @@
     @property="collectionId"
   >
     <PowerSelect
-      @options={{this.availableCollections.value}}
+      @options={{if this.availableCollections.isResolved this.availableCollections.value null}}
       @selected={{this.selectedCollection}}
       @disabled={{this.isCollectionSelectDisabled}}
       @onChange={{this.onCollectionSelected}}
@@ -91,7 +91,7 @@
     @property="properties"
   >
     <PowerSelectMultiple
-      @options={{this.propertiesSchema.value}}
+      @options={{if this.propertiesSchema.isResolved this.propertiesSchema.value null}}
       @selected={{this.selectedProperties}}
       @disabled={{not this.propertiesSchema.isResolved}}
       @searchEnabled={{true}}

@@ -65,6 +65,10 @@ export class OgcApiFeaturesClient {
     return response.data.collections
   }
 
+  async getAvailableCollections(apiId: string): Promise<Collection[]> {
+    return this.getCollections(apiId)
+  }
+
   async fetchFeatures(
     apiId: string,
     collectionId: string,

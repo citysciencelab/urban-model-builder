@@ -72,6 +72,9 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
   }
 
   get selectedPropertyQuery() {
+    if (!this.queryableProperties.isResolved) {
+      return [];
+    }
     return this.queryableProperties.value?.reduce((props, prop) => {
       if (this.propertyFilters?.[prop.id]) {
         props.push({
@@ -84,6 +87,9 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
   }
 
   get queryablePropertiesOptions() {
+    if (!this.queryableProperties.isResolved) {
+      return [];
+    }
     return this.queryableProperties.value?.filter(
       (property) => !this.propertyFilters?.[property.id],
     );

@@ -68,6 +68,9 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   }
 
   get selectedApi() {
+    if (!this.availableApis.isResolved) {
+      return null;
+    }
     return (
       this.availableApis.value?.find((api) => api.id === this.nodeData.apiId) ??
       null
@@ -89,6 +92,9 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   }
 
   get selectedCollection() {
+    if (!this.availableCollections.isResolved) {
+      return null;
+    }
     return (
       this.availableCollections.value?.find(
         (collection) => collection.id === this.nodeData.collectionId,
@@ -126,7 +132,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   }
 
   get selectedProperties() {
-    if (!this.propertiesSchema.value) {
+    if (!this.propertiesSchema.isResolved || !this.propertiesSchema.value) {
       return [];
     }
     return (
@@ -169,6 +175,9 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   }
 
   get previewFeatures() {
+    if (!this.currentQueryResult.isResolved) {
+      return '';
+    }
     const features = this.currentQueryResult.value?.features ?? [];
 
     return transformFeatures(
@@ -180,6 +189,9 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   }
 
   get numberOfAllMatchingFeatures() {
+    if (!this.currentQueryResult.isResolved) {
+      return null;
+    }
     return this.currentQueryResult.value?.numberMatched ?? null;
   }
 
