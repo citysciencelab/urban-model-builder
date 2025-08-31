@@ -376,11 +376,11 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     }
 
     // clone scenarios with all scenarios-values
-    const originalScenario = await this.app.service('scenarios').find({
+    // Use _find to bypass permission hooks and get only scenarios from the specific model version
+    const originalScenario = await this.app.service('scenarios')._find({
       query: {
         modelsVersionsId: currentModelVersion.id
-      },
-      user: params?.user
+      }
     })
 
     for (const scenario of originalScenario.data) {
@@ -396,11 +396,11 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         }
       )
 
-      const scenarioValues = await this.app.service('scenarios-values').find({
+      // Use _find to bypass permission hooks and get only scenario values for the specific scenario
+      const scenarioValues = await this.app.service('scenarios-values')._find({
         query: {
           scenariosId: scenario.id
-        },
-        user: params?.user
+        }
       })
 
       for (const scenarioValue of scenarioValues.data) {
