@@ -76,6 +76,7 @@ actions:
   share: Teilen
   close: Schließen
   delete: Löschen
+  add: Hinzufügen
   simulate: Simulieren
   download: Herunterladen
   publish: Veröffentlichen*
@@ -205,7 +206,9 @@ components:
     search_placeholder: 'Suchbegriff…'
     nothing_found: Keine Ergebnisse
   ogc_api:
+    endpoint_label: OGC API Endpunkt
     more_info: Mehr Informationen zur API
+    collection_info: Mehr Informationen zur Sammlung
     total: Datensätze gesamt
     matching: Passende Datensätze
     in_limit: Datensätze im Limit
@@ -248,6 +251,38 @@ components:
     settings: Einstellungen
     name_placeholder: Name…
     description_placeholder: Beschreibung…
+    ogc_endpoints_label: OGC API Features Endpunkte
+    add_ogc_endpoint: Endpunkt hinzufügen
+    add_ogc_endpoint_title: Neuen OGC API Features Endpunkt hinzufügen
+    endpoint_name_label: Name
+    endpoint_name_placeholder: z.B. Meine Custom API
+    endpoint_url_label: Base URL
+    urban_data_platforms_title: Datenverbindungen
+    urban_data_platforms_description: Verwalten Sie hier die Verbindungen zu verschiedenen Urban Data Platforms und OGC API Features Endpunkten.
+    default_endpoint: Standard
+    remove_endpoint: Verbindung entfernen
+    no_endpoints_configured: Noch keine Verbindungen konfiguriert
+    add_new_endpoint: Neue Verbindung hinzufügen
+    add_endpoint_modal_title: Neue Verbindung zu einem OGC API Features Endpunkt
+    endpoint_name_help: Geben Sie einen aussagekräftigen Namen für diese Verbindung ein.
+    endpoint_url_placeholder: https://api.example.com/datasets/v1
+    endpoint_url_help: Die Basis-URL des OGC API Features Endpunkts.
+    add_endpoint_button: Verbindung hinzufügen
+    # API Type Detection
+    api_type_multi: Multi-API
+    api_type_single: Einzelne API
+    api_type_unknown: Unbekannt
+    api_type_check_button: API-Typ prüfen
+    api_type_checking: Überprüfe API-Typ...
+    api_type_loading: Lädt...
+    api_type_multi_detected: "Multi-API erkannt:"
+    api_type_multi_description: Dieser Endpunkt enthält eine Liste mehrerer APIs (wie Hamburg Open Data).
+    api_type_single_detected: "Einzelne API erkannt:"
+    api_type_single_description: Dieser Endpunkt stellt direkt OGC API Features oder Processes bereit.
+    api_type_unknown_detected: "Unbekannter API-Typ:"
+    api_type_unknown_description: Die Endpunkt-Struktur konnte nicht eindeutig als OGC API identifiziert werden.
+    api_type_error: "Fehler beim Prüfen:"
+    api_type_error_default: Unbekannter Fehler beim Prüfen des Endpunkts
   scenarios:
     title: Szenario
     no_parameters: Keine Parameter

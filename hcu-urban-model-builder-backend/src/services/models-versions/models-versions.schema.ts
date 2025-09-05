@@ -9,6 +9,14 @@ import type { ModelsVersionsService } from './models-versions.class.js'
 import { AlgorithmType } from 'simulation'
 import { Literals, Nullable } from '../../utils/schema.js'
 
+// OGC Endpoint schema
+export const ogcEndpointSchema = Type.Object({
+  id: Type.String(),
+  name: Type.String(),
+  baseUrl: Type.String(),
+  isDefault: Type.Boolean()
+})
+
 // Main data model schema
 export const modelsVersionsSchema = Type.Object(
   {
@@ -27,6 +35,7 @@ export const modelsVersionsSchema = Type.Object(
     algorithm: Nullable(Literals<AlgorithmType>('Euler', 'RK4')),
     globals: Nullable(Type.String()),
     customUnits: Nullable(Type.Object({ data: Type.Record(Type.String(), Type.Array(Type.Number())) })),
+    ogcEndpoints: Nullable(Type.Array(ogcEndpointSchema)),
     createdBy: Nullable(Type.String({ format: 'uuid' })),
     publishedBy: Nullable(Type.String({ format: 'uuid' })),
     publishedAt: Type.String({ format: 'date-time' }),
@@ -64,6 +73,7 @@ export const modelsVersionsDataSchema = Type.Pick(
     'timeStep',
     'algorithm',
     'globals',
+    'ogcEndpoints',
     'publishedToUMPAt'
   ],
   {

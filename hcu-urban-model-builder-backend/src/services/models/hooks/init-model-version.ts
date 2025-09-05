@@ -16,7 +16,8 @@ export const initModelVersion = async (context: HookContext) => {
       timeStep: 1,
       algorithm: 'Euler',
       timeUnits: 'Years',
-      globals: ''
+      globals: '',
+      ogcEndpoints: []
     },
     { user: context.params.user }
   )

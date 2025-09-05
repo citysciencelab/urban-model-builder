@@ -2,26 +2,94 @@ import Service from '@ember/service';
 import { OgcApiFeaturesClient } from 'hcu-urban-model-builder-backend/';
 
 export default class OgcApiFeaturesService extends Service {
-  private client = new OgcApiFeaturesClient();
+  private clientCache = new Map<string, OgcApiFeaturesClient>();
 
-  async getAvailableApis() {
-    return this.client.getApis();
+  // Debug method to clear cache
+  clearCache() {
+    console.log('[Frontend Service] Clearing client cache');
+    this.clientCache.clear();
   }
 
-  async getAvailableCollections(apiId: string) {
-    return this.client.getCollections(apiId);
+  private getClient(baseUrl?: string): OgcApiFeaturesClient {
+    const url = baseUrl || 'https://api.hamburg.de/datasets/v1';
+    console.log(`[Frontend Service] getClient called with URL: ${url}`);
+
+    if (!this.clientCache.has(url)) {
+      console.log(`[Frontend Service] Creating new client for URL: ${url}`);
+      const client = new OgcApiFeaturesClient(url);
+      this.clientCache.set(url, client);
+
+      // Debug: Log the actual baseURL of the axios client
+      console.log(`[Frontend Service] Created client with axios baseURL: ${(client as any).client.defaults.baseURL}`);
+    } else {
+      console.log(`[Frontend Service] Using cached client for URL: ${url}`);
+      const cachedClient = this.clientCache.get(url)!;
+
+      // Debug: Log the actual baseURL of the cached axios client
+      console.log(`[Frontend Service] Cached client has axios baseURL: ${(cachedClient as any).client.defaults.baseURL}`);
+    }
+
+    return this.clientCache.get(url)!;
   }
 
-  async getQueryableProperties(apiId: string, collectionId: string) {
-    return this.client.getQueryableProperties(apiId, collectionId);
+  async getAvailableApis(baseUrl?: string) {
+    return this.getClient(baseUrl).getApis();
   }
 
-  async getPropertiesSchema(apiId: string, collectionId: string) {
-    return this.client.getPropertiesSchema(apiId, collectionId);
+  async getAvailableCollections(apiId: string, baseUrl?: string) {
+    console.log(`[Frontend Service] getAvailableCollections called with apiId: ${apiId}, baseUrl: ${baseUrl}`);
+    const client = this.getClient(baseUrl);
+    console.log(`[Frontend Service] Using client for baseUrl: ${baseUrl || 'default'}`);
+    console.log(`[Frontend Service] Available client methods:`, Object.getOwnPropertyNames(Object.getPrototypeOf(client)));
+
+    try {
+      // Use the getCollections method directly since getAvailableCollections may not be available
+      console.log(`[Frontend Service] Using getCollections method`);
+      const result = await (client as any).getCollections(apiId);
+
+      console.log(`[Frontend Service] getAvailableCollections result:`, result);
+      return result;
+    } catch (error) {
+      console.error(`[Frontend Service] Error in getAvailableCollections:`, error);
+      console.error(`[Frontend Service] Error details:`, {
+        message: (error as any).message,
+        status: (error as any).response?.status,
+        statusText: (error as any).response?.statusText,
+        url: (error as any).config?.url,
+        method: (error as any).config?.method
+      });
+      throw error;
+    }
   }
 
-  async fetchFeatures(apiId: string, collectionId: string, query?: any) {
-    return this.client.fetchFeatures(apiId, collectionId, query);
+  async getQueryableProperties(apiId: string, collectionId: string, baseUrl?: string) {
+    console.log(`[Frontend Service] getQueryableProperties called with apiId: ${apiId}, collectionId: ${collectionId}, baseUrl: ${baseUrl}`);
+    try {
+      const result = await this.getClient(baseUrl).getQueryableProperties(apiId, collectionId);
+      console.log(`[Frontend Service] getQueryableProperties result:`, result);
+      console.log(`[Frontend Service] getQueryableProperties result keys:`, Object.keys(result || {}));
+      return result;
+    } catch (error) {
+      console.error(`[Frontend Service] Error in getQueryableProperties:`, error);
+      throw error;
+    }
+  }
+
+  async getPropertiesSchema(apiId: string, collectionId: string, baseUrl?: string) {
+    console.log(`[Frontend Service] getPropertiesSchema called with apiId: ${apiId}, collectionId: ${collectionId}, baseUrl: ${baseUrl}`);
+    try {
+      const result = await this.getClient(baseUrl).getPropertiesSchema(apiId, collectionId);
+      console.log(`[Frontend Service] getPropertiesSchema result:`, result);
+      console.log(`[Frontend Service] getPropertiesSchema result keys:`, Object.keys(result || {}));
+      return result;
+    } catch (error) {
+      console.error(`[Frontend Service] Error in getPropertiesSchema:`, error);
+      throw error;
+    }
+  }
+
+  async fetchFeatures(apiId: string, collectionId: string, query?: any, baseUrl?: string) {
+    return this.getClient(baseUrl).fetchFeatures(apiId, collectionId, query);
   }
 }
 

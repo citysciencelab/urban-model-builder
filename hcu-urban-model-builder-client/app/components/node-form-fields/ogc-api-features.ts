@@ -18,23 +18,31 @@ export interface NodeFormFieldsOgcApiFeaturesSignature {
   // The arguments accepted by the component
   Args: {
     changeset: TrackedChangeset<Node>;
+    modelsVersion: any; // ModelsVersion with ogcEndpoints
+    form: any;
+    node: any;
+    errors: any;
+    disabled?: boolean;
   };
   // Any blocks yielded by the component
   Blocks: {
     default: [];
   };
-  // The element to which `...attributes` is applied in the component template
-  Element: null;
 }
 
 export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<NodeFormFieldsOgcApiFeaturesSignature> {
   readonly DEBOUNCE_MS = 250;
+  readonly instanceId = Math.random().toString(36).substr(2, 9);
 
   @service declare ogcApiFeatures: OgcApiFeaturesService;
 
   @tracked showPreviewModal = false;
   @tracked jsonPointer = '';
   @tracked jsonPointerValue = '';
+
+  private _collectionsData: TrackedAsyncData<any> | null = null;
+  private _lastApiId: string | undefined = undefined;
+  private _lastBaseUrl: string | undefined = undefined;
 
   get nodeData() {
     return this.args.changeset.dataProxy.data;
@@ -44,43 +52,159 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     this.args.changeset.dataProxy.data = data;
   }
 
+  get availableOgcEndpoints() {
+    return this.args.modelsVersion?.ogcEndpoints || [];
+  }
+
+  get selectedEndpoint() {
+    const endpointId = this.nodeData.endpointId;
+    return this.availableOgcEndpoints.find((endpoint: any) => endpoint.id === endpointId) ||
+           this.availableOgcEndpoints.find((endpoint: any) => endpoint.isDefault) ||
+           this.availableOgcEndpoints[0];
+  }
+
+  get currentBaseUrl() {
+    return this.selectedEndpoint?.baseUrl || 'https://api.hamburg.de/datasets/v1';
+  }
+
+  get isSingleApiEndpoint() {
+    return this.selectedEndpoint?.apiType === 'single-api';
+  }
+
+  get collectionInfoUrl() {
+    const baseUrl = this.currentBaseUrl;
+    const collectionId = this.nodeData.collectionId;
+
+    if (!collectionId) return '#';
+
+    if (this.isSingleApiEndpoint) {
+      // For single API endpoints: baseUrl/collections/collectionId
+      return `${baseUrl}/collections/${collectionId}`;
+    } else {
+      // For multi API endpoints: baseUrl/apiId/collections/collectionId
+      const apiId = this.nodeData.apiId;
+      return apiId ? `${baseUrl}/${apiId}/collections/${collectionId}` : '#';
+    }
+  }
+
   @cached
   get availableApis() {
-    return new TrackedAsyncData(this.ogcApiFeatures.getAvailableApis());
+    return new TrackedAsyncData(this.ogcApiFeatures.getAvailableApis(this.currentBaseUrl));
   }
 
   get selectedApi() {
+    if (!this.availableApis.isResolved) {
+      return null;
+    }
+
+    // For single-API endpoints, return null since we don't show API selection
+    if (this.isSingleApiEndpoint) {
+      return null;
+    }
+
     return (
       this.availableApis.value?.find((api) => api.id === this.nodeData.apiId) ??
       null
     );
   }
 
-  @cached
   get availableCollections() {
     const apiId = this.nodeData.apiId;
+    const baseUrl = this.currentBaseUrl;
 
-    const fetch = async () => {
-      if (!apiId) {
-        return null;
+    // For single-API endpoints, use empty string as apiId to access collections directly
+    let effectiveApiId = apiId;
+    if (this.isSingleApiEndpoint) {
+      effectiveApiId = ""; // Use empty string for single API endpoints
+      // Auto-set the apiId for single API endpoints to empty string
+      if (apiId !== "") {
+        setTimeout(() => {
+          this.nodeData.apiId = "";
+          this.nodeData = { ...this.nodeData };
+        }, 0);
       }
+    }
 
-      return this.ogcApiFeatures.getAvailableCollections(apiId);
-    };
-    return new TrackedAsyncData(fetch());
+    // Only create new TrackedAsyncData if the key parameters actually changed
+    if (!this._collectionsData || this._lastApiId !== effectiveApiId || this._lastBaseUrl !== baseUrl) {
+      console.log(`[Component ${this.instanceId}] Creating new TrackedAsyncData for apiId: ${effectiveApiId}, baseUrl: ${baseUrl}`);
+      console.log(`[Component ${this.instanceId}] Previous values - apiId: ${this._lastApiId}, baseUrl: ${this._lastBaseUrl}`);
+
+      this._lastApiId = effectiveApiId;
+      this._lastBaseUrl = baseUrl;
+
+      if (!this.isSingleApiEndpoint && !effectiveApiId) {
+        console.log(`[Component ${this.instanceId}] No apiId provided for multi-API endpoint, returning empty resolved TrackedAsyncData`);
+        this._collectionsData = new TrackedAsyncData(Promise.resolve(null));
+      } else {
+        const fetch = async () => {
+          console.log(`[Component ${this.instanceId}] Fetching collections for apiId: ${effectiveApiId}, baseUrl: ${baseUrl}`);
+          try {
+            const result = await this.ogcApiFeatures.getAvailableCollections(effectiveApiId, baseUrl);
+            console.log(`[Component ${this.instanceId}] Collections fetch result:`, result);
+            return result;
+          } catch (error) {
+            console.error(`[Component ${this.instanceId}] Error fetching collections:`, error);
+            throw error;
+          }
+        };
+
+        this._collectionsData = new TrackedAsyncData(fetch());
+        console.log(`[Component ${this.instanceId}] Created new TrackedAsyncData, initial state:`, this._collectionsData.state);
+      }
+    }
+
+    return this._collectionsData;
+  }  get selectedCollection() {
+    console.log(`[Component] selectedCollection getter called`);
+    console.log(`[Component] availableCollections.state:`, this.availableCollections.state);
+    console.log(`[Component] availableCollections.isResolved:`, this.availableCollections.isResolved);
+
+    if (this.availableCollections.state === 'REJECTED') {
+      console.error(`[Component] Collections request was rejected:`, this.availableCollections.error);
+      return null;
+    }
+
+    if (!this.availableCollections.isResolved) {
+      console.log(`[Component] Collections not resolved yet, returning null`);
+      return null;
+    }
+
+    console.log(`[Component] availableCollections.value:`, this.availableCollections.value);
+    console.log(`[Component] Looking for collectionId:`, this.nodeData.collectionId);
+
+    const result = this.availableCollections.value?.find(
+      (collection: any) => collection.id === this.nodeData.collectionId,
+    ) ?? null;
+
+    console.log(`[Component] selectedCollection result:`, result);
+    return result;
   }
 
-  get selectedCollection() {
-    return (
-      this.availableCollections.value?.find(
-        (collection) => collection.id === this.nodeData.collectionId,
-      ) ?? null
-    );
-  }
-
-  @cached
   get isCollectionSelectDisabled() {
-    return !(this.nodeData.apiId && this.availableCollections.isResolved);
+    // For single-API endpoints, we always have an effective API (empty string)
+    let hasApiId = !!this.nodeData.apiId;
+    if (this.isSingleApiEndpoint) {
+      hasApiId = true; // Single API endpoints always have an effective API
+    }
+
+    const isResolved = this.availableCollections.isResolved;
+    const isRejected = this.availableCollections.state === 'REJECTED';
+
+    const disabled = !(hasApiId && isResolved && !isRejected);
+
+    console.log(`[Component] isCollectionSelectDisabled: ${disabled}`);
+    console.log(`[Component] nodeData.apiId: ${this.nodeData.apiId}`);
+    console.log(`[Component] hasApiId (effective): ${hasApiId}`);
+    console.log(`[Component] isSingleApiEndpoint: ${this.isSingleApiEndpoint}`);
+    console.log(`[Component] availableCollections.isResolved: ${isResolved}`);
+    console.log(`[Component] availableCollections.state: ${this.availableCollections.state}`);
+
+    if (isRejected) {
+      console.error(`[Component] Collections disabled because request was rejected:`, this.availableCollections.error);
+    }
+
+    return disabled;
   }
 
   @cached
@@ -88,45 +212,89 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     const apiId = this.nodeData.apiId;
     const collectionId = this.nodeData.collectionId;
 
+    console.log(`[Component] propertiesSchema getter called with apiId: ${apiId}, collectionId: ${collectionId}`);
+
     const fetch = async () => {
-      if (!apiId || !collectionId) {
+      // For single API endpoints, apiId can be an empty string, which is valid
+      if ((!apiId && !this.isSingleApiEndpoint) || !collectionId) {
+        console.log(`[Component] propertiesSchema: Missing required parameters. apiId: ${apiId}, collectionId: ${collectionId}, isSingleApiEndpoint: ${this.isSingleApiEndpoint}`);
         return null;
       }
 
-      const properties = await this.ogcApiFeatures.getPropertiesSchema(
-        apiId,
-        collectionId,
-      );
+      console.log(`[Component] propertiesSchema: Fetching properties for apiId: ${apiId}, collectionId: ${collectionId}, baseUrl: ${this.currentBaseUrl}`);
 
-      return Object.entries(properties).map(([id, property]) => ({
-        id: id,
-        ...property,
-      }));
+      try {
+        const properties = await this.ogcApiFeatures.getPropertiesSchema(
+          apiId,
+          collectionId,
+          this.currentBaseUrl
+        );
+
+        console.log(`[Component] propertiesSchema: Raw properties received:`, properties);
+        console.log(`[Component] propertiesSchema: Number of properties:`, Object.keys(properties || {}).length);
+
+        const mappedProperties = Object.entries(properties || {}).map(([id, property]) => ({
+          id: id,
+          ...property,
+          title: (property as any).title || id, // Use id as fallback for title
+          type: (property as any).type || 'string', // Default type
+        }));
+
+        console.log(`[Component] propertiesSchema: Mapped properties:`, mappedProperties);
+        console.log(`[Component] propertiesSchema: Number of mapped properties:`, mappedProperties.length);
+        console.log(`[Component] propertiesSchema: First few mapped properties:`, mappedProperties.slice(0, 3));
+
+        return mappedProperties;
+      } catch (error) {
+        console.error(`[Component] propertiesSchema: Error fetching properties:`, error);
+        return [];
+      }
     };
     return new TrackedAsyncData(fetch());
   }
 
   get selectedProperties() {
-    if (!this.propertiesSchema.value) {
+    console.log(`[Component] selectedProperties getter called`);
+    console.log(`[Component] propertiesSchema.isResolved: ${this.propertiesSchema.isResolved}`);
+    console.log(`[Component] propertiesSchema.state: ${this.propertiesSchema.state}`);
+    console.log(`[Component] propertiesSchema.value:`, this.propertiesSchema.value);
+
+    if (!this.propertiesSchema.isResolved || !this.propertiesSchema.value) {
+      console.log(`[Component] selectedProperties: Properties not resolved or empty, returning []`);
       return [];
     }
-    return (
-      this.nodeData.query?.['properties']?.map((id) =>
+
+    const queryProperties = this.nodeData.query?.['properties'];
+    console.log(`[Component] selectedProperties: Query properties:`, queryProperties);
+
+    const selected = (
+      queryProperties?.map((id: string) =>
         this.propertiesSchema.value!.find((property) => property.id === id),
       ) ?? []
     );
+
+    console.log(`[Component] selectedProperties: Selected properties:`, selected);
+    return selected;
   }
 
   @cached
   get currentQueryResult() {
     const fetch = async () => {
-      const apiId = this.nodeData.apiId;
       const collectionId = this.nodeData.collectionId;
       const query = this.nodeData.query;
 
-      if (!apiId || !collectionId || !query) {
+      if (!collectionId || !query) {
         return null;
       }
+
+      // For Single API endpoints, use empty string as apiId
+      const apiId = this.isSingleApiEndpoint ? "" : this.nodeData.apiId;
+
+      if (!this.isSingleApiEndpoint && !apiId) {
+        return null;
+      }
+
+      console.log(`[UI] currentQueryResult - fetching data for apiId: "${apiId}", collectionId: "${collectionId}"`);
 
       return this.queryTask.perform(apiId, collectionId, {
         ...query,
@@ -137,7 +305,32 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     return new TrackedAsyncData(fetch());
   }
 
+  @action
+  onEndpointSelected(endpoint: any) {
+    this.nodeData.endpointId = endpoint.id;
+    // Store baseUrl and apiType for simulation
+    this.nodeData.baseUrl = endpoint.baseUrl;
+    this.nodeData.apiType = endpoint.apiType;
+
+    // Reset API and collection selection when endpoint changes
+    if (endpoint.apiType === 'single-api') {
+      // For single API endpoints, set apiId to empty string
+      this.nodeData.apiId = "";
+    } else {
+      // For multi API endpoints, clear the apiId
+      delete this.nodeData.apiId;
+    }
+    delete this.nodeData.collectionId;
+    this.nodeData = {
+      ...this.nodeData,
+    };
+    this.resetQuery();
+  }
+
   get previewFeatures() {
+    if (!this.currentQueryResult.isResolved) {
+      return '';
+    }
     const features = this.currentQueryResult.value?.features ?? [];
 
     return transformFeatures(
@@ -149,6 +342,9 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   }
 
   get numberOfAllMatchingFeatures() {
+    if (!this.currentQueryResult.isResolved) {
+      return null;
+    }
     return this.currentQueryResult.value?.numberMatched ?? null;
   }
 
@@ -167,18 +363,44 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
   }
 
   @action
+  retryCollections() {
+    console.log(`[Component ${this.instanceId}] Retrying collections fetch - not needed without cache`);
+    // Force re-evaluation by accessing the getter (this will create a new TrackedAsyncData)
+    const collections = this.availableCollections;
+    console.log(`[Component] Forced re-evaluation, new state:`, collections.state);
+  }
+
+  @action
   onApiSelected(api: NonNullable<this['availableApis']['value']>[number]) {
+    console.log(`[Component ${this.instanceId}] onApiSelected called with api:`, api);
+    console.log(`[Component ${this.instanceId}] Setting apiId to:`, api.id);
+
+    // Explicitly invalidate the collections cache
+    this._collectionsData = null;
+    this._lastApiId = undefined;
+    this._lastBaseUrl = undefined;
+
     this.nodeData.apiId = api.id;
     delete this.nodeData.collectionId;
     this.nodeData = {
       ...this.nodeData,
     };
+
+    console.log(`[Component ${this.instanceId}] nodeData after API selection:`, this.nodeData);
     this.resetQuery();
+
+    // Force re-evaluation of availableCollections by accessing it
+    setTimeout(() => {
+      console.log(`[Component ${this.instanceId}] After API selection - checking collections state:`, this.availableCollections.state);
+      console.log(`[Component ${this.instanceId}] After API selection - collections value:`, this.availableCollections.value);
+    }, 100);
   }
 
   @action
   onCollectionSelected(collection: { id: string }) {
+    console.log(`[Component] onCollectionSelected called with collection:`, collection);
     this.nodeData.collectionId = collection.id;
+    console.log(`[Component] Set collectionId to:`, collection.id);
     this.resetQuery();
   }
 
@@ -211,20 +433,29 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
 
   filterAfterPropertiesSelected() {
     const currentProperties = [...(this.nodeData.query?.properties ?? [])];
+
+    // Initialize dataTransform if it doesn't exist
+    if (!this.nodeData.dataTransform) {
+      this.nodeData.dataTransform = {
+        keyProperty: undefined,
+        valueProperties: []
+      };
+    }
+
     if (currentProperties.length > 0) {
       if (
-        this.nodeData.dataTransform?.keyProperty &&
+        this.nodeData.dataTransform.keyProperty &&
         !currentProperties.includes(this.nodeData.dataTransform.keyProperty)
       ) {
-        this.nodeData.dataTransform!.keyProperty = undefined;
+        this.nodeData.dataTransform.keyProperty = undefined;
       }
 
       if (!this.nodeData.query?.skipGeometry) {
         currentProperties.push(GEOMETRY_KEY);
       }
 
-      this.nodeData.dataTransform!.valueProperties =
-        this.nodeData.dataTransform!.valueProperties?.filter((id) =>
+      this.nodeData.dataTransform.valueProperties =
+        this.nodeData.dataTransform.valueProperties?.filter((id: string) =>
           currentProperties.includes(id),
         ) || [];
     }
@@ -235,7 +466,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     async (apiId: string, collectionId: string, query: any) => {
       await timeout(this.DEBOUNCE_MS);
 
-      return this.ogcApiFeatures.fetchFeatures(apiId, collectionId, query);
+      return this.ogcApiFeatures.fetchFeatures(apiId, collectionId, query, this.currentBaseUrl);
     },
   );
 }

@@ -1,46 +1,73 @@
 <BsAccordion class="sidebar-accordion" @selected="property-query" as |acc|>
 
-  <@form.element @label={{t "components.ogc_api.apis_label"}} @property="apiId">
+  <@form.element @label={{t "components.ogc_api.endpoint_label"}} @property="endpointId">
     <PowerSelect
-      @options={{this.availableApis.value}}
-      @selected={{this.selectedApi}}
-      @searchEnabled={{true}}
-      @searchField="title"
-      @disabled={{not this.availableApis.isResolved}}
-      @onChange={{this.onApiSelected}}
-      as |api|
+      @options={{this.availableOgcEndpoints}}
+      @selected={{this.selectedEndpoint}}
+      @searchEnabled={{false}}
+      @onChange={{this.onEndpointSelected}}
+      as |endpoint|
     >
-      {{api.title}}
+      {{endpoint.name}} <small class="text-muted">({{endpoint.baseUrl}})</small>
     </PowerSelect>
   </@form.element>
 
-  {{#if this.selectedApi}}
-    <div class="api-info">
-      {{t "components.ogc_api.more_info"}}
-      <a
-        href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
-        target="_blank"
-        rel="noopener noreferrer"
+  {{!-- Only show API selection for multi-API endpoints --}}
+  {{#unless this.isSingleApiEndpoint}}
+    <@form.element @label={{t "components.ogc_api.apis_label"}}>
+      <PowerSelect
+        @options={{if this.availableApis.isResolved this.availableApis.value null}}
+        @selected={{this.selectedApi}}
+        @searchEnabled={{true}}
+        @searchField="title"
+        @disabled={{not this.availableApis.isResolved}}
+        @onChange={{this.onApiSelected}}
+        as |api|
       >
-        {{this.selectedApi.title}}
-      </a>
-    </div>
-  {{/if}}
+        {{or api.title api.id "Unnamed API"}}
+      </PowerSelect>
+    </@form.element>
+
+    {{#if this.selectedApi}}
+      <div class="api-info">
+        {{t "components.ogc_api.more_info"}}
+        <a
+          href="https://api.hamburg.de/datasets/v1/{{@changeset.dataProxy.data.apiId}}/api"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {{this.selectedApi.title}}
+        </a>
+      </div>
+    {{/if}}
+  {{/unless}}
 
   <@form.element
     @label={{t "components.ogc_api.collection_label"}}
-    @property="collectionId"
   >
     <PowerSelect
-      @options={{this.availableCollections.value}}
+      @options={{if this.availableCollections.isResolved this.availableCollections.value null}}
       @selected={{this.selectedCollection}}
       @disabled={{this.isCollectionSelectDisabled}}
       @onChange={{this.onCollectionSelected}}
       as |collection|
     >
-      {{collection.title}}
+      {{or collection.title collection.id "Unnamed Collection"}}
     </PowerSelect>
   </@form.element>
+
+  {{#if this.selectedCollection}}
+    <div class="api-info">
+      {{t "components.ogc_api.collection_info"}}
+      <a
+        href="{{this.collectionInfoUrl}}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {{this.selectedCollection.title}}
+      </a>
+    </div>
+  {{/if}}
 
   {{#let (not @changeset.dataProxy.data.collectionId) as |isDisabled|}}
     <@form.element
@@ -79,7 +106,7 @@
     @property="properties"
   >
     <PowerSelectMultiple
-      @options={{this.propertiesSchema.value}}
+      @options={{if this.propertiesSchema.isResolved this.propertiesSchema.value null}}
       @selected={{this.selectedProperties}}
       @disabled={{not this.propertiesSchema.isResolved}}
       @searchEnabled={{true}}
@@ -87,7 +114,7 @@
       @onChange={{this.onPropertiesSelected}}
       as |property|
     >
-      {{property.title}}
+      {{or property.title property.id "Unnamed Property"}}
     </PowerSelectMultiple>
   </@form.element>
 
@@ -95,6 +122,7 @@
     @acc={{acc}}
     @form={{@form}}
     @changeset={{@changeset}}
+    @baseUrl={{this.currentBaseUrl}}
   />
 
   <acc.item
