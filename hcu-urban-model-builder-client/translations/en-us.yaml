@@ -134,6 +134,8 @@ routes:
       add_model: Create model
       total: Total models
       create_new_title: Create new model
+      import_model_json: Import whole model from JSON
+      import_model_json_help: Select an exported model JSON to create a new model from it.
       edit_title: Edit model <em>{name}</em>
       no_models_found: No models found
     versions:
@@ -257,6 +259,12 @@ components:
     publish: Publish
     share: Share
     clone: Clone
+    file_transfer: File Import / Export
+    export_model: Export model JSON
+    export_model_version: "Save {version} as JSON"
+    import_model_version: "Load {version} from JSON"
+    exporting: Exporting model...
+    importing: Importing model...
   parameter_bool:
     on: On
   parameter_slider:

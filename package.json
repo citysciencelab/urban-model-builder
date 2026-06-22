@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "setup": "./scripts/setup.sh",
+    "setup-windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/setup-windows.ps1",
     "deploy:latest": "./scripts/deploy.sh",
     "feathers-client:version": "npx zx ./scripts/update-client-version.mjs",
     "hash-password": "cd ./hcu-urban-model-builder-backend && npm run hash-password"

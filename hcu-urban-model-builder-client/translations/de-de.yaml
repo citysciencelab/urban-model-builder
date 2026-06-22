@@ -134,6 +134,8 @@ routes:
       add_model: Modell erstellen
       total: Modelle gesamt
       create_new_title: Neues Modell erstellen
+      import_model_json: Gesamtes Modell aus JSON importieren
+      import_model_json_help: Wählen Sie eine exportierte Modell-JSON aus, um daraus ein neues Modell zu erstellen.
       edit_title: Modell <em>{name}</em> bearbeiten
       no_models_found: Keine Modelle gefunden
     versions:
@@ -257,6 +259,12 @@ components:
     publish: Veröffentlichen
     share: Teilen
     clone: Klonen
+    file_transfer: Datei Import / Export
+    export_model: Modell als JSON exportieren
+    export_model_version: "{version} als JSON speichern"
+    import_model_version: "{version} aus JSON laden"
+    exporting: Modell wird exportiert...
+    importing: Modell wird importiert...
   parameter_bool:
     on: On
   parameter_slider:
@@ -338,3 +346,4 @@ time_units:
 error:
   404_title: "Seite nicht gefunden"
   404_message: "Entschuldigung, die Seite, die Sie suchen, existiert nicht."
+

@@ -31,7 +31,7 @@
         {{on "click" this.onCreateNewDraftVersion}}
       >
         <SvgIcon @icon="edit" @size="md" />
-        {{t "components.share.new_draft"}}
+        <span>{{t "components.share.new_draft"}}</span>
       </a>
       {{! Action: Publish -> Dialog }}
       <a
@@ -40,7 +40,7 @@
         {{on "click" this.modelDialogs.onStartPublish}}
       >
         <SvgIcon @icon="upload" @size="md" />
-        {{t "components.share.publish"}}
+        <span>{{t "components.share.publish"}}</span>
       </a>
       {{! Action: Share -> Dialog }}
       <a
@@ -49,7 +49,7 @@
         {{on "click" this.modelDialogs.onStartShare}}
       >
         <SvgIcon @icon="share" @size="md" />
-        {{t "components.share.share"}}
+        <span>{{t "components.share.share"}}</span>
       </a>
       {{! Action: Clone -> Dialog }}
       <a
@@ -58,8 +58,57 @@
         {{on "click" this.modelDialogs.onStartClone}}
       >
         <SvgIcon @icon="content_copy" @size="md" />
-        {{t "components.share.clone"}}
+        <span>{{t "components.share.clone"}}</span>
       </a>
+      <div class="actions__subgroup">
+        <small class="actions__subgroup-label">{{t "components.share.file_transfer"}}</small>
+        <a
+          href="javascript:void(0)"
+          class="action-item {{if @modelVersion.canShare '' 'disabled'}}"
+          {{on "click" this.onExportModel}}
+        >
+          <SvgIcon @icon="file_download" @size="md" />
+          <span>{{t "components.share.export_model"}}</span>
+        </a>
+        <a
+          href="javascript:void(0)"
+          class="action-item {{if @modelVersion.canEdit '' 'disabled'}}"
+          {{on "click" this.onExportModelVersion}}
+        >
+          <SvgIcon @icon="file_download_outline" @size="md" />
+          <span>{{t "components.share.export_model_version" version=@modelVersion.versionString}}</span>
+        </a>
+        <a
+          href="javascript:void(0)"
+          class="action-item {{if @modelVersion.canCreateNewDraft '' 'disabled'}}"
+          {{on "click" this.triggerImport}}
+        >
+          <SvgIcon @icon="file_upload" @size="md" />
+          <span>{{t "components.share.import_model_version" version=this.nextVersionString}}</span>
+        </a>
+      </div>
     </div>
+    <input
+      id={{this.importInputId}}
+      type="file"
+      accept="application/json,.json"
+      hidden
+      {{on "change" this.onImportFileSelected}}
+    />
+    {{#if this.isExporting}}
+      <p class="text-muted mt-2 mb-0">
+        {{t "components.share.exporting"}}
+      </p>
+    {{/if}}
+    {{#if this.isImporting}}
+      <p class="text-muted mt-2 mb-0">
+        {{t "components.share.importing"}}
+      </p>
+    {{/if}}
+    {{#if this.importExportError}}
+      <p class="text-danger mt-2 mb-0">
+        {{this.importExportError}}
+      </p>
+    {{/if}}
   </div>
 </div>

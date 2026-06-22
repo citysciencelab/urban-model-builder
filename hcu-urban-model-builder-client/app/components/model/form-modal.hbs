@@ -42,6 +42,28 @@
         @property="description"
         @rows="3"
       />
+      {{#if (eq @mode "create")}}
+        <div class="mb-3">
+          <label class="form-label" for="model-json-import">
+            {{t "routes.models.index.import_model_json"}}
+          </label>
+          <input
+            id="model-json-import"
+            type="file"
+            accept="application/json,.json"
+            class="form-control"
+            {{on "change" @onImportFileSelected}}
+          />
+          <div class="form-text">
+            {{t "routes.models.index.import_model_json_help"}}
+          </div>
+          {{#if @importFile}}
+            <div class="form-text">
+              {{@importFile.name}}
+            </div>
+          {{/if}}
+        </div>
+      {{/if}}
     </BsForm>
   </modal.body>
   <modal.footer>
