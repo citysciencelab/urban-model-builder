@@ -26,6 +26,8 @@ export default class Edge extends Model {
 
   @attr() declare points: { data: { id: string; x: number; y: number }[] };
 
+  @attr('boolean', { defaultValue: false }) declare isReference: boolean;
+
   @attr('date') declare createdAt: Date;
   @attr('date') declare updatedAt: Date;
 

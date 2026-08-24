@@ -42,6 +42,11 @@ enum TabName {
   ScatterPlot = 'scatter-plot',
 }
 
+enum ChartMode {
+  Line = 'line',
+  Bar = 'bar',
+}
+
 type SimulationResult = Awaited<
   ReturnType<SimulationAdapter<any>['getResults']>
 >;
@@ -57,6 +62,7 @@ type ChartSeries = {
   type: 'line';
   name: string;
   data: number[];
+  color?: string;
 };
 
 const BASE_SPEED = 20;
@@ -81,6 +87,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked isClientSideCalculation = true;
   @tracked activeTab: TabName = TabName.TimeSeries;
   @tracked tabNames = Object.values(TabName);
+  @tracked chartMode: ChartMode = ChartMode.Line;
 
   @tracked isPlaying = false;
   @tracked animationCursor = 0.01;
@@ -212,10 +219,20 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     return this.activeTab === tabName;
   }
 
+  @action isChartModeActive(chartMode: ChartMode) {
+    return this.chartMode === chartMode;
+  }
+
   @action
   async switchTab(tabName: TabName) {
     this.activeTab = tabName;
     await this.restartSimulation();
+  }
+
+  @action
+  switchChartMode(chartMode: ChartMode) {
+    this.chartMode = chartMode;
+    this.updateDatasetFromAnimationCursor();
   }
 
   @action
@@ -338,6 +355,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
     for (const [nodeId, value] of Object.entries(data.nodes)) {
       const node = await this.store.findRecord<Node>('node', nodeId);
+      const chartColor = (node.data as { chartColor?: string }).chartColor;
 
       if (
         node.type !== NodeType.Flow &&
@@ -349,6 +367,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
             type: 'line',
             name: node.name,
             data: value.series,
+            color: chartColor,
           });
         } else if (this.isNumberArrayArray(value.series)) {
           const subSeries = value.series.reduce((acc, current, timeIndex) => {
@@ -358,6 +377,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
                   type: 'line',
                   name: `${node.name} - ${subSeriesNumber}`,
                   data: [],
+                  color: chartColor,
                 };
               }
               acc[subSeriesNumber].data[timeIndex] = innerValue;
@@ -375,6 +395,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
                     type: 'line',
                     name: `${node.name} - ${key}`,
                     data: [],
+                    color: chartColor,
                   });
                 }
                 acc.get(key)!.data[timeIndex] = innerValue;
@@ -491,10 +512,20 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   private getTimeseriesChartOptionByIndex(index: number) {
+    const shouldStackBars = this.chartMode === ChartMode.Bar &&
+      (this.currentDataset! as TimeSeriesDataset).series.length > 1;
     const dataset = (this.currentDataset! as TimeSeriesDataset).series.map(
       (d) => {
         return {
           ...d,
+          type: this.chartMode,
+          stack: shouldStackBars ? 'simulation-values' : undefined,
+          ...(d.color
+            ? {
+                itemStyle: { color: d.color },
+                lineStyle: { color: d.color },
+              }
+            : {}),
           data: d.data.slice(0, index + 1),
         };
       },
@@ -675,5 +706,32 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  get isChartDownloadDisabled() {
+    // The chart is cleared and reassigned across a restart while
+    // simulationTask is still running, so gate on both to avoid downloading a
+    // blank chart mid-restart.
+    return !this.chart || this.simulationTask.isRunning;
+  }
+
+  @action
+  async downloadChartPng() {
+    if (this.isChartDownloadDisabled || !this.chart) {
+      return;
+    }
+
+    const model = await this.args.model.model;
+    const modelName = model?.internalName || 'model';
+    const link = document.createElement('a');
+    link.href = this.chart.getDataURL({
+      type: 'png',
+      pixelRatio: 2,
+      backgroundColor: '#ffffff',
+    });
+    link.download = `simulation-chart-${modelName}-${new Date().toISOString().split('T')[0]}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }

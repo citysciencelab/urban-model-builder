@@ -20,6 +20,12 @@ module.exports = function (defaults) {
       importBootstrapCSS: false,
       insertEmberWormholeElementToDom: false,
     },
+    sassOptions: {
+      // Bootstrap still uses Sass global built-ins internally. Keep dependency
+      // warnings quiet while retaining deprecations from our own styles.
+      quietDeps: true,
+      silenceDeprecations: ['global-builtin'],
+    },
     'ember-fetch': {
       nativePromise: true,
     },

@@ -5,11 +5,14 @@ import Node from 'hcu-urban-model-builder-client/models/node';
 import { NodeType } from 'hcu-urban-model-builder-backend';
 import { importSync } from '@embroider/macros';
 import { ensureSafeComponent } from '@embroider/util';
-import { dasherize } from '@ember/string';
+import { dasherize, decamelize } from '@ember/string';
 import { tracked } from '@glimmer/tracking';
 import lookupValidator from 'ember-changeset-validations';
 import nodeValidator from 'hcu-urban-model-builder-client/validations/node-validator';
 import { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
+import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
+import { service } from '@ember/service';
+import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
 
 export interface FormSignature {
   // The arguments accepted by the component
@@ -34,9 +37,39 @@ export default class FormComponent extends Component<FormSignature> {
   @tracked isEditMode = false;
 
   validator = lookupValidator(nodeValidator);
+  @service declare eventBus: EventBus;
+  @service declare emberReactConnector: EmberReactConnectorService;
 
   get NodeType() {
     return NodeType;
+  }
+
+  get primitiveTypeLabel() {
+    if (!(this.record instanceof Node)) {
+      return null;
+    }
+    return decamelize(NodeType[this.record.type]!);
+  }
+
+  get primitiveTypeIcon() {
+    if (!(this.record instanceof Node)) {
+      return null;
+    }
+
+    return {
+      [NodeType.Stock]: 'inventory',
+      [NodeType.Variable]: 'category',
+      [NodeType.Flow]: 'flow-icon',
+      [NodeType.Converter]: 'autorenew',
+      [NodeType.State]: 'toggle_off',
+      [NodeType.Transition]: 'transition_push',
+      [NodeType.Action]: 'play_pause',
+      [NodeType.Population]: 'groups',
+      [NodeType.Agent]: 'person',
+      [NodeType.Folder]: 'folder',
+      [NodeType.Ghost]: 'ghost',
+      [NodeType.OgcApiFeatures]: 'storage',
+    }[this.record.type] || 'help';
   }
 
   get nodeFormFieldsComponent() {
@@ -109,10 +142,17 @@ export default class FormComponent extends Component<FormSignature> {
   }
 
   @action
-  onIsDirtyChanged() {
+  async onIsDirtyChanged() {
     if (this.changeset?.isDirty) {
-      this.changeset.saveTask.perform();
+      await this.changeset.saveTask.perform();
+      this.eventBus.emit('model:validate');
     }
+  }
+
+  get modelValidationError() {
+    return this.record?.id
+      ? this.emberReactConnector.validationErrors[this.record.id]
+      : null;
   }
 
   @action

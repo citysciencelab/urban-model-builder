@@ -137,7 +137,9 @@ export const ArrowNode = memo(
     return (
       <div
         className={
-          "react-flow__node-arrow__content " + `--direction-${direction}`
+          "react-flow__node-arrow__content " +
+          `--direction-${direction}` +
+          (data.validationError ? " --invalid" : "")
         }
       >
         {normalTargetHandles.map((position) =>
@@ -170,6 +172,11 @@ export const ArrowNode = memo(
                 </div>
               ))}
             </div>
+          </div>
+        )}
+        {data.validationError && (
+          <div className="react-flow__node-validation-warning" title={data.validationError}>
+            !
           </div>
         )}
         <DefaultNodeToolbar nodeId={id} isNodeSelected={selected}>

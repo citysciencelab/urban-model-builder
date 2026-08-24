@@ -26,6 +26,8 @@ export const useEmberEventListeners = () => {
       const nodeData = {
         type: type,
         name: `${NodeType[type]} ${rfInstance.getNodes().length + 1}`,
+        // Type-specific defaults (e.g. Variable's value: '0') are applied
+        // server-side by nodeDataResolver, so an empty payload is enough here.
         data: {},
         position: rfInstance!.screenToFlowPosition({
           x: window.innerWidth / 2,
@@ -115,6 +117,9 @@ export const useEmberEventListeners = () => {
 
   const addEdge = useCallback(
     (newEdge: any, sender: StoreEventSenderTransport) => {
+      // Locally created edges are already added to canvas state by the
+      // caller (e.g. onConnect), which sets markerEnd itself; only remote
+      // edges need to be picked up here to avoid racing that local update.
       if (
         sender === StoreEventSenderTransport.LOCAL ||
         newEdge.modelsVersions.id !== emberReactConnector.currentModelVersionId
@@ -123,10 +128,12 @@ export const useEmberEventListeners = () => {
       }
 
       setEdges((eds) =>
-        eds.concat({
-          ...newEdge.raw,
-          markerEnd: { type: MarkerType.Arrow },
-        }),
+        eds.some((edge) => edge.id === newEdge.id)
+          ? eds
+          : eds.concat({
+              ...newEdge.raw,
+              markerEnd: { type: MarkerType.Arrow },
+            }),
       );
     },
     [],

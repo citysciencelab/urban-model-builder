@@ -141,6 +141,24 @@ export class ModelsVersionsService<ServiceParams extends Params = ModelsVersions
     const targetModelVersionId = data.id
     const nodeIdMap = new Map<string, string>()
 
+    // Validate every relation up front, while the target version's existing data
+    // is still intact, so a malformed payload is rejected before anything is wiped.
+    const payloadNodeIds = new Set(payload.nodes.map((node) => node.id))
+    for (const edge of payload.edges) {
+      if (!payloadNodeIds.has(edge.sourceId) || !payloadNodeIds.has(edge.targetId)) {
+        throw new BadRequest('The imported model version contains an edge that references a missing node.')
+      }
+    }
+    for (const exportedScenario of payload.scenarios) {
+      for (const scenarioValue of exportedScenario.scenarioValues) {
+        if (!payloadNodeIds.has(scenarioValue.nodesId)) {
+          throw new BadRequest(
+            'The imported model version contains a scenario value that references a missing node.'
+          )
+        }
+      }
+    }
+
     // Version import replaces the contents of the target version. The caller is
     // responsible for choosing whether that target is an existing draft or a
     // newly created subversion.

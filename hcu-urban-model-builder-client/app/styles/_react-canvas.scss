@@ -92,6 +92,31 @@ $ghost-node-opacity: 0.66;
   }
 }
 
+.react-flow__node-base__content.--invalid,
+.react-flow__node-arrow__content.--invalid {
+  border-color: $red !important;
+  box-shadow: 0 0 3px 1px rgba($red, 0.65);
+}
+
+.react-flow__node-validation-warning {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid $white;
+  border-radius: 50%;
+  background: $red;
+  color: $white;
+  font-size: 0.85rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
 .react-flow__node-base__header {
   display: flex;
   justify-content: center;

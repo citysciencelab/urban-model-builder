@@ -1,11 +1,15 @@
 import Component from '@glimmer/component';
 import type Node from 'hcu-urban-model-builder-client/models/node';
+import type Edge from 'hcu-urban-model-builder-client/models/edge';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { A } from '@ember/array';
 import { next } from '@ember/runloop';
 import { formulaCollection } from 'hcu-urban-model-builder-client/config/formula-collection';
 import { isEmpty } from '@ember/utils';
+import { service } from '@ember/service';
+import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
+import { EdgeType, NodeType } from 'hcu-urban-model-builder-backend';
 
 interface Formula {
   name: string;
@@ -31,8 +35,13 @@ export interface NodeFormFieldsFormulaSignature {
 }
 
 export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFieldsFormulaSignature> {
+  private referenceTimer: ReturnType<typeof setTimeout> | null = null;
+  private syncInProgress: Promise<void> | null = null;
+  private syncQueued = false;
+  @service declare emberReactConnector: EmberReactConnectorService;
   @tracked sourceNodes: Node[] = A([]);
   @tracked warnings: string[] = A([]);
+  @tracked pendingVariableName: string | null = null;
   @tracked filterValue = '';
   // FIXME: i18n ⚡️ impact on functionality expected
   formulas: FormulaCollection = formulaCollection;
@@ -63,8 +72,12 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
 
   @action
   async loadSourceNodes() {
-    this.sourceNodes = await this.getSourceNodes(this.args.node);
+    const sourceNodes = await this.getSourceNodes(this.args.node);
+    if (this.isDestroying) {
+      return;
+    }
 
+    this.sourceNodes = sourceNodes;
     this.checkForIssues();
   }
 
@@ -87,10 +100,7 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
 
   @action checkForIssues() {
     this.warnings = A([]);
-    const text = this.args.node.data.value || '';
-    const matches = [
-      ...new Set([...text.matchAll(/\[(.*?)\]/g)].map((match) => match[1])),
-    ];
+    const matches = this.getReferencedNames(this.inputEl?.value || this.args.node.data.value || '');
 
     for (const match of matches) {
       let found = false;
@@ -107,6 +117,161 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
         ];
       }
     }
+  }
+
+  willDestroy() {
+    super.willDestroy();
+    if (this.referenceTimer) {
+      clearTimeout(this.referenceTimer);
+    }
+  }
+
+  @action
+  scheduleReferenceSync(event?: InputEvent) {
+    if (event && event.target !== this.inputEl) {
+      return;
+    }
+    if (this.referenceTimer) {
+      clearTimeout(this.referenceTimer);
+    }
+    this.referenceTimer = setTimeout(() => this.runSyncReferences(), 3000);
+  }
+
+  /** Coalesces overlapping sync requests instead of letting them race. */
+  private runSyncReferences() {
+    if (this.syncInProgress) {
+      this.syncQueued = true;
+      return;
+    }
+
+    this.syncInProgress = this.syncReferences()
+      .catch((error) => console.error(error))
+      .finally(() => {
+        this.syncInProgress = null;
+        if (this.syncQueued && !this.isDestroying) {
+          this.syncQueued = false;
+          this.runSyncReferences();
+        }
+      });
+  }
+
+  @action
+  closeCreateVariableModal() {
+    this.pendingVariableName = null;
+  }
+
+  @action
+  async createMissingVariable() {
+    const name = this.pendingVariableName;
+    if (!name) {
+      return;
+    }
+
+    const target = this.args.node;
+    const source = await this.emberReactConnector.create('node', {
+      type: NodeType.Variable,
+      name,
+      data: { value: '0', units: 'Unitless' },
+      position: { x: Math.max(0, target.position.x - 260), y: target.position.y },
+      width: 180,
+      height: 80,
+      isParameter: false,
+      isOutputParameter: false,
+    }) as Node;
+
+    await this.createReferenceEdge(source, target);
+    this.pendingVariableName = null;
+    await this.loadSourceNodes();
+  }
+
+  private getReferencedNames(text: string) {
+    return [...new Set([...text.matchAll(/\[([^\]]+)\]/g)].map((match) => match[1]!.trim()))].filter(Boolean);
+  }
+
+  private async syncReferences() {
+    const target = this.args.node;
+    const names = this.getReferencedNames(this.inputEl?.value || '');
+    if (names.length === 0) {
+      return;
+    }
+
+    const modelVersion = await target.modelsVersions;
+    if (this.isDestroying) {
+      return;
+    }
+    const modelNodes = await modelVersion.nodes;
+    if (this.isDestroying) {
+      return;
+    }
+    await this.removeObsoleteReferenceEdges(target, names);
+    if (this.isDestroying) {
+      return;
+    }
+    const linkedSources = await this.getSourceNodes(target);
+    if (this.isDestroying) {
+      return;
+    }
+    const missing: string[] = [];
+
+    for (const name of names) {
+      const source = modelNodes.find((node) => node.id !== target.id && node.name === name);
+      if (!source) {
+        missing.push(name);
+        continue;
+      }
+      if (!linkedSources.some((node) => node.id === source.id)) {
+        await this.createReferenceEdge(source, target);
+        if (this.isDestroying) {
+          return;
+        }
+      }
+    }
+
+    await this.loadSourceNodes();
+    if (this.isDestroying) {
+      return;
+    }
+    if (missing.length > 0) {
+      this.pendingVariableName = missing[0]!;
+    }
+  }
+
+  private async createReferenceEdge(source: Node, target: Node) {
+    const sourceIsArrow = source.type === NodeType.Flow || source.type === NodeType.Transition;
+    const targetIsArrow = target.type === NodeType.Flow || target.type === NodeType.Transition;
+
+    await this.emberReactConnector.create('edge', {
+      type: EdgeType.Link,
+      sourceId: source.id,
+      targetId: target.id,
+      sourceHandle: sourceIsArrow ? 'source-1' : 'source-right',
+      targetHandle: targetIsArrow ? 'target-1' : 'target-left',
+      points: null,
+      isReference: true,
+    });
+  }
+
+  /** Keeps only reference edges represented by a [Primitive Name] in the formula. */
+  private async removeObsoleteReferenceEdges(target: Node, names: string[]) {
+    const targetEdges = await target.targetEdgesWithGhosts;
+
+    for (const edge of targetEdges) {
+      // Only edges created by this reference sync are ever auto-removed, so a
+      // Link edge the user dragged in manually is never touched here.
+      if (edge.type !== EdgeType.Link || !edge.isReference) {
+        continue;
+      }
+
+      const source = await this.getReferenceSource(edge);
+      if (source && !names.includes(source.name)) {
+        await this.emberReactConnector.delete('edge', edge.id);
+      }
+    }
+  }
+
+  private async getReferenceSource(edge: Edge) {
+    const source = await edge.source;
+    return source?.isGhost ? await source.ghostParent : source;
   }
 
   @action insertNodeTemplate(node: Node) {
@@ -260,6 +425,7 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
       // manually create the change event to trigger the autosave
       const event = new Event('change');
       this.inputEl.dispatchEvent(event);
+      this.scheduleReferenceSync();
     }
   }
 }

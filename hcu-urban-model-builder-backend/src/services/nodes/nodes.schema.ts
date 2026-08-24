@@ -21,6 +21,7 @@ const constraintsSchema = Type.Partial(
 
 const unitsAndConstraintsSchema = Type.Object({
   units: Type.Optional(Type.String()),
+  chartColor: Type.Optional(Type.String({ pattern: '^#[0-9a-fA-F]{6}$' })),
   constraints: Type.Optional(constraintsSchema)
 })
 

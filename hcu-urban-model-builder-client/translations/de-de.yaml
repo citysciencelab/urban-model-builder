@@ -67,6 +67,7 @@ actions:
   save: Speichern
   save_for_everyone: Für alle speichern
   cancel: Abbrechen
+  import: Importieren
   clone: Klonen
   unsaved_changes: Sie haben ungespeicherte Änderungen. Wollen Sie die Seite wirklich verlassen?
   register: Registrieren
@@ -265,6 +266,8 @@ components:
     import_model_version: "{version} aus JSON laden"
     exporting: Modell wird exportiert...
     importing: Modell wird importiert...
+    import_confirm_title: Modellversion importieren
+    import_confirm_body: "Beim Importieren dieser Datei wird der Graph des neuen Entwurfs {version} durch den Inhalt der JSON-Datei ersetzt. Dies kann nicht rückgängig gemacht werden. Möchten Sie fortfahren?"
   parameter_bool:
     on: On
   parameter_slider:

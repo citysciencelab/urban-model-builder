@@ -137,6 +137,16 @@
         >
           <el.control />
         </@form.element>
+        {{#if @changeset.dataProxy.isOutputParameter}}
+          <@form.element
+            @controlType="color"
+            @label="Diagrammfarbe"
+            @property="data.chartColor"
+            as |el|
+          >
+            <el.control class="parameter__settings__chart-color" />
+          </@form.element>
+        {{/if}}
       {{/if}}
     </fieldset>
   </@acc.item>

@@ -5,7 +5,8 @@ export type TEventBusEvents =
   | 'scenario-value-changed'
   | 'node:selected'
   | 'node:unselected'
-  | 'primitive-modal:create-clicked';
+  | 'primitive-modal:create-clicked'
+  | 'model:validate';
 
 export default class EventBus extends Service {
   public _events: Partial<

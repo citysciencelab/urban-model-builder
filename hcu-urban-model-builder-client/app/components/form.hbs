@@ -15,6 +15,12 @@
             {{t "messages.form_error"}}
           </BsAlert>
         {{/if}}
+        {{#if this.primitiveTypeLabel}}
+          <div class="sidebar__primitive-type">
+            <SvgIcon @icon={{this.primitiveTypeIcon}} @size="xs" />
+            <span>{{titleize this.primitiveTypeLabel}}</span>
+          </div>
+        {{/if}}
         <h4>
           <form.element
             @controlType="text"
@@ -54,6 +60,17 @@
             @errors={{this.errors}}
             @disabled={{@disabled}}
           />
+        {{/if}}
+
+        {{#if this.modelValidationError}}
+          <BsAlert
+            class="node__validation-alert"
+            @type="danger"
+            @dismissible={{false}}
+          >
+            <strong>Invalid variable or formula:</strong>
+            {{this.modelValidationError}}
+          </BsAlert>
         {{/if}}
 
         <div {{did-update this.onIsDirtyChanged this.isDirty}}></div>

@@ -333,10 +333,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       {}
     )
 
-    const initialVersionId = newModel.latestDraftVersionId
-
     const modelVersionIdMap = new Map<string, string>()
-    const nodeIdMap = new Map<string, string>()
 
     for (const exportedVersion of payload.modelVersions) {
       // First pass: create empty versions and remember how old ids map to the
@@ -363,6 +360,9 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     for (const exportedVersion of payload.modelVersions) {
       // Second pass: recreate the graph for each version and remap every
       // relation that used old exported ids to the new database ids.
+      // The node id map is scoped to this version so that identically-numbered
+      // node ids from other exported versions can never be confused with it.
+      const nodeIdMap = new Map<string, string>()
       const originalVersion = exportedVersion.modelVersion
       const newModelVersionId = modelVersionIdMap.get(originalVersion.id)!
       const versionPatchData: Record<string, unknown> = {}
@@ -528,12 +528,6 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       },
       { user: params.user }
     )
-
-    if (initialVersionId) {
-      // The base model create flow provisions an initial empty draft. Remove it
-      // after import so only the recreated exported versions remain.
-      await this.app.service('models-versions').remove(initialVersionId, {})
-    }
 
     const importedModel = await this.app.service('models').get(newModel.id, {
       user: params.user
@@ -822,9 +816,35 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     if (
       candidate.schemaVersion !== 1 ||
       !candidate.model ||
-      !Array.isArray(candidate.modelVersions)
+      !Array.isArray(candidate.modelVersions) ||
+      candidate.modelVersions.length === 0
     ) {
       throw new BadRequest('The imported file is missing required model export data.')
+    }
+
+    for (const exportedVersion of candidate.modelVersions) {
+      if (
+        !exportedVersion ||
+        typeof exportedVersion !== 'object' ||
+        !exportedVersion.modelVersion ||
+        !exportedVersion.modelVersion.id ||
+        !Array.isArray(exportedVersion.nodes) ||
+        !Array.isArray(exportedVersion.edges) ||
+        !Array.isArray(exportedVersion.scenarios)
+      ) {
+        throw new BadRequest('The imported file contains a model version with missing or malformed data.')
+      }
+
+      for (const exportedScenario of exportedVersion.scenarios) {
+        if (
+          !exportedScenario ||
+          typeof exportedScenario !== 'object' ||
+          !exportedScenario.scenario ||
+          !Array.isArray(exportedScenario.scenarioValues)
+        ) {
+          throw new BadRequest('The imported file contains a scenario with missing or malformed data.')
+        }
+      }
     }
 
     return candidate as ExportedModelPayload

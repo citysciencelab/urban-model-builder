@@ -67,6 +67,7 @@ actions:
   save: Save
   save_for_everyone: Save for everyone
   cancel: Cancel
+  import: Import
   clone: Clone
   unsaved_changes: You have unsaved changes. Do you really want to leave the page?
   register: Register
@@ -265,6 +266,8 @@ components:
     import_model_version: "Load {version} from JSON"
     exporting: Exporting model...
     importing: Importing model...
+    import_confirm_title: Import model version
+    import_confirm_body: "Importing this file will replace the graph of the new {version} draft with the contents of the JSON file. This cannot be undone. Do you want to continue?"
   parameter_bool:
     on: On
   parameter_slider:

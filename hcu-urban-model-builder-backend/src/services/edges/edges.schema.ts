@@ -29,7 +29,11 @@ export const edgesSchema = Type.Object(
           })
         )
       })
-    )
+    ),
+    // True for Link edges created automatically from a [Name] reference in a
+    // formula, so formula-reference sync never deletes an edge the user drew
+    // manually by hand on the canvas.
+    isReference: Type.Optional(Type.Boolean())
   },
   { $id: 'Edges', additionalProperties: false }
 )
@@ -42,14 +46,16 @@ export const edgesExternalResolver = resolve<Edges, HookContext<EdgesService>>({
 // Schema for creating new entries
 export const edgesDataSchema = Type.Pick(
   edgesSchema,
-  ['modelsVersionsId', 'type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle', 'points'],
+  ['modelsVersionsId', 'type', 'sourceId', 'targetId', 'sourceHandle', 'targetHandle', 'points', 'isReference'],
   {
     $id: 'EdgesData'
   }
 )
 export type EdgesData = Static<typeof edgesDataSchema>
 export const edgesDataValidator = getValidator(edgesDataSchema, dataValidator)
-export const edgesDataResolver = resolve<Edges, HookContext<EdgesService>>({})
+export const edgesDataResolver = resolve<Edges, HookContext<EdgesService>>({
+  isReference: async (value) => value ?? false
+})
 
 // Schema for updating existing entries
 export const edgesPatchSchema = Type.Partial(edgesSchema, {

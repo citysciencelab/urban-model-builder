@@ -112,3 +112,32 @@
     {{/if}}
   </div>
 </div>
+
+<BsModal
+  @open={{this.showImportConfirmModal}}
+  @onSubmit={{this.onConfirmImport}}
+  @onHide={{this.onCancelImport}}
+  as |modal|
+>
+  <modal.header>
+    <h5 class="modal-title">
+      {{t "components.share.import_confirm_title"}}
+    </h5>
+  </modal.header>
+  <modal.body>
+    <p>
+      {{t
+        "components.share.import_confirm_body"
+        version=this.nextVersionString
+      }}
+    </p>
+  </modal.body>
+  <modal.footer>
+    <Ui::ModalButtons
+      @onCancel={{this.onCancelImport}}
+      @onSubmit={{this.onConfirmImport}}
+      @cancelText={{t "actions.cancel"}}
+      @submitText={{t "actions.import"}}
+    />
+  </modal.footer>
+</BsModal>

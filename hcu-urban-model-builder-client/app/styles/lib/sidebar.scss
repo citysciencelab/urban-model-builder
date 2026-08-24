@@ -93,6 +93,22 @@
     margin-bottom: 0;
   }
 
+  .sidebar__primitive-type {
+    display: flex;
+    align-items: center;
+    gap: get-spacer(1);
+    color: $text-muted;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+
+    svg {
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+  }
+
   h4 {
     word-break: break-word;
     hyphens: auto;

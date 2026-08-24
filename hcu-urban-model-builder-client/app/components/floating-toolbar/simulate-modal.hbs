@@ -84,6 +84,28 @@
               </nav.item>
             {{/each}}
           </BsNav>
+          {{#if (eq this.activeTab "time-series")}}
+            <div class="simulate-model__chart-mode-controls" role="group" aria-label="Chart type">
+              <button
+                type="button"
+                class="btn btn-sm {{if (this.isChartModeActive "line") "btn-primary" "btn-outline-secondary"}}"
+                title="Liniendiagramm anzeigen"
+                aria-pressed={{this.isChartModeActive "line"}}
+                {{on "click" (fn this.switchChartMode "line")}}
+              >
+                <SvgIcon @icon="line_chart" @size="sm" />
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm {{if (this.isChartModeActive "bar") "btn-primary" "btn-outline-secondary"}}"
+                title="Balkendiagramm anzeigen"
+                aria-pressed={{this.isChartModeActive "bar"}}
+                {{on "click" (fn this.switchChartMode "bar")}}
+              >
+                <SvgIcon @icon="bar_chart" @size="sm" />
+              </button>
+            </div>
+          {{/if}}
         {{/if}}
         {{#if this.simulationTask.isRunning}}
           <BsSpinner>
@@ -206,8 +228,18 @@
               class="btn-sm ms-2"
               {{on "click" this.downloadSimulationResults}}
               disabled={{not this.simulationResult}}
+              title="Simulationsergebnisse als JSON herunterladen"
             >
-              <FaIcon @icon="download" @prefix="fas" />
+              <SvgIcon @icon="file_download" @size="sm" />
+            </BsButton>
+            <BsButton
+              @type="outline-secondary"
+              class="btn-sm"
+              {{on "click" this.downloadChartPng}}
+              disabled={{this.isChartDownloadDisabled}}
+              title="Aktuelles Diagramm als PNG herunterladen"
+            >
+              <SvgIcon @icon="image_download" @size="sm" />
             </BsButton>
           </div>
         {{/if}}
