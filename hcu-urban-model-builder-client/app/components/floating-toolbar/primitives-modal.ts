@@ -7,6 +7,7 @@ import { NodeType } from 'hcu-urban-model-builder-backend';
 import { decamelize, dasherize } from '@ember/string';
 import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
 import type FloatingToolbarDropdownManagerService from 'hcu-urban-model-builder-client/services/floating-toolbar-dropdown-manager';
+import { NodeIconMap } from 'hcu-urban-model-builder-client/utils/node-icon-map';
 
 export interface FloatingToolbarPrimitivesModalSignature {
   // The arguments accepted by the component
@@ -18,21 +19,6 @@ export interface FloatingToolbarPrimitivesModalSignature {
   // The element to which `...attributes` is applied in the component template
   Element: null;
 }
-
-const NodeIconMap: Record<string, string> = {
-  [NodeType.Stock]: 'inventory',
-  [NodeType.Variable]: 'category',
-  [NodeType.Flow]: 'flow-icon',
-  [NodeType.Converter]: 'autorenew',
-  [NodeType.State]: 'toggle_off',
-  [NodeType.Transition]: 'transition_push',
-  [NodeType.Action]: 'play_pause',
-  [NodeType.Population]: 'groups',
-  [NodeType.Agent]: 'person',
-  [NodeType.Folder]: 'folder',
-  [NodeType.Ghost]: 'ghost',
-  [NodeType.OgcApiFeatures]: 'storage',
-};
 
 type NodeTypeConfig = {
   label: string;

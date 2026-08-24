@@ -32,6 +32,12 @@ import {
 import { Roles } from '../../client.js'
 import { QueryBuilder } from 'knex'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
+import {
+  findAllEdges,
+  findAllNodes,
+  findAllScenarios,
+  findAllScenarioValues
+} from '../../shared/graph-queries.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
@@ -266,21 +272,23 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async exportModel(data: ModelsExport, params?: ServiceParams): Promise<ExportedModelPayload> {
-    const model = await this.getAuthorizedModel(data.id, params)
+    // Permission (an explicit role on the model) is enforced by the
+    // checkModelPermission hook on this method; this just fetches the record.
+    const model = await this.app.service('models').get(data.id, { user: params?.user })
 
     // Export the model as a self-contained JSON document containing every
     // version and all graph/scenario records needed to recreate it elsewhere.
     const modelVersions = await this.findAllModelVersions(model.id)
     const exportedModelVersions = await Promise.all(
       modelVersions.map(async (modelVersion) => {
-        const nodes = await this.findAllNodes(modelVersion.id)
-        const edges = await this.findAllEdges(modelVersion.id)
-        const scenarios = await this.findAllScenarios(modelVersion.id)
+        const nodes = await findAllNodes(this.app, modelVersion.id)
+        const edges = await findAllEdges(this.app, modelVersion.id)
+        const scenarios = await findAllScenarios(this.app, modelVersion.id)
 
         const exportedScenarios = await Promise.all(
           scenarios.map(async (scenario) => ({
             scenario,
-            scenarioValues: await this.findAllScenarioValues(scenario.id)
+            scenarioValues: await findAllScenarioValues(this.app, scenario.id)
           }))
         )
 
@@ -358,11 +366,11 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     }
 
     for (const exportedVersion of payload.modelVersions) {
-      // Second pass: recreate the graph for each version and remap every
-      // relation that used old exported ids to the new database ids.
-      // The node id map is scoped to this version so that identically-numbered
-      // node ids from other exported versions can never be confused with it.
-      const nodeIdMap = new Map<string, string>()
+      // Second pass: patch cross-version relations that only make sense in the
+      // context of a whole-model import (parent version link, publish
+      // attribution), then delegate graph recreation (nodes/edges/scenarios/
+      // customUnits) to the single implementation shared with single-version
+      // import, so the two import paths can't drift apart.
       const originalVersion = exportedVersion.modelVersion
       const newModelVersionId = modelVersionIdMap.get(originalVersion.id)!
       const versionPatchData: Record<string, unknown> = {}
@@ -378,130 +386,20 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         await this.app.service('models-versions').patch(newModelVersionId, versionPatchData, {})
       }
 
-      const nodeRelationMap = new Map<
-        string,
+      await this.app.service('models-versions').importVersion(
         {
-          parentId: string | null
-          ghostParentId: string | null
-        }
-      >()
-
-      for (const node of exportedVersion.nodes) {
-        const createNodeData = _.pick(node, Object.keys(nodesDataSchema.properties))
-        const newNode = await this.app.service('nodes').create(
-          {
-            ...createNodeData,
-            modelsVersionsId: newModelVersionId,
-            parentId: null,
-            ghostParentId: null
-          },
-          { user: params.user }
-        )
-
-        nodeIdMap.set(node.id, newNode.id)
-        nodeRelationMap.set(newNode.id, {
-          parentId: node.parentId ?? null,
-          ghostParentId: node.ghostParentId ?? null
-        })
-      }
-
-      for (const [newNodeId, relations] of nodeRelationMap.entries()) {
-        const nodePatchData: Record<string, string> = {}
-
-        if (relations.parentId && nodeIdMap.has(relations.parentId)) {
-          nodePatchData.parentId = nodeIdMap.get(relations.parentId)!
-        }
-        if (relations.ghostParentId && nodeIdMap.has(relations.ghostParentId)) {
-          nodePatchData.ghostParentId = nodeIdMap.get(relations.ghostParentId)!
-        }
-
-        if (Object.keys(nodePatchData).length > 0) {
-          await this.app.service('nodes').patch(newNodeId, nodePatchData, {
-            user: params.user
-          })
-        }
-      }
-
-      if (originalVersion.customUnits?.data) {
-        // Custom units store referenced node ids, so they must be rebuilt after
-        // the target nodes exist in the new version.
-        const remappedCustomUnits = Object.fromEntries(
-          Object.entries(originalVersion.customUnits.data).map(([unitName, oldNodeIds]) => [
-            unitName,
-            oldNodeIds
-              .map((oldNodeId) => nodeIdMap.get(String(oldNodeId)))
-              .filter((nodeId): nodeId is string => !!nodeId)
-          ])
-        )
-
-        await this.app.service('models-versions').patch(
-          newModelVersionId,
-          {
-            customUnits: {
-              data: remappedCustomUnits
-            }
-          } as any,
-          {}
-        )
-      }
-
-      for (const edge of exportedVersion.edges) {
-        const createEdgeData = _.pick(edge, Object.keys(edgesDataSchema.properties))
-        const newSourceId = nodeIdMap.get(edge.sourceId)
-        const newTargetId = nodeIdMap.get(edge.targetId)
-
-        if (!newSourceId || !newTargetId) {
-          throw new BadRequest('The imported model contains an edge that references a missing node.')
-        }
-
-        await this.app.service('edges').create(
-          {
-            ...createEdgeData,
-            modelsVersionsId: newModelVersionId,
-            sourceId: newSourceId,
-            targetId: newTargetId
-          },
-          { user: params.user }
-        )
-      }
-
-      for (const exportedScenario of exportedVersion.scenarios) {
-        const createScenarioData = _.pick(
-          exportedScenario.scenario,
-          Object.keys(scenariosDataSchema.properties)
-        )
-        const newScenario = await this.app.service('scenarios').create(
-          {
-            ...createScenarioData,
-            modelsVersionsId: newModelVersionId
-          },
-          { user: params.user }
-        )
-
-        for (const scenarioValue of exportedScenario.scenarioValues) {
-          const createScenarioValueData = _.pick(
-            scenarioValue,
-            Object.keys(scenarioValuesDataSchema.properties)
-          )
-          const newNodeId = nodeIdMap.get(scenarioValue.nodesId)
-
-          if (!newNodeId) {
-            throw new BadRequest(
-              'The imported model contains a scenario value that references a missing node.'
-            )
+          id: newModelVersionId,
+          payload: {
+            schemaVersion: 1,
+            exportedAt: payload.exportedAt,
+            modelVersion: originalVersion,
+            nodes: exportedVersion.nodes,
+            edges: exportedVersion.edges,
+            scenarios: exportedVersion.scenarios
           }
-
-          await this.app.service('scenarios-values').create(
-            {
-              ...createScenarioValueData,
-              scenariosId: newScenario.id,
-              nodesId: newNodeId
-            },
-            { user: params.user }
-          )
-
-        }
-      }
+        },
+        {}
+      )
     }
 
     // Finalize the parent model so version selectors and list metadata point to
@@ -732,23 +630,6 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     return newDraftModelVersion
   }
 
-  private async getAuthorizedModel(modelId: string, params?: ServiceParams) {
-    const model = await this.get(modelId, {
-      user: params?.user,
-      query: {
-        role: {
-          $gte: Roles.viewer
-        }
-      } as any
-    })
-
-    if (model.role == null || model.role < Roles.viewer) {
-      throw new Forbidden('You do not have permission to export this model.')
-    }
-
-    return model
-  }
-
   private async findAllModelVersions(modelId: string) {
     const result = await this.app.service('models-versions')._find({
       query: {
@@ -765,46 +646,6 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       }
       return left.draftVersion - right.draftVersion
     })
-  }
-
-  private async findAllNodes(modelsVersionsId: string) {
-    const result = await this.app.service('nodes')._find({
-      query: {
-        modelsVersionsId
-      }
-    })
-
-    return result.data
-  }
-
-  private async findAllEdges(modelsVersionsId: string) {
-    const result = await this.app.service('edges')._find({
-      query: {
-        modelsVersionsId
-      }
-    })
-
-    return result.data
-  }
-
-  private async findAllScenarios(modelsVersionsId: string) {
-    const result = await this.app.service('scenarios')._find({
-      query: {
-        modelsVersionsId
-      }
-    })
-
-    return result.data
-  }
-
-  private async findAllScenarioValues(scenariosId: string) {
-    const result = await this.app.service('scenarios-values')._find({
-      query: {
-        scenariosId
-      }
-    })
-
-    return result.data
   }
 
   private validateImportPayload(payload: unknown): ExportedModelPayload {

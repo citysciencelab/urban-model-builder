@@ -190,10 +190,10 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
 
   private async syncReferences() {
     const target = this.args.node;
+    // Note: an empty `names` here is not "nothing to do" — it means every
+    // [Name] reference was removed from the formula, so every reference edge
+    // below is now obsolete and must still be pruned.
     const names = this.getReferencedNames(this.inputEl?.value || '');
-    if (names.length === 0) {
-      return;
-    }
 
     const modelVersion = await target.modelsVersions;
     if (this.isDestroying) {
