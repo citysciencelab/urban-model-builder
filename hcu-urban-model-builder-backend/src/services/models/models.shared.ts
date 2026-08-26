@@ -19,7 +19,9 @@ export const modelsMethods: Array<keyof ModelsService> = [
   'newDraft',
   'publishMinor',
   'publishMajor',
-  'cloneVersion'
+  'cloneVersion',
+  'exportModel',
+  'importModel'
 ]
 
 export const modelsClient = (client: ClientApplication) => {

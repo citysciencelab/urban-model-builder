@@ -20,6 +20,10 @@ import {
   modelsCloneVersionSchema,
   modelsCloneVersionResolver,
   modelsCloneVersionValidator,
+  modelsExportValidator,
+  modelsExportResolver,
+  modelsImportValidator,
+  modelsImportResolver,
   ModelsPublish
 } from './models.schema.js'
 
@@ -113,6 +117,14 @@ export const models = (app: Application) => {
         schemaHooks.validateData(modelsCloneVersionValidator),
         schemaHooks.resolveData(modelsCloneVersionResolver),
         iff(isProvider('external'), checkClonePermissionsAndState)
+      ],
+      exportModel: [
+        schemaHooks.validateData(modelsExportValidator),
+        schemaHooks.resolveData(modelsExportResolver)
+      ],
+      importModel: [
+        schemaHooks.validateData(modelsImportValidator),
+        schemaHooks.resolveData(modelsImportResolver)
       ]
     },
     after: {

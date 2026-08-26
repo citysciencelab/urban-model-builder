@@ -43,21 +43,27 @@ export default class FeathersService extends Service {
     this.registerEventListeners();
   }
 
-  authenticate() {
+  async authenticate() {
     const jwt = this.session.data.authenticated.access_token;
-    this.app
+    return this.app
       .authenticate({
         strategy: 'oidc',
         accessToken: jwt,
         updateEntity: true,
       })
       .then((data: any) => {
-        this.session.set('data.authenticated.userinfo.id', data.user.id);
+        const existingUserinfo = this.session.data?.authenticated?.userinfo ?? {};
+        this.session.set('data.authenticated.userinfo', {
+          ...existingUserinfo,
+          id: data.user.id,
+        });
         // Update local storage for re-connection.
         window.localStorage.setItem('feathers-jwt', jwt);
+        return data;
       })
       .catch((e) => {
         console.error('Authentication error', e);
+        throw e;
       });
   }
 

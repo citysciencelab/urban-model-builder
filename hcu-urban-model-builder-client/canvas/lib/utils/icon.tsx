@@ -1,19 +1,19 @@
-import Inventory from "@material-design-icons/svg/sharp/inventory.svg";
+import Inventory from "@material-design-icons/svg/sharp/all_inbox.svg";
 import Category from "@material-design-icons/svg/sharp/category.svg";
 import FlowIcon from "../../icons/flow-icon.svg";
 import Autorenew from "@material-design-icons/svg/sharp/autorenew.svg";
-import ToggleOff from "@material-design-icons/svg/sharp/toggle_off.svg";
+import ToggleOff from "@material-design-icons/svg/sharp/circle.svg";
 import TransitionPush from "../../icons/transition_push.svg";
 import PlayPause from "../../icons/play_pause.svg";
-import Groups from "@material-design-icons/svg/sharp/groups.svg";
-import Person from "@material-design-icons/svg/sharp/person.svg";
-import Folder from "@material-design-icons/svg/sharp/folder.svg";
+import Groups from "@material-design-icons/svg/sharp/account_tree.svg";
+import Person from "@material-design-icons/svg/sharp/account_circle.svg";
+import Folder from "@material-design-icons/svg/sharp/create_new_folder.svg";
 // import Ghost from "@material-design-icons/svg/sharp/ghost.svg";
-import Storage from "@material-design-icons/svg/sharp/storage.svg";
+import Storage from "@material-design-icons/svg/sharp/dns.svg";
 import ChevronRight from "@material-design-icons/svg/sharp/chevron_right.svg";
 import Delete from "@material-design-icons/svg/sharp/delete_forever.svg";
-import Rotate90Deg from "@material-design-icons/svg/sharp/rotate_90_degrees_cw.svg";
 import AccountTree from "@material-design-icons/svg/sharp/account_tree.svg";
+import Rotate90Deg from "@material-design-icons/svg/sharp/crop_rotate.svg";
 
 const iconMap = {
   stock: Inventory,

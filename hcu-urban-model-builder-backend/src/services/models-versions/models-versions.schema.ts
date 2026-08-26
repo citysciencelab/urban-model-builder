@@ -26,7 +26,8 @@ export const modelsVersionsSchema = Type.Object(
     isLatest: Nullable(Type.Boolean()),
     algorithm: Nullable(Literals<AlgorithmType>('Euler', 'RK4')),
     globals: Nullable(Type.String()),
-    customUnits: Nullable(Type.Object({ data: Type.Record(Type.String(), Type.Array(Type.Number())) })),
+    // Custom units map unit names to referenced node ids.
+    customUnits: Nullable(Type.Object({ data: Type.Record(Type.String(), Type.Array(Type.String())) })),
     createdBy: Nullable(Type.String({ format: 'uuid' })),
     publishedBy: Nullable(Type.String({ format: 'uuid' })),
     publishedAt: Type.String({ format: 'date-time' }),
@@ -127,3 +128,22 @@ export const modelsVersionsLeaveChannelDataValidator = getValidator(
   modelsVersionsLeaveChannelDataSchema,
   dataValidator
 )
+
+export const modelsVersionsExportSchema = Type.Object(
+  {
+    id: Type.String({ format: 'uuid' })
+  },
+  { $id: 'ModelsVersionsExport', additionalProperties: false }
+)
+export type ModelsVersionsExport = Static<typeof modelsVersionsExportSchema>
+export const modelsVersionsExportValidator = getValidator(modelsVersionsExportSchema, dataValidator)
+
+export const modelsVersionsImportSchema = Type.Object(
+  {
+    id: Type.String({ format: 'uuid' }),
+    payload: Type.Any()
+  },
+  { $id: 'ModelsVersionsImport', additionalProperties: false }
+)
+export type ModelsVersionsImport = Static<typeof modelsVersionsImportSchema>
+export const modelsVersionsImportValidator = getValidator(modelsVersionsImportSchema, dataValidator)

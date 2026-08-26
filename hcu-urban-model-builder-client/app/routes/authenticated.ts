@@ -13,7 +13,7 @@ export default class ProtectedRoute extends Route {
 
   async beforeModel(transition: Transition) {
     if (await this.session.requireAuthentication(transition, 'login')) {
-      this.feathers.authenticate();
+      await this.feathers.authenticate();
       this.token.startTokenRefresh();
     }
   }

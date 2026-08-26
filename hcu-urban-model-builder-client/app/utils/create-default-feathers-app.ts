@@ -18,11 +18,50 @@ export default function createDefaultFeathersApp(sessionService: any) {
     storage: window.localStorage,
   });
 
+  // The packaged client does not yet know about every custom models method.
+  app.use('models', socket.service('models'), {
+    methods: [
+      'find',
+      'get',
+      'create',
+      'patch',
+      'remove',
+      'simulate',
+      'newDraft',
+      'publishMinor',
+      'publishMajor',
+      'cloneVersion',
+      'exportModel',
+      'importModel',
+    ],
+  });
+
+  app.use('models-versions', socket.service('models-versions'), {
+    methods: [
+      'find',
+      'get',
+      'create',
+      'patch',
+      'remove',
+      'joinChannel',
+      'leaveChannel',
+      'exportVersion',
+      'importVersion',
+    ],
+  });
+
   app.hooks({
     error: {
       all: [
         async (context: HookContext) => {
-          console.error('Error in hook', context.error);
+          const isModelVersionChannelPermissionError =
+            context.path === 'models-versions' &&
+            ['joinChannel', 'leaveChannel'].includes(context.method) &&
+            context.error?.code === 403;
+
+          if (!isModelVersionChannelPermissionError) {
+            console.error('Error in hook', context.error);
+          }
           if (
             ['TokenExpiredError', 'NotAuthenticated'].includes(
               context.error.name,

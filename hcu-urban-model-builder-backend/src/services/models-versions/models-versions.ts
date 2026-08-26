@@ -13,7 +13,9 @@ import {
   modelsVersionsPatchResolver,
   modelsVersionsQueryResolver,
   modelsVersionsJoinChannelDataValidator,
-  modelsVersionsLeaveChannelDataValidator
+  modelsVersionsLeaveChannelDataValidator,
+  modelsVersionsExportValidator,
+  modelsVersionsImportValidator
 } from './models-versions.schema.js'
 
 import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
@@ -24,6 +26,7 @@ import { disallow, discard, iff, isProvider, keep } from 'feathers-hooks-common'
 import _ from 'lodash'
 import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import { Roles } from '../../client.js'
+import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
 
 export * from './models-versions.class.js'
 export * from './models-versions.schema.js'
@@ -101,6 +104,15 @@ export const modelsVersions = (app: Application) => {
       leaveChannel: [
         schemaHooks.validateData(modelsVersionsLeaveChannelDataValidator),
         checkModelPermission('data.id', 'models-versions', Roles.viewer)
+      ],
+      exportVersion: [
+        schemaHooks.validateData(modelsVersionsExportValidator),
+        checkModelPermission('data.id', 'models-versions', Roles.viewer)
+      ],
+      importVersion: [
+        schemaHooks.validateData(modelsVersionsImportValidator),
+        checkModelPermission('data.id', 'models-versions', Roles.collaborator),
+        checkModelVersionState('data.id', 'models-versions')
       ]
     },
     after: {

@@ -44,17 +44,31 @@ export default class ModelVersionChannelManagerService extends Service {
   private async joinChannel(routeInfo: RouteInfo | RouteInfoWithAttributes) {
     const modelVersionId = this.getModelVersionId(routeInfo);
 
-    await this.feathers.app
-      .service('models-versions')
-      .joinChannel({ id: modelVersionId });
+    try {
+      await this.feathers.app
+        .service('models-versions')
+        .joinChannel({ id: modelVersionId });
+    } catch (error: any) {
+      if ([403, 404].includes(error?.code)) {
+        return;
+      }
+      throw error;
+    }
   }
 
   private async leaveChannel(routeInfo: RouteInfo | RouteInfoWithAttributes) {
     const modelVersionId = this.getModelVersionId(routeInfo);
 
-    await this.feathers.app
-      .service('models-versions')
-      .leaveChannel({ id: modelVersionId });
+    try {
+      await this.feathers.app
+        .service('models-versions')
+        .leaveChannel({ id: modelVersionId });
+    } catch (error: any) {
+      if ([403, 404].includes(error?.code)) {
+        return;
+      }
+      throw error;
+    }
   }
 
   private isModelVersionRoute(

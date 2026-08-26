@@ -16,6 +16,11 @@ Run the setup script:
 npm run setup
 ```
 
+On Windows / PowerShell, use:
+```
+npm run setup-windows
+```
+
 Start the database:
 ```
 docker compose up

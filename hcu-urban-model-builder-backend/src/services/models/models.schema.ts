@@ -138,3 +138,24 @@ export const modelsCloneVersionSchema = Type.Object(
 export type ModelsCloneVersion = Static<typeof modelsCloneVersionSchema>
 export const modelsCloneVersionValidator = getValidator(modelsCloneVersionSchema, dataValidator)
 export const modelsCloneVersionResolver = resolve<ModelsCloneVersion, HookContext<ModelsService>>({})
+
+export const modelsExportSchema = Type.Object(
+  {
+    id: Type.String({ format: 'uuid' })
+  },
+  { $id: 'ModelsExport', additionalProperties: false }
+)
+export type ModelsExport = Static<typeof modelsExportSchema>
+export const modelsExportValidator = getValidator(modelsExportSchema, dataValidator)
+export const modelsExportResolver = resolve<ModelsExport, HookContext<ModelsService>>({})
+
+export const modelsImportSchema = Type.Object(
+  {
+    payload: Type.Any(),
+    internalName: Type.Optional(Type.String())
+  },
+  { $id: 'ModelsImport', additionalProperties: false }
+)
+export type ModelsImport = Static<typeof modelsImportSchema>
+export const modelsImportValidator = getValidator(modelsImportSchema, dataValidator)
+export const modelsImportResolver = resolve<ModelsImport, HookContext<ModelsService>>({})
