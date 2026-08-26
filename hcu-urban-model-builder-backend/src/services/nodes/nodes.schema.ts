@@ -131,6 +131,12 @@ export const ogcFeatureNodeSchema = Type.Object(
   { additionalProperties: false }
 )
 
+export const subModelNodeSchema = Type.Object({
+  modelId: Type.Optional(Type.String({ format: 'uuid' })),
+  modelVersionId: Type.Optional(Type.String({ format: 'uuid' })),
+  importedFolderId: Type.Optional(Type.String({ format: 'uuid' }))
+})
+
 // Main data model schema
 export const nodesSchema = Type.Object(
   {
@@ -148,7 +154,8 @@ export const nodesSchema = Type.Object(
       actionNodeSchema,
       transitionNodeSchema,
       populationNodeSchema,
-      ogcFeatureNodeSchema
+      ogcFeatureNodeSchema,
+      subModelNodeSchema
     ]),
     position: Type.Object({
       x: Type.Number(),

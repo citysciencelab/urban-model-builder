@@ -71,6 +71,7 @@ const nodeTypes = {
   [ReactFlowNodeType.Action]: BaseNode,
   [ReactFlowNodeType.Ghost]: GhostNode,
   [ReactFlowNodeType.OgcApiFeatures]: BaseNode,
+  [ReactFlowNodeType.SubModel]: BaseNode,
 } as const;
 
 const edgesTypes = {

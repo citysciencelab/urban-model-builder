@@ -111,6 +111,9 @@ const simulationFactoryMap = {
         node.data.dataTransform?.valueProperties
       )
     })
+  },
+  [NodeType.SubModel]: () => {
+    throw new Error('Sub-Modelle können noch nicht simuliert werden.')
   }
 }
 

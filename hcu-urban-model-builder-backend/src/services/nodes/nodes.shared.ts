@@ -17,7 +17,8 @@ export enum NodeType {
   Agent = 8,
   Folder = 9,
   Ghost = 10,
-  OgcApiFeatures = 11
+  OgcApiFeatures = 11,
+  SubModel = 12
 }
 
 export type NodesClientService = Pick<NodesService<Params<NodesQuery>>, (typeof nodesMethods)[number]>

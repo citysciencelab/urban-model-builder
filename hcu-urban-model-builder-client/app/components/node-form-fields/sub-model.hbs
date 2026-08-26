@@ -1,0 +1,43 @@
+<div class="sub-model" {{did-insert this.loadModels}}>
+  <div class="sub-model__scope" role="group" aria-label="Modellquelle">
+    <button type="button" class="btn btn-sm {{if (eq this.scope "mine") "btn-primary" "btn-outline-secondary"}}" {{on "click" (fn this.switchScope "mine")}}>Meine Modelle</button>
+    <button type="button" class="btn btn-sm {{if (eq this.scope "public") "btn-primary" "btn-outline-secondary"}}" {{on "click" (fn this.switchScope "public")}}>Öffentliche Modelle</button>
+  </div>
+
+  <label class="form-label">Modell auswählen</label>
+  <PowerSelect
+    @options={{this.models}}
+    @selected={{this.selectedModel}}
+    @searchEnabled={{true}}
+    @searchField="internalName"
+    @placeholder="Modell suchen und auswählen"
+    @onChange={{this.selectModel}}
+    as |model|
+  >
+    <strong>{{model.internalName}}</strong>
+    {{#if model.description}}<small class="d-block text-muted">{{model.description}}</small>{{/if}}
+  </PowerSelect>
+
+  {{#if (eq this.scope "mine")}}
+    <label class="form-label mt-3">Modellversion auswählen</label>
+    <PowerSelect
+      @options={{this.versions}}
+      @selected={{this.selectedVersion}}
+      @searchEnabled={{true}}
+      @placeholder="Version auswählen"
+      @onChange={{this.selectVersion}}
+      as |version|
+    >
+      {{version.versionString}}
+    </PowerSelect>
+  {{/if}}
+
+  <button
+    type="button"
+    class="btn btn-primary mt-3"
+    disabled={{or (not this.selectedModel) (not this.selectedVersion) this.isImporting}}
+    {{on "click" this.importModel}}
+  >
+    {{if this.isImporting "Modell wird importiert…" "Modell importieren"}}
+  </button>
+</div>

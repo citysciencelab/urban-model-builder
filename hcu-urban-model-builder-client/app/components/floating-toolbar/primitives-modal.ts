@@ -32,6 +32,7 @@ const NodeIconMap: Record<string, string> = {
   [NodeType.Folder]: 'folder',
   [NodeType.Ghost]: 'ghost',
   [NodeType.OgcApiFeatures]: 'storage',
+  [NodeType.SubModel]: 'account_tree',
 };
 
 type NodeTypeConfig = {
@@ -54,6 +55,7 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
         NodeType.Folder,
         NodeType.Converter,
         NodeType.OgcApiFeatures,
+        NodeType.SubModel,
       ],
     },
     {

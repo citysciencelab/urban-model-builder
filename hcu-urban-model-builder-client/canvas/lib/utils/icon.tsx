@@ -13,6 +13,7 @@ import Storage from "@material-design-icons/svg/sharp/storage.svg";
 import ChevronRight from "@material-design-icons/svg/sharp/chevron_right.svg";
 import Delete from "@material-design-icons/svg/sharp/delete_forever.svg";
 import Rotate90Deg from "@material-design-icons/svg/sharp/rotate_90_degrees_cw.svg";
+import AccountTree from "@material-design-icons/svg/sharp/account_tree.svg";
 
 const iconMap = {
   stock: Inventory,
@@ -27,6 +28,7 @@ const iconMap = {
   folder: Folder,
   // ghost: Ghost,
   "ogc-api-features": Storage,
+  "sub-model": AccountTree,
   "chevron-right": ChevronRight,
   close: Delete,
   rotate90deg: Rotate90Deg,
