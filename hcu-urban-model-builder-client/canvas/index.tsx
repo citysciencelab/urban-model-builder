@@ -30,6 +30,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { BaseNode } from "./lib/nodes/base-node.tsx";
+import { SubModelNode } from "./lib/nodes/sub-model-node.tsx";
 import { FlowTransitionEdge } from "./lib/edges/flow-tranistion.tsx";
 import { ArrowNode } from "./lib/nodes/arrow-node.tsx";
 import { FolderNode } from "./lib/nodes/folder-node.tsx";
@@ -53,6 +54,7 @@ import { GhostNode } from "./lib/nodes/ghost-node.tsx";
 import { EditableEdge } from "./lib/edges/editable.tsx";
 import { useEmberEventListeners } from "./lib/utils/use-ember-event-listeners.ts";
 import { NodeParamsMapProvider } from "./lib/context/node-params-map.tsx";
+import { NodeType } from "hcu-urban-model-builder-backend";
 
 type FlowOptions = {
   disabled?: boolean;
@@ -71,7 +73,7 @@ const nodeTypes = {
   [ReactFlowNodeType.Action]: BaseNode,
   [ReactFlowNodeType.Ghost]: GhostNode,
   [ReactFlowNodeType.OgcApiFeatures]: BaseNode,
-  [ReactFlowNodeType.SubModel]: BaseNode,
+  [ReactFlowNodeType.SubModel]: SubModelNode,
 } as const;
 
 const edgesTypes = {
@@ -90,12 +92,18 @@ function Flow({
   const nodeActions = useContext(EmberReactConnectorContext);
   useEmberEventListeners();
 
+  const isInternalSubModelNode = (node: any) => Boolean(node.data?.isSubModelInternal);
+  const internalNodeIds = new Set(initialNodes.filter(isInternalSubModelNode).map((node) => node.id));
+
   const [nodes, setNodes] = useState(() =>
-    [...initialNodes]?.sort(sortNodeModels).map((n) => ({ ...n.raw })),
+    [...initialNodes]
+      .filter((node) => !isInternalSubModelNode(node))
+      .sort(sortNodeModels)
+      .map((n) => ({ ...n.raw })),
   );
 
   const [edges, setEdges] = useState(() =>
-    initialEdges.map((e) => {
+    initialEdges.filter((edge) => !internalNodeIds.has(edge.source.id) && !internalNodeIds.has(edge.target.id)).map((e) => {
       return {
         ...e.raw,
       };
@@ -211,12 +219,49 @@ function Flow({
         targetHandle: params.targetHandle,
       });
 
+      // A SubModel handle represents one hidden, cloned output primitive. Store
+      // that primitive's actual name in the target formula, never the visible
+      // wrapper name. This makes a new canvas connection executable at once.
+      const nodeModels = nodeActions.peekAll("node");
+      const sourceModel = nodeModels.find((node: any) => node.id === params.source);
+      const targetModel = nodeModels.find((node: any) => node.id === params.target);
+      if (
+        sourceModel?.type === NodeType.SubModel &&
+        params.sourceHandle?.startsWith("submodel-output-") &&
+        targetModel
+      ) {
+        const outputId = params.sourceHandle.replace("submodel-output-", "");
+        const output = sourceModel.data?.outputs?.find((item: any) => item.id === outputId);
+        const internalOutput = output?.internalNodeId && nodeModels.find((node: any) => node.id === output.internalNodeId);
+        const valueKey: Record<number, string> = {
+          [NodeType.Variable]: "value",
+          [NodeType.Stock]: "value",
+          [NodeType.Flow]: "rate",
+          [NodeType.Transition]: "value",
+          [NodeType.Action]: "value",
+        };
+        const key = valueKey[targetModel.type];
+        if (internalOutput && key) {
+          const visibleReference = `[${sourceModel.name}]`;
+          const internalReference = `[${internalOutput.name}]`;
+          const currentValue = String(targetModel.data?.[key] ?? "");
+          const nextValue = currentValue.includes(visibleReference)
+            ? currentValue.split(visibleReference).join(internalReference)
+            : currentValue.trim() ? currentValue : internalReference;
+          if (nextValue !== currentValue) {
+            await nodeActions.save("node", targetModel.id, {
+              data: { ...targetModel.data, [key]: nextValue },
+            });
+          }
+        }
+      }
+
       setEdges((eds) =>
-        eds
-          .filter((e) => e.id !== tmpEdgeId)
+        Array.from(new Map(eds
+          .filter((e) => e.id !== tmpEdgeId && e.id !== newEdge.id)
           .concat({
             ...newEdge.raw,
-          }),
+          }).map((edge) => [edge.id, edge])).values()),
       );
     },
     [setEdges],

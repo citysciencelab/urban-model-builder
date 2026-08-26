@@ -12,6 +12,7 @@ import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios
 import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type ApplicationStateService from './application-state';
 import { NodeType } from 'hcu-urban-model-builder-backend';
+import { StoreEventSenderTransport } from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import type IntlService from 'ember-intl/services/intl';
 
 export default class EmberReactConnectorService extends Service {
@@ -37,7 +38,9 @@ export default class EmberReactConnectorService extends Service {
       throw new Error(`Node with id ${id} not found`);
     }
 
-    return this.saveRecord(record, rawData);
+    const savedRecord = await this.saveRecord(record, rawData);
+    this.storeEventEmitter.emit(type, 'updated', savedRecord as any, StoreEventSenderTransport.LOCAL);
+    return savedRecord;
   }
 
   @action
@@ -46,7 +49,11 @@ export default class EmberReactConnectorService extends Service {
 
     record.modelsVersions = this.currentModel!;
 
-    return this.saveRecord(record, rawData);
+    const savedRecord = await this.saveRecord(record, rawData);
+    // Socket events intentionally ignore records already in Ember Data's store.
+    // Tell the React canvas about local creates immediately (not only after a reload).
+    this.storeEventEmitter.emit(type, 'created', savedRecord as any, StoreEventSenderTransport.LOCAL);
+    return savedRecord;
   }
 
   @action

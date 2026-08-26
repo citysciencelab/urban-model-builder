@@ -46,6 +46,7 @@ export const useEmberEventListeners = () => {
       ) {
         return;
       }
+      if (newNode.data?.isSubModelInternal) return;
 
       setNodes((nds) =>
         nds.concat({
@@ -114,22 +115,25 @@ export const useEmberEventListeners = () => {
   );
 
   const addEdge = useCallback(
-    (newEdge: any, sender: StoreEventSenderTransport) => {
+    (newEdge: any) => {
       if (
-        sender === StoreEventSenderTransport.LOCAL ||
+        newEdge.modelsVersions?.id &&
         newEdge.modelsVersions.id !== emberReactConnector.currentModelVersionId
       ) {
         return;
       }
+      const rawEdge = newEdge.raw;
+      const nodes = emberReactConnector.peekAll('node');
+      const source = nodes.find((node: any) => node.id === rawEdge.source);
+      const target = nodes.find((node: any) => node.id === rawEdge.target);
+      if (source?.data?.isSubModelInternal || target?.data?.isSubModelInternal) return;
 
-      setEdges((eds) =>
-        eds.concat({
-          ...newEdge.raw,
-          markerEnd: { type: MarkerType.Arrow },
-        }),
-      );
+      setEdges((eds) => eds.some((edge) => edge.id === newEdge.id) ? eds : eds.concat({
+        ...rawEdge,
+        markerEnd: { type: MarkerType.Arrow },
+      }));
     },
-    [],
+    [emberReactConnector, setEdges],
   );
 
   const updateEdge = useCallback(
@@ -190,5 +194,15 @@ export const useEmberEventListeners = () => {
       emberReactConnector.storeEventEmitter.off('edge', 'updated', updateEdge);
       emberReactConnector.storeEventEmitter.off('edge', 'deleted', removeEdge);
     };
-  }, [addNode, removeNode]);
+  }, [
+    addNode,
+    updateNode,
+    removeNode,
+    selectNode,
+    createNode,
+    addEdge,
+    updateEdge,
+    removeEdge,
+    emberReactConnector,
+  ]);
 };

@@ -1,5 +1,6 @@
 import { HookContext } from '../../../declarations.js'
 import { Nodes } from '../nodes.schema.js'
+import { NodeType } from '../nodes.shared.js'
 
 export const manageDefaultScenariosValues = async (context: HookContext) => {
   if (!context.result || 'total' in context.result) {
@@ -83,6 +84,13 @@ export const manageDefaultScenariosValues = async (context: HookContext) => {
      * Does currently only work for single patches
      */
     const item = context.result as Nodes
+
+    // A sub-model exposes dedicated visible input variables. The wrapper itself
+    // is never a scenario parameter and must not trigger scenario lookups when
+    // its output switch is changed.
+    if (item.type === NodeType.SubModel) {
+      return
+    }
 
     if (item.isParameter && context.method != 'remove') {
       const scenario = await getOrCreateDefaultScenario(item.modelsVersionsId)

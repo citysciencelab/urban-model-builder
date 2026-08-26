@@ -134,7 +134,22 @@ export const ogcFeatureNodeSchema = Type.Object(
 export const subModelNodeSchema = Type.Object({
   modelId: Type.Optional(Type.String({ format: 'uuid' })),
   modelVersionId: Type.Optional(Type.String({ format: 'uuid' })),
-  importedFolderId: Type.Optional(Type.String({ format: 'uuid' }))
+  importedFolderId: Type.Optional(Type.String({ format: 'uuid' })),
+  inputs: Type.Optional(Type.Array(Type.Object({
+    id: Type.String({ format: 'uuid' }),
+    name: Type.String(),
+    defaultValue: Type.String(),
+    internalNodeId: Type.Optional(Type.String({ format: 'uuid' }))
+  }))),
+  outputs: Type.Optional(Type.Array(Type.Object({
+    id: Type.String({ format: 'uuid' }),
+    name: Type.String(),
+    internalNodeId: Type.Optional(Type.String({ format: 'uuid' }))
+  }))),
+  isSubModelInternal: Type.Optional(Type.Boolean()),
+  subModelInstanceId: Type.Optional(Type.String({ format: 'uuid' })),
+  sourceNodeId: Type.Optional(Type.String({ format: 'uuid' })),
+  isSubModelOutput: Type.Optional(Type.Boolean())
 })
 
 // Main data model schema

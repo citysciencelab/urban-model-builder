@@ -1,3 +1,52 @@
+{{#if this.isImported}}
+  <div class="d-flex gap-2 mb-3" {{did-insert this.loadImportedSelection}}>
+    <button type="button" class="btn btn-outline-primary btn-sm" disabled={{this.isImporting}} {{on "click" this.reimportCurrentModel}}>
+      {{if this.isImporting "Modell wird erneut importiert…" "Aktuelle Version erneut importieren"}}
+    </button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" disabled={{this.isImporting}} {{on "click" this.changeImportedModel}}>
+      Modell oder Version ändern
+    </button>
+  </div>
+  <p class="form-label">Eingaben des Sub-Modells</p>
+  <ul class="list-group mb-3" {{did-insert this.loadInputConnections}}>
+    {{#each @node.data.inputs as |input|}}
+      {{#let (this.inputConnection input) as |connection|}}
+      <li class="list-group-item d-flex justify-content-between {{if connection "list-group-item-success" "list-group-item-warning"}}">
+        <span>{{input.name}}</span>
+        {{#if connection}}
+          <small>Verbunden mit {{connection.name}}: {{connection.value}}</small>
+        {{else}}
+          <small>Standardwert wird verwendet: {{input.defaultValue}}</small>
+        {{/if}}
+      </li>
+      {{/let}}
+    {{/each}}
+  </ul>
+  <p class="form-label">Ausgaben des Sub-Modells</p>
+  <ul class="list-group mb-3">
+    {{#each @node.data.outputs as |output|}}
+      <li class="list-group-item">{{output.name}}</li>
+    {{/each}}
+  </ul>
+  <BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
+    <NodeFormFields::ParameterSettings
+      @acc={{acc}}
+      @form={{@form}}
+      @changeset={{@changeset}}
+      @errors={{@errors}}
+      @type="numeric"
+      @outputVisible={{true}}
+      @disabled={{@disabled}}
+    />
+    <NodeFormFields::Validation
+      @acc={{acc}}
+      @modelsVersion={{@modelsVersion}}
+      @form={{@form}}
+      @errors={{@errors}}
+      @changeset={{@changeset}}
+    />
+  </BsAccordion>
+{{else}}
 <div class="sub-model" {{did-insert this.loadModels}}>
   <div class="sub-model__scope" role="group" aria-label="Modellquelle">
     <button type="button" class="btn btn-sm {{if (eq this.scope "mine") "btn-primary" "btn-outline-secondary"}}" {{on "click" (fn this.switchScope "mine")}}>Meine Modelle</button>
@@ -41,3 +90,4 @@
     {{if this.isImporting "Modell wird importiert…" "Modell importieren"}}
   </button>
 </div>
+{{/if}}

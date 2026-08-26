@@ -20,7 +20,9 @@ export const addModelPermissionFilterQuery = (minRequiredRole: Roles) => {
     // because there are duplicate column names because of the join e.g. parentId
     if (context.params.query) {
       context.params.query = Object.entries(context.params.query).reduce((acc, [key, value]) => {
-        acc[`${service.options.name}.${key}`] = value
+        // Feathers pagination / sorting operators are not database columns.
+        // Qualifying `$limit` produced `nodes.$limit` in PostgreSQL.
+        acc[key.startsWith('$') ? key : `${service.options.name}.${key}`] = value
         return acc
       }, {} as any)
     }

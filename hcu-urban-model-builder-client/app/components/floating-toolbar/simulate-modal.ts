@@ -313,9 +313,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     const nodeValuesMap = this.inMemoryScenario;
 
     if (this.isClientSideCalculation) {
+      const simulationApp = await this.createInMemorySimulationApp();
       this.simulationResult = (
         await new SimulationAdapter(
-          this.feathers.app,
+          simulationApp,
           this.args.model.id!,
           nodeValuesMap,
         ).simulate()
@@ -328,6 +329,80 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
           nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
         })) as any;
     }
+  }
+
+  /**
+   * The canvas already loaded this complete model version. Supplying that
+   * snapshot keeps a simulation local and prevents a large imported sub-model
+   * from issuing many sequential Socket.IO reads.
+   */
+  private async createInMemorySimulationApp() {
+    const nodeModels = await this.args.model.nodes;
+    const edgeModels = await this.args.model.edges;
+    const nodes = nodeModels.map((node) => ({
+      id: node.id!,
+      modelsVersionsId: this.args.model.id!,
+      type: node.type,
+      name: node.name,
+      description: node.description,
+      data: node.data,
+      position: node.position,
+      width: node.width,
+      height: node.height,
+      parentId: node.parent?.id || null,
+      ghostParentId: node.ghostParent?.id || null,
+      isParameter: node.isParameter,
+      isOutputParameter: node.isOutputParameter,
+      parameterType: node.parameterType,
+      parameterMin: node.parameterMin,
+      parameterMax: node.parameterMax,
+      parameterStep: node.parameterStep,
+      parameterOptions: node.parameterOptions,
+    }));
+    const edges = edgeModels.map((edge) => ({
+      id: edge.id!,
+      modelsVersionsId: this.args.model.id!,
+      type: edge.type,
+      sourceId: edge.source.id,
+      targetId: edge.target.id,
+      sourceHandle: edge.sourceHandle,
+      targetHandle: edge.targetHandle,
+      points: edge.points,
+    }));
+
+    const matches = (record: Record<string, any>, query: Record<string, any> = {}) =>
+      Object.entries(query).every(([key, expected]) => {
+        if (key.startsWith('$')) return true;
+        const actual = record[key];
+        if (expected && typeof expected === 'object' && !Array.isArray(expected)) {
+          if ('$ne' in expected) return actual !== expected.$ne;
+          if ('$in' in expected) return expected.$in.includes(actual);
+          if ('$nin' in expected) return !expected.$nin.includes(actual);
+        }
+        return actual === expected;
+      });
+    const paginated = (records: Record<string, any>[], query: Record<string, any>) => {
+      const data = records.filter((record) => matches(record, query));
+      return { data, total: data.length };
+    };
+    const modelVersion = {
+      id: this.args.model.id!,
+      timeUnits: this.args.model.timeUnits,
+      timeStart: this.args.model.timeStart,
+      timeStep: this.args.model.timeStep,
+      timeLength: this.args.model.timeLength,
+      algorithm: this.args.model.algorithm,
+      globals: this.args.model.globals,
+    };
+
+    return {
+      service: (path: string) => {
+        if (path === 'models-versions') return { get: async () => modelVersion };
+        if (path === 'nodes') return { find: async ({ query }: any = {}) => paginated(nodes, query) };
+        if (path === 'edges') return { find: async ({ query }: any = {}) => paginated(edges, query) };
+        throw new Error(`Unbekannter lokaler Simulationsdienst: ${path}`);
+      },
+    } as any;
   }
 
   @action

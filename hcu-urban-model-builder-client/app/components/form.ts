@@ -92,6 +92,11 @@ export default class FormComponent extends Component<FormSignature> {
   @action
   async initialize() {
     this.record = await this.getRecord();
+    // Animated sidebar transitions can briefly retain a form while its record
+    // was removed (for example during a sub-model re-import).
+    if (!this.record) {
+      return;
+    }
     this.changeset = new TrackedChangeset(this.record!, this.validator);
   }
 
