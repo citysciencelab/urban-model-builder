@@ -159,3 +159,27 @@ export const modelsImportSchema = Type.Object(
 export type ModelsImport = Static<typeof modelsImportSchema>
 export const modelsImportValidator = getValidator(modelsImportSchema, dataValidator)
 export const modelsImportResolver = resolve<ModelsImport, HookContext<ModelsService>>({})
+
+export const simulationResultCreateSchema = Type.Object({
+  modelsVersionsId: Type.String({ format: 'uuid' }),
+  name: Type.Optional(Type.String({ minLength: 1, maxLength: 255 })),
+  scenario: Type.Record(Type.String(), Type.Number()),
+  result: Type.Any()
+})
+export type SimulationResultCreate = Static<typeof simulationResultCreateSchema>
+export const simulationResultCreateValidator = getValidator(simulationResultCreateSchema, dataValidator)
+
+export const simulationResultsFindSchema = Type.Object({
+  modelsVersionsId: Type.String({ format: 'uuid' }),
+  $skip: Type.Optional(Type.Integer({ minimum: 0 })),
+  $limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 }))
+})
+export type SimulationResultsFind = Static<typeof simulationResultsFindSchema>
+export const simulationResultsFindValidator = getValidator(simulationResultsFindSchema, dataValidator)
+
+export const simulationResultRenameSchema = Type.Object({
+  id: Type.String({ format: 'uuid' }),
+  name: Type.String({ minLength: 1, maxLength: 255 })
+})
+export type SimulationResultRename = Static<typeof simulationResultRenameSchema>
+export const simulationResultRenameValidator = getValidator(simulationResultRenameSchema, dataValidator)

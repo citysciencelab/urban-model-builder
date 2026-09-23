@@ -204,6 +204,17 @@
             <BsButton
               @type="outline-secondary"
               class="btn-sm ms-2"
+              title={{t "components.simulate_modal.save_result"}}
+              {{on "click" this.saveCurrentResult}}
+              disabled={{or (not this.simulationResult) this.isSavingResult}}
+            >
+              <FaIcon @icon="save" @prefix="fas" />
+            </BsButton>
+
+            <BsButton
+              @type="outline-secondary"
+              class="btn-sm ms-2"
+              title={{t "components.simulate_modal.download_result"}}
               {{on "click" this.downloadSimulationResults}}
               disabled={{not this.simulationResult}}
             >
@@ -228,3 +239,100 @@
   </modal.Trigger>
 
 </BasicDropdown>
+
+<span
+  class="simulate-results-toggle"
+  {{did-insert (fn this.loadStoredResults false)}}
+>
+  {{#if (gt this.resultsCount 0)}}
+    <BsButton
+      @type="secondary"
+      class="btn-round simulate-results-toggle__button"
+      @size="md"
+      title={{t "components.simulate_modal.results"}}
+      {{on "click" this.openStoredResults}}
+    >
+      <SvgIcon @icon="bar_chart" @size="md" />
+      <span class="simulate-results-toggle__badge">{{this.resultsCount}}</span>
+    </BsButton>
+  {{/if}}
+</span>
+
+<BsModal
+  @open={{this.resultsOpen}}
+  @onHide={{this.closeStoredResults}}
+  @size="xl"
+  @position="center"
+  class="simulation-results-modal"
+  as |modal|
+>
+  <modal.header>
+    <h5 class="modal-title">{{t "components.simulate_modal.results"}}</h5>
+  </modal.header>
+  <modal.body>
+    <div class="simulation-results-layout">
+      <aside class="simulation-results-list">
+        {{#each this.storedResults as |result|}}
+          <button
+            type="button"
+            class="simulation-result-item
+              {{if (eq result.id this.selectedStoredResult.id) 'active'}}"
+            {{on "click" (fn this.selectStoredResult result)}}
+          >
+            <Input
+              @value={{result.name}}
+              aria-label={{t "components.simulate_modal.result_name"}}
+              {{on "change" (fn this.renameStoredResult result)}}
+              {{on "click" (stop-propagation)}}
+            />
+            <small>{{result.createdAt}}</small>
+          </button>
+        {{/each}}
+        <div class="simulation-results-pagination">
+          <BsButton
+            @type="outline-secondary"
+            class="btn-round"
+            @size="sm"
+            disabled={{eq this.resultsPage 1}}
+            {{on "click" (fn this.changeResultsPage (sub this.resultsPage 1))}}
+          >
+            <SvgIcon @icon="chevron_left" @size="xs" />
+          </BsButton>
+          <span class="simulation-results-pagination__label">
+            {{this.resultsPage}} / {{this.resultsPages}}
+          </span>
+          <BsButton
+            @type="outline-secondary"
+            class="btn-round"
+            @size="sm"
+            disabled={{eq this.resultsPage this.resultsPages}}
+            {{on "click" (fn this.changeResultsPage (add this.resultsPage 1))}}
+          >
+            <SvgIcon @icon="chevron_right" @size="xs" />
+          </BsButton>
+        </div>
+      </aside>
+      <section class="simulation-results-chart">
+        {{#if this.selectedStoredResult}}
+          <BsNav @type="tabs" as |nav|>
+            {{#each this.tabNames as |tabName|}}
+              <nav.item>
+                <a
+                  href="javascript:void(0)"
+                  class="nav-link {{if (this.isTabActive tabName) 'active'}}"
+                  {{on "click" (fn this.switchTab tabName)}}
+                >{{titleize tabName}}</a>
+              </nav.item>
+            {{/each}}
+          </BsNav>
+          <div
+            class="simulate-model__chart-container"
+            {{did-insert this.didInsertStoredChart}}
+          ></div>
+        {{else}}
+          <p>{{t "components.simulate_modal.no_results"}}</p>
+        {{/if}}
+      </section>
+    </div>
+  </modal.body>
+</BsModal>

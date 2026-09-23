@@ -54,7 +54,12 @@ app.configure(
   socketio({
     cors: {
       origin: app.get('origins')
-    }
+    },
+    // Socket.io's default (1MB) is too small for saveSimulationResult, whose
+    // payload is a full simulation result (time series for every node); a
+    // message over the limit gets the socket disconnected rather than
+    // rejected, which surfaces to clients as "socket has been disconnected".
+    maxHttpBufferSize: 2e7
   })
 )
 app.configure(postgresql)

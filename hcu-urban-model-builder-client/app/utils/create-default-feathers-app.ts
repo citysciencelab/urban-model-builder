@@ -33,6 +33,9 @@ export default function createDefaultFeathersApp(sessionService: any) {
       'cloneVersion',
       'exportModel',
       'importModel',
+      'saveSimulationResult',
+      'findSimulationResults',
+      'renameSimulationResult',
     ],
   });
 

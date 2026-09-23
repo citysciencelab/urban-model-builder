@@ -596,6 +596,138 @@ a.disabled,
   text-decoration: none;
 }
 
+// The results toggle sits inline among the floating toolbar's round icon
+// buttons, so it has to share their exact shape/size instead of a wider
+// text+badge pill, which was overflowing the toolbar and wrapping onto a new line.
+.simulate-results-toggle {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.simulate-results-toggle__button {
+  position: relative;
+}
+
+.simulate-results-toggle__badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.3rem;
+  border-radius: $border-radius-pill;
+  background: $color-primary;
+  color: $white;
+  font-size: 0.65rem;
+  font-weight: $font-weight-bold;
+  line-height: 1.125rem;
+  text-align: center;
+  box-shadow: 0 0 0 2px $white;
+}
+
+body:has(.simulation-results-modal) .modal-backdrop {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.simulation-results-modal .modal-dialog {
+  max-width: min(1200px, calc(100vw - 3rem));
+}
+
+.simulation-results-modal .modal-content {
+  border: 0;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 1.5rem 4rem rgba($black, 0.25);
+}
+
+.simulation-results-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 1.5rem;
+  min-height: 500px;
+}
+
+.simulation-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: $gray-100;
+  border-radius: $border-radius-lg;
+}
+
+.simulation-result-item {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  border: 1px solid transparent;
+  border-radius: $border-radius;
+  background: $white;
+  text-align: left;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    border-color: $border-color;
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.75rem rgba($black, 0.08);
+  }
+
+  &.active {
+    border-color: $color-primary;
+    background: $color-primary-light;
+    box-shadow: 0 0 0 1px $color-primary;
+  }
+
+  input {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-weight: $font-weight-bold;
+    border-radius: $border-radius-sm;
+
+    &:focus {
+      outline: none;
+      background: rgba($white, 0.6);
+    }
+  }
+
+  small {
+    color: $gray-600;
+  }
+}
+
+.simulation-results-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.simulation-results-pagination__label {
+  min-width: 3.5rem;
+  text-align: center;
+  color: $gray-600;
+  font-size: 0.875rem;
+}
+
+.simulation-results-chart {
+  display: flex;
+  flex-direction: column;
+
+  p {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    color: $gray-600;
+  }
+}
+
 .units__selection__input {
   position: relative;
   margin-bottom: 0 !important;

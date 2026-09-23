@@ -63,6 +63,14 @@ const BASE_SPEED = 20;
 
 type EmberBasicDropdownAPI = { actions: { close: () => void } };
 
+type StoredSimulationResult = {
+  id: string;
+  name: string;
+  result: SimulationResult;
+  scenario: Record<string, number>;
+  createdAt: string;
+};
+
 export default class FloatingToolbarSimulateModalComponent extends Component<FloatingToolbarSimulateModalSignature> {
   readonly DEBOUNCE_MS = 250;
 
@@ -96,6 +104,21 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked simulationErrorNode: Node | null = null;
 
   @tracked currentDataset: TimeSeriesDataset | ScatterPlotDataset | null = null;
+  @tracked isSavingResult = false;
+
+  // The stored-results modal renders its own chart independently of the live
+  // simulation chart above (both can be open at the same time), so it gets its
+  // own container/chart/dataset instead of reusing chartContainer/chart/currentDataset.
+  @tracked resultsOpen = false;
+  @tracked storedResults: StoredSimulationResult[] = [];
+  @tracked resultsCount = 0;
+  @tracked resultsPage = 1;
+  @tracked selectedStoredResult: StoredSimulationResult | null = null;
+  @tracked storedChartContainer?: HTMLElement;
+  @tracked storedChart?: echarts.ECharts;
+  @tracked storedCurrentDataset: TimeSeriesDataset | ScatterPlotDataset | null =
+    null;
+  readonly resultsPageSize = 5;
 
   tabNameToChartOptionByIndex = {
     [TabName.TimeSeries]: this.getTimeseriesChartOptionByIndex,
@@ -134,6 +157,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   get hasError() {
     return !!this.simulationError;
+  }
+
+  get resultsPages() {
+    return Math.max(1, Math.ceil(this.resultsCount / this.resultsPageSize));
   }
 
   @cached
@@ -215,7 +242,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action
   async switchTab(tabName: TabName) {
     this.activeTab = tabName;
-    await this.restartSimulation();
+    if (this.resultsOpen && this.selectedStoredResult) {
+      await this.renderStoredResult();
+    } else {
+      await this.restartSimulation();
+    }
   }
 
   @action
@@ -331,6 +362,104 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action
+  async saveCurrentResult() {
+    if (!this.simulationResult || this.isSavingResult) return;
+    this.isSavingResult = true;
+    try {
+      await (this.feathers.app.service('models') as any).saveSimulationResult({
+        modelsVersionsId: this.args.model.id!,
+        scenario: Object.fromEntries(this.inMemoryScenario),
+        result: this.simulationResult,
+      });
+      await this.loadStoredResults(false);
+    } finally {
+      this.isSavingResult = false;
+    }
+  }
+
+  @action
+  async loadStoredResults(selectFirst = true) {
+    const response = await (
+      this.feathers.app.service('models') as any
+    ).findSimulationResults({
+      modelsVersionsId: this.args.model.id!,
+      $skip: (this.resultsPage - 1) * this.resultsPageSize,
+      $limit: this.resultsPageSize,
+    });
+    this.storedResults = response.data;
+    this.resultsCount = response.total;
+    if (selectFirst && this.storedResults.length) {
+      await this.selectStoredResult(this.storedResults[0]!);
+    }
+  }
+
+  @action
+  async openStoredResults() {
+    this.resultsOpen = true;
+    await this.loadStoredResults();
+  }
+
+  @action closeStoredResults() {
+    this.resultsOpen = false;
+    this.selectedStoredResult = null;
+    this.storedChart?.dispose();
+    this.storedChart = undefined;
+    this.storedChartContainer = undefined;
+    this.storedCurrentDataset = null;
+  }
+
+  @action
+  async didInsertStoredChart(element: HTMLElement) {
+    this.storedChartContainer = element;
+    if (this.selectedStoredResult) await this.renderStoredResult();
+  }
+
+  @action
+  async selectStoredResult(result: StoredSimulationResult) {
+    this.selectedStoredResult = result;
+    if (this.storedChartContainer) await this.renderStoredResult();
+  }
+
+  private async renderStoredResult() {
+    if (!this.storedChartContainer || !this.selectedStoredResult) return;
+
+    this.storedChart?.dispose();
+    this.storedChart = echarts.init(this.storedChartContainer, null, {
+      height: 400,
+      width: 'auto',
+    });
+    const dataset = await this.tabNameToDatasetFunction[this.activeTab](
+      this.selectedStoredResult.result,
+    );
+    this.storedCurrentDataset = dataset;
+    const index = dataset.times.length - 1;
+    const optionsByIndex = this.tabNameToChartOptionByIndex[this.activeTab](
+      index,
+      dataset,
+    );
+    this.storedChart.setOption(optionsByIndex);
+  }
+
+  @action
+  async renameStoredResult(result: StoredSimulationResult, event: Event) {
+    const name = (event.target as HTMLInputElement).value.trim();
+    if (!name || name === result.name) return;
+    result.name = name;
+    await (this.feathers.app.service('models') as any).renameSimulationResult({
+      id: result.id,
+      name,
+    });
+    this.storedResults = [...this.storedResults];
+  }
+
+  @action
+  async changeResultsPage(page: number) {
+    if (page < 1 || page > this.resultsPages) return;
+    this.resultsPage = page;
+    await this.loadStoredResults();
+  }
+
+  @action
   async getTimeSeriesDataset(simulateResult: SimulationResult) {
     const data = simulateResult;
 
@@ -425,8 +554,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
             for (const stateLocation of current) {
               // Type guard to ensure we're working with an object that has the expected properties
-              if (typeof stateLocation === 'object' && stateLocation !== null &&
-                  'id' in stateLocation && 'location' in stateLocation && 'state' in stateLocation) {
+              if (
+                typeof stateLocation === 'object' &&
+                stateLocation !== null &&
+                'id' in stateLocation &&
+                'location' in stateLocation &&
+                'state' in stateLocation
+              ) {
                 const location = {
                   id: stateLocation.id,
                   value: stateLocation.location,
@@ -490,15 +624,18 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action
-  private getTimeseriesChartOptionByIndex(index: number) {
-    const dataset = (this.currentDataset! as TimeSeriesDataset).series.map(
-      (d) => {
-        return {
-          ...d,
-          data: d.data.slice(0, index + 1),
-        };
-      },
-    );
+  private getTimeseriesChartOptionByIndex(
+    index: number,
+    sourceDataset: TimeSeriesDataset | ScatterPlotDataset | null = this
+      .currentDataset,
+  ) {
+    const timeSeriesDataset = sourceDataset as TimeSeriesDataset;
+    const dataset = timeSeriesDataset.series.map((d) => {
+      return {
+        ...d,
+        data: d.data.slice(0, index + 1),
+      };
+    });
 
     return {
       legend: {
@@ -507,7 +644,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         top: 10,
       },
       xAxis: {
-        data: this.currentDataset!.times,
+        data: timeSeriesDataset.times,
       },
       yAxis: {},
       tooltip: {
@@ -519,8 +656,12 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action
-  private getScatterPlotChartOptionByIndex(index: number) {
-    const currentDataset = (this.currentDataset! as ScatterPlotDataset).series[
+  private getScatterPlotChartOptionByIndex(
+    index: number,
+    sourceDataset: TimeSeriesDataset | ScatterPlotDataset | null = this
+      .currentDataset,
+  ) {
+    const currentDataset = (sourceDataset as ScatterPlotDataset).series[
       index
     ]!;
     return {
@@ -620,11 +761,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     // Transform simulationResult to use node names instead of UUIDs
     const resultsWithNodeNames = {
       times: this.simulationResult.times,
-      nodes: {} as Record<string, any>
+      nodes: {} as Record<string, any>,
     };
 
     // Replace node UUIDs with node names in the results
-    for (const [nodeId, nodeData] of Object.entries(this.simulationResult.nodes)) {
+    for (const [nodeId, nodeData] of Object.entries(
+      this.simulationResult.nodes,
+    )) {
       try {
         const node = await this.store.findRecord<Node>('node', nodeId);
         const nodeName = node.name || nodeId; // fallback to UUID if name is empty

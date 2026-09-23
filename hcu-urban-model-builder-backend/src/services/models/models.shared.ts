@@ -21,7 +21,10 @@ export const modelsMethods: Array<keyof ModelsService> = [
   'publishMajor',
   'cloneVersion',
   'exportModel',
-  'importModel'
+  'importModel',
+  'saveSimulationResult',
+  'findSimulationResults',
+  'renameSimulationResult'
 ]
 
 export const modelsClient = (client: ClientApplication) => {

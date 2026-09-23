@@ -15,7 +15,10 @@ import {
   type ModelsPatch,
   type ModelsPublish,
   type ModelsQuery,
-  type ModelsSimulate
+  type ModelsSimulate,
+  type SimulationResultCreate,
+  type SimulationResultsFind,
+  type SimulationResultRename
 } from './models.schema.js'
 import { SimulationAdapter } from '../../shared/simulation-adapter/simulation-adapter.js'
 import { logger } from '../../logger.js'
@@ -107,6 +110,65 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     const simulationAdapter = new SimulationAdapter(this.app, data.id, nodeIdToParamValueMap, logger)
     await simulationAdapter.simulate()
     return params?.serializeForUMP ? simulationAdapter.getResultsForUMP() : simulationAdapter.getResults()
+  }
+
+  // The models-versions permission filter only applies to external calls (see
+  // its `iff(isProvider('external'), ...)` guard), so an internal `.get()` like
+  // this one would otherwise return the record for any model version
+  // regardless of the caller's access. Check the joined role explicitly instead.
+  private async assertModelVersionAccess(
+    modelsVersionsId: string,
+    user: NonNullable<ServiceParams['user']>,
+    minRole: Roles
+  ) {
+    const modelVersion = await this.app.service('models-versions').get(modelsVersionsId, { user })
+    if (modelVersion.role == null || modelVersion.role < minRole) {
+      throw new Forbidden('You do not have permission to access this model version.')
+    }
+    return modelVersion
+  }
+
+  async saveSimulationResult(data: SimulationResultCreate, params?: ServiceParams) {
+    if (!params?.user?.id) throw new Forbidden('Saving simulation results requires authentication.')
+    await this.assertModelVersionAccess(data.modelsVersionsId, params.user, Roles.viewer)
+    const [saved] = await this.app
+      .get('postgresqlClient')('simulation_results')
+      .insert({
+        modelsVersionsId: data.modelsVersionsId,
+        createdBy: params.user.id,
+        name: data.name ?? `Simulation ${new Date().toISOString()}`,
+        scenario: data.scenario,
+        result: data.result
+      })
+      .returning('*')
+    return saved
+  }
+
+  async findSimulationResults(data: SimulationResultsFind, params?: ServiceParams) {
+    if (!params?.user?.id) throw new Forbidden('Reading simulation results requires authentication.')
+    await this.assertModelVersionAccess(data.modelsVersionsId, params.user, Roles.viewer)
+    const database = this.app.get('postgresqlClient')
+    const baseQuery = database('simulation_results').where({ modelsVersionsId: data.modelsVersionsId })
+    const [{ count }] = await baseQuery.clone().count<{ count: string }[]>('* as count')
+    const rows = await baseQuery
+      .clone()
+      .orderBy('createdAt', 'desc')
+      .offset(data.$skip ?? 0)
+      .limit(data.$limit ?? 10)
+    return { total: Number(count), data: rows }
+  }
+
+  async renameSimulationResult(data: SimulationResultRename, params?: ServiceParams) {
+    if (!params?.user?.id) throw new Forbidden('Renaming simulation results requires authentication.')
+    const database = this.app.get('postgresqlClient')
+    const existing = await database('simulation_results').where({ id: data.id }).first()
+    if (!existing) throw new BadRequest('Simulation result not found.')
+    await this.assertModelVersionAccess(existing.modelsVersionsId, params.user, Roles.viewer)
+    const [updated] = await database('simulation_results')
+      .where({ id: data.id })
+      .update({ name: data.name, updatedAt: database.fn.now() })
+      .returning('*')
+    return updated
   }
 
   async newDraft(data: ModelsNewDraft, params?: ServiceParams) {
@@ -311,7 +373,9 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     const payload = this.validateImportPayload(data.payload)
     const sourceModel = payload.model
     const modelId = randomUUID()
-    const versionIds = new Map(payload.modelVersions.map(({ modelVersion }) => [modelVersion.id, randomUUID()]))
+    const versionIds = new Map(
+      payload.modelVersions.map(({ modelVersion }) => [modelVersion.id, randomUUID()])
+    )
     const nodeIds = new Map<string, string>()
     const nodeKey = (versionId: string, nodeId: string) => `${versionId}:${nodeId}`
     for (const version of payload.modelVersions) {
