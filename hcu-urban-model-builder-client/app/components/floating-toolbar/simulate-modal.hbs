@@ -439,7 +439,7 @@
               >
                 <SvgIcon @icon="bar_chart" @size="sm" />
               </button>
-              <BsDropdown as |dd|>
+              <BsDropdown @closeOnMenuClick={{false}} as |dd|>
                 <dd.button
                   @type="outline-secondary"
                   class="btn-sm"
@@ -571,7 +571,7 @@
           <SvgIcon @icon="bar_chart" @size="sm" />
         </button>
         {{#if (eq this.zoomedChartContext "stored")}}
-          <BsDropdown as |dd|>
+          <BsDropdown @closeOnMenuClick={{false}} as |dd|>
             <dd.button
               @type="outline-secondary"
               class="btn-sm"

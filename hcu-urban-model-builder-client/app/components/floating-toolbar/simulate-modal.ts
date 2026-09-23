@@ -23,6 +23,7 @@ import type FloatingToolbarDropdownManagerService from 'hcu-urban-model-builder-
 import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 import { cached } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
+import { downloadUtf8Json } from 'hcu-urban-model-builder-client/utils/utf8-json';
 import type IntlService from 'ember-intl/services/intl';
 
 export interface FloatingToolbarSimulateModalSignature {
@@ -582,7 +583,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action
-  async handleChartZoomKeydown(context: 'live' | 'stored', event: KeyboardEvent) {
+  async handleChartZoomKeydown(
+    context: 'live' | 'stored',
+    event: KeyboardEvent,
+  ) {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
     await this.openChartZoom(context);
@@ -684,7 +688,9 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         ...series,
         color:
           series.color ??
-          DEFAULT_CHART_COLOR_PALETTE[index % DEFAULT_CHART_COLOR_PALETTE.length],
+          DEFAULT_CHART_COLOR_PALETTE[
+            index % DEFAULT_CHART_COLOR_PALETTE.length
+          ],
       })),
     };
   }
@@ -1161,17 +1167,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     };
 
     // Create and download the file
-    const jsonString = JSON.stringify(downloadData, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `simulation-results-${modelName}-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    downloadUtf8Json(
+      downloadData,
+      `simulation-results-${modelName}-${new Date().toISOString().split('T')[0]}.json`,
+    );
   }
 
   get isChartDownloadDisabled() {

@@ -13,6 +13,7 @@ import { isEmpty } from '@ember/utils';
 import type UserService from 'hcu-urban-model-builder-client/services/user';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
 import type RouterService from '@ember/routing/router-service';
+import { readUtf8Json } from 'hcu-urban-model-builder-client/utils/utf8-json';
 
 export default class ModelsIndexController extends Controller<ModelModel[]> {
   @service declare store: Store;
@@ -55,13 +56,13 @@ export default class ModelsIndexController extends Controller<ModelModel[]> {
         // Creating a model from JSON is a separate backend import flow from the
         // regular Ember Data save. The backend returns the new model plus the
         // version we should open right away.
-        const payload = JSON.parse(await this.importFile.text());
-        const result = await (this.feathers.app.service('models') as any).importModel(
-          {
-            payload,
-            internalName: this.changeset.get('internalName'),
-          },
-        );
+        const payload = await readUtf8Json(this.importFile);
+        const result = await (
+          this.feathers.app.service('models') as any
+        ).importModel({
+          payload,
+          internalName: this.changeset.get('internalName'),
+        });
 
         if (result.model) {
           this.feathers.pushRecordIntoStore('model', result.model);

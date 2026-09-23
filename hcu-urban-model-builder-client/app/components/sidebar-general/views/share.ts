@@ -6,6 +6,10 @@ import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-ver
 import type RouterService from '@ember/routing/router-service';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
 import { tracked } from '@glimmer/tracking';
+import {
+  downloadUtf8Json,
+  readUtf8Json,
+} from 'hcu-urban-model-builder-client/utils/utf8-json';
 
 export interface SidebarGeneralViewsShareSignature {
   // The arguments accepted by the component
@@ -58,9 +62,9 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
   }
 
   @action triggerImport() {
-    const input = document.getElementById(this.importInputId) as
-      | HTMLInputElement
-      | null;
+    const input = document.getElementById(
+      this.importInputId,
+    ) as HTMLInputElement | null;
     input?.click();
   }
 
@@ -75,13 +79,17 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
     try {
       // Whole-model export includes the parent model plus every version and its graph data.
       const model = await this.args.modelVersion.model;
-      const payload = await (this.feathers.app.service('models') as any).exportModel({
+      const payload = await (
+        this.feathers.app.service('models') as any
+      ).exportModel({
         id: model!.id,
       });
 
-      const fileName = `${(model?.internalName ?? 'model')
-        .replace(/[^a-z0-9-_]+/gi, '-')
-        .replace(/^-+|-+$/g, '') || 'model'}.json`;
+      const fileName = `${
+        (model?.internalName ?? 'model')
+          .replace(/[^a-z0-9-_]+/gi, '-')
+          .replace(/^-+|-+$/g, '') || 'model'
+      }.json`;
       this.downloadJson(payload, fileName);
     } catch (error) {
       console.error(error);
@@ -101,9 +109,9 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
 
     try {
       // Version export is limited to the selected draft/published version and its graph data.
-      const payload = await (this.feathers.app.service(
-        'models-versions',
-      ) as any).exportVersion({
+      const payload = await (
+        this.feathers.app.service('models-versions') as any
+      ).exportVersion({
         id: this.args.modelVersion.id,
       });
 
@@ -158,7 +166,7 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
     this.importExportError = null;
 
     try {
-      const rawPayload = JSON.parse(await file.text());
+      const rawPayload = await readUtf8Json(file);
       const currentModel = await this.args.modelVersion.model;
       // Importing into a version now creates a fresh draft first so the current
       // version remains unchanged and the imported graph lives in its own subversion.
@@ -166,9 +174,9 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
         .service('models')
         .newDraft({ id: currentModel!.id! });
 
-      const result = await (this.feathers.app.service(
-        'models-versions',
-      ) as any).importVersion({
+      const result = await (
+        this.feathers.app.service('models-versions') as any
+      ).importVersion({
         id: newDraftModelVersion.id,
         payload: rawPayload,
       });
@@ -181,8 +189,7 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
       await this.router.transitionTo('models.versions.show', importedVersion);
     } catch (error) {
       console.error(error);
-      this.importExportError =
-        'Import failed. Please check the JSON file.';
+      this.importExportError = 'Import failed. Please check the JSON file.';
     } finally {
       this.pendingImportFile = null;
       this.resetImportInput();
@@ -191,23 +198,15 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
   }
 
   private resetImportInput() {
-    const input = document.getElementById(this.importInputId) as
-      | HTMLInputElement
-      | null;
+    const input = document.getElementById(
+      this.importInputId,
+    ) as HTMLInputElement | null;
     if (input) {
       input.value = '';
     }
   }
 
   private downloadJson(payload: unknown, fileName: string) {
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadUtf8Json(payload, fileName);
   }
 }
