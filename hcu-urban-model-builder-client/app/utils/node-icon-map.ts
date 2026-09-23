@@ -13,4 +13,5 @@ export const NodeIconMap: Record<string, string> = {
   [NodeType.Folder]: 'folder',
   [NodeType.Ghost]: 'ghost',
   [NodeType.OgcApiFeatures]: 'storage',
+  [NodeType.SubModel]: 'account_tree',
 };

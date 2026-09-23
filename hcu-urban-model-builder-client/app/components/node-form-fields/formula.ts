@@ -3,13 +3,14 @@ import type Node from 'hcu-urban-model-builder-client/models/node';
 import type Edge from 'hcu-urban-model-builder-client/models/edge';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
+import { service } from '@ember/service';
 import { A } from '@ember/array';
 import { next } from '@ember/runloop';
 import { formulaCollection } from 'hcu-urban-model-builder-client/config/formula-collection';
 import { isEmpty } from '@ember/utils';
-import { service } from '@ember/service';
 import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
 import { EdgeType, NodeType } from 'hcu-urban-model-builder-backend';
+import type Store from '@ember-data/store';
 
 interface Formula {
   name: string;
@@ -39,6 +40,8 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
   private syncInProgress: Promise<void> | null = null;
   private syncQueued = false;
   @service declare emberReactConnector: EmberReactConnectorService;
+  @service declare store: Store;
+
   @tracked sourceNodes: Node[] = A([]);
   @tracked warnings: string[] = A([]);
   @tracked pendingVariableName: string | null = null;
@@ -90,6 +93,15 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
         const ghostParent = await source.ghostParent;
         if (ghostParent) {
           sourceNodes.push(ghostParent);
+        }
+      } else if (source?.type === NodeType.SubModel && edge.sourceHandle?.startsWith('submodel-output-')) {
+        // A SubModel's output ports all live on the same visible node; resolve to the
+        // hidden internal primitive that actually carries the output's name and value.
+        const outputId = edge.sourceHandle.replace('submodel-output-', '');
+        const output = (source.data as Record<string, any>)['outputs']?.find((item: { id: string }) => item.id === outputId);
+        if (output?.internalNodeId) {
+          const internalNode = await this.store.findRecord<Node>('node', output.internalNodeId);
+          sourceNodes.push(internalNode);
         }
       } else if (source) {
         sourceNodes.push(source);

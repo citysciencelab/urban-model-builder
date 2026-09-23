@@ -8,8 +8,8 @@ export default function createDefaultFeathersApp(sessionService: any) {
   const socket = socketio(
     io(ENV.apiURL, {
       transports: ['websocket'],
-      timeout: 5000,
-      ackTimeout: 10000,
+      timeout: 15000,
+      ackTimeout: 60000,
     }),
   );
 

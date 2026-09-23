@@ -40,6 +40,7 @@ export default class FloatingToolbarPrimitivesModalComponent extends Component<F
         NodeType.Folder,
         NodeType.Converter,
         NodeType.OgcApiFeatures,
+        NodeType.SubModel,
       ],
     },
     {

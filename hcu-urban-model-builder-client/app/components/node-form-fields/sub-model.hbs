@@ -1,0 +1,103 @@
+{{#if this.isImported}}
+  <div class="d-flex gap-2 mb-3" {{did-insert this.loadImportedSelection}}>
+    <button type="button" class="btn btn-outline-primary btn-sm" disabled={{this.isImporting}} {{on "click" this.reimportCurrentModel}}>
+      {{if this.isImporting "Modell wird importiert…" "Modell aktualisieren"}}
+    </button>
+    <button type="button" class="btn btn-outline-secondary btn-sm" disabled={{this.isImporting}} {{on "click" this.changeImportedModel}}>
+      Modell/ Version ändern
+    </button>
+  </div>
+  <p class="form-label">Eingabe-Parameter</p>
+  <ul class="list-group mb-3 sub-model__inputs-list" {{did-insert this.loadInputConnections}}>
+    {{#each @node.data.inputs as |input|}}
+      {{#let (this.inputConnection input) as |connection|}}
+      <li class="list-group-item d-flex justify-content-between {{if connection "list-group-item-success" "list-group-item-warning"}}">
+        <label>{{input.name}}</label>
+        {{#if connection}}
+          <small><FaIcon @icon="circle-check" class="text-success" /> Connected: <span class="connection_var_name">{{connection.name}}</span> ({{this.connectionValue connection}})</small>
+        {{else}}
+          <div class="input-group input-group-sm sub-model__input-override">
+            <span class="input-group-text text-warning"><FaIcon @icon="circle-question" /></span>
+            <Input
+              @type="text"
+              class="form-control"
+              aria-label={{input.name}}
+              placeholder="Default: {{input.defaultValue}}"
+              @value={{input.manualValue}}
+              {{on "change" (fn this.updateInputManualValue input)}}
+            />
+          </div>
+        {{/if}}
+      </li>
+      {{/let}}
+    {{/each}}
+  </ul>
+  <p class="form-label">Ausgaben des Sub-Modells</p>
+  <ul class="list-group mb-3 sub-model__outputs-list">
+    {{#each @node.data.outputs as |output|}}
+      <li class="list-group-item">{{output.name}}</li>
+    {{/each}}
+  </ul>
+  <BsAccordion class="sidebar-accordion" @selected="interface-scenario" as |acc|>
+    <NodeFormFields::ParameterSettings
+      @acc={{acc}}
+      @form={{@form}}
+      @changeset={{@changeset}}
+      @errors={{@errors}}
+      @type="numeric"
+      @outputVisible={{true}}
+      @disabled={{@disabled}}
+    />
+    <NodeFormFields::Validation
+      @acc={{acc}}
+      @modelsVersion={{@modelsVersion}}
+      @form={{@form}}
+      @errors={{@errors}}
+      @changeset={{@changeset}}
+    />
+  </BsAccordion>
+{{else}}
+<div class="sub-model" {{did-insert this.loadModels}}>
+  <div class="sub-model__scope" role="group" aria-label="Modellquelle">
+    <button type="button" class="btn btn-sm {{if (eq this.scope "mine") "btn-primary" "btn-outline-secondary"}}" {{on "click" (fn this.switchScope "mine")}}>Meine Modelle</button>
+    <button type="button" class="btn btn-sm {{if (eq this.scope "public") "btn-primary" "btn-outline-secondary"}}" {{on "click" (fn this.switchScope "public")}}>Öffentliche Modelle</button>
+  </div>
+
+  <label class="form-label">Modell auswählen</label>
+  <PowerSelect
+    @options={{this.models}}
+    @selected={{this.selectedModel}}
+    @searchEnabled={{true}}
+    @searchField="internalName"
+    @placeholder="Modell suchen und auswählen"
+    @onChange={{this.selectModel}}
+    as |model|
+  >
+    <strong>{{model.internalName}}</strong>
+    {{#if model.description}}<small class="d-block text-muted">{{model.description}}</small>{{/if}}
+  </PowerSelect>
+
+  {{#if (eq this.scope "mine")}}
+    <label class="form-label mt-3">Modellversion auswählen</label>
+    <PowerSelect
+      @options={{this.versions}}
+      @selected={{this.selectedVersion}}
+      @searchEnabled={{true}}
+      @placeholder="Version auswählen"
+      @onChange={{this.selectVersion}}
+      as |version|
+    >
+      {{version.versionString}}
+    </PowerSelect>
+  {{/if}}
+
+  <button
+    type="button"
+    class="btn btn-primary mt-3"
+    disabled={{or (not this.selectedModel) (not this.selectedVersion) this.isImporting}}
+    {{on "click" this.importModel}}
+  >
+    {{if this.isImporting "Modell wird importiert…" "Modell importieren"}}
+  </button>
+</div>
+{{/if}}

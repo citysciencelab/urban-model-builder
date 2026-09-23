@@ -60,6 +60,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   private primitiveIdNodeIdMap: Map<string, string> = new Map()
   private primitiveIdTypeMap = new Map<string, NodeType>()
   private outputParameterNodesIds: Set<string> = new Set()
+  private subModelOutputPortPrimitiveMap = new Map<string, Primitive>()
   private simulationResultBeforeSerialization: Results | null = null
 
   constructor(
@@ -126,7 +127,10 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   }
 
   private async createModelPrimitives(model: Model) {
-    const nodes = await this.getNodes((node) => node.type !== NodeType.Ghost)
+    // Do this in memory rather than through `$nin`: the simulation is an
+    // internal server call, and the visible SubModel must never reach the
+    // primitive factory regardless of query-adapter behaviour.
+    const nodes = await this.getNodes((node) => ![NodeType.Ghost, NodeType.SubModel].includes(node.type))
 
     for (const node of nodes) {
       const simulationPrimitive = await primitiveFactory(model, node)
@@ -139,6 +143,27 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
       this.primitiveIdTypeMap.set(simulationPrimitive.id, node.type)
       if (node.isOutputParameter) {
         this.outputParameterNodesIds.add(node.id)
+      }
+    }
+
+    // A sub-model is a visual interface, not a primitive itself. When it is
+    // selected as an output parameter, expose every marked internal output as
+    // a regular result series.
+    const subModels = await this.getNodes((node) => node.type === NodeType.SubModel)
+    for (const subModel of subModels) {
+      for (const output of subModel.data.outputs || []) {
+        if (output.internalNodeId) {
+          const outputPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(output.internalNodeId)
+          if (outputPrimitive) {
+            this.subModelOutputPortPrimitiveMap.set(
+              `${subModel.id}:submodel-output-${output.id}`,
+              outputPrimitive
+            )
+            if (subModel.isOutputParameter) {
+              this.outputParameterNodesIds.add(output.internalNodeId)
+            }
+          }
+        }
       }
     }
   }
@@ -167,13 +192,15 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     const nodesWithParent = await this.getNodes((node) => node.parentId != null)
 
     for (const node of nodesWithParent) {
+      if (node.type === NodeType.SubModel) {
+        continue
+      }
       const parentPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(node.parentId!) as Container
       const childPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(node.id) as Primitive
-      if (!parentPrimitive) {
-        throw new SimulationError('Parent primitive not found', { nodeId: node.id })
-      }
-      if (!childPrimitive) {
-        throw new SimulationError('Child primitive not found', { nodeId: node.id })
+      // The visible sub-model is deliberately only an interface. Its folder is a
+      // canvas grouping aid, not a simulation container for the imported graph.
+      if (!childPrimitive || !parentPrimitive) {
+        continue
       }
       childPrimitive.parent = parentPrimitive
     }
@@ -233,7 +260,9 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
 
     for (const edge of edges) {
       if (edge.type === EdgeType.Link) {
-        const sourcePrimitive = this.nodeIdPrimitiveMapWithGhosts.get(edge.sourceId)
+        const sourcePrimitive =
+          this.nodeIdPrimitiveMapWithGhosts.get(edge.sourceId) ||
+          this.subModelOutputPortPrimitiveMap.get(`${edge.sourceId}:${edge.sourceHandle}`)
         const targetPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(edge.targetId)
         if (sourcePrimitive && targetPrimitive) {
           model.Link(sourcePrimitive, targetPrimitive)
