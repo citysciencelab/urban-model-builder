@@ -206,8 +206,28 @@
               class="btn-sm ms-2"
               {{on "click" this.downloadSimulationResults}}
               disabled={{not this.simulationResult}}
+              title="Simulationsergebnisse herunterladen"
             >
               <FaIcon @icon="download" @prefix="fas" />
+            </BsButton>
+            
+            <BsButton
+              @type="outline-secondary"
+              class="btn-sm ms-2"
+              {{on "click" this.openSaveDialog}}
+              disabled={{not this.simulationResult}}
+              title="Simulationsergebnisse speichern"
+            >
+              <FaIcon @icon="save" @prefix="fas" />
+            </BsButton>
+            
+            <BsButton
+              @type="outline-secondary"
+              class="btn-sm ms-2"
+              {{on "click" this.viewSimulationResults}}
+              title="Gespeicherte Simulationsergebnisse anzeigen"
+            >
+              <FaIcon @icon="list" @prefix="fas" />
             </BsButton>
           </div>
         {{/if}}
@@ -227,4 +247,61 @@
     </BsButton>
   </modal.Trigger>
 
+  {{#if this.saveDialogOpen}}
+    <BasicDropdown
+      @horizontalPosition="center"
+      @verticalPosition="center"
+      @isOpen={{this.saveDialogOpen}}
+      @onClose={{this.closeSaveDialog}}
+      @renderInPlace={{true}}
+      as |dialog|
+    >
+      <dialog.Content>
+        <div class="save-simulation-dialog">
+          <h5>Simulationsergebnis speichern</h5>
+          
+          {{#if this.saveError}}
+            <BsAlert @type="danger" @visible={{true}} @fade={{false}} @dismissible={{false}}>
+              {{this.saveError}}
+            </BsAlert>
+          {{/if}}
+          
+          {{#if this.saveSuccess}}
+            <BsAlert @type="success" @visible={{true}} @fade={{false}} @dismissible={{false}}>
+              Simulationsergebnis erfolgreich gespeichert!
+            </BsAlert>
+          {{/if}}
+          
+          <BsForm as |form|>
+            <form.element
+              @controlType="text"
+              @label="Name"
+              @value={{this.saveName}}
+              @onChange={{fn (mut this.saveName)}}
+              @required={{true}}
+            />
+            <form.element
+              @controlType="textarea"
+              @label="Beschreibung (optional)"
+              @value={{this.saveDescription}}
+              @onChange={{fn (mut this.saveDescription)}}
+              @rows={{3}}
+            />
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <BsButton @type="secondary" @disabled={{this.isSaving}} {{on "click" this.closeSaveDialog}}>
+                Abbrechen
+              </BsButton>
+              <BsButton @type="primary" @disabled={{or this.isSaving (not this.saveName)}} {{on "click" this.saveSimulationResult}}>
+                {{#if this.isSaving}}
+                  <BsSpinner @size="sm" /> Speichern...
+                {{else}}
+                  Speichern
+                {{/if}}
+              </BsButton>
+            </div>
+          </BsForm>
+        </div>
+      </dialog.Content>
+    </BasicDropdown>
+  {{/if}}
 </BasicDropdown>

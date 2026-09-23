@@ -12,6 +12,7 @@ Router.map(function () {
     this.route('models', { resetNamespace: true }, function () {
       this.route('versions', { path: '/:id' }, function () {
         this.route('show', { path: '/version/:version_id' });
+        this.route('simulation-results', { path: '/version/:version_id/simulation-results' });
       });
     });
     this.route('public-models', { resetNamespace: true });

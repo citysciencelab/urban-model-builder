@@ -1,0 +1,78 @@
+{{page-title "Simulationsergebnisse"}}
+
+<div class="simulation-results-page">
+  <div class="page-header">
+    <BreadcrumbsItem>
+      {{this.model.modelsVersions.model.internalName}}
+    </BreadcrumbsItem>
+    <BreadcrumbsItem>
+      Version {{this.model.majorVersion}}.{{this.model.minorVersion}}.{{this.model.draftVersion}}
+    </BreadcrumbsItem>
+    <BreadcrumbsItem>
+      Simulationsergebnisse
+    </BreadcrumbsItem>
+    
+    <div class="page-header-actions">
+      <LinkTo @route="models.versions.show" @model={{this.model}} class="btn btn-outline-secondary">
+        <FaIcon @icon="arrow-left" /> Zurück zum Modell
+      </LinkTo>
+      <button type="button" class="btn btn-primary" {{on "click" this.loadSimulationResults}}>
+        <FaIcon @icon="sync-alt" /> Aktualisieren
+      </button>
+    </div>
+  </div>
+
+  <div class="simulation-results-content">
+    {{#if this.isLoading}}
+      <div class="text-center my-5">
+        <BsSpinner />
+        <p>Lade Simulationsergebnisse...</p>
+      </div>
+    {{else if this.error}}
+      <BsAlert @type="danger" @visible={{true}}>
+        {{this.error}}
+      </BsAlert>
+    {{else if (not this.simulationResults.length)}}
+      <div class="empty-state text-center my-5">
+        <FaIcon @icon="chart-bar" @size="3x" class="text-muted mb-3" />
+        <h3>Keine Simulationsergebnisse</h3>
+        <p>Führe eine Simulation aus und speichere die Ergebnisse, um sie hier zu vergleichen.</p>
+        <LinkTo @route="models.versions.show" @model={{this.model}} class="btn btn-primary">
+          <FaIcon @icon="play-circle" /> Simulation starten
+        </LinkTo>
+      </div>
+    {{else}}
+      <div class="list-group">
+        {{#each this.simulationResults as |result|}}
+          <div class="list-group-item simulation-result-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="mb-1">{{result.name}}</h5>
+                <p class="mb-1 text-muted small">
+                  Erstellt: {{format-date result.createdAt}}
+                </p>
+                <div class="simulation-result-meta small text-muted">
+                  <span>Version: {{result.metadata.version}}</span>
+                  <span class="mx-2">|</span>
+                  <span>Zeitraum: {{result.metadata.timeStart}} – {{result.metadata.timeEnd}}</span>
+                  {{#if result.description}}
+                    <span class="mx-2">|</span>
+                    <span>{{result.description}}</span>
+                  {{/if}}
+                </div>
+              </div>
+              <div>
+                <LinkTo @route="models.versions.show" @model={{this.model}} class="btn btn-sm btn-outline-primary me-2">
+                  <FaIcon @icon="eye" /> Anzeigen
+                </LinkTo>
+                <button type="button" class="btn btn-sm btn-outline-danger" {{on "click" (fn this.deleteSimulationResult result.id)}}>
+                  <FaIcon @icon="trash" /> Löschen
+                </button>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
+  </div>
+</div>

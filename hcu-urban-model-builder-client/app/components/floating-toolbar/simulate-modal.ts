@@ -97,6 +97,14 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @tracked currentDataset: TimeSeriesDataset | ScatterPlotDataset | null = null;
 
+  // Save functionality
+  @tracked isSaving = false;
+  @tracked saveError: string | null = null;
+  @tracked saveSuccess = false;
+  @tracked saveDialogOpen = false;
+  @tracked saveName = '';
+  @tracked saveDescription = '';
+
   tabNameToChartOptionByIndex = {
     [TabName.TimeSeries]: this.getTimeseriesChartOptionByIndex,
     [TabName.ScatterPlot]: this.getScatterPlotChartOptionByIndex,
@@ -675,5 +683,114 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  @action
+  openSaveDialog() {
+    this.saveDialogOpen = true;
+    this.saveName = `Simulation ${new Date().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}`;
+    this.saveDescription = '';
+    this.saveError = null;
+    this.saveSuccess = false;
+  }
+
+  @action
+  closeSaveDialog() {
+    this.saveDialogOpen = false;
+    this.saveError = null;
+    this.saveSuccess = false;
+  }
+
+  @action
+  async saveSimulationResult() {
+    if (!this.simulationResult) {
+      this.saveError = 'Keine Simulationsergebnisse zum Speichern';
+      return;
+    }
+
+    this.isSaving = true;
+    this.saveError = null;
+
+    try {
+      // Get the model name from the related model
+      const model = await this.args.model.model;
+      const modelName = model?.internalName || 'model';
+
+      // Transform simulationResult to use node names instead of UUIDs
+      const resultsWithNodeNames = {
+        times: this.simulationResult.times,
+        nodes: {} as Record<string, any>,
+      };
+
+      // Replace node UUIDs with node names in the results
+      for (const [nodeId, nodeData] of Object.entries(this.simulationResult.nodes)) {
+        try {
+          const node = await this.store.findRecord<Node>('node', nodeId);
+          const nodeName = node.name || nodeId;
+          resultsWithNodeNames.nodes[nodeName] = nodeData;
+        } catch {
+          resultsWithNodeNames.nodes[nodeId] = nodeData;
+        }
+      }
+
+      // Transform scenario to use node names instead of UUIDs
+      const scenarioWithNodeNames: Record<string, any> = {};
+      for (const [nodeId, value] of this.inMemoryScenario.entries()) {
+        try {
+          const node = await this.store.findRecord<Node>('node', nodeId);
+          const nodeName = node.name || nodeId;
+          scenarioWithNodeNames[nodeName] = value;
+        } catch {
+          scenarioWithNodeNames[nodeId] = value;
+        }
+      }
+
+      // Prepare the data for saving
+      const saveData = {
+        modelsVersionsId: this.args.model.id,
+        scenariosId: null, // TODO: Get scenario ID
+        name: this.saveName,
+        description: this.saveDescription,
+        metadata: {
+          modelId: this.args.model.id,
+          modelName,
+          version: `${this.args.model.majorVersion}.${this.args.model.minorVersion}.${this.args.model.draftVersion}`,
+          timeStart: this.args.model.timeStart,
+          timeLength: this.args.model.timeLength,
+          timeEnd: this.simulationEndTime,
+          downloadTimestamp: new Date().toISOString(),
+        },
+        scenario: scenarioWithNodeNames,
+        results: resultsWithNodeNames,
+      };
+
+      // Save to backend
+      await this.feathers.app.service('simulation-results').create(saveData);
+      
+      this.saveSuccess = true;
+      this.saveName = '';
+      this.saveDescription = '';
+      
+      // Close the dialog after a brief delay
+      setTimeout(() => {
+        this.closeSaveDialog();
+      }, 1500);
+
+    } catch (e) {
+      console.error('Failed to save simulation result:', e);
+      this.saveError = 'Fehler beim Speichern der Simulationsergebnisse';
+    } finally {
+      this.isSaving = false;
+    }
+  }
+
+  @action
+  viewSimulationResults() {
+    // Navigate to the simulation results page
+    const router = this.floatingToolbarDropdownManager.router;
+    if (router) {
+      router.transitionTo('models.versions.simulation-results', this.args.model.id);
+      this.show = false;
+    }
   }
 }
