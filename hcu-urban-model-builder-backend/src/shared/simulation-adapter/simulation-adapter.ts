@@ -13,6 +13,7 @@ import {
   ValuedPrimitive
 } from 'simulation/blocks'
 import { Edges, EdgeType } from '../../services/edges/edges.shared.js'
+import { ModelsVersions } from '../../services/models-versions/models-versions.shared.js'
 import { primitiveFactory } from './primitive-factory.js'
 import { Results } from 'simulation/Results'
 import { Logger } from 'winston'
@@ -32,6 +33,13 @@ type SimulationResultSeries = number[] | number[][] | Record<string, number>[] |
 type SimulationResult = {
   nodes: Record<string, { series: SimulationResultSeries }>
   times: number[]
+}
+
+/** A complete graph already available to a caller (for example, the browser store). */
+export type SimulationModelData = {
+  modelVersion: ModelsVersions
+  nodes: Nodes[]
+  edges: Edges[]
 }
 
 export const NODE_TYPE_TO_PARAMETER_NAME_MAP = {
@@ -58,7 +66,8 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     app: T,
     private modelVersionId: string,
     private nodeIdToParameterValueMap: Map<string, number>,
-    private logger: Logger | typeof console = console
+    private logger: Logger | typeof console = console,
+    private readonly inMemoryData?: SimulationModelData
   ) {
     this.app = app as ClientApplication
   }
@@ -66,22 +75,26 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   public async simulate() {
     this.model = await this.createSimulationModel()
 
-    await this.createModelPrimitives(this.model)
-
-    await this.addGhostNodesToPrimitiveMap()
-
-    await this.assignPrimitiveParents()
-
-    await this.assignConverterInput()
-
-    await this.assignAgentPopulation()
-
-    await this.createModelRelationsByEdges(this.model)
     try {
+      await this.createModelPrimitives(this.model)
+
+      await this.addGhostNodesToPrimitiveMap()
+
+      await this.assignPrimitiveParents()
+
+      await this.assignConverterInput()
+
+      await this.assignAgentPopulation()
+
+      await this.createModelRelationsByEdges(this.model)
+
       this.simulationResultBeforeSerialization = this.model.simulate()
 
       return this
     } catch (error: any) {
+      if (error instanceof SimulationError) {
+        throw error
+      }
       throw new SimulationError(error.message, {
         nodeId: this.primitiveIdNodeIdMap.get(error.primitive?.id) || null
       })
@@ -97,7 +110,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   }
 
   private async createSimulationModel() {
-    const modelInDB = await this.app.service('models-versions').get(this.modelVersionId)
+    const modelInDB = await this.getModelVersion()
 
     const model = new Model({
       timeUnits: modelInDB.timeUnits || undefined,
@@ -113,13 +126,9 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   }
 
   private async createModelPrimitives(model: Model) {
-    const nodes = await this.app.service('nodes').find({
-      query: {
-        modelsVersionsId: this.modelVersionId
-      }
-    })
+    const nodes = await this.getNodes((node) => node.type !== NodeType.Ghost)
 
-    for (const node of nodes.data.filter((node) => node.type !== NodeType.Ghost)) {
+    for (const node of nodes) {
       const simulationPrimitive = await primitiveFactory(model, node)
 
       this.setParameter(node, simulationPrimitive)
@@ -135,20 +144,15 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   }
 
   private async addGhostNodesToPrimitiveMap() {
-    const ghostNodes = await this.app.service('nodes').find({
-      query: {
-        modelsVersionsId: this.modelVersionId,
-        type: NodeType.Ghost
-      }
-    })
+    const ghostNodes = await this.getNodes((node) => node.type === NodeType.Ghost)
 
-    for (const ghostNode of ghostNodes.data) {
+    for (const ghostNode of ghostNodes) {
       if (!ghostNode.ghostParentId) {
-        throw new Error('Ghost node must have a ghost parent')
+        throw new SimulationError('Ghost node must have a ghost parent', { nodeId: ghostNode.id })
       }
       const ghostParent = this.nodeIdPrimitiveMapWithGhosts.get(ghostNode.ghostParentId!)
       if (!ghostParent) {
-        throw new Error('Ghost parent not found')
+        throw new SimulationError('Ghost parent not found', { nodeId: ghostNode.id })
       }
       this.nodeIdPrimitiveMapWithGhosts.set(ghostNode.id, ghostParent)
       if (this.ghostParentToChildIdMap.has(ghostNode.ghostParentId)) {
@@ -160,56 +164,39 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   }
 
   private async assignPrimitiveParents() {
-    const nodesWithParent = await this.app.service('nodes').find({
-      query: {
-        modelsVersionsId: this.modelVersionId,
-        parentId: {
-          $ne: null
-        }
-      }
-    })
+    const nodesWithParent = await this.getNodes((node) => node.parentId != null)
 
-    for (const node of nodesWithParent.data) {
+    for (const node of nodesWithParent) {
       const parentPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(node.parentId!) as Container
       const childPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(node.id) as Primitive
       if (!parentPrimitive) {
-        throw new Error('Parent primitive not found')
+        throw new SimulationError('Parent primitive not found', { nodeId: node.id })
       }
       if (!childPrimitive) {
-        throw new Error('Child primitive not found')
+        throw new SimulationError('Child primitive not found', { nodeId: node.id })
       }
       childPrimitive.parent = parentPrimitive
     }
   }
 
   private async assignConverterInput() {
-    const converterNodes = await this.app.service('nodes').find({
-      query: {
-        modelsVersionsId: this.modelVersionId,
-        type: NodeType.Converter
-      }
-    })
+    const converterNodes = await this.getNodes((node) => node.type === NodeType.Converter)
 
-    for (const node of converterNodes.data) {
+    for (const node of converterNodes) {
       const ghostChildren = this.ghostParentToChildIdMap.get(node.id) || []
-      const converterInputEdges = await this.app.service('edges').find({
-        query: {
-          modelsVersionsId: this.modelVersionId,
-          targetId: {
-            $in: [node.id, ...(ghostChildren || [])]
-          }
-        }
-      })
+      const converterInputEdges = await this.getEdges((edge) =>
+        [node.id, ...ghostChildren].includes(edge.targetId)
+      )
 
-      if (converterInputEdges.total > 1) {
-        throw new Error('Converter node must have only one input node')
+      if (converterInputEdges.length > 1) {
+        throw new SimulationError('Converter node must have only one input node', { nodeId: node.id })
       }
-      if (converterInputEdges.total === 0) {
+      if (converterInputEdges.length === 0) {
         console.debug('Converter node has no input node. Has input type time')
         continue
       }
 
-      const converterInputEdge = converterInputEdges.data[0]
+      const converterInputEdge = converterInputEdges[0]!
       const converter = this.nodeIdPrimitiveMapWithGhosts.get(node.id) as Converter
       const inputNode = this.nodeIdPrimitiveMapWithGhosts.get(converterInputEdge.sourceId) as ValuedPrimitive
       converter.input = inputNode
@@ -217,34 +204,24 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   }
 
   private async assignAgentPopulation() {
-    const populationNodes = await this.app.service('nodes').find({
-      query: {
-        modelsVersionsId: this.modelVersionId,
-        type: NodeType.Population
-      }
-    })
+    const populationNodes = await this.getNodes((node) => node.type === NodeType.Population)
 
-    for (const node of populationNodes.data) {
+    for (const node of populationNodes) {
       const ghostChildren = this.ghostParentToChildIdMap.get(node.id) || []
-      const agentPopulationEdges = await this.app.service('edges').find({
-        query: {
-          modelsVersionsId: this.modelVersionId,
-          type: EdgeType.AgentPopulation,
-          targetId: {
-            $in: [node.id, ...(ghostChildren || [])]
-          }
-        }
-      })
+      const agentPopulationEdges = await this.getEdges(
+        (edge) =>
+          edge.type === EdgeType.AgentPopulation && [node.id, ...ghostChildren].includes(edge.targetId)
+      )
 
-      if (agentPopulationEdges.total > 1) {
-        throw new Error('Population node must have only one agent node')
+      if (agentPopulationEdges.length > 1) {
+        throw new SimulationError('Population node must have only one agent node', { nodeId: node.id })
       }
-      if (agentPopulationEdges.total === 0) {
+      if (agentPopulationEdges.length === 0) {
         console.debug('Population node has no agent node')
         continue
       }
 
-      const agentPopulationEdge = agentPopulationEdges.data[0]
+      const agentPopulationEdge = agentPopulationEdges[0]!
       const agent = this.nodeIdPrimitiveMapWithGhosts.get(agentPopulationEdge.sourceId) as Agent
       const population = this.nodeIdPrimitiveMapWithGhosts.get(node.id) as Population
       population.agentBase = agent
@@ -252,13 +229,9 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   }
 
   private async createModelRelationsByEdges(model: Model) {
-    const edges = await this.app.service('edges').find({
-      query: {
-        modelsVersionsId: this.modelVersionId
-      }
-    })
+    const edges = await this.getEdges()
 
-    for (const edge of edges.data) {
+    for (const edge of edges) {
       if (edge.type === EdgeType.Link) {
         const sourcePrimitive = this.nodeIdPrimitiveMapWithGhosts.get(edge.sourceId)
         const targetPrimitive = this.nodeIdPrimitiveMapWithGhosts.get(edge.targetId)
@@ -276,6 +249,35 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
       //   population.agentBase = agent
       // }
     }
+  }
+
+  private async getModelVersion() {
+    if (this.inMemoryData) {
+      return this.inMemoryData.modelVersion
+    }
+    return this.app.service('models-versions').get(this.modelVersionId)
+  }
+
+  private async getNodes(predicate: (node: Nodes) => boolean = () => true) {
+    if (this.inMemoryData) {
+      return this.inMemoryData.nodes.filter(predicate)
+    }
+
+    const result = await this.app.service('nodes').find({
+      query: { modelsVersionsId: this.modelVersionId }
+    })
+    return result.data.filter(predicate)
+  }
+
+  private async getEdges(predicate: (edge: Edges) => boolean = () => true) {
+    if (this.inMemoryData) {
+      return this.inMemoryData.edges.filter(predicate)
+    }
+
+    const result = await this.app.service('edges').find({
+      query: { modelsVersionsId: this.modelVersionId }
+    })
+    return result.data.filter(predicate)
   }
 
   private serializeSimulationResult() {

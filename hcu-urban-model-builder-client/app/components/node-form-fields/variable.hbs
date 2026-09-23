@@ -16,7 +16,7 @@
       @disabled={{or @changeset.dataProxy.isParameter @disabled}}
     >
       <el.control
-        class="code-textarea"
+        class="code-textarea {{if (gt this.warnings.length 0) 'is-invalid'}}"
         disabled={{or @changeset.dataProxy.isParameter @disabled}}
       />
     </NodeFormFields::Formula>

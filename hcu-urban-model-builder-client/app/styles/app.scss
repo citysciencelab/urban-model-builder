@@ -493,12 +493,30 @@ a.disabled,
 
 .formula__linked {
   list-style-type: none;
-  padding: 0;
+  padding: get-spacer(2);
   margin: 0;
-  margin-top: get-spacer(2);
-  gap: get-spacer(2);
+  margin-top: get-spacer(1);
+  gap: get-spacer(1);
   display: flex;
   flex-wrap: wrap;
+  background-color: whitesmoke;
+  border-radius: $border-radius;
+
+  li {
+    margin: 0;
+    line-height: 1;
+  }
+}
+
+.formula__linked-heading {
+  margin: get-spacer(3) 0 0;
+}
+
+.formula__linked-heading,
+.sidebar__content .form-label {
+  color: $text-muted;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
 }
 
 .formula__add-linked {
@@ -508,6 +526,8 @@ a.disabled,
   overflow: hidden;
   max-width: 10rem;
   display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.55rem;
 }
 
 .formula__wrapper {
@@ -590,6 +610,13 @@ a.disabled,
 
 .simulate-model__range {
   flex: 1;
+}
+
+.simulate-model__chart-mode-controls {
+  display: flex;
+  gap: get-spacer(1);
+  justify-content: flex-end;
+  margin: get-spacer(2) 0;
 }
 
 .simulate-model__error-node__select-link {
@@ -726,6 +753,12 @@ body:has(.simulation-results-modal) .modal-backdrop {
     justify-content: center;
     color: $gray-600;
   }
+}
+
+.parameter__settings__chart-color {
+  cursor: pointer;
+  height: 2.4rem;
+  padding: 0.2rem;
 }
 
 .units__selection__input {
@@ -994,4 +1027,20 @@ input:focus {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.formula__invalid-references {
+  margin-top: 0.5rem;
+  color: $danger;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  span {
+    display: block;
+  }
+}
+
+.node__validation-alert {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }

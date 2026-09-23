@@ -33,6 +33,12 @@ import { Roles } from '../../client.js'
 import { QueryBuilder, type Knex } from 'knex'
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { randomUUID } from 'crypto'
+import {
+  findAllEdges,
+  findAllNodes,
+  findAllScenarios,
+  findAllScenarioValues
+} from '../../shared/graph-queries.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
@@ -326,21 +332,23 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   }
 
   async exportModel(data: ModelsExport, params?: ServiceParams): Promise<ExportedModelPayload> {
-    const model = await this.getAuthorizedModel(data.id, params)
+    // Permission (an explicit role on the model) is enforced by the
+    // checkModelPermission hook on this method; this just fetches the record.
+    const model = await this.app.service('models').get(data.id, { user: params?.user })
 
     // Export the model as a self-contained JSON document containing every
     // version and all graph/scenario records needed to recreate it elsewhere.
     const modelVersions = await this.findAllModelVersions(model.id)
     const exportedModelVersions = await Promise.all(
       modelVersions.map(async (modelVersion) => {
-        const nodes = await this.findAllNodes(modelVersion.id)
-        const edges = await this.findAllEdges(modelVersion.id)
-        const scenarios = await this.findAllScenarios(modelVersion.id)
+        const nodes = await findAllNodes(this.app, modelVersion.id)
+        const edges = await findAllEdges(this.app, modelVersion.id)
+        const scenarios = await findAllScenarios(this.app, modelVersion.id)
 
         const exportedScenarios = await Promise.all(
           scenarios.map(async (scenario) => ({
             scenario,
-            scenarioValues: await this.findAllScenarioValues(scenario.id)
+            scenarioValues: await findAllScenarioValues(this.app, scenario.id)
           }))
         )
 
@@ -747,23 +755,6 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     return newDraftModelVersion
   }
 
-  private async getAuthorizedModel(modelId: string, params?: ServiceParams) {
-    const model = await this.get(modelId, {
-      user: params?.user,
-      query: {
-        role: {
-          $gte: Roles.viewer
-        }
-      } as any
-    })
-
-    if (model.role == null || model.role < Roles.viewer) {
-      throw new Forbidden('You do not have permission to export this model.')
-    }
-
-    return model
-  }
-
   private async findAllModelVersions(modelId: string) {
     const result = await this.app.service('models-versions')._find({
       query: {
@@ -782,46 +773,6 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     })
   }
 
-  private async findAllNodes(modelsVersionsId: string) {
-    const result = await this.app.service('nodes')._find({
-      query: {
-        modelsVersionsId
-      }
-    })
-
-    return result.data
-  }
-
-  private async findAllEdges(modelsVersionsId: string) {
-    const result = await this.app.service('edges')._find({
-      query: {
-        modelsVersionsId
-      }
-    })
-
-    return result.data
-  }
-
-  private async findAllScenarios(modelsVersionsId: string) {
-    const result = await this.app.service('scenarios')._find({
-      query: {
-        modelsVersionsId
-      }
-    })
-
-    return result.data
-  }
-
-  private async findAllScenarioValues(scenariosId: string) {
-    const result = await this.app.service('scenarios-values')._find({
-      query: {
-        scenariosId
-      }
-    })
-
-    return result.data
-  }
-
   private validateImportPayload(payload: unknown): ExportedModelPayload {
     if (!payload || typeof payload !== 'object') {
       throw new BadRequest('The imported file does not contain a valid model export.')
@@ -835,6 +786,31 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       candidate.modelVersions.length === 0
     ) {
       throw new BadRequest('The imported file is missing required model export data.')
+    }
+
+    for (const exportedVersion of candidate.modelVersions) {
+      if (
+        !exportedVersion ||
+        typeof exportedVersion !== 'object' ||
+        !exportedVersion.modelVersion ||
+        !exportedVersion.modelVersion.id ||
+        !Array.isArray(exportedVersion.nodes) ||
+        !Array.isArray(exportedVersion.edges) ||
+        !Array.isArray(exportedVersion.scenarios)
+      ) {
+        throw new BadRequest('The imported file contains a model version with missing or malformed data.')
+      }
+
+      for (const exportedScenario of exportedVersion.scenarios) {
+        if (
+          !exportedScenario ||
+          typeof exportedScenario !== 'object' ||
+          !exportedScenario.scenario ||
+          !Array.isArray(exportedScenario.scenarioValues)
+        ) {
+          throw new BadRequest('The imported file contains a scenario with missing or malformed data.')
+        }
+      }
     }
 
     return candidate as ExportedModelPayload

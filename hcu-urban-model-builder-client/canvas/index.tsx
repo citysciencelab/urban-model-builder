@@ -100,6 +100,42 @@ function Flow({
       };
     }),
   );
+  const validationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  const validateNodes = useCallback(() => {
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
+
+    validationTimeoutRef.current = setTimeout(async () => {
+      const errors = await nodeActions.validateModel();
+      setNodes((nds) =>
+        nds.map((node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            validationError: errors[node.id] || null,
+          },
+        })),
+      );
+    }, 350);
+  }, [nodeActions]);
+
+  useEffect(() => {
+    validateNodes();
+    return () => {
+      if (validationTimeoutRef.current) {
+        clearTimeout(validationTimeoutRef.current);
+      }
+    };
+  }, [validateNodes]);
+
+  useEffect(() => {
+    nodeActions.eventBus.on("model:validate", validateNodes);
+    return () => nodeActions.eventBus.off("model:validate", validateNodes);
+  }, [nodeActions, validateNodes]);
 
   const [connectionLineType, setConnectionLineType] = useState(
     ConnectionLineType.Bezier,
@@ -150,8 +186,11 @@ function Flow({
       setNodes((nds) => {
         return applyNodeChanges(changes, nds);
       });
+      if (changes.some((change) => change.type !== "select")) {
+        validateNodes();
+      }
     },
-    [rfInstance],
+    [rfInstance, validateNodes],
   );
 
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
@@ -163,7 +202,10 @@ function Flow({
     }
 
     setEdges((eds) => applyEdgeChanges(changes, eds));
-  }, []);
+    if (changes.some((change) => change.type !== "select")) {
+      validateNodes();
+    }
+  }, [validateNodes]);
 
   const getTmpEdgeId = (params: Connection) =>
     `tmp_source-${params.source}_target-${params.target}`;
@@ -212,13 +254,14 @@ function Flow({
 
       setEdges((eds) =>
         eds
-          .filter((e) => e.id !== tmpEdgeId)
+          .filter((e) => e.id !== tmpEdgeId && e.id !== newEdge.id)
           .concat({
             ...newEdge.raw,
           }),
       );
+      validateNodes();
     },
-    [setEdges],
+    [setEdges, validateNodes],
   );
 
   const onReconnect = useCallback(

@@ -1,4 +1,4 @@
-<div class="formula__wrapper">
+<div class="formula__wrapper" {{on "input" this.scheduleReferenceSync}}>
   {{yield}}
 
   {{! FORMULAS }}
@@ -63,6 +63,7 @@
       </dd.Content>
     </BasicDropdown>
     {{! LINKED NODES }}
+    <p class="formula__linked-heading">Verlinkte Parameter</p>
     <ul
       class="formula__linked"
       {{did-insert this.loadSourceNodes}}
@@ -81,5 +82,36 @@
         </li>
       {{/each}}
     </ul>
+    {{#if this.warnings.length}}
+      <div class="formula__invalid-references" role="alert">
+        {{#each this.warnings as |warning|}}
+          <span>{{warning}}</span>
+        {{/each}}
+      </div>
+    {{/if}}
   {{/unless}}
 </div>
+
+<BsModal
+  @open={{not (eq this.pendingVariableName null)}}
+  @onHide={{this.closeCreateVariableModal}}
+  as |modal|
+>
+  <modal.header>
+    <h5 class="modal-title">Create missing variable?</h5>
+  </modal.header>
+  <modal.body>
+    <p>
+      <code>[{{this.pendingVariableName}}]</code> does not exist in this model.
+      Create it as a variable and connect it to this primitive?
+    </p>
+  </modal.body>
+  <modal.footer>
+    <button type="button" class="btn btn-secondary" {{on "click" modal.close}}>
+      Cancel
+    </button>
+    <button type="button" class="btn btn-primary" {{on "click" this.createMissingVariable}}>
+      Create and connect
+    </button>
+  </modal.footer>
+</BsModal>

@@ -11,8 +11,15 @@ import type EventBus from './event-bus';
 import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
 import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fields';
 import type ApplicationStateService from './application-state';
-import { NodeType } from 'hcu-urban-model-builder-backend';
+import {
+  NodeType,
+  SimulationAdapter,
+  type Edges,
+  type ModelsVersions,
+  type Nodes,
+} from 'hcu-urban-model-builder-backend';
 import type IntlService from 'ember-intl/services/intl';
+import type FeathersService from './feathers';
 
 export default class EmberReactConnectorService extends Service {
   @service declare applicationState: ApplicationStateService;
@@ -20,11 +27,13 @@ export default class EmberReactConnectorService extends Service {
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare eventBus: EventBus;
   @service declare intl: IntlService;
+  @service declare feathers: FeathersService;
 
   @tracked selected: (Node | Edge)[] = [];
   @tracked currentModel: ModelsVersion | null = null;
   @tracked sidebarElement: HTMLElement | null = null;
   @tracked toolbarElement: HTMLElement | null = null;
+  @tracked validationErrors: Record<string, string> = {};
 
   get currentModelVersionId() {
     return this.currentModel!.id;
@@ -119,6 +128,75 @@ export default class EmberReactConnectorService extends Service {
     }
 
     return true;
+  }
+
+  /** Runs against the graph already held in Ember's store; no API reads occur. */
+  @action
+  async validateModel(): Promise<Record<string, string>> {
+    if (!this.currentModelVersionId) {
+      this.validationErrors = {};
+      return {};
+    }
+
+    try {
+      const nodes = (await this.currentModel!.nodes).map((node) => {
+          return {
+            id: node.id!,
+            modelsVersionsId: this.currentModelVersionId,
+            type: node.type,
+            name: node.name,
+            description: node.description,
+            data: node.data,
+            position: node.position,
+            height: node.height,
+            width: node.width,
+            parentId: node.parent?.id ?? null,
+            ghostParentId: node.ghostParent?.id ?? null,
+            isParameter: node.isParameter,
+            parameterMin: node.parameterMin ?? null,
+            parameterMax: node.parameterMax ?? null,
+            parameterStep: node.parameterStep ?? null,
+            parameterType: node.parameterType,
+            parameterOptions: node.parameterOptions ?? null,
+            isOutputParameter: node.isOutputParameter,
+          } as Nodes;
+        });
+      const edges = (await this.currentModel!.edges).map((edge) => {
+          return {
+            id: edge.id!,
+            modelsVersionsId: this.currentModelVersionId,
+            type: edge.type,
+            sourceId: edge.source.id!,
+            targetId: edge.target.id!,
+            sourceHandle: edge.sourceHandle,
+            targetHandle: edge.targetHandle,
+            points: edge.points ?? null,
+          } as Edges;
+        });
+      await new SimulationAdapter(
+        this.feathers.app,
+        this.currentModelVersionId,
+        new Map<string, number>(),
+        console,
+        {
+          modelVersion: this.currentModel! as unknown as ModelsVersions,
+          nodes,
+          edges,
+        },
+      ).simulate();
+      this.validationErrors = {};
+      return {};
+    } catch (error: any) {
+      if (error?.name === 'SimulationError' && error.data?.nodeId) {
+        const errors = {
+          [error.data.nodeId]: String(error.message).replace(/<[^>]*>/g, ''),
+        };
+        this.validationErrors = errors;
+        return errors;
+      }
+      this.validationErrors = {};
+      return {};
+    }
   }
 
   private saveRecord(record: Model, rawData: any) {

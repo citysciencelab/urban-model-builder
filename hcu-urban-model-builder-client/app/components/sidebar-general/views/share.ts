@@ -29,8 +29,10 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
   @tracked isExporting = false;
   @tracked isImporting = false;
   @tracked importExportError: string | null = null;
+  @tracked showImportConfirmModal = false;
 
   importInputId = 'model-json-import-input';
+  private pendingImportFile: File | null = null;
 
   get nextVersionString() {
     const mv = this.args.modelVersion;
@@ -118,13 +120,35 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
     }
   }
 
-  @action async onImportFileSelected(event: Event) {
+  @action onImportFileSelected(event: Event) {
     if (!this.args.modelVersion.canCreateNewDraft) {
       return;
     }
 
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    // Importing wipes the graph of the freshly created draft, so confirm with
+    // the user before proceeding instead of importing immediately.
+    this.pendingImportFile = file;
+    this.importExportError = null;
+    this.showImportConfirmModal = true;
+  }
+
+  @action onCancelImport() {
+    this.pendingImportFile = null;
+    this.showImportConfirmModal = false;
+    this.resetImportInput();
+    return false;
+  }
+
+  @action async onConfirmImport() {
+    const file = this.pendingImportFile;
+    this.showImportConfirmModal = false;
 
     if (!file) {
       return;
@@ -160,8 +184,18 @@ export default class SidebarGeneralViewsShareComponent extends Component<Sidebar
       this.importExportError =
         'Import failed. Please check the JSON file.';
     } finally {
-      input.value = '';
+      this.pendingImportFile = null;
+      this.resetImportInput();
       this.isImporting = false;
+    }
+  }
+
+  private resetImportInput() {
+    const input = document.getElementById(this.importInputId) as
+      | HTMLInputElement
+      | null;
+    if (input) {
+      input.value = '';
     }
   }
 

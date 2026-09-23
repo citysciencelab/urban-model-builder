@@ -15,6 +15,7 @@ export type NodeActions = {
   onSidebarInserted: (element: HTMLElement) => void;
   onToolbarInserted: (element: HTMLElement) => void;
   confirmDeleteNodes: (nodeIds: string[]) => boolean;
+  validateModel: () => Promise<Record<string, string>>;
   currentModelVersionId: string;
   storeEventEmitter: {
     on: (
@@ -50,7 +51,8 @@ export type NodeActions = {
         | 'node:selected'
         | 'node:unselected'
         | 'primitive-modal:create-clicked'
-        | 'scenario-value-changed',
+        | 'scenario-value-changed'
+        | 'model:validate',
       callback: (...args: any[]) => void,
     ) => void;
     off: (
@@ -58,11 +60,12 @@ export type NodeActions = {
         | 'node:selected'
         | 'node:unselected'
         | 'primitive-modal:create-clicked'
-        | 'scenario-value-changed',
+        | 'scenario-value-changed'
+        | 'model:validate',
       callback: (...args: any[]) => void,
     ) => void;
     emit: (
-      eventName: 'node:selected' | 'node:unselected',
+      eventName: 'node:selected' | 'node:unselected' | 'model:validate',
       ...data: any[]
     ) => void;
   };

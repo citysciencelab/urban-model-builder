@@ -2,6 +2,9 @@ import { Nodes } from '../nodes.schema.js'
 import { NodeType } from '../nodes.shared.js'
 
 const defaultNodeDataByType = {
+  [NodeType.Variable]: {
+    value: '0'
+  },
   [NodeType.OgcApiFeatures]: {
     query: {
       limit: 1000,

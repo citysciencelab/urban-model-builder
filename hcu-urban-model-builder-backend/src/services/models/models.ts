@@ -44,6 +44,7 @@ import { initModelsUsers } from '../../hooks/init-models-users.js'
 import { checkPublishPermissionsAndState } from './hooks/check-publish-permissions-and-state.js'
 import { checkClonePermissionsAndState } from './hooks/check-clone-permissions-and-state.js'
 import { checkNewDraftPermissionsAndState } from './hooks/check-new-draft-permissions-and-state.js'
+import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import _ from 'lodash'
 import { Roles } from '../../client.js'
 
@@ -123,7 +124,10 @@ export const models = (app: Application) => {
       ],
       exportModel: [
         schemaHooks.validateData(modelsExportValidator),
-        schemaHooks.resolveData(modelsExportResolver)
+        schemaHooks.resolveData(modelsExportResolver),
+        // Export requires an explicit role on the model (owner/collaborator/viewer),
+        // not just that the model happens to be publicly published.
+        checkModelPermission('data.id', 'models', Roles.viewer)
       ],
       importModel: [
         schemaHooks.validateData(modelsImportValidator),

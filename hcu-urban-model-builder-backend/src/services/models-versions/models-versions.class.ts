@@ -24,6 +24,12 @@ import {
 } from '../scenarios-values/scenarios-values.schema.js'
 import { BadRequest } from '@feathersjs/errors'
 import _ from 'lodash'
+import {
+  findAllEdges,
+  findAllNodes,
+  findAllScenarios,
+  findAllScenarioValues
+} from '../../shared/graph-queries.js'
 
 export type { ModelsVersions, ModelsVersionsData, ModelsVersionsPatch, ModelsVersionsQuery }
 
@@ -115,14 +121,14 @@ export class ModelsVersionsService<ServiceParams extends Params = ModelsVersions
     const modelVersion = await this._get(data.id)
     // Export a single version as a portable graph package. This is used both
     // for backups and as the input format for importing into a fresh draft.
-    const nodes = await this.findAllNodes(modelVersion.id)
-    const edges = await this.findAllEdges(modelVersion.id)
-    const scenarios = await this.findAllScenarios(modelVersion.id)
+    const nodes = await findAllNodes(this.app, modelVersion.id)
+    const edges = await findAllEdges(this.app, modelVersion.id)
+    const scenarios = await findAllScenarios(this.app, modelVersion.id)
 
     const exportedScenarios = await Promise.all(
       scenarios.map(async (scenario) => ({
         scenario,
-        scenarioValues: await this.findAllScenarioValues(scenario.id)
+        scenarioValues: await findAllScenarioValues(this.app, scenario.id)
       }))
     )
 
@@ -136,10 +142,28 @@ export class ModelsVersionsService<ServiceParams extends Params = ModelsVersions
     }
   }
 
-  async importVersion(data: ModelsVersionsImport) {
+  async importVersion(data: ModelsVersionsImport, params?: ModelsVersionsParams) {
     const payload = this.validateImportPayload(data.payload)
     const targetModelVersionId = data.id
     const nodeIdMap = new Map<string, string>()
+
+    // Validate every relation up front, while the target version's existing data
+    // is still intact, so a malformed payload is rejected before anything is wiped.
+    const payloadNodeIds = new Set(payload.nodes.map((node) => node.id))
+    for (const edge of payload.edges) {
+      if (!payloadNodeIds.has(edge.sourceId) || !payloadNodeIds.has(edge.targetId)) {
+        throw new BadRequest('The imported model version contains an edge that references a missing node.')
+      }
+    }
+    for (const exportedScenario of payload.scenarios) {
+      for (const scenarioValue of exportedScenario.scenarioValues) {
+        if (!payloadNodeIds.has(scenarioValue.nodesId)) {
+          throw new BadRequest(
+            'The imported model version contains a scenario value that references a missing node.'
+          )
+        }
+      }
+    }
 
     // Version import replaces the contents of the target version. The caller is
     // responsible for choosing whether that target is an existing draft or a
@@ -296,55 +320,15 @@ export class ModelsVersionsService<ServiceParams extends Params = ModelsVersions
     return this._get(targetModelVersionId)
   }
 
-  private async findAllNodes(modelsVersionsId: string) {
-    const result = await this.app.service('nodes')._find({
-      query: {
-        modelsVersionsId
-      }
-    })
-
-    return result.data
-  }
-
-  private async findAllEdges(modelsVersionsId: string) {
-    const result = await this.app.service('edges')._find({
-      query: {
-        modelsVersionsId
-      }
-    })
-
-    return result.data
-  }
-
-  private async findAllScenarios(modelsVersionsId: string) {
-    const result = await this.app.service('scenarios')._find({
-      query: {
-        modelsVersionsId
-      }
-    })
-
-    return result.data
-  }
-
-  private async findAllScenarioValues(scenariosId: string) {
-    const result = await this.app.service('scenarios-values')._find({
-      query: {
-        scenariosId
-      }
-    })
-
-    return result.data
-  }
-
   private async removeAllScenarios(modelsVersionsId: string) {
-    const scenarios = await this.findAllScenarios(modelsVersionsId)
+    const scenarios = await findAllScenarios(this.app, modelsVersionsId)
     for (const scenario of scenarios) {
       await this.app.service('scenarios').remove(scenario.id, {})
     }
   }
 
   private async removeAllNodes(modelsVersionsId: string) {
-    const nodes = await this.findAllNodes(modelsVersionsId)
+    const nodes = await findAllNodes(this.app, modelsVersionsId)
     for (const node of nodes) {
       await this.app.service('nodes').remove(node.id, {})
     }

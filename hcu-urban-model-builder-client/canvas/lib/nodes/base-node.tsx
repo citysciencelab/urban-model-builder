@@ -11,10 +11,20 @@ export const BaseNode = memo(
       type === ReactFlowNodeType.OgcApiFeatures ? "source" : undefined;
 
     return (
-      <div className="react-flow__node-base__content">
+      <div
+        className={`react-flow__node-base__content${
+          data.validationError ? " --invalid" : ""
+        }`}
+      >
         <DefaultNodeHandles type={handleType} isConnectable={isConnectable} />
 
         <BaseNodeData id={id} type={type} data={data} />
+
+        {data.validationError && (
+          <div className="react-flow__node-validation-warning" title={data.validationError}>
+            !
+          </div>
+        )}
 
         <DefaultNodeToolbar
           nodeId={id}

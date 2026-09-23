@@ -2,14 +2,18 @@ import { action } from '@ember/object';
 import Component from '@glimmer/component';
 import Edge from 'hcu-urban-model-builder-client/models/edge';
 import Node from 'hcu-urban-model-builder-client/models/node';
-import { NodeType } from 'hcu-urban-model-builder-backend';
+import { EdgeType, NodeType } from 'hcu-urban-model-builder-backend';
 import { importSync } from '@embroider/macros';
 import { ensureSafeComponent } from '@embroider/util';
-import { dasherize } from '@ember/string';
+import { dasherize, decamelize } from '@ember/string';
 import { tracked } from '@glimmer/tracking';
 import lookupValidator from 'ember-changeset-validations';
 import nodeValidator from 'hcu-urban-model-builder-client/validations/node-validator';
 import { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
+import { NodeIconMap } from 'hcu-urban-model-builder-client/utils/node-icon-map';
+import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
+import { service } from '@ember/service';
+import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
 
 export interface FormSignature {
   // The arguments accepted by the component
@@ -25,6 +29,20 @@ export interface FormSignature {
   Element: null;
 }
 
+/** Formula fields (per node type) that can contain a [Name] reference to another node. */
+const FORMULA_FIELDS_BY_NODE_TYPE: Partial<Record<NodeType, string[]>> = {
+  [NodeType.Variable]: ['value'],
+  [NodeType.Stock]: ['value'],
+  [NodeType.Flow]: ['rate'],
+  [NodeType.State]: ['startActive', 'residency'],
+  [NodeType.Transition]: ['value'],
+  [NodeType.Action]: ['action', 'value'],
+};
+
+function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export default class FormComponent extends Component<FormSignature> {
   private readonly DEBOUNCE_MS = 250;
 
@@ -34,9 +52,26 @@ export default class FormComponent extends Component<FormSignature> {
   @tracked isEditMode = false;
 
   validator = lookupValidator(nodeValidator);
+  @service declare eventBus: EventBus;
+  @service declare emberReactConnector: EmberReactConnectorService;
 
   get NodeType() {
     return NodeType;
+  }
+
+  get primitiveTypeLabel() {
+    if (!(this.record instanceof Node)) {
+      return null;
+    }
+    return decamelize(NodeType[this.record.type]!);
+  }
+
+  get primitiveTypeIcon() {
+    if (!(this.record instanceof Node)) {
+      return null;
+    }
+
+    return NodeIconMap[this.record.type] || 'help';
   }
 
   get nodeFormFieldsComponent() {
@@ -109,10 +144,71 @@ export default class FormComponent extends Component<FormSignature> {
   }
 
   @action
-  onIsDirtyChanged() {
+  async onIsDirtyChanged() {
     if (this.changeset?.isDirty) {
-      this.changeset.saveTask.perform();
+      const record = this.record;
+      const oldName = record instanceof Node ? record.name : null;
+
+      await this.changeset.saveTask.perform();
+
+      if (record instanceof Node && oldName && record.name !== oldName) {
+        await this.propagateRename(record, oldName, record.name);
+      }
+
+      this.eventBus.emit('model:validate');
     }
+  }
+
+  /**
+   * Renaming a node doesn't rewrite the [Name] text already typed into other
+   * nodes' formulas, which would otherwise desync the next time one of those
+   * formulas is edited (its stale reference edge gets pruned and the user is
+   * prompted to recreate a variable with the old name). Rewrite those
+   * formulas here, at the one place a node's name can change.
+   */
+  private async propagateRename(node: Node, oldName: string, newName: string) {
+    const sourceEdges = await node.sourceEdgesWithGhosts;
+    const referenceEdges = sourceEdges.filter(
+      (edge) => edge.type === EdgeType.Link && edge.isReference,
+    );
+    if (referenceEdges.length === 0) {
+      return;
+    }
+
+    const pattern = new RegExp(`\\[${escapeRegExp(oldName)}\\]`, 'g');
+
+    for (const edge of referenceEdges) {
+      const target = await edge.target;
+      if (!target) {
+        continue;
+      }
+
+      const fields = FORMULA_FIELDS_BY_NODE_TYPE[target.type];
+      if (!fields) {
+        continue;
+      }
+
+      const data: Record<string, unknown> = { ...target.data };
+      let changed = false;
+      for (const field of fields) {
+        const value = data[field];
+        if (typeof value === 'string' && pattern.test(value)) {
+          data[field] = value.replace(pattern, `[${newName}]`);
+          changed = true;
+        }
+        pattern.lastIndex = 0;
+      }
+
+      if (changed) {
+        await this.emberReactConnector.save('node', target.id!, { data });
+      }
+    }
+  }
+
+  get modelValidationError() {
+    return this.record?.id
+      ? this.emberReactConnector.validationErrors[this.record.id]
+      : null;
   }
 
   @action
