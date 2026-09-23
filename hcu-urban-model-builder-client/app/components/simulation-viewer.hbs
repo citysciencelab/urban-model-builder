@@ -1,11 +1,11 @@
-<div class="simulation-viewer d-flex gap-3">
+<div class="simulation-viewer d-flex gap-3" {{did-update this.loadData @reloadKey}}>
   {{#if this.isLoading}}
     <div class="text-center my-5 w-100">
       <BsSpinner />
       <p>Lade Simulationsergebnisse...</p>
     </div>
   {{else if this.error}}
-    <BsAlert @type="danger" @visible={{true}} class="w-100">
+    <BsAlert @type="danger" @visible={{true}} @dismissible={{false}} class="w-100">
       {{this.error}}
     </BsAlert>
   {{else if (eq this.groups.size 0)}}
@@ -17,15 +17,15 @@
   {{else}}
     <div class="simulation-viewer-layout d-flex gap-3 w-100">
       {{!-- Sidebar with groups --}}
-      <nav class="simulation-viewer-sidebar flex-shrink-0" style="width: 250px;">
+      <nav class="simulation-viewer-sidebar flex-shrink-0">
         <div class="sidebar-title fw-bold p-2 border-bottom">Modelle</div>
         <ul class="group-list list-unstyled m-0 p-1">
-          {{#each (array this.groups.values) as |group|}}
+          {{#each this.groupList as |group|}}
             <li>
               <button
                 type="button"
-                class="group-item w-100 text-start btn btn-link p-2 rounded {{if (eq this.activeKey group.key) 'active'}}"
-                {{on "click" (fn (mut this.activeKey) group.key)}}
+                class="group-item w-100 text-start btn btn-link p-2 rounded {{if (eq this.activeGroup.key group.key) 'active'}}"
+                {{on "click" (fn this.selectGroup group)}}
               >
                 <div class="d-flex flex-column">
                   <span class="group-name">{{group.name}}</span>
@@ -43,70 +43,175 @@
         </ul>
         <div class="sidebar-foot text-muted small p-2 border-top">
           <FaIcon @icon="info-circle" />
-          Wähle ein Modell aus, um die Ergebnisse zu sehen.
+          Läufe mit gleichen Szenariowerten werden gemittelt.
         </div>
       </nav>
 
       {{!-- Main content area --}}
-      <main class="simulation-viewer-main flex-grow-1">
-        {{#let (get this.groups this.activeKey) as |activeGroup|}}
+      <div class="simulation-viewer-main flex-grow-1">
+        {{#let this.activeGroup as |activeGroup|}}
           {{#if activeGroup}}
             {{!-- Runs bar --}}
             <div class="runs-bar mb-3 p-2 bg-light rounded d-flex flex-column gap-2">
               <div class="d-flex align-items-center gap-2 flex-wrap">
                 <span class="runs-label fw-bold">
-                  <FaIcon @icon="layers" /> Läufe
+                  <FaIcon @icon="layer-group" /> Läufe
                 </span>
                 <div class="d-flex gap-1 flex-wrap">
-                  {{#each (array (this.items activeGroup)) as |run index|}}
-                    {{#let (this.selectedRuns activeGroup) as |selectedRuns|}}
-                      {{#let (map-by selectedRuns "id") as |selectedIds|}}
-                        <button
-                          type="button"
-                          class="chip run-chip btn btn-sm p-1 {{if (includes selectedIds run.id) 'selected'}}"
-                          style={{html-safe (concat "--c: " (get this.palette index))}}
-                          title={{run.name}}
-                          {{on "click" (fn this.toggleRun activeGroup run)}}
-                        >
-                          <span class="dot d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background-color: var(--c);"></span>
-                          <span class="chip-label">{{this.runLabel run}}</span>
-                        </button>
-                      {{/let}}
-                    {{/let}}
+                  {{#each (this.items activeGroup) as |run|}}
+                    <button
+                      type="button"
+                      class="chip run-chip btn btn-sm {{if (this.isSelected activeGroup run) 'selected'}}"
+                      style={{this.chipStyle run}}
+                      title={{this.runTitle run}}
+                      {{on "click" (fn this.toggleRun activeGroup run)}}
+                    >
+                      <span class="dot"></span>
+                      <span class="chip-label">{{run.label}}</span>
+                      {{#if run.isSet}}
+                        <span class="chip-count">×{{run.n}}</span>
+                      {{/if}}
+                    </button>
                   {{/each}}
                 </div>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-link p-0"
+                  {{on "click" (fn this.selectAll activeGroup)}}
+                >
+                  Alle anzeigen
+                </button>
+              </div>
+
+              <div class="runs-options d-flex align-items-center gap-3 flex-wrap small">
+                {{#if (this.canAggregate activeGroup)}}
+                  <label class="d-flex align-items-center gap-1 mb-0">
+                    <input
+                      type="checkbox"
+                      class="form-check-input m-0"
+                      checked={{this.isAggregated activeGroup}}
+                      {{on "change" (fn this.toggleAggregate activeGroup)}}
+                    />
+                    Je Szenario mitteln
+                  </label>
+                  {{#if (this.isAggregated activeGroup)}}
+                    <label class="d-flex align-items-center gap-1 mb-0">
+                      Fläche:
+                      <select class="form-select form-select-sm" {{on "change" this.setBand}}>
+                        <option value="range" selected={{eq this.prefs.band "range"}}>Spannweite der Läufe</option>
+                        <option value="ci" selected={{eq this.prefs.band "ci"}}>95-%-Intervall des Mittels</option>
+                        <option value="none" selected={{eq this.prefs.band "none"}}>keine</option>
+                      </select>
+                    </label>
+                  {{/if}}
+                {{/if}}
+                <label class="d-flex align-items-center gap-1 mb-0">
+                  <input
+                    type="checkbox"
+                    class="form-check-input m-0"
+                    checked={{this.prefs.yZero}}
+                    {{on "change" (fn this.togglePref "yZero")}}
+                  />
+                  Y ab 0
+                </label>
+                <label class="d-flex align-items-center gap-1 mb-0">
+                  <input
+                    type="checkbox"
+                    class="form-check-input m-0"
+                    checked={{this.prefs.delta}}
+                    {{on "change" (fn this.togglePref "delta")}}
+                  />
+                  Δ zum ersten gewählten Lauf
+                </label>
+                <span class="text-muted">
+                  max. {{this.maxSelected}} Läufe gleichzeitig
+                </span>
               </div>
             </div>
 
-            {{!-- Charts grid --}}
-            <div class="chart-sections">
-              {{#each activeGroup.variables as |variable|}}
-                <article class="card chart-card mb-3">
-                  <header class="card-header d-flex justify-content-between align-items-center p-2">
-                    <h6 class="mb-0">{{variable.name}}</h6>
-                    <div class="d-flex gap-1">
-                      <button type="button" class="btn btn-sm btn-outline-secondary p-1" title="Als Tabelle anzeigen">
-                        <FaIcon @icon="table" />
-                      </button>
-                      <button type="button" class="btn btn-sm btn-outline-secondary p-1" title="Als PNG speichern">
-                        <FaIcon @icon="download" />
-                      </button>
+            {{!-- Scenario values that differ between the selected runs --}}
+            {{#let (this.scenarioDiff activeGroup) as |diff|}}
+              {{#if diff}}
+                <div class="scenario-diff mb-3">
+                  <h6>Szenariowerte</h6>
+                  {{#if diff.rows.length}}
+                    <div class="table-responsive">
+                      <table class="table table-sm mb-0">
+                        <thead>
+                          <tr>
+                            <th>Parameter</th>
+                            {{#each diff.runs as |run|}}
+                              <th style={{this.chipStyle run}}>
+                                <span class="dot"></span>
+                                {{run.label}}
+                              </th>
+                            {{/each}}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {{#each diff.rows as |row|}}
+                            <tr>
+                              <td>{{row.name}}</td>
+                              {{#each row.cells as |cell|}}
+                                <td class={{if cell.differs "differs"}}>{{cell.text}}</td>
+                              {{/each}}
+                            </tr>
+                          {{/each}}
+                        </tbody>
+                      </table>
                     </div>
-                  </header>
-                  <div class="card-body p-2">
-                    <div
-                      class="chart-container"
-                      {{did-insert (fn this.didInsertChartContainer variable activeGroup)}}
-                      style="width: 100%; height: 300px;"
-                    ></div>
-                  </div>
-                </article>
-              {{/each}}
-            </div>
+                  {{else}}
+                    <p class="text-muted small mb-0">
+                      Die gewählten Läufe haben identische Szenariowerte.
+                    </p>
+                  {{/if}}
+                </div>
+              {{/if}}
+            {{/let}}
+
+            {{!-- Charts grid --}}
+            {{#let (this.chartNote activeGroup) as |note|}}
+              {{#if note}}
+                <p class="text-muted">{{note}}</p>
+              {{else}}
+                {{#let (this.groupNote activeGroup) as |groupNote|}}
+                  {{#if groupNote}}
+                    <p class="text-muted small">{{groupNote}}</p>
+                  {{/if}}
+                {{/let}}
+                <div class="chart-sections">
+                  {{#each activeGroup.variables as |variable|}}
+                    <article class="card chart-card">
+                      <header class="card-header d-flex justify-content-between align-items-center p-2">
+                        <h6 class="mb-0" title={{variable.name}}>
+                          {{variable.name}}
+                          {{#if variable.unit}}
+                            <span class="text-muted fw-normal">({{variable.unit}})</span>
+                          {{/if}}
+                        </h6>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary p-1"
+                          title="Als PNG speichern (16:9)"
+                          {{on "click" (fn this.downloadPng variable activeGroup)}}
+                        >
+                          <FaIcon @icon="download" />
+                        </button>
+                      </header>
+                      <div class="card-body p-2">
+                        <div
+                          class="chart-container"
+                          {{echart (this.chartOption variable activeGroup)}}
+                        ></div>
+                      </div>
+                    </article>
+                  {{/each}}
+                </div>
+              {{/if}}
+            {{/let}}
           {{/if}}
         {{/let}}
-      </main>
+      </div>
     </div>
   {{/if}}
 </div>
-

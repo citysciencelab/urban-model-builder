@@ -232,6 +232,87 @@
           </div>
         {{/if}}
       </BsForm>
+
+      {{#if this.saveDialogOpen}}
+        <div class="save-simulation-panel">
+          <h5>Simulationsergebnis speichern</h5>
+
+          {{#if this.saveError}}
+            <BsAlert @type="danger" @visible={{true}} @fade={{false}} @dismissible={{false}}>
+              {{this.saveError}}
+            </BsAlert>
+          {{/if}}
+
+          {{#if this.saveSuccess}}
+            <BsAlert @type="success" @visible={{true}} @fade={{false}} @dismissible={{false}}>
+              {{this.saveSuccess}}
+              <a href="javascript:void(0)" {{on "click" this.viewSimulationResults}}>Anzeigen</a>
+              ·
+              <a href="javascript:void(0)" {{on "click" this.closeSaveDialog}}>Schließen</a>
+            </BsAlert>
+          {{else if this.saveTask.isRunning}}
+            <p class="mb-2">{{this.saveProgressText}}</p>
+            <BsProgress as |pg|>
+              <pg.bar
+                @value={{this.savedRuns}}
+                @maxValue={{this.saveTotal}}
+                @type="primary"
+                @striped={{true}}
+                @animate={{true}}
+              />
+            </BsProgress>
+            <p class="text-muted small mt-2 mb-0">
+              Die Läufe werden im Browser gerechnet, die Seite reagiert währenddessen
+              verzögert. Das Modell bis zum Ende bitte nicht ändern.
+            </p>
+            <div class="d-flex justify-content-end mt-3">
+              <BsButton @type="secondary" {{on "click" this.cancelSave}}>
+                Abbrechen
+              </BsButton>
+            </div>
+          {{else}}
+            <BsForm @onSubmit={{this.saveSimulationResult}} as |form|>
+              <form.element
+                @controlType="text"
+                @label="Name"
+                @value={{this.saveName}}
+                @onChange={{fn (mut this.saveName)}}
+                @required={{true}}
+              />
+              <form.element
+                @controlType="textarea"
+                @label="Beschreibung (optional)"
+                @value={{this.saveDescription}}
+                @onChange={{fn (mut this.saveDescription)}}
+                as |el|
+              >
+                <el.control rows="3" />
+              </form.element>
+              <form.element
+                @controlType="number"
+                @label="Anzahl Läufe"
+                @value={{this.saveRuns}}
+                @onChange={{fn (mut this.saveRuns)}}
+                @helpText="1 bis 20. Der angezeigte Lauf zählt als Lauf 1, die weiteren werden mit denselben Szenariowerten gerechnet. Der Viewer mittelt sie."
+                as |el|
+              >
+                <el.control min="1" max={{this.MAX_BATCH_RUNS}} step="1" />
+              </form.element>
+              <div class="d-flex justify-content-end gap-2 mt-3">
+                <BsButton @type="secondary" {{on "click" this.cancelSave}}>
+                  Abbrechen
+                </BsButton>
+                <form.submitButton
+                  @type="primary"
+                  disabled={{or (not this.saveName) this.simulationTask.isRunning}}
+                >
+                  {{this.saveButtonLabel}}
+                </form.submitButton>
+              </div>
+            </BsForm>
+          {{/if}}
+        </div>
+      {{/if}}
     </div>
 
   </modal.Content>
@@ -247,61 +328,4 @@
     </BsButton>
   </modal.Trigger>
 
-  {{#if this.saveDialogOpen}}
-    <BasicDropdown
-      @horizontalPosition="center"
-      @verticalPosition="center"
-      @isOpen={{this.saveDialogOpen}}
-      @onClose={{this.closeSaveDialog}}
-      @renderInPlace={{true}}
-      as |dialog|
-    >
-      <dialog.Content>
-        <div class="save-simulation-dialog">
-          <h5>Simulationsergebnis speichern</h5>
-          
-          {{#if this.saveError}}
-            <BsAlert @type="danger" @visible={{true}} @fade={{false}} @dismissible={{false}}>
-              {{this.saveError}}
-            </BsAlert>
-          {{/if}}
-          
-          {{#if this.saveSuccess}}
-            <BsAlert @type="success" @visible={{true}} @fade={{false}} @dismissible={{false}}>
-              Simulationsergebnis erfolgreich gespeichert!
-            </BsAlert>
-          {{/if}}
-          
-          <BsForm as |form|>
-            <form.element
-              @controlType="text"
-              @label="Name"
-              @value={{this.saveName}}
-              @onChange={{fn (mut this.saveName)}}
-              @required={{true}}
-            />
-            <form.element
-              @controlType="textarea"
-              @label="Beschreibung (optional)"
-              @value={{this.saveDescription}}
-              @onChange={{fn (mut this.saveDescription)}}
-              @rows={{3}}
-            />
-            <div class="d-flex justify-content-end gap-2 mt-3">
-              <BsButton @type="secondary" @disabled={{this.isSaving}} {{on "click" this.closeSaveDialog}}>
-                Abbrechen
-              </BsButton>
-              <BsButton @type="primary" @disabled={{or this.isSaving (not this.saveName)}} {{on "click" this.saveSimulationResult}}>
-                {{#if this.isSaving}}
-                  <BsSpinner @size="sm" /> Speichern...
-                {{else}}
-                  Speichern
-                {{/if}}
-              </BsButton>
-            </div>
-          </BsForm>
-        </div>
-      </dialog.Content>
-    </BasicDropdown>
-  {{/if}}
 </BasicDropdown>

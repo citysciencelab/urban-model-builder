@@ -25,6 +25,9 @@ export const simulationResultsSchema = Type.Object(
       timeLength: Type.Number(),
       timeEnd: Type.Number(),
       downloadTimestamp: Type.String({ format: 'date-time' }),
+      // position within a batch of runs saved together
+      run: Type.Optional(Type.Integer({ minimum: 1 })),
+      runs: Type.Optional(Type.Integer({ minimum: 1 })),
     }),
     scenario: Type.Record(Type.String(), Type.Union([Type.Number(), Type.String(), Type.Boolean(), Type.Null()])),
     results: Type.Object({
@@ -53,7 +56,7 @@ export const simulationResultsExternalResolver = resolve<SimulationResults, Hook
 // Schema for creating new entries
 export const simulationResultsDataSchema = Type.Pick(
   simulationResultsSchema,
-  ['modelsVersionsId', 'scenariosId', 'name', 'description', 'metadata', 'scenario', 'results'],
+  ['modelsVersionsId', 'scenariosId', 'createdBy', 'name', 'description', 'metadata', 'scenario', 'results'],
   {
     $id: 'SimulationResultsData',
   }
@@ -62,10 +65,14 @@ export type SimulationResultsData = Static<typeof simulationResultsDataSchema>
 export const simulationResultsDataValidator = getValidator(simulationResultsDataSchema, dataValidator)
 export const simulationResultsDataResolver = resolve<SimulationResults, HookContext<SimulationResultsService>>({})
 
-// Schema for updating existing entries
-export const simulationResultsPatchSchema = Type.Partial(simulationResultsSchema, {
-  $id: 'SimulationResultsPatch',
-})
+// Schema for updating existing entries – a stored run is immutable apart from its label
+export const simulationResultsPatchSchema = Type.Partial(
+  Type.Pick(simulationResultsSchema, ['name', 'description']),
+  {
+    $id: 'SimulationResultsPatch',
+    additionalProperties: false,
+  }
+)
 export type SimulationResultsPatch = Static<typeof simulationResultsPatchSchema>
 export const simulationResultsPatchValidator = getValidator(simulationResultsPatchSchema, dataValidator)
 export const simulationResultsPatchResolver = resolve<SimulationResults, HookContext<SimulationResultsService>>({})

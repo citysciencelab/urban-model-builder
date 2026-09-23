@@ -24,6 +24,7 @@ import type ModelDialogsService from 'hcu-urban-model-builder-client/services/mo
 import { cached } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
 import type RouterService from '@ember/routing/router-service';
+import { toViewerNodes } from 'hcu-urban-model-builder-client/utils/simulation-viewer';
 
 export interface FloatingToolbarSimulateModalSignature {
   // The arguments accepted by the component
@@ -100,12 +101,16 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked currentDataset: TimeSeriesDataset | ScatterPlotDataset | null = null;
 
   // Save functionality
-  @tracked isSaving = false;
+  readonly MAX_BATCH_RUNS = 20;
   @tracked saveError: string | null = null;
-  @tracked saveSuccess = false;
+  @tracked saveSuccess: string | null = null;
   @tracked saveDialogOpen = false;
   @tracked saveName = '';
   @tracked saveDescription = '';
+  @tracked saveRuns: number | string = 1;
+  @tracked saveTotal = 0;
+  @tracked savedRuns = 0;
+  batchStartedAt = 0;
 
   tabNameToChartOptionByIndex = {
     [TabName.TimeSeries]: this.getTimeseriesChartOptionByIndex,
@@ -165,15 +170,17 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     }
   }
 
-  get inMemoryScenario(): Map<string, number> {
+  get defaultScenario(): Scenario | undefined {
     // from the store get the current default scenario
-    const defaultScenario = this.store
-      .peekAll<Scenario>('scenario')
-      .find((item) => {
-        return (
-          item.modelsVersions.id == this.args.model.id && item.isDefault == true
-        );
-      }) as Scenario;
+    return this.store.peekAll<Scenario>('scenario').find((item) => {
+      return (
+        item.modelsVersions.id == this.args.model.id && item.isDefault == true
+      );
+    });
+  }
+
+  get inMemoryScenario(): Map<string, number> {
+    const defaultScenario = this.defaultScenario;
 
     if (!defaultScenario) {
       return new Map<string, number>();
@@ -320,24 +327,25 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   async simulate() {
-    const nodeValuesMap = this.inMemoryScenario;
+    this.simulationResult = await this.runSimulation(this.inMemoryScenario);
+  }
 
+  async runSimulation(
+    nodeValuesMap: Map<string, number>,
+  ): Promise<SimulationResult> {
     if (this.isClientSideCalculation) {
-      this.simulationResult = (
+      return (
         await new SimulationAdapter(
           this.feathers.app,
           this.args.model.id!,
           nodeValuesMap,
         ).simulate()
       ).getResults();
-    } else {
-      this.simulationResult = (await this.feathers.app
-        .service('models')
-        .simulate({
-          id: this.args.model.id!,
-          nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
-        })) as any;
     }
+    return (await this.feathers.app.service('models').simulate({
+      id: this.args.model.id!,
+      nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
+    })) as any;
   }
 
   @action
@@ -435,8 +443,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
             for (const stateLocation of current) {
               // Type guard to ensure we're working with an object that has the expected properties
-              if (typeof stateLocation === 'object' && stateLocation !== null &&
-                  'id' in stateLocation && 'location' in stateLocation && 'state' in stateLocation) {
+              if (
+                typeof stateLocation === 'object' &&
+                stateLocation !== null &&
+                'id' in stateLocation &&
+                'location' in stateLocation &&
+                'state' in stateLocation
+              ) {
                 const location = {
                   id: stateLocation.id,
                   value: stateLocation.location,
@@ -630,11 +643,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     // Transform simulationResult to use node names instead of UUIDs
     const resultsWithNodeNames = {
       times: this.simulationResult.times,
-      nodes: {} as Record<string, any>
+      nodes: {} as Record<string, any>,
     };
 
     // Replace node UUIDs with node names in the results
-    for (const [nodeId, nodeData] of Object.entries(this.simulationResult.nodes)) {
+    for (const [nodeId, nodeData] of Object.entries(
+      this.simulationResult.nodes,
+    )) {
       try {
         const node = await this.store.findRecord<Node>('node', nodeId);
         const nodeName = node.name || nodeId; // fallback to UUID if name is empty
@@ -687,110 +702,167 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     URL.revokeObjectURL(url);
   }
 
+  // number of runs to save, clamped to 1…MAX_BATCH_RUNS
+  get saveRunCount() {
+    const n = Math.round(Number(this.saveRuns));
+    return Number.isFinite(n)
+      ? Math.min(Math.max(n, 1), this.MAX_BATCH_RUNS)
+      : 1;
+  }
+
+  get saveButtonLabel() {
+    return this.saveRunCount > 1
+      ? `${this.saveRunCount} Läufe rechnen und speichern`
+      : 'Speichern';
+  }
+
+  get saveProgressText() {
+    const current = Math.min(this.savedRuns + 1, this.saveTotal);
+    let text = `Lauf ${current} von ${this.saveTotal}`;
+    // run 1 is the result already shown, the time per run is measured from run 2 on
+    if (this.savedRuns > 1) {
+      const perRun = (Date.now() - this.batchStartedAt) / (this.savedRuns - 1);
+      const seconds = (perRun * (this.saveTotal - this.savedRuns)) / 1000;
+      text += ` · noch ca. ${seconds < 60 ? `${Math.ceil(seconds)} s` : `${Math.ceil(seconds / 60)} min`}`;
+    }
+    return text;
+  }
+
+  nodeName(nodeId: string) {
+    // all nodes of the version are in the store while the editor is open
+    return this.store.peekRecord<Node>('node', nodeId)?.name || nodeId;
+  }
+
   @action
   openSaveDialog() {
     this.saveDialogOpen = true;
+    if (this.saveTask.isRunning) {
+      return;
+    }
     this.saveName = `Simulation ${new Date().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' })}`;
     this.saveDescription = '';
+    this.saveRuns = 1;
     this.saveError = null;
-    this.saveSuccess = false;
+    this.saveSuccess = null;
   }
 
   @action
   closeSaveDialog() {
     this.saveDialogOpen = false;
     this.saveError = null;
-    this.saveSuccess = false;
+    this.saveSuccess = null;
   }
 
   @action
-  async saveSimulationResult() {
-    if (!this.simulationResult) {
+  cancelSave() {
+    if (this.saveTask.isRunning) {
+      this.saveTask.cancelAll();
+    } else {
+      this.closeSaveDialog();
+    }
+  }
+
+  @action
+  saveSimulationResult() {
+    this.saveTask.perform();
+  }
+
+  // Saves the result shown as run 1 and, for a batch, simulates and saves the further runs
+  // with the same scenario values. The viewer averages runs with identical scenario values.
+  saveTask = task({ drop: true }, async () => {
+    const firstResult = this.simulationResult;
+    if (!firstResult) {
       this.saveError = 'Keine Simulationsergebnisse zum Speichern';
       return;
     }
 
-    this.isSaving = true;
+    const total = this.saveRunCount;
+    // the scenario values are frozen for the whole batch
+    const nodeValuesMap = this.inMemoryScenario;
+    this.saveTotal = total;
+    this.savedRuns = 0;
     this.saveError = null;
+    this.saveSuccess = null;
+    let finished = false;
 
     try {
-      // Get the model name from the related model
       const model = await this.args.model.model;
-      const modelName = model?.internalName || 'model';
+      const scenarioWithNodeNames: Record<string, number> = {};
+      for (const [nodeId, value] of nodeValuesMap.entries()) {
+        scenarioWithNodeNames[this.nodeName(nodeId)] = value;
+      }
 
-      // Transform simulationResult to use node names instead of UUIDs
-      const resultsWithNodeNames = {
-        times: this.simulationResult.times,
-        nodes: {} as Record<string, any>,
-      };
+      for (let run = 1; run <= total; run++) {
+        let result = firstResult;
+        if (run > 1) {
+          // let the progress render before the browser is busy with the next run
+          await timeout(100);
+          result = await this.runSimulation(nodeValuesMap);
+        }
 
-      // Replace node UUIDs with node names in the results
-      for (const [nodeId, nodeData] of Object.entries(this.simulationResult.nodes)) {
-        try {
-          const node = await this.store.findRecord<Node>('node', nodeId);
-          const nodeName = node.name || nodeId;
-          resultsWithNodeNames.nodes[nodeName] = nodeData;
-        } catch {
-          resultsWithNodeNames.nodes[nodeId] = nodeData;
+        // Same metadata as the JSON download; the results are stored in the compact form the
+        // viewer reads (one series per output, keyed by name, populations as agents per state).
+        await this.feathers.app.service('simulation-results' as any).create({
+          modelsVersionsId: this.args.model.id,
+          scenariosId: this.defaultScenario?.id ?? null,
+          name: this.saveName,
+          description: this.saveDescription || null,
+          metadata: {
+            modelId: this.args.model.id,
+            modelName: model?.internalName || 'model',
+            version: `${this.args.model.majorVersion}.${this.args.model.minorVersion}.${this.args.model.draftVersion}`,
+            timeStart: this.args.model.timeStart,
+            timeLength: this.args.model.timeLength,
+            timeEnd: this.simulationEndTime,
+            downloadTimestamp: new Date().toISOString(),
+            ...(total > 1 ? { run, runs: total } : {}),
+          },
+          scenario: scenarioWithNodeNames,
+          results: {
+            times: result.times,
+            nodes: toViewerNodes(result.nodes, (id) => this.nodeName(id)),
+          },
+        });
+
+        this.savedRuns = run;
+        if (run === 1) {
+          this.batchStartedAt = Date.now();
         }
       }
 
-      // Transform scenario to use node names instead of UUIDs
-      const scenarioWithNodeNames: Record<string, any> = {};
-      for (const [nodeId, value] of this.inMemoryScenario.entries()) {
-        try {
-          const node = await this.store.findRecord<Node>('node', nodeId);
-          const nodeName = node.name || nodeId;
-          scenarioWithNodeNames[nodeName] = value;
-        } catch {
-          scenarioWithNodeNames[nodeId] = value;
-        }
+      finished = true;
+      this.saveSuccess =
+        total > 1
+          ? `${total} Läufe gespeichert.`
+          : 'Simulationsergebnis gespeichert.';
+      if (total === 1) {
+        setTimeout(() => {
+          if (!this.isDestroying && !this.isDestroyed && this.saveSuccess) {
+            this.closeSaveDialog();
+          }
+        }, 4000);
       }
-
-      // Prepare the data for saving
-      const saveData = {
-        modelsVersionsId: this.args.model.id,
-        scenariosId: null, // TODO: Get scenario ID
-        name: this.saveName,
-        description: this.saveDescription,
-        metadata: {
-          modelId: this.args.model.id,
-          modelName,
-          version: `${this.args.model.majorVersion}.${this.args.model.minorVersion}.${this.args.model.draftVersion}`,
-          timeStart: this.args.model.timeStart,
-          timeLength: this.args.model.timeLength,
-          timeEnd: this.simulationEndTime,
-          downloadTimestamp: new Date().toISOString(),
-        },
-        scenario: scenarioWithNodeNames,
-        results: resultsWithNodeNames,
-      };
-
-      // Save to backend
-      await this.feathers.app.service('simulation-results').create(saveData);
-      
-      this.saveSuccess = true;
-      this.saveName = '';
-      this.saveDescription = '';
-      
-      // Close the dialog after a brief delay
-      setTimeout(() => {
-        this.closeSaveDialog();
-      }, 1500);
-
-    } catch (e) {
+    } catch (e: any) {
+      finished = true;
       console.error('Failed to save simulation result:', e);
-      this.saveError = 'Fehler beim Speichern der Simulationsergebnisse';
+      const progress =
+        total > 1 ? ` (${this.savedRuns} von ${total} Läufen gespeichert)` : '';
+      this.saveError = `Fehler beim Speichern der Simulationsergebnisse${progress}${e?.message ? `: ${e.message}` : ''}`;
     } finally {
-      this.isSaving = false;
+      if (!finished && !this.isDestroying && !this.isDestroyed) {
+        this.saveError = `Abgebrochen – ${this.savedRuns} von ${total} Läufen gespeichert.`;
+      }
     }
-  }
+  });
 
   @action
   async viewSimulationResults() {
     // Navigate to the simulation results page
     const modelId = (await this.args.model.model).id;
-    this.router.transitionTo('models.versions.simulation-results', modelId, this.args.model.id);
-    this.show = false;
+    this.router.transitionTo(
+      'models.versions.simulation-results',
+      modelId,
+      this.args.model.id,
+    );
   }
 }

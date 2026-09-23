@@ -10,13 +10,8 @@ export default class ModelsSimulationResultsRoute extends Route {
     return this.store.findRecord('models-version', params.version_id);
   }
 
-  afterModel(model: ModelsVersion) {
-    // Preload scenarios and scenariosValues for the viewer
-    return Promise.all([
-      model.scenarios,
-      ...model.scenarios.then((scenarios) => 
-        Promise.all(scenarios.map((scenario) => scenario.scenariosValues))
-      ),
-    ]);
+  async afterModel(model: ModelsVersion) {
+    // the breadcrumb shows the model name
+    await model.model;
   }
 }

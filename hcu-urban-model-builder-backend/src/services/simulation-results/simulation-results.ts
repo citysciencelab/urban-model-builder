@@ -13,9 +13,14 @@ import {
   simulationResultsQueryResolver
 } from './simulation-results.schema.js'
 
-import type { Application } from '../../declarations.js'
+import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
 import { SimulationResultsService, getOptions } from './simulation-results.class.js'
 import { simulationResultsPath, simulationResultsMethods } from './simulation-results.shared.js'
+import { addModelPermissionFilterQuery } from '../../hooks/add-model-permission-filter-query.js'
+import { checkModelPermission } from '../../hooks/check-model-permission.js'
+import { setCreatedBy } from '../../hooks/set-created-by.js'
+import { Roles } from '../../client.js'
+import { iff, isProvider } from 'feathers-hooks-common'
 
 export * from './simulation-results.class.js'
 export * from './simulation-results.schema.js'
@@ -42,17 +47,41 @@ export const simulationResults = (app: Application) => {
         schemaHooks.validateQuery(simulationResultsQueryValidator),
         schemaHooks.resolveQuery(simulationResultsQueryResolver)
       ],
-      find: [],
-      get: [],
+      find: [addModelPermissionFilterQuery(Roles.viewer)],
+      get: [addModelPermissionFilterQuery(Roles.viewer)],
+      // Saving a run does not change the model, so it is allowed for every role that may
+      // simulate it – also on published or older versions (no checkModelVersionState).
       create: [
+        setCreatedBy,
         schemaHooks.validateData(simulationResultsDataValidator),
-        schemaHooks.resolveData(simulationResultsDataResolver)
+        schemaHooks.resolveData(simulationResultsDataResolver),
+        iff(
+          isProvider('external'),
+          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.viewer)
+        )
       ],
       patch: [
         schemaHooks.validateData(simulationResultsPatchValidator),
-        schemaHooks.resolveData(simulationResultsPatchResolver)
+        schemaHooks.resolveData(simulationResultsPatchResolver),
+        iff(
+          isProvider('external'),
+          checkModelPermission(
+            `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
+            'models-versions',
+            Roles.collaborator
+          )
+        )
       ],
-      remove: []
+      remove: [
+        iff(
+          isProvider('external'),
+          checkModelPermission(
+            `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
+            'models-versions',
+            Roles.collaborator
+          )
+        )
+      ]
     },
     after: {
       all: []
