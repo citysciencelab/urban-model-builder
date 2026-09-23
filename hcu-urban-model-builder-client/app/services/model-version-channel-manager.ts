@@ -36,13 +36,15 @@ export default class ModelVersionChannelManagerService extends Service {
   }
 
   private getModelVersionId(routeInfo: RouteInfo | RouteInfoWithAttributes) {
-    return 'attributes' in routeInfo
-      ? routeInfo.attributes.id
-      : routeInfo.params?.['version_id'];
+    return (
+      ('attributes' in routeInfo ? routeInfo.attributes?.id : undefined) ??
+      routeInfo.params?.['version_id']
+    );
   }
 
   private async joinChannel(routeInfo: RouteInfo | RouteInfoWithAttributes) {
     const modelVersionId = this.getModelVersionId(routeInfo);
+    if (!modelVersionId) return;
 
     try {
       await this.feathers.app
@@ -58,6 +60,7 @@ export default class ModelVersionChannelManagerService extends Service {
 
   private async leaveChannel(routeInfo: RouteInfo | RouteInfoWithAttributes) {
     const modelVersionId = this.getModelVersionId(routeInfo);
+    if (!modelVersionId) return;
 
     try {
       await this.feathers.app

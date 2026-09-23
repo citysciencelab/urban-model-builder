@@ -115,14 +115,11 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   private async createModelPrimitives(model: Model) {
     const nodes = await this.app.service('nodes').find({
       query: {
-        modelsVersionsId: this.modelVersionId,
-        type: {
-          $ne: NodeType.Ghost
-        }
+        modelsVersionsId: this.modelVersionId
       }
     })
 
-    for (const node of nodes.data) {
+    for (const node of nodes.data.filter((node) => node.type !== NodeType.Ghost)) {
       const simulationPrimitive = await primitiveFactory(model, node)
 
       this.setParameter(node, simulationPrimitive)
