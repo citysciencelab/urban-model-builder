@@ -36,6 +36,7 @@ export default function createDefaultFeathersApp(sessionService: any) {
       'saveSimulationResult',
       'findSimulationResults',
       'renameSimulationResult',
+      'deleteSimulationResult',
     ],
   });
 

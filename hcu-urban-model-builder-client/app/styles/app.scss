@@ -623,6 +623,98 @@ a.disabled,
   text-decoration: none;
 }
 
+.simulate-chart-colors-menu {
+  min-width: 200px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: get-spacer(2) get-spacer(3);
+}
+
+.simulate-chart-colors-menu__title {
+  margin-bottom: get-spacer(2);
+  color: $gray-600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.simulate-chart-colors-menu__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: get-spacer(2);
+  margin-bottom: get-spacer(1);
+  cursor: pointer;
+
+  input[type='color'] {
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+}
+
+.simulate-chart-colors-menu__label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.simulate-chart-colors-menu__reset {
+  margin-top: get-spacer(1);
+  padding-left: 0;
+}
+
+.simulate-model__chart-wrapper {
+  position: relative;
+  min-height: 400px;
+}
+
+.simulate-model__chart-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba($white, 0.7);
+}
+
+.simulate-model__chart-container--zoomable {
+  cursor: pointer;
+  border-radius: $border-radius;
+  transition: box-shadow 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 0 0 1px $color-primary;
+  }
+}
+
+.simulate-chart-zoom-modal .modal-dialog {
+  width: 95vw;
+  max-width: 95vw;
+  height: 90vh;
+  margin: 5vh auto;
+}
+
+.simulate-chart-zoom-modal .modal-content {
+  height: 100%;
+}
+
+.simulate-chart-zoom-modal .modal-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.simulate-chart-zoom__chart-container {
+  flex: 1;
+  min-height: 0;
+}
+
 // The results toggle sits inline among the floating toolbar's round icon
 // buttons, so it has to share their exact shape/size instead of a wider
 // text+badge pill, which was overflowing the toolbar and wrapping onto a new line.
@@ -652,13 +744,15 @@ a.disabled,
   box-shadow: 0 0 0 2px $white;
 }
 
-body:has(.simulation-results-modal) .modal-backdrop {
+body:has(.simulation-results-modal, .simulate-chart-zoom-modal) .modal-backdrop {
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
 
 .simulation-results-modal .modal-dialog {
   max-width: min(1200px, calc(100vw - 3rem));
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .simulation-results-modal .modal-content {
@@ -684,6 +778,7 @@ body:has(.simulation-results-modal) .modal-backdrop {
 }
 
 .simulation-result-item {
+  position: relative;
   display: grid;
   gap: 0.25rem;
   padding: 0.75rem;
@@ -691,6 +786,7 @@ body:has(.simulation-results-modal) .modal-backdrop {
   border-radius: $border-radius;
   background: $white;
   text-align: left;
+  cursor: pointer;
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease,
@@ -706,6 +802,10 @@ body:has(.simulation-results-modal) .modal-backdrop {
     border-color: $color-primary;
     background: $color-primary-light;
     box-shadow: 0 0 0 1px $color-primary;
+
+    input {
+      padding-right: 1.75rem;
+    }
   }
 
   input {
@@ -723,6 +823,28 @@ body:has(.simulation-results-modal) .modal-backdrop {
 
   small {
     color: $gray-600;
+  }
+}
+
+.simulation-result-item__delete {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: $gray-600;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba($black, 0.08);
+    color: $danger;
   }
 }
 
@@ -753,6 +875,12 @@ body:has(.simulation-results-modal) .modal-backdrop {
     justify-content: center;
     color: $gray-600;
   }
+}
+
+.simulation-results-chart__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: get-spacer(2);
 }
 
 .parameter__settings__chart-color {

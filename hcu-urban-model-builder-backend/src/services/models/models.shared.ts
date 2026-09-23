@@ -24,7 +24,8 @@ export const modelsMethods: Array<keyof ModelsService> = [
   'importModel',
   'saveSimulationResult',
   'findSimulationResults',
-  'renameSimulationResult'
+  'renameSimulationResult',
+  'deleteSimulationResult'
 ]
 
 export const modelsClient = (client: ClientApplication) => {

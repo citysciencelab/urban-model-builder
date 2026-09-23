@@ -183,3 +183,9 @@ export const simulationResultRenameSchema = Type.Object({
 })
 export type SimulationResultRename = Static<typeof simulationResultRenameSchema>
 export const simulationResultRenameValidator = getValidator(simulationResultRenameSchema, dataValidator)
+
+export const simulationResultRemoveSchema = Type.Object({
+  id: Type.String({ format: 'uuid' })
+})
+export type SimulationResultRemove = Static<typeof simulationResultRemoveSchema>
+export const simulationResultRemoveValidator = getValidator(simulationResultRemoveSchema, dataValidator)

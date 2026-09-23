@@ -27,7 +27,8 @@ import {
   ModelsPublish,
   simulationResultCreateValidator,
   simulationResultsFindValidator,
-  simulationResultRenameValidator
+  simulationResultRenameValidator,
+  simulationResultRemoveValidator
 } from './models.schema.js'
 
 import type { Application, HookContext } from '../../declarations.js'
@@ -135,7 +136,8 @@ export const models = (app: Application) => {
       ],
       saveSimulationResult: [schemaHooks.validateData(simulationResultCreateValidator)],
       findSimulationResults: [schemaHooks.validateData(simulationResultsFindValidator)],
-      renameSimulationResult: [schemaHooks.validateData(simulationResultRenameValidator)]
+      renameSimulationResult: [schemaHooks.validateData(simulationResultRenameValidator)],
+      deleteSimulationResult: [schemaHooks.validateData(simulationResultRemoveValidator)]
     },
     after: {
       all: [],

@@ -18,7 +18,8 @@ import {
   type ModelsSimulate,
   type SimulationResultCreate,
   type SimulationResultsFind,
-  type SimulationResultRename
+  type SimulationResultRename,
+  type SimulationResultRemove
 } from './models.schema.js'
 import { SimulationAdapter } from '../../shared/simulation-adapter/simulation-adapter.js'
 import { logger } from '../../logger.js'
@@ -175,6 +176,16 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       .update({ name: data.name, updatedAt: database.fn.now() })
       .returning('*')
     return updated
+  }
+
+  async deleteSimulationResult(data: SimulationResultRemove, params?: ServiceParams) {
+    if (!params?.user?.id) throw new Forbidden('Deleting simulation results requires authentication.')
+    const database = this.app.get('postgresqlClient')
+    const existing = await database('simulation_results').where({ id: data.id }).first()
+    if (!existing) throw new BadRequest('Simulation result not found.')
+    await this.assertModelVersionAccess(existing.modelsVersionsId, params.user, Roles.viewer)
+    await database('simulation_results').where({ id: data.id }).del()
+    return { id: data.id }
   }
 
   async newDraft(data: ModelsNewDraft, params?: ServiceParams) {

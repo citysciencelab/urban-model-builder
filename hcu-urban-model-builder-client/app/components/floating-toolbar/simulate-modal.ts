@@ -23,6 +23,7 @@ import type FloatingToolbarDropdownManagerService from 'hcu-urban-model-builder-
 import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 import { cached } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
+import type IntlService from 'ember-intl/services/intl';
 
 export interface FloatingToolbarSimulateModalSignature {
   // The arguments accepted by the component
@@ -67,6 +68,22 @@ type ChartSeries = {
 
 const BASE_SPEED = 20;
 
+// Echarts' own default theme palette (model/globalDefault.js) - series
+// without an explicit color are auto-assigned from this list in order, so we
+// replicate it to fill in real colors for the stored-results color picker
+// instead of guessing/hardcoding a single fallback color.
+const DEFAULT_CHART_COLOR_PALETTE = [
+  '#5470c6',
+  '#91cc75',
+  '#fac858',
+  '#ee6666',
+  '#73c0de',
+  '#3ba272',
+  '#fc8452',
+  '#9a60b4',
+  '#ea7ccc',
+];
+
 type EmberBasicDropdownAPI = { actions: { close: () => void } };
 
 type StoredSimulationResult = {
@@ -75,6 +92,7 @@ type StoredSimulationResult = {
   result: SimulationResult;
   scenario: Record<string, number>;
   createdAt: string;
+  displayCreatedAt: string;
 };
 
 export default class FloatingToolbarSimulateModalComponent extends Component<FloatingToolbarSimulateModalSignature> {
@@ -88,6 +106,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @service
   declare floatingToolbarDropdownManager: FloatingToolbarDropdownManagerService;
   @service declare modelDialogs: ModelDialogsService;
+  @service declare intl: IntlService;
   basicDropdownInstance: EmberBasicDropdownAPI | null = null;
 
   @tracked show = false;
@@ -96,6 +115,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked activeTab: TabName = TabName.TimeSeries;
   @tracked tabNames = Object.values(TabName);
   @tracked chartMode: ChartMode = ChartMode.Line;
+  @tracked showScatterPlotTab = false;
+  @tracked showStoredScatterPlotTab = false;
 
   @tracked isPlaying = false;
   @tracked animationCursor = 0.01;
@@ -125,7 +146,21 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked storedChart?: echarts.ECharts;
   @tracked storedCurrentDataset: TimeSeriesDataset | ScatterPlotDataset | null =
     null;
+  @tracked isGeneratingStoredChart = false;
+  // Per-series color overrides for the currently viewed stored result. Purely
+  // client-side/session-only (never sent to the backend) - just a temporary
+  // visualization tweak, reset whenever a different stored result is opened.
+  @tracked storedSeriesColorOverrides: Record<string, string> = {};
   readonly resultsPageSize = 5;
+
+  // A zoomed-in, near-fullscreen view of whichever chart (live or stored) was
+  // clicked, rendered into its own chart instance so it can use the much
+  // larger container size (and a higher devicePixelRatio) without touching
+  // the small inline chart it was opened from.
+  @tracked isChartZoomOpen = false;
+  @tracked zoomedChartContext: 'live' | 'stored' | null = null;
+  @tracked zoomedChartContainer?: HTMLElement;
+  @tracked zoomedChart?: echarts.ECharts;
 
   tabNameToChartOptionByIndex = {
     [TabName.TimeSeries]: this.getTimeseriesChartOptionByIndex,
@@ -250,6 +285,30 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     return this.chartMode === chartMode;
   }
 
+  @action isLiveTabVisible(tabName: TabName) {
+    return tabName !== TabName.ScatterPlot || this.showScatterPlotTab;
+  }
+
+  @action isStoredTabVisible(tabName: TabName) {
+    return tabName !== TabName.ScatterPlot || this.showStoredScatterPlotTab;
+  }
+
+  // Scatter plots only make sense for output nodes that carry agent
+  // location/state data (Population nodes) - hide the tab entirely rather
+  // than showing an empty chart for results without any.
+  private async isScatterPlotAvailable(
+    result: SimulationResult | null | undefined,
+  ): Promise<boolean> {
+    if (!result) return false;
+    for (const nodeId of Object.keys(result.nodes)) {
+      const node = await this.store.findRecord<Node>('node', nodeId);
+      if (node.type === NodeType.Population) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @action
   async switchTab(tabName: TabName) {
     this.activeTab = tabName;
@@ -261,9 +320,15 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action
-  switchChartMode(chartMode: ChartMode) {
+  async switchChartMode(chartMode: ChartMode) {
     this.chartMode = chartMode;
-    this.updateDatasetFromAnimationCursor();
+    if (this.isChartZoomOpen) {
+      await this.renderZoomedChart();
+    } else if (this.resultsOpen && this.selectedStoredResult) {
+      await this.renderStoredResult();
+    } else {
+      await this.updateDatasetFromAnimationCursor();
+    }
   }
 
   @action
@@ -289,6 +354,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       }
 
       await this.simulate();
+
+      this.showScatterPlotTab = await this.isScatterPlotAvailable(
+        this.simulationResult,
+      );
+      if (this.activeTab === TabName.ScatterPlot && !this.showScatterPlotTab) {
+        this.activeTab = TabName.TimeSeries;
+      }
 
       this.chart = echarts.init(this.chartContainer!, null, {
         height: 400,
@@ -403,7 +475,21 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       $skip: (this.resultsPage - 1) * this.resultsPageSize,
       $limit: this.resultsPageSize,
     });
-    this.storedResults = response.data;
+    this.storedResults = response.data.map(
+      (result: Omit<StoredSimulationResult, 'displayCreatedAt'>) => ({
+        ...result,
+        displayCreatedAt: new Intl.DateTimeFormat('de-DE', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })
+          .format(new Date(result.createdAt))
+          .replace(',', ''),
+      }),
+    );
     this.resultsCount = response.total;
     if (selectFirst && this.storedResults.length) {
       await this.selectStoredResult(this.storedResults[0]!);
@@ -417,8 +503,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action closeStoredResults() {
+    if (this.zoomedChartContext === 'stored') {
+      this.closeChartZoom();
+    }
     this.resultsOpen = false;
     this.selectedStoredResult = null;
+    this.showStoredScatterPlotTab = false;
+    this.storedSeriesColorOverrides = {};
     this.storedChart?.dispose();
     this.storedChart = undefined;
     this.storedChartContainer = undefined;
@@ -434,39 +525,252 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action
   async selectStoredResult(result: StoredSimulationResult) {
     this.selectedStoredResult = result;
+    this.storedSeriesColorOverrides = {};
+    this.showStoredScatterPlotTab = await this.isScatterPlotAvailable(
+      result.result,
+    );
+    if (
+      this.activeTab === TabName.ScatterPlot &&
+      !this.showStoredScatterPlotTab
+    ) {
+      this.activeTab = TabName.TimeSeries;
+    }
     if (this.storedChartContainer) await this.renderStoredResult();
   }
 
   private async renderStoredResult() {
     if (!this.storedChartContainer || !this.selectedStoredResult) return;
 
-    this.storedChart?.dispose();
-    this.storedChart = echarts.init(this.storedChartContainer, null, {
-      height: 400,
-      width: 'auto',
+    this.isGeneratingStoredChart = true;
+    try {
+      const rawDataset = await this.tabNameToDatasetFunction[this.activeTab](
+        this.selectedStoredResult.result,
+      );
+      const dataset =
+        this.activeTab === TabName.TimeSeries
+          ? this.withResolvedSeriesColors(rawDataset as TimeSeriesDataset)
+          : rawDataset;
+      this.storedCurrentDataset = dataset;
+
+      this.storedChart?.dispose();
+      this.storedChart = echarts.init(this.storedChartContainer, null, {
+        height: 400,
+        width: 'auto',
+      });
+      const index = dataset.times.length - 1;
+      const optionsByIndex = this.tabNameToChartOptionByIndex[this.activeTab](
+        index,
+        dataset,
+        this.storedSeriesColorOverrides,
+      );
+      this.storedChart.setOption(optionsByIndex);
+    } finally {
+      this.isGeneratingStoredChart = false;
+    }
+  }
+
+  @action
+  async openChartZoom(context: 'live' | 'stored') {
+    const dataset =
+      context === 'live' ? this.currentDataset : this.storedCurrentDataset;
+    if (!dataset) return;
+
+    this.zoomedChartContext = context;
+    this.isChartZoomOpen = true;
+    window.addEventListener('resize', this.handleZoomedChartResize);
+    if (this.zoomedChartContainer) await this.renderZoomedChart();
+  }
+
+  @action
+  async handleChartZoomKeydown(context: 'live' | 'stored', event: KeyboardEvent) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    await this.openChartZoom(context);
+  }
+
+  @action closeChartZoom() {
+    this.isChartZoomOpen = false;
+    this.zoomedChartContext = null;
+    window.removeEventListener('resize', this.handleZoomedChartResize);
+    this.zoomedChart?.dispose();
+    this.zoomedChart = undefined;
+    this.zoomedChartContainer = undefined;
+  }
+
+  @action
+  async didInsertZoomedChartContainer(element: HTMLElement) {
+    this.zoomedChartContainer = element;
+    await this.renderZoomedChart();
+  }
+
+  private handleZoomedChartResize = () => {
+    this.zoomedChart?.resize();
+  };
+
+  private async renderZoomedChart() {
+    if (!this.zoomedChartContainer || !this.zoomedChartContext) return;
+
+    const dataset =
+      this.zoomedChartContext === 'live'
+        ? this.currentDataset
+        : this.storedCurrentDataset;
+    if (!dataset) return;
+
+    this.zoomedChart?.dispose();
+    this.zoomedChart = echarts.init(this.zoomedChartContainer, null, {
+      // Render at a higher backing resolution than the small inline charts so
+      // the zoomed-in view (and anything exported as PNG from it) stays sharp.
+      devicePixelRatio: (window.devicePixelRatio || 1) * 2,
     });
-    const dataset = await this.tabNameToDatasetFunction[this.activeTab](
-      this.selectedStoredResult.result,
-    );
-    this.storedCurrentDataset = dataset;
     const index = dataset.times.length - 1;
     const optionsByIndex = this.tabNameToChartOptionByIndex[this.activeTab](
       index,
       dataset,
+      this.zoomedChartContext === 'stored'
+        ? this.storedSeriesColorOverrides
+        : undefined,
     );
-    this.storedChart.setOption(optionsByIndex);
+    this.zoomedChart.setOption(optionsByIndex);
+  }
+
+  get isZoomedChartDownloadDisabled() {
+    return !this.zoomedChart;
+  }
+
+  @action
+  async downloadZoomedChartPng() {
+    await this.downloadChartAsPng(
+      this.zoomedChart,
+      this.isZoomedChartDownloadDisabled,
+    );
+  }
+
+  // Series names for the currently displayed stored time-series chart, used
+  // to list one color picker row per dataset in the colors menu.
+  get storedSeriesNames(): string[] {
+    if (this.activeTab !== TabName.TimeSeries) return [];
+    const dataset = this.storedCurrentDataset as TimeSeriesDataset | null;
+    return dataset?.series.map((series) => series.name) ?? [];
+  }
+
+  get hasStoredColorOverrides(): boolean {
+    return Object.keys(this.storedSeriesColorOverrides).length > 0;
+  }
+
+  @action
+  getStoredSeriesColor(seriesName: string): string {
+    if (this.storedSeriesColorOverrides[seriesName]) {
+      return this.storedSeriesColorOverrides[seriesName];
+    }
+    const dataset = this.storedCurrentDataset as TimeSeriesDataset | null;
+    // Every series gets a resolved color from withResolvedSeriesColors() when
+    // the dataset is built, so this default only matters before that's run.
+    return (
+      dataset?.series.find((series) => series.name === seriesName)?.color ??
+      DEFAULT_CHART_COLOR_PALETTE[0]!
+    );
+  }
+
+  // Fills in the exact color each series will actually render with - either
+  // its own persisted chartColor, or the same default palette color echarts
+  // would auto-assign it - so the color picker's initial swatch always
+  // matches what's currently in the chart instead of a guessed fallback.
+  private withResolvedSeriesColors(
+    dataset: TimeSeriesDataset,
+  ): TimeSeriesDataset {
+    return {
+      ...dataset,
+      series: dataset.series.map((series, index) => ({
+        ...series,
+        color:
+          series.color ??
+          DEFAULT_CHART_COLOR_PALETTE[index % DEFAULT_CHART_COLOR_PALETTE.length],
+      })),
+    };
+  }
+
+  @action
+  setStoredSeriesColor(seriesName: string, event: Event) {
+    const color = (event.target as HTMLInputElement).value;
+    this.storedSeriesColorOverrides = {
+      ...this.storedSeriesColorOverrides,
+      [seriesName]: color,
+    };
+    this.refreshStoredChartColors();
+  }
+
+  @action
+  resetStoredSeriesColors() {
+    this.storedSeriesColorOverrides = {};
+    this.refreshStoredChartColors();
+  }
+
+  // Re-applies color overrides to the already-built dataset without
+  // rebuilding it (no node lookups, no loading spinner) - just a cheap
+  // setOption() on whichever chart instances are currently showing it.
+  private refreshStoredChartColors() {
+    const dataset = this.storedCurrentDataset;
+    if (!dataset) return;
+    const index = dataset.times.length - 1;
+
+    if (this.storedChart) {
+      this.storedChart.setOption(
+        this.tabNameToChartOptionByIndex[this.activeTab](
+          index,
+          dataset,
+          this.storedSeriesColorOverrides,
+        ),
+      );
+    }
+    if (this.zoomedChart && this.zoomedChartContext === 'stored') {
+      this.zoomedChart.setOption(
+        this.tabNameToChartOptionByIndex[this.activeTab](
+          index,
+          dataset,
+          this.storedSeriesColorOverrides,
+        ),
+      );
+    }
   }
 
   @action
   async renameStoredResult(result: StoredSimulationResult, event: Event) {
     const name = (event.target as HTMLInputElement).value.trim();
-    if (!name || name === result.name) return;
+    if (!name) return;
     result.name = name;
     await (this.feathers.app.service('models') as any).renameSimulationResult({
       id: result.id,
       name,
     });
     this.storedResults = [...this.storedResults];
+  }
+
+  @action
+  async deleteStoredResult(result: StoredSimulationResult, event: Event) {
+    // Stop the click from also bubbling up to the item's own "select" handler.
+    event.stopPropagation();
+
+    const confirmed = confirm(
+      this.intl.t('components.simulate_modal.confirm_delete_result'),
+    );
+    if (!confirmed) return;
+
+    await (this.feathers.app.service('models') as any).deleteSimulationResult({
+      id: result.id,
+    });
+
+    if (this.selectedStoredResult?.id === result.id) {
+      this.selectedStoredResult = null;
+      this.showStoredScatterPlotTab = false;
+      this.storedChart?.dispose();
+      this.storedChart = undefined;
+      this.storedCurrentDataset = null;
+    }
+
+    if (this.storedResults.length === 1 && this.resultsPage > 1) {
+      this.resultsPage -= 1;
+    }
+    await this.loadStoredResults(!this.selectedStoredResult);
   }
 
   @action
@@ -649,19 +953,21 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     index: number,
     sourceDataset: TimeSeriesDataset | ScatterPlotDataset | null = this
       .currentDataset,
+    colorOverrides?: Record<string, string>,
   ) {
     const timeSeriesDataset = sourceDataset as TimeSeriesDataset;
     const shouldStackBars =
       this.chartMode === ChartMode.Bar && timeSeriesDataset.series.length > 1;
     const dataset = timeSeriesDataset.series.map((d) => {
+      const color = colorOverrides?.[d.name] ?? d.color;
       return {
         ...d,
         type: this.chartMode,
         stack: shouldStackBars ? 'simulation-values' : undefined,
-        ...(d.color
+        ...(color
           ? {
-              itemStyle: { color: d.color },
-              lineStyle: { color: d.color },
+              itemStyle: { color },
+              lineStyle: { color },
             }
           : {}),
         data: d.data.slice(0, index + 1),
@@ -692,9 +998,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     sourceDataset: TimeSeriesDataset | ScatterPlotDataset | null = this
       .currentDataset,
   ) {
-    const currentDataset = (sourceDataset as ScatterPlotDataset).series[
-      index
-    ]!;
+    const currentDataset = (sourceDataset as ScatterPlotDataset).series[index]!;
     return {
       legend: {
         type: 'scroll',
@@ -763,6 +1067,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.storeEventEmitter.off('edge', 'created', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'updated', this.restartSimulation);
     this.storeEventEmitter.off('edge', 'deleted', this.restartSimulation);
+
+    window.removeEventListener('resize', this.handleZoomedChartResize);
   }
 
   @action
@@ -781,7 +1087,26 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   async downloadSimulationResults() {
-    if (!this.simulationResult) {
+    await this.downloadResultAsJson(
+      this.simulationResult,
+      this.inMemoryScenario,
+    );
+  }
+
+  @action
+  async downloadStoredResultAsJson() {
+    if (!this.selectedStoredResult) return;
+    await this.downloadResultAsJson(
+      this.selectedStoredResult.result,
+      new Map(Object.entries(this.selectedStoredResult.scenario)),
+    );
+  }
+
+  private async downloadResultAsJson(
+    simulationResult: SimulationResult | null | undefined,
+    scenario: Map<string, number>,
+  ) {
+    if (!simulationResult) {
       return;
     }
 
@@ -791,14 +1116,12 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
     // Transform simulationResult to use node names instead of UUIDs
     const resultsWithNodeNames = {
-      times: this.simulationResult.times,
+      times: simulationResult.times,
       nodes: {} as Record<string, any>,
     };
 
     // Replace node UUIDs with node names in the results
-    for (const [nodeId, nodeData] of Object.entries(
-      this.simulationResult.nodes,
-    )) {
+    for (const [nodeId, nodeData] of Object.entries(simulationResult.nodes)) {
       try {
         const node = await this.store.findRecord<Node>('node', nodeId);
         const nodeName = node.name || nodeId; // fallback to UUID if name is empty
@@ -811,7 +1134,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
     // Transform scenario to use node names instead of UUIDs
     const scenarioWithNodeNames: Record<string, number> = {};
-    for (const [nodeId, value] of this.inMemoryScenario.entries()) {
+    for (const [nodeId, value] of scenario.entries()) {
       try {
         const node = await this.store.findRecord<Node>('node', nodeId);
         const nodeName = node.name || nodeId; // fallback to UUID if name is empty
@@ -858,16 +1181,35 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     return !this.chart || this.simulationTask.isRunning;
   }
 
+  get isStoredChartDownloadDisabled() {
+    return !this.storedChart;
+  }
+
   @action
   async downloadChartPng() {
-    if (this.isChartDownloadDisabled || !this.chart) {
+    await this.downloadChartAsPng(this.chart, this.isChartDownloadDisabled);
+  }
+
+  @action
+  async downloadStoredChartPng() {
+    await this.downloadChartAsPng(
+      this.storedChart,
+      this.isStoredChartDownloadDisabled,
+    );
+  }
+
+  private async downloadChartAsPng(
+    chart: echarts.ECharts | undefined,
+    disabled: boolean,
+  ) {
+    if (disabled || !chart) {
       return;
     }
 
     const model = await this.args.model.model;
     const modelName = model?.internalName || 'model';
     const link = document.createElement('a');
-    link.href = this.chart.getDataURL({
+    link.href = chart.getDataURL({
       type: 'png',
       pixelRatio: 2,
       backgroundColor: '#ffffff',

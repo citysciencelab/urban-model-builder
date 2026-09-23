@@ -73,23 +73,34 @@
         {{#if (and this.currentDataset (not this.hasError))}}
           <BsNav @type="tabs" as |nav|>
             {{#each this.tabNames as |tabName|}}
-              <nav.item>
-                <a
-                  href="javascript:void(0)"
-                  class="nav-link {{if (this.isTabActive tabName) 'active'}}"
-                  {{on "click" (fn this.switchTab tabName)}}
-                >
-                  {{titleize tabName}}
-                </a>
-              </nav.item>
+              {{#if (this.isLiveTabVisible tabName)}}
+                <nav.item>
+                  <a
+                    href="javascript:void(0)"
+                    class="nav-link {{if (this.isTabActive tabName) 'active'}}"
+                    {{on "click" (fn this.switchTab tabName)}}
+                  >
+                    {{titleize tabName}}
+                  </a>
+                </nav.item>
+              {{/if}}
             {{/each}}
           </BsNav>
           {{#if (eq this.activeTab "time-series")}}
-            <div class="simulate-model__chart-mode-controls" role="group" aria-label="Chart type">
+            <div
+              class="simulate-model__chart-mode-controls"
+              role="group"
+              aria-label={{t "components.simulate_modal.chart_type"}}
+            >
               <button
                 type="button"
-                class="btn btn-sm {{if (this.isChartModeActive "line") "btn-primary" "btn-outline-secondary"}}"
-                title="Liniendiagramm anzeigen"
+                class="btn btn-sm
+                  {{if
+                    (this.isChartModeActive 'line')
+                    'btn-primary'
+                    'btn-outline-secondary'
+                  }}"
+                title={{t "components.simulate_modal.line_chart"}}
                 aria-pressed={{this.isChartModeActive "line"}}
                 {{on "click" (fn this.switchChartMode "line")}}
               >
@@ -97,8 +108,13 @@
               </button>
               <button
                 type="button"
-                class="btn btn-sm {{if (this.isChartModeActive "bar") "btn-primary" "btn-outline-secondary"}}"
-                title="Balkendiagramm anzeigen"
+                class="btn btn-sm
+                  {{if
+                    (this.isChartModeActive 'bar')
+                    'btn-primary'
+                    'btn-outline-secondary'
+                  }}"
+                title={{t "components.simulate_modal.bar_chart"}}
                 aria-pressed={{this.isChartModeActive "bar"}}
                 {{on "click" (fn this.switchChartMode "bar")}}
               >
@@ -107,15 +123,21 @@
             </div>
           {{/if}}
         {{/if}}
-        {{#if this.simulationTask.isRunning}}
-          <BsSpinner>
-            {{t "actions.loading"}}
-          </BsSpinner>
-        {{/if}}
-        <div
-          class="simulate-model__chart-container"
-          {{did-insert this.didInsertChartContainer}}
-        >
+        <div class="simulate-model__chart-wrapper">
+          <div
+            role="button"
+            tabindex="0"
+            class="simulate-model__chart-container simulate-model__chart-container--zoomable"
+            title={{t "components.simulate_modal.zoom_chart"}}
+            {{did-insert this.didInsertChartContainer}}
+            {{on "click" (fn this.openChartZoom "live")}}
+            {{on "keydown" (fn this.handleChartZoomKeydown "live")}}
+          ></div>
+          {{#if this.simulationTask.isRunning}}
+            <div class="simulate-model__chart-loading">
+              <BsSpinner @type="secondary" />
+            </div>
+          {{/if}}
         </div>
         {{#if (and this.currentDataset (not this.hasError))}}
           <div class="simulate-model__range__wrapper">
@@ -247,7 +269,7 @@
               class="btn-sm"
               {{on "click" this.downloadChartPng}}
               disabled={{this.isChartDownloadDisabled}}
-              title="Aktuelles Diagramm als PNG herunterladen"
+              title={{t "components.simulate_modal.download_chart"}}
             >
               <SvgIcon @icon="image_download" @size="sm" />
             </BsButton>
@@ -304,66 +326,304 @@
     <div class="simulation-results-layout">
       <aside class="simulation-results-list">
         {{#each this.storedResults as |result|}}
-          <button
-            type="button"
+          {{! template-lint-disable no-invalid-interactive }}
+          {{! This row contains its own interactive children (rename input, delete
+            button), so it can't take an interactive role without violating
+            require-presentational-children; the click-to-select is a plain
+            enhancement on top of an otherwise static container. }}
+          <div
             class="simulation-result-item
               {{if (eq result.id this.selectedStoredResult.id) 'active'}}"
             {{on "click" (fn this.selectStoredResult result)}}
           >
+            {{#if (eq result.id this.selectedStoredResult.id)}}
+              <button
+                type="button"
+                class="simulation-result-item__delete"
+                title={{t "components.simulate_modal.delete_result"}}
+                {{on "click" (fn this.deleteStoredResult result)}}
+              >
+                <FaIcon @icon="trash" @prefix="fas" @size="xs" />
+              </button>
+            {{/if}}
             <Input
               @value={{result.name}}
               aria-label={{t "components.simulate_modal.result_name"}}
               {{on "change" (fn this.renameStoredResult result)}}
+              {{on "blur" (fn this.renameStoredResult result)}}
               {{on "click" (stop-propagation)}}
             />
-            <small>{{result.createdAt}}</small>
-          </button>
+            <small>{{result.displayCreatedAt}}</small>
+          </div>
         {{/each}}
-        <div class="simulation-results-pagination">
-          <BsButton
-            @type="outline-secondary"
-            class="btn-round"
-            @size="sm"
-            disabled={{eq this.resultsPage 1}}
-            {{on "click" (fn this.changeResultsPage (sub this.resultsPage 1))}}
-          >
-            <SvgIcon @icon="chevron_left" @size="xs" />
-          </BsButton>
-          <span class="simulation-results-pagination__label">
-            {{this.resultsPage}} / {{this.resultsPages}}
-          </span>
-          <BsButton
-            @type="outline-secondary"
-            class="btn-round"
-            @size="sm"
-            disabled={{eq this.resultsPage this.resultsPages}}
-            {{on "click" (fn this.changeResultsPage (add this.resultsPage 1))}}
-          >
-            <SvgIcon @icon="chevron_right" @size="xs" />
-          </BsButton>
-        </div>
+        {{#if (gt this.resultsPages 1)}}
+          <div class="simulation-results-pagination">
+            <BsButton
+              @type="outline-secondary"
+              class="btn-round"
+              @size="sm"
+              disabled={{eq this.resultsPage 1}}
+              {{on
+                "click"
+                (fn this.changeResultsPage (sub this.resultsPage 1))
+              }}
+            >
+              <SvgIcon @icon="chevron_left" @size="xs" />
+            </BsButton>
+            <span class="simulation-results-pagination__label">
+              {{this.resultsPage}}
+              /
+              {{this.resultsPages}}
+            </span>
+            <BsButton
+              @type="outline-secondary"
+              class="btn-round"
+              @size="sm"
+              disabled={{eq this.resultsPage this.resultsPages}}
+              {{on
+                "click"
+                (fn this.changeResultsPage (add this.resultsPage 1))
+              }}
+            >
+              <SvgIcon @icon="chevron_right" @size="xs" />
+            </BsButton>
+          </div>
+        {{/if}}
       </aside>
       <section class="simulation-results-chart">
         {{#if this.selectedStoredResult}}
           <BsNav @type="tabs" as |nav|>
             {{#each this.tabNames as |tabName|}}
-              <nav.item>
-                <a
-                  href="javascript:void(0)"
-                  class="nav-link {{if (this.isTabActive tabName) 'active'}}"
-                  {{on "click" (fn this.switchTab tabName)}}
-                >{{titleize tabName}}</a>
-              </nav.item>
+              {{#if (this.isStoredTabVisible tabName)}}
+                <nav.item>
+                  <a
+                    href="javascript:void(0)"
+                    class="nav-link {{if (this.isTabActive tabName) 'active'}}"
+                    {{on "click" (fn this.switchTab tabName)}}
+                  >{{titleize tabName}}</a>
+                </nav.item>
+              {{/if}}
             {{/each}}
           </BsNav>
-          <div
-            class="simulate-model__chart-container"
-            {{did-insert this.didInsertStoredChart}}
-          ></div>
+          {{#if (eq this.activeTab "time-series")}}
+            <div
+              class="simulate-model__chart-mode-controls"
+              role="group"
+              aria-label={{t "components.simulate_modal.chart_type"}}
+            >
+              <button
+                type="button"
+                class="btn btn-sm
+                  {{if
+                    (this.isChartModeActive 'line')
+                    'btn-primary'
+                    'btn-outline-secondary'
+                  }}"
+                title={{t "components.simulate_modal.line_chart"}}
+                aria-pressed={{this.isChartModeActive "line"}}
+                {{on "click" (fn this.switchChartMode "line")}}
+              >
+                <SvgIcon @icon="line_chart" @size="sm" />
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm
+                  {{if
+                    (this.isChartModeActive 'bar')
+                    'btn-primary'
+                    'btn-outline-secondary'
+                  }}"
+                title={{t "components.simulate_modal.bar_chart"}}
+                aria-pressed={{this.isChartModeActive "bar"}}
+                {{on "click" (fn this.switchChartMode "bar")}}
+              >
+                <SvgIcon @icon="bar_chart" @size="sm" />
+              </button>
+              <BsDropdown as |dd|>
+                <dd.button
+                  @type="outline-secondary"
+                  class="btn-sm"
+                  title={{t "components.simulate_modal.chart_colors"}}
+                >
+                  <SvgIcon @icon="settings" @size="sm" />
+                </dd.button>
+                <dd.menu>
+                  <div class="simulate-chart-colors-menu">
+                    <h6 class="simulate-chart-colors-menu__title">
+                      {{t "components.simulate_modal.chart_colors"}}
+                    </h6>
+                    {{#each this.storedSeriesNames as |seriesName|}}
+                      <label class="simulate-chart-colors-menu__row">
+                        <span
+                          class="simulate-chart-colors-menu__label"
+                        >{{seriesName}}</span>
+                        <input
+                          type="color"
+                          value={{this.getStoredSeriesColor seriesName}}
+                          {{on
+                            "input"
+                            (fn this.setStoredSeriesColor seriesName)
+                          }}
+                        />
+                      </label>
+                    {{/each}}
+                    {{#if this.hasStoredColorOverrides}}
+                      <button
+                        type="button"
+                        class="btn btn-link btn-sm simulate-chart-colors-menu__reset"
+                        {{on "click" this.resetStoredSeriesColors}}
+                      >
+                        {{t "components.simulate_modal.reset_colors"}}
+                      </button>
+                    {{/if}}
+                  </div>
+                </dd.menu>
+              </BsDropdown>
+            </div>
+          {{/if}}
+          <div class="simulate-model__chart-wrapper">
+            <div
+              role="button"
+              tabindex="0"
+              class="simulate-model__chart-container simulate-model__chart-container--zoomable"
+              title={{t "components.simulate_modal.zoom_chart"}}
+              {{did-insert this.didInsertStoredChart}}
+              {{on "click" (fn this.openChartZoom "stored")}}
+              {{on "keydown" (fn this.handleChartZoomKeydown "stored")}}
+            ></div>
+            {{#if this.isGeneratingStoredChart}}
+              <div class="simulate-model__chart-loading">
+                <BsSpinner @type="secondary" />
+              </div>
+            {{/if}}
+          </div>
+          <div class="simulation-results-chart__actions">
+            <BsButton
+              @type="outline-secondary"
+              class="btn-sm ms-2"
+              title={{t "components.simulate_modal.download_result"}}
+              {{on "click" this.downloadStoredResultAsJson}}
+            >
+              <SvgIcon @icon="file_download" @size="sm" />
+            </BsButton>
+            <BsButton
+              @type="outline-secondary"
+              class="btn-sm ms-2"
+              title={{t "components.simulate_modal.download_chart"}}
+              {{on "click" this.downloadStoredChartPng}}
+              disabled={{this.isStoredChartDownloadDisabled}}
+            >
+              <SvgIcon @icon="image_download" @size="sm" />
+            </BsButton>
+          </div>
         {{else}}
           <p>{{t "components.simulate_modal.no_results"}}</p>
         {{/if}}
       </section>
     </div>
   </modal.body>
+</BsModal>
+
+<BsModal
+  @open={{this.isChartZoomOpen}}
+  @onHide={{this.closeChartZoom}}
+  @size="xl"
+  @position="center"
+  class="simulate-chart-zoom-modal"
+  as |modal|
+>
+  <modal.header>
+    <h5 class="modal-title">{{t "components.simulate_modal.title"}}</h5>
+  </modal.header>
+  <modal.body>
+    {{#if (eq this.activeTab "time-series")}}
+      <div
+        class="simulate-model__chart-mode-controls"
+        role="group"
+        aria-label={{t "components.simulate_modal.chart_type"}}
+      >
+        <button
+          type="button"
+          class="btn btn-sm
+            {{if
+              (this.isChartModeActive 'line')
+              'btn-primary'
+              'btn-outline-secondary'
+            }}"
+          title={{t "components.simulate_modal.line_chart"}}
+          aria-pressed={{this.isChartModeActive "line"}}
+          {{on "click" (fn this.switchChartMode "line")}}
+        >
+          <SvgIcon @icon="line_chart" @size="sm" />
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm
+            {{if
+              (this.isChartModeActive 'bar')
+              'btn-primary'
+              'btn-outline-secondary'
+            }}"
+          title={{t "components.simulate_modal.bar_chart"}}
+          aria-pressed={{this.isChartModeActive "bar"}}
+          {{on "click" (fn this.switchChartMode "bar")}}
+        >
+          <SvgIcon @icon="bar_chart" @size="sm" />
+        </button>
+        {{#if (eq this.zoomedChartContext "stored")}}
+          <BsDropdown as |dd|>
+            <dd.button
+              @type="outline-secondary"
+              class="btn-sm"
+              title={{t "components.simulate_modal.chart_colors"}}
+            >
+              <SvgIcon @icon="settings" @size="sm" />
+            </dd.button>
+            <dd.menu>
+              <div class="simulate-chart-colors-menu">
+                <h6 class="simulate-chart-colors-menu__title">
+                  {{t "components.simulate_modal.chart_colors"}}
+                </h6>
+                {{#each this.storedSeriesNames as |seriesName|}}
+                  <label class="simulate-chart-colors-menu__row">
+                    <span
+                      class="simulate-chart-colors-menu__label"
+                    >{{seriesName}}</span>
+                    <input
+                      type="color"
+                      value={{this.getStoredSeriesColor seriesName}}
+                      {{on "input" (fn this.setStoredSeriesColor seriesName)}}
+                    />
+                  </label>
+                {{/each}}
+                {{#if this.hasStoredColorOverrides}}
+                  <button
+                    type="button"
+                    class="btn btn-link btn-sm simulate-chart-colors-menu__reset"
+                    {{on "click" this.resetStoredSeriesColors}}
+                  >
+                    {{t "components.simulate_modal.reset_colors"}}
+                  </button>
+                {{/if}}
+              </div>
+            </dd.menu>
+          </BsDropdown>
+        {{/if}}
+      </div>
+    {{/if}}
+    <div
+      class="simulate-chart-zoom__chart-container"
+      {{did-insert this.didInsertZoomedChartContainer}}
+    ></div>
+  </modal.body>
+  <modal.footer>
+    <BsButton
+      @type="outline-secondary"
+      {{on "click" this.downloadZoomedChartPng}}
+      disabled={{this.isZoomedChartDownloadDisabled}}
+    >
+      <SvgIcon @icon="image_download" @size="sm" />
+      {{t "components.simulate_modal.download_chart"}}
+    </BsButton>
+  </modal.footer>
 </BsModal>

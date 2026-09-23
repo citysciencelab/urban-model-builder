@@ -170,7 +170,16 @@ components:
     result_name: Simulation result name
     no_results: No simulation results available.
     save_result: Save simulation result
+    delete_result: Delete simulation result
+    confirm_delete_result: Are you sure you want to delete this simulation result?
     download_result: Download simulation result
+    download_chart: Download current chart as PNG
+    zoom_chart: Click to view chart in detail
+    chart_colors: Dataset colors
+    reset_colors: Reset colors
+    chart_type: Chart type
+    line_chart: Show line chart
+    bar_chart: Show bar chart
     title: Simulation Results
     is_client_side: Is client side calculation?
     controls: Simulation Control

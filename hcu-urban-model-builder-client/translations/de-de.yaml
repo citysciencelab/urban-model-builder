@@ -170,7 +170,16 @@ components:
     result_name: Name des Simulationsergebnisses
     no_results: Keine Simulationsergebnisse vorhanden.
     save_result: Simulationsergebnis speichern
+    delete_result: Simulationsergebnis löschen
+    confirm_delete_result: Sind Sie sicher, dass Sie dieses Simulationsergebnis löschen möchten?
     download_result: Simulationsergebnis herunterladen
+    download_chart: Aktuelles Diagramm als PNG herunterladen
+    zoom_chart: Klicken, um das Diagramm im Detail anzuzeigen
+    chart_colors: Datenfarben
+    reset_colors: Farben zurücksetzen
+    chart_type: Diagrammtyp
+    line_chart: Liniendiagramm anzeigen
+    bar_chart: Balkendiagramm anzeigen
     title: Simulationsergebnisse
     is_client_side: Clientseitige Berechnung?
     controls: Simulationseinstellungen
