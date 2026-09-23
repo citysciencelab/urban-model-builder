@@ -23,7 +23,6 @@ import type FloatingToolbarDropdownManagerService from 'hcu-urban-model-builder-
 import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 import { cached } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
-import { inject as service as injectService } from '@ember/service';
 import type RouterService from '@ember/routing/router-service';
 
 export interface FloatingToolbarSimulateModalSignature {

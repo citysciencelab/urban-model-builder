@@ -58,17 +58,21 @@
                   <FaIcon @icon="layers" /> Läufe
                 </span>
                 <div class="d-flex gap-1 flex-wrap">
-                  {{#each (array (this.items activeGroup)) as |run|}}
-                    <button
-                      type="button"
-                      class="chip run-chip btn btn-sm p-1 {{if (includes (map-by this.selectedRuns(activeGroup) 'id') run.id) 'selected'}}"
-                      style={{html-safe (concat "--c: " (array-el this.palette run.index))}}
-                      title={{run.name}}
-                      {{on "click" (fn this.toggleRun activeGroup run)}}
-                    >
-                      <span class="dot d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background-color: var(--c);"></span>
-                      <span class="chip-label">{{this.runLabel run}}</span>
-                    </button>
+                  {{#each (array (this.items activeGroup)) as |run index|}}
+                    {{#let (this.selectedRuns activeGroup) as |selectedRuns|}}
+                      {{#let (map-by selectedRuns "id") as |selectedIds|}}
+                        <button
+                          type="button"
+                          class="chip run-chip btn btn-sm p-1 {{if (includes selectedIds run.id) 'selected'}}"
+                          style={{html-safe (concat "--c: " (get this.palette index))}}
+                          title={{run.name}}
+                          {{on "click" (fn this.toggleRun activeGroup run)}}
+                        >
+                          <span class="dot d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background-color: var(--c);"></span>
+                          <span class="chip-label">{{this.runLabel run}}</span>
+                        </button>
+                      {{/let}}
+                    {{/let}}
                   {{/each}}
                 </div>
               </div>
