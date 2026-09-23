@@ -23,6 +23,8 @@ import type FloatingToolbarDropdownManagerService from 'hcu-urban-model-builder-
 import type ModelDialogsService from 'hcu-urban-model-builder-client/services/model-dialogs';
 import { cached } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
+import { inject as service as injectService } from '@ember/service';
+import type RouterService from '@ember/routing/router-service';
 
 export interface FloatingToolbarSimulateModalSignature {
   // The arguments accepted by the component
@@ -74,6 +76,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @service
   declare floatingToolbarDropdownManager: FloatingToolbarDropdownManagerService;
   @service declare modelDialogs: ModelDialogsService;
+  @service declare router: RouterService;
   basicDropdownInstance: EmberBasicDropdownAPI | null = null;
 
   @tracked show = false;
@@ -787,10 +790,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action
   viewSimulationResults() {
     // Navigate to the simulation results page
-    const router = this.floatingToolbarDropdownManager.router;
-    if (router) {
-      router.transitionTo('models.versions.simulation-results', this.args.model.id);
-      this.show = false;
-    }
+    this.router.transitionTo('models.versions.simulation-results', this.args.model.id);
+    this.show = false;
   }
 }
