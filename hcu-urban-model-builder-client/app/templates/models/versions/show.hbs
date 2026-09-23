@@ -2,7 +2,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <Ui::EditStateBadge @modelVersion={{this.model}} />
-  <LinkTo @route="models.versions.simulation-results" @model={{this.model}} class="btn btn-outline-secondary">
+  <LinkTo @route="models.versions.simulation-results" @models={{array this.model.model.id this.model.id}} class="btn btn-outline-secondary">
     <FaIcon @icon="chart-bar" /> Simulationsergebnisse
   </LinkTo>
 </div>

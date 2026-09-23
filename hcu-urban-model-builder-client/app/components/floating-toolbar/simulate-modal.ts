@@ -787,9 +787,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action
-  viewSimulationResults() {
+  async viewSimulationResults() {
     // Navigate to the simulation results page
-    this.router.transitionTo('models.versions.simulation-results', this.args.model.id);
+    const modelId = (await this.args.model.model).id;
+    this.router.transitionTo('models.versions.simulation-results', modelId, this.args.model.id);
     this.show = false;
   }
 }

@@ -4,6 +4,7 @@ import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
+import type RouterService from '@ember/routing/router-service';
 
 export interface SimulationResultRecord {
   id: string;
@@ -34,6 +35,7 @@ export interface SimulationResultRecord {
 
 export default class ModelsVersionsSimulationResultsController extends Controller {
   @service declare feathers: FeathersService;
+  @service declare router: RouterService;
 
   declare model: ModelsVersion;
 
@@ -47,17 +49,11 @@ export default class ModelsVersionsSimulationResultsController extends Controlle
     this.error = null;
 
     try {
-      const results = await this.feathers.app.service('simulation-results').find({
-        query: {
-          modelsVersionsId: this.model.id,
-          $sort: { createdAt: -1 },
-        },
-      });
-
-      this.simulationResults = results.data || results || [];
+      // Refresh the route to reload the SimulationViewer component
+      this.router.refresh();
     } catch (e) {
-      console.error('Failed to load simulation results:', e);
-      this.error = 'Fehler beim Laden der Simulationsergebnisse';
+      console.error('Failed to reload simulation results:', e);
+      this.error = 'Fehler beim Neuladen der Simulationsergebnisse';
     } finally {
       this.isLoading = false;
     }
