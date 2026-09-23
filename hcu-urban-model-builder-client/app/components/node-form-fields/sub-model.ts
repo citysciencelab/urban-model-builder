@@ -27,7 +27,7 @@ export default class NodeFormFieldsSubModelComponent extends Component<NodeFormF
   @tracked selectedVersion: ModelsVersion | null = null;
   @tracked isLoading = false;
   @tracked isImporting = false;
-  @tracked inputConnections: Record<string, { name: string; value: string } | null> = {};
+  @tracked inputConnections: Record<string, Node | null> = {};
 
   get isImported() {
     return Boolean((this.args.node.data as { importedFolderId?: string }).importedFolderId);
@@ -55,23 +55,69 @@ export default class NodeFormFieldsSubModelComponent extends Component<NodeFormF
 
   @action
   async loadInputConnections() {
-    const connections: Record<string, { name: string; value: string } | null> = {};
+    const connections: Record<string, Node | null> = {};
     const edges = await this.args.node.targetEdges;
     for (const edge of edges) {
       if (!edge.targetHandle?.startsWith('submodel-input-')) continue;
       const source = await edge.source;
       if (!source) continue;
-      connections[edge.targetHandle.replace('submodel-input-', '')] = {
-        name: source.name,
-        value: String((source.data as Record<string, any>).value ?? '–'),
-      };
+      connections[edge.targetHandle.replace('submodel-input-', '')] = source;
     }
     this.inputConnections = connections;
+    await this.syncInputFormulas(connections);
+  }
+
+  // The internal clone's formula hard-codes a `[Name]` text reference to the
+  // visible input (or, absent a connection, must literally hold the original
+  // default). Neither stays in sync on its own: renaming or deleting the
+  // visible input leaves the hidden formula pointing at a name that no longer
+  // resolves, breaking simulation with no way for the user to see or fix it.
+  private async syncInputFormulas(connections: Record<string, Node | null>) {
+    const inputs: { id: string; defaultValue: string; manualValue?: string; internalNodeId?: string }[] = (this.args.node.data as Record<string, any>)['inputs'] || [];
+    for (const input of inputs) {
+      if (!input.internalNodeId) continue;
+      let internalNode: Node;
+      try {
+        internalNode = await this.store.findRecord<Node>('node', input.internalNodeId);
+      } catch {
+        continue;
+      }
+      const key = this.valueKey(internalNode.type);
+      if (!key) continue;
+      const internalData = internalNode.data as Record<string, any>;
+      const connection = connections[input.id];
+      const desiredValue = connection
+        ? `[${connection.name}]`
+        : input.manualValue || internalData['subModelDefaultFormula'] || input.defaultValue;
+      if (internalData[key] !== desiredValue) {
+        await this.emberReactConnector.save('node', internalNode.id!, {
+          data: { ...internalData, [key]: desiredValue },
+        });
+      }
+    }
   }
 
   @action
   inputConnection(input: { id: string }) {
     return this.inputConnections[input.id] || null;
+  }
+
+  @action
+  connectionValue(source: Node) {
+    return String((source.data as Record<string, any>).value ?? '–');
+  }
+
+  @action
+  async updateInputManualValue(input: { id: string }, event: Event) {
+    const value = (event.target as HTMLInputElement).value.trim();
+    const data = this.args.node.data as Record<string, any>;
+    const inputs = ((data['inputs'] || []) as Record<string, any>[]).map((item) =>
+      item['id'] === input.id ? { ...item, manualValue: value || undefined } : item,
+    );
+    await this.emberReactConnector.save('node', this.args.node.id!, {
+      data: { ...data, inputs },
+    });
+    await this.syncInputFormulas(this.inputConnections);
   }
 
   @action
@@ -173,7 +219,12 @@ export default class NodeFormFieldsSubModelComponent extends Component<NodeFormF
         const parameterInput = visibleInputs.get(sourceNode.id!);
         if (parameterInput) {
           const key = this.valueKey(sourceNode.type);
-          if (key) data[key] = `[${parameterInput.name}]`;
+          if (key) {
+            // Preserved so the input's connection can be removed later without
+            // losing a default that was itself a formula referencing siblings.
+            data.subModelDefaultFormula = data[key];
+            data[key] = `[${parameterInput.name}]`;
+          }
         }
         data.isSubModelInternal = true;
         data.subModelInstanceId = subModel.id;
@@ -356,10 +407,11 @@ export default class NodeFormFieldsSubModelComponent extends Component<NodeFormF
   }
 
   private valueKey(type: NodeType) {
-    if (type === NodeType.Stock) return 'initial';
+    // The app's own `data.*` field, not the `simulation` package's constructor
+    // argument name (Stock's is "initial" there, but "value" in our schema).
     if (type === NodeType.Flow) return 'rate';
     if (type === NodeType.State) return 'startActive';
-    if (type === NodeType.Transition || type === NodeType.Action || type === NodeType.Variable) return 'value';
+    if (type === NodeType.Stock || type === NodeType.Transition || type === NodeType.Action || type === NodeType.Variable) return 'value';
     return null;
   }
 

@@ -2,11 +2,19 @@ import { memo, useContext, useMemo } from "react";
 import { reactFlowNodeToNodeType, ReactFlowNodeType } from "../../declarations";
 import { Icon, IconNames } from "../../utils/icon.tsx";
 import { NodeParamsMapContext } from "../../context/node-params-map.tsx";
-import {
-  NODE_TYPE_TO_PARAMETER_NAME_MAP,
-  Nodes,
-  NodeType,
-} from "hcu-urban-model-builder-backend";
+import { Nodes, NodeType } from "hcu-urban-model-builder-backend";
+
+// The app's own `data.*` field names (see each node type's .hbs form and
+// primitive-factory.ts), not the `simulation` package's constructor-argument
+// names (e.g. Stock's is "initial" there, but "value" in our schema).
+const NODE_TYPE_TO_DATA_FIELD_MAP: Partial<Record<NodeType, string>> = {
+  [NodeType.Variable]: "value",
+  [NodeType.Stock]: "value",
+  [NodeType.Flow]: "rate",
+  [NodeType.State]: "startActive",
+  [NodeType.Transition]: "value",
+  [NodeType.Population]: "populationSize",
+};
 
 interface EmberModel {
   // eslint-disable-next-line no-unused-vars
@@ -103,8 +111,8 @@ const tagsNodeMap: Record<string, (data: NodeData) => string[]> = {
 
 const isParamKey = (
   type: NodeType,
-): type is keyof typeof NODE_TYPE_TO_PARAMETER_NAME_MAP => {
-  return type in NODE_TYPE_TO_PARAMETER_NAME_MAP;
+): type is keyof typeof NODE_TYPE_TO_DATA_FIELD_MAP => {
+  return type in NODE_TYPE_TO_DATA_FIELD_MAP;
 };
 
 export const BaseNodeData = memo(({ id, type, data }: BaseNodeDataProps) => {
@@ -120,7 +128,7 @@ export const BaseNodeData = memo(({ id, type, data }: BaseNodeDataProps) => {
         if (nodeParamsMap && nodeParamsMap.has(id)) {
           const backendType = reactFlowNodeToNodeType(type as any);
           if (isParamKey(backendType)) {
-            const key = NODE_TYPE_TO_PARAMETER_NAME_MAP[backendType];
+            const key = NODE_TYPE_TO_DATA_FIELD_MAP[backendType]!;
             dataCopy[key] = nodeParamsMap.get(id);
           }
         }

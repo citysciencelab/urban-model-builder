@@ -233,10 +233,15 @@ function Flow({
         const outputId = params.sourceHandle.replace("submodel-output-", "");
         const output = sourceModel.data?.outputs?.find((item: any) => item.id === outputId);
         const internalOutput = output?.internalNodeId && nodeModels.find((node: any) => node.id === output.internalNodeId);
+        // These are the app's own `data.*` field names (see each node type's
+        // .hbs form + primitive-factory.ts), not the `simulation` package's
+        // own constructor-argument names (which, e.g. for Stock, is "initial"
+        // while the field actually persisted in our data is "value").
         const valueKey: Record<number, string> = {
           [NodeType.Variable]: "value",
           [NodeType.Stock]: "value",
           [NodeType.Flow]: "rate",
+          [NodeType.State]: "startActive",
           [NodeType.Transition]: "value",
           [NodeType.Action]: "value",
         };
