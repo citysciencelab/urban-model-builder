@@ -1,6 +1,11 @@
 {{page-title (t "routes.models.versions.show.title")}}
 
-<Ui::EditStateBadge @modelVersion={{this.model}} />
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <Ui::EditStateBadge @modelVersion={{this.model}} />
+  <LinkTo @route="models.versions.simulation-results" @model={{this.model}} class="btn btn-outline-secondary">
+    <FaIcon @icon="chart-bar" /> Simulationsergebnisse
+  </LinkTo>
+</div>
 
 <ReactWrapper @model={{this.model}} />
 

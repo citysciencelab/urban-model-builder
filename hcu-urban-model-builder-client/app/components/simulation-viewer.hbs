@@ -1,0 +1,108 @@
+<div class="simulation-viewer d-flex gap-3">
+  {{#if this.isLoading}}
+    <div class="text-center my-5 w-100">
+      <BsSpinner />
+      <p>Lade Simulationsergebnisse...</p>
+    </div>
+  {{else if this.error}}
+    <BsAlert @type="danger" @visible={{true}} class="w-100">
+      {{this.error}}
+    </BsAlert>
+  {{else if (eq this.groups.size 0)}}
+    <div class="empty-state text-center my-5 w-100">
+      <FaIcon @icon="chart-bar" @size="3x" class="text-muted mb-3" />
+      <h3>Keine Simulationsergebnisse</h3>
+      <p>Führe eine Simulation aus und speichere die Ergebnisse, um sie hier zu vergleichen.</p>
+    </div>
+  {{else}}
+    <div class="simulation-viewer-layout d-flex gap-3 w-100">
+      {{!-- Sidebar with groups --}}
+      <nav class="simulation-viewer-sidebar flex-shrink-0" style="width: 250px;">
+        <div class="sidebar-title fw-bold p-2 border-bottom">Modelle</div>
+        <ul class="group-list list-unstyled m-0 p-1">
+          {{#each (array this.groups.values) as |group|}}
+            <li>
+              <button
+                type="button"
+                class="group-item w-100 text-start btn btn-link p-2 rounded {{if (eq this.activeKey group.key) 'active'}}"
+                {{on "click" (fn (mut this.activeKey) group.key)}}
+              >
+                <div class="d-flex flex-column">
+                  <span class="group-name">{{group.name}}</span>
+                  <span class="group-meta text-muted small">
+                    v{{group.version}}
+                    {{#if group.range}}
+                      · {{group.range}}
+                    {{/if}}
+                    · {{group.runs.length}} {{if (eq group.runs.length 1) "Lauf" "Läufe"}}
+                  </span>
+                </div>
+              </button>
+            </li>
+          {{/each}}
+        </ul>
+        <div class="sidebar-foot text-muted small p-2 border-top">
+          <FaIcon @icon="info-circle" />
+          Wähle ein Modell aus, um die Ergebnisse zu sehen.
+        </div>
+      </nav>
+
+      {{!-- Main content area --}}
+      <main class="simulation-viewer-main flex-grow-1">
+        {{#let (get this.groups this.activeKey) as |activeGroup|}}
+          {{#if activeGroup}}
+            {{!-- Runs bar --}}
+            <div class="runs-bar mb-3 p-2 bg-light rounded d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="runs-label fw-bold">
+                  <FaIcon @icon="layers" /> Läufe
+                </span>
+                <div class="d-flex gap-1 flex-wrap">
+                  {{#each (array (this.items activeGroup)) as |run|}}
+                    <button
+                      type="button"
+                      class="chip run-chip btn btn-sm p-1 {{if (includes (map-by this.selectedRuns(activeGroup) 'id') run.id) 'selected'}}"
+                      style={{html-safe (concat "--c: " (array-el this.palette run.index))}}
+                      title={{run.name}}
+                      {{on "click" (fn this.toggleRun activeGroup run)}}
+                    >
+                      <span class="dot d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background-color: var(--c);"></span>
+                      <span class="chip-label">{{this.runLabel run}}</span>
+                    </button>
+                  {{/each}}
+                </div>
+              </div>
+            </div>
+
+            {{!-- Charts grid --}}
+            <div class="chart-sections">
+              {{#each activeGroup.variables as |variable|}}
+                <article class="card chart-card mb-3">
+                  <header class="card-header d-flex justify-content-between align-items-center p-2">
+                    <h6 class="mb-0">{{variable.name}}</h6>
+                    <div class="d-flex gap-1">
+                      <button type="button" class="btn btn-sm btn-outline-secondary p-1" title="Als Tabelle anzeigen">
+                        <FaIcon @icon="table" />
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary p-1" title="Als PNG speichern">
+                        <FaIcon @icon="download" />
+                      </button>
+                    </div>
+                  </header>
+                  <div class="card-body p-2">
+                    <div
+                      class="chart-container"
+                      {{did-insert (fn this.didInsertChartContainer variable activeGroup)}}
+                      style="width: 100%; height: 300px;"
+                    ></div>
+                  </div>
+                </article>
+              {{/each}}
+            </div>
+          {{/if}}
+        {{/let}}
+      </main>
+    </div>
+  {{/if}}
+</div>
+
