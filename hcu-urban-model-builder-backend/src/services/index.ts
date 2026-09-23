@@ -7,6 +7,7 @@ import { jobs } from './ogcapi/jobs/jobs.js'
 import { processes } from './ogcapi/processes/processes.js'
 import { scenarioValues } from './scenarios-values/scenarios-values.js'
 import { scenarios } from './scenarios/scenarios.js'
+import { simulationResults } from './simulation-results/simulation-results.js'
 import { modelsUsers } from './models-users/models-users.js'
 import { modelsVersions } from './models-versions/models-versions.js'
 import { user } from './users/users.js'
@@ -27,6 +28,7 @@ export const services = (app: Application) => {
   app.configure(processes)
   app.configure(scenarioValues)
   app.configure(scenarios)
+  app.configure(simulationResults)
   app.configure(modelsUsers)
   app.configure(modelsVersions)
   app.configure(user)
@@ -40,5 +42,6 @@ export const services = (app: Application) => {
     touchParent(app, 'models-versions', 'models', 'modelId')
     touchParent(app, 'nodes', 'models-versions', 'modelsVersionsId')
     touchParent(app, 'edges', 'models-versions', 'modelsVersionsId')
+    touchParent(app, 'simulation-results', 'models-versions', 'modelsVersionsId')
   }
 }
