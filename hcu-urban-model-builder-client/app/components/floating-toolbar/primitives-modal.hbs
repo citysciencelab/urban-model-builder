@@ -23,16 +23,27 @@
           <h5>
             {{t "node-toolbar.title"}}
           </h5>
-          <a
+          <button
+            type="button"
             class={{if
               this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned
               "pinned"
             }}
-            href="javascript:void(0)"
+            aria-label={{if
+              this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned
+              (t "actions.unpin")
+              (t "actions.pin")
+            }}
+            aria-pressed={{this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned}}
+            title={{if
+              this.floatingToolbarDropdownManager.isPrimitivesDropdownPinned
+              (t "actions.unpin")
+              (t "actions.pin")
+            }}
             {{on "click" this.toggleDropdown}}
           >
             <SvgIcon @icon="push_pin" @size="xs" />
-          </a>
+          </button>
         </div>
         {{#each this.nodeGroups as |nodeGroup|}}
           <h6>

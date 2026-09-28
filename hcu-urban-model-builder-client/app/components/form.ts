@@ -14,12 +14,15 @@ import { NodeIconMap } from 'hcu-urban-model-builder-client/utils/node-icon-map'
 import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
 import { service } from '@ember/service';
 import type EmberReactConnectorService from 'hcu-urban-model-builder-client/services/ember-react-connector';
+import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
 
 export interface FormSignature {
   // The arguments accepted by the component
   Args: {
     record: Node | Edge;
     close: () => void;
+    modelsVersion: ModelsVersion;
+    disabled?: boolean;
   };
   // Any blocks yielded by the component
   Blocks: {
@@ -72,6 +75,32 @@ export default class FormComponent extends Component<FormSignature> {
     }
 
     return NodeIconMap[this.record.type] || 'help';
+  }
+
+  get canCollapseContainer() {
+    return (
+      this.record instanceof Node &&
+      [NodeType.Folder, NodeType.Agent].includes(this.record.type)
+    );
+  }
+
+  /**
+   * The in-progress node `data`, read through the changeset's own buffered
+   * copy rather than the raw record: the record only reflects the last
+   * *saved* value, so reading it directly would race any other field edit
+   * still waiting out its debounce. `this.changeset` is generic over
+   * `Node | Edge` (this form handles both), so this is only meaningful once
+   * `this.record` has already been confirmed to be a Node.
+   */
+  private get nodeChangesetData(): Record<string, unknown> | null {
+    if (!(this.record instanceof Node) || !this.changeset) {
+      return null;
+    }
+    return (this.changeset.dataProxy as Node).data as Record<string, unknown>;
+  }
+
+  get isContainerCollapsed() {
+    return Boolean(this.nodeChangesetData?.['collapsed']);
   }
 
   get nodeFormFieldsComponent() {
@@ -216,6 +245,66 @@ export default class FormComponent extends Component<FormSignature> {
       : null;
   }
 
+  /**
+   * Unit mismatch errors include the units inferred by the simulation engine.
+   * Adopting those units is the only deterministic automatic correction: a
+   * formula with several referenced primitives does not reveal which input's
+   * declared units the user intended to change.
+   */
+  get unitMismatchDetails() {
+    const error = this.modelValidationError;
+    if (!error) return null;
+
+    const mismatch = error.match(
+      /Wrong units generated for \[[^\]]+\]\. Expected (.+?), and got (.+?)\.(?:\s|$)/,
+    );
+    const noUnits = error.match(
+      /Wrong units generated for \[[^\]]+\]\. Expected no units and got (.+?)\.(?:\s|$)/,
+    );
+    if (!mismatch && !noUnits) return null;
+
+    const normalize = (units: string) =>
+      units.trim().toLowerCase() === 'unitless' ? 'Unitless' : units.trim();
+
+    return {
+      expected: mismatch?.[1] ? normalize(mismatch[1]) : 'Unitless',
+      incoming: normalize((mismatch?.[2] || noUnits?.[1])!),
+    };
+  }
+
+  get generatedUnitsFix() {
+    return this.unitMismatchDetails?.incoming ?? null;
+  }
+
+  @action
+  async autoFixGeneratedUnits() {
+    const units = this.generatedUnitsFix;
+    if (
+      !units ||
+      !(this.record instanceof Node) ||
+      !this.changeset ||
+      this.args.disabled
+    ) {
+      return;
+    }
+
+    await this.args.modelsVersion.removeOldUnitReferences(
+      units,
+      this.record.id!,
+    );
+    if (this.args.modelsVersion.existsInCustomUnits(units)) {
+      await this.args.modelsVersion.addCustomUnitReference(
+        units,
+        this.record.id!,
+      );
+    }
+
+    (this.changeset.dataProxy as Node).data = {
+      ...this.nodeChangesetData,
+      units,
+    } as Node['data'];
+  }
+
   @action
   deleteNode() {
     if (this.record instanceof Node) {
@@ -223,6 +312,27 @@ export default class FormComponent extends Component<FormSignature> {
       this.record.save();
       this.args.close();
     }
+  }
+
+  @action
+  toggleContainerCollapsed() {
+    if (
+      !(this.record instanceof Node) ||
+      !this.canCollapseContainer ||
+      !this.changeset
+    ) {
+      return;
+    }
+
+    // Route through the changeset (same as every other field on this form)
+    // instead of saving `record.data` directly: a direct save here would
+    // read a stale snapshot of `data` if another field edit is still
+    // waiting out its debounce, and the changeset's own save would then
+    // overwrite this toggle with that stale snapshot a moment later.
+    (this.changeset.dataProxy as Node).data = {
+      ...this.nodeChangesetData,
+      collapsed: !this.isContainerCollapsed,
+    } as Node['data'];
   }
 
   @action

@@ -55,10 +55,18 @@ import { EditableEdge } from "./lib/edges/editable.tsx";
 import { useEmberEventListeners } from "./lib/utils/use-ember-event-listeners.ts";
 import { NodeParamsMapProvider } from "./lib/context/node-params-map.tsx";
 import { NodeType } from "hcu-urban-model-builder-backend";
+import {
+  applyContainerEdgeVisibility,
+  applyContainerVisibility,
+  CANVAS_EDGE_Z_INDEX,
+} from "./lib/utils/container-visibility.ts";
 
 type FlowOptions = {
   disabled?: boolean;
 };
+
+// Lower values allow users to zoom further out. React Flow's default is 0.5.
+const CANVAS_MIN_ZOOM = 0.1;
 
 const nodeTypes = {
   [ReactFlowNodeType.Stock]: BaseNode,
@@ -92,22 +100,36 @@ function Flow({
   const nodeActions = useContext(EmberReactConnectorContext);
   useEmberEventListeners();
 
-  const isInternalSubModelNode = (node: any) => Boolean(node.data?.isSubModelInternal);
-  const internalNodeIds = new Set(initialNodes.filter(isInternalSubModelNode).map((node) => node.id));
-
-  const [nodes, setNodes] = useState(() =>
-    [...initialNodes]
-      .filter((node) => !isInternalSubModelNode(node))
-      .sort(sortNodeModels)
-      .map((n) => ({ ...n.raw })),
+  const isInternalSubModelNode = (node: any) =>
+    Boolean(node.data?.isSubModelInternal);
+  const internalNodeIds = new Set(
+    initialNodes.filter(isInternalSubModelNode).map((node) => node.id),
   );
 
-  const [edges, setEdges] = useState(() =>
-    initialEdges.filter((edge) => !internalNodeIds.has(edge.source.id) && !internalNodeIds.has(edge.target.id)).map((e) => {
-      return {
-        ...e.raw,
-      };
-    }),
+  const [nodes, setNodes] = useState<any[]>(() =>
+    applyContainerVisibility(
+      [...initialNodes]
+        .filter((node) => !isInternalSubModelNode(node))
+        .sort(sortNodeModels)
+        .map((n) => ({ ...n.raw })),
+    ),
+  );
+
+  const [edges, setEdges] = useState<any[]>(() =>
+    applyContainerEdgeVisibility(
+      initialEdges
+        .filter(
+          (edge) =>
+            !internalNodeIds.has(edge.source.id) &&
+            !internalNodeIds.has(edge.target.id),
+        )
+        .map((e) => {
+          return {
+            ...e.raw,
+          };
+        }),
+      nodes,
+    ),
   );
   const validationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -202,19 +224,22 @@ function Flow({
     [rfInstance, validateNodes],
   );
 
-  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-    for (const change of changes) {
-      if (change.type === "remove") {
-        if (flowOptions.disabled) return;
-        nodeActions.delete("edge", change.id);
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => {
+      for (const change of changes) {
+        if (change.type === "remove") {
+          if (flowOptions.disabled) return;
+          nodeActions.delete("edge", change.id);
+        }
       }
-    }
 
-    setEdges((eds) => applyEdgeChanges(changes, eds));
-    if (changes.some((change) => change.type !== "select")) {
-      validateNodes();
-    }
-  }, [validateNodes]);
+      setEdges((eds) => applyEdgeChanges(changes, eds));
+      if (changes.some((change) => change.type !== "select")) {
+        validateNodes();
+      }
+    },
+    [validateNodes],
+  );
 
   const getTmpEdgeId = (params: Connection) =>
     `tmp_source-${params.source}_target-${params.target}`;
@@ -248,6 +273,7 @@ function Flow({
       const tmpEdge: Edge = {
         type: type,
         id: tmpEdgeId,
+        zIndex: CANVAS_EDGE_Z_INDEX,
         ...params,
       };
 
@@ -265,16 +291,24 @@ function Flow({
       // that primitive's actual name in the target formula, never the visible
       // wrapper name. This makes a new canvas connection executable at once.
       const nodeModels = nodeActions.peekAll("node");
-      const sourceModel = nodeModels.find((node: any) => node.id === params.source);
-      const targetModel = nodeModels.find((node: any) => node.id === params.target);
+      const sourceModel = nodeModels.find(
+        (node: any) => node.id === params.source,
+      );
+      const targetModel = nodeModels.find(
+        (node: any) => node.id === params.target,
+      );
       if (
         sourceModel?.type === NodeType.SubModel &&
         params.sourceHandle?.startsWith("submodel-output-") &&
         targetModel
       ) {
         const outputId = params.sourceHandle.replace("submodel-output-", "");
-        const output = sourceModel.data?.outputs?.find((item: any) => item.id === outputId);
-        const internalOutput = output?.internalNodeId && nodeModels.find((node: any) => node.id === output.internalNodeId);
+        const output = sourceModel.data?.outputs?.find(
+          (item: any) => item.id === outputId,
+        );
+        const internalOutput =
+          output?.internalNodeId &&
+          nodeModels.find((node: any) => node.id === output.internalNodeId);
         // These are the app's own `data.*` field names (see each node type's
         // .hbs form + primitive-factory.ts), not the `simulation` package's
         // own constructor-argument names (which, e.g. for Stock, is "initial"
@@ -294,7 +328,9 @@ function Flow({
           const currentValue = String(targetModel.data?.[key] ?? "");
           const nextValue = currentValue.includes(visibleReference)
             ? currentValue.split(visibleReference).join(internalReference)
-            : currentValue.trim() ? currentValue : internalReference;
+            : currentValue.trim()
+              ? currentValue
+              : internalReference;
           if (nextValue !== currentValue) {
             await nodeActions.save("node", targetModel.id, {
               data: { ...targetModel.data, [key]: nextValue },
@@ -304,21 +340,34 @@ function Flow({
       }
 
       setEdges((eds) =>
-        Array.from(new Map(eds
-          .filter((e) => e.id !== tmpEdgeId && e.id !== newEdge.id)
-          .concat({
-            ...newEdge.raw,
-          }).map((edge) => [edge.id, edge])).values()),
+        applyContainerEdgeVisibility(
+          Array.from(
+            new Map(
+              eds
+                .filter((e) => e.id !== tmpEdgeId && e.id !== newEdge.id)
+                .concat({
+                  ...newEdge.raw,
+                })
+                .map((edge) => [edge.id, edge]),
+            ).values(),
+          ),
+          rfInstance.getNodes(),
+        ),
       );
       validateNodes();
     },
-    [setEdges, validateNodes],
+    [rfInstance, setEdges, validateNodes],
   );
 
   const onReconnect = useCallback(
     async (oldEdge: Edge, newConnection: Connection) => {
       setEdges((els) =>
-        reconnectEdge(oldEdge, newConnection, els, { shouldReplaceId: false }),
+        applyContainerEdgeVisibility(
+          reconnectEdge(oldEdge, newConnection, els, {
+            shouldReplaceId: false,
+          }),
+          rfInstance.getNodes(),
+        ),
       );
 
       await nodeActions.save("edge", oldEdge.id, {
@@ -328,7 +377,86 @@ function Flow({
         targetHandle: newConnection.targetHandle,
       });
     },
-    [],
+    [rfInstance],
+  );
+
+  const removeReferenceFromTarget = useCallback(
+    async (edge: Edge, isReference: boolean) => {
+      if (!isReference) return;
+      const nodeModels = nodeActions.peekAll("node");
+      const sourceModel = nodeModels.find(
+        (node: any) => node.id === edge.source,
+      );
+      const targetModel = nodeModels.find(
+        (node: any) => node.id === edge.target,
+      );
+      if (!sourceModel || !targetModel) return;
+
+      let referenceName = sourceModel.name;
+      if (
+        sourceModel.type === NodeType.SubModel &&
+        edge.sourceHandle?.startsWith("submodel-output-")
+      ) {
+        const outputId = edge.sourceHandle.replace("submodel-output-", "");
+        const output = sourceModel.data?.outputs?.find(
+          (item: any) => item.id === outputId,
+        );
+        const internalOutput =
+          output?.internalNodeId &&
+          nodeModels.find((node: any) => node.id === output.internalNodeId);
+        referenceName = internalOutput?.name || referenceName;
+      } else if (sourceModel.isGhost) {
+        referenceName = sourceModel.get("ghostParent.name") || referenceName;
+      }
+
+      const valueKey: Partial<Record<NodeType, string>> = {
+        [NodeType.Variable]: "value",
+        [NodeType.Stock]: "value",
+        [NodeType.Flow]: "rate",
+        [NodeType.State]: "startActive",
+        [NodeType.Transition]: "value",
+        [NodeType.Action]: "value",
+      };
+      const key = valueKey[targetModel.type as NodeType];
+      if (!key || !referenceName) return;
+
+      const reference = `[${referenceName}]`;
+      const currentValue = String(targetModel.data?.[key] ?? "");
+      if (!currentValue.includes(reference)) return;
+
+      await nodeActions.save("node", targetModel.id, {
+        data: {
+          ...targetModel.data,
+          [key]: currentValue.split(reference).join("0"),
+        },
+      });
+    },
+    [nodeActions],
+  );
+
+  const onReconnectEnd = useCallback(
+    async (
+      _event: MouseEvent | TouchEvent,
+      edge: Edge,
+      fixedHandleType: "source" | "target",
+      connectionState: FinalConnectionState,
+    ) => {
+      const fixedNodeId =
+        fixedHandleType === "source" ? edge.source : edge.target;
+      if (connectionState.toNode?.id !== fixedNodeId) return;
+
+      const edgeModel = nodeActions
+        .peekAll("edge")
+        .find((candidate: any) => candidate.id === edge.id);
+      const isReference = Boolean(edgeModel?.isReference);
+      setEdges((currentEdges) =>
+        currentEdges.filter((candidate) => candidate.id !== edge.id),
+      );
+      await nodeActions.delete("edge", edge.id);
+      await removeReferenceFromTarget(edge, isReference);
+      validateNodes();
+    },
+    [nodeActions, removeReferenceFromTarget, validateNodes],
   );
 
   const onDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
@@ -378,7 +506,7 @@ function Flow({
 
   const onNodeDragStop = useCallback(
     async (_e: DragEvent<HTMLDivElement>, node: Node) => {
-      const agentOrFolderNodes = rfInstance
+      const containerNodes = rfInstance
         .getNodes()
         .filter(
           (n) =>
@@ -388,7 +516,7 @@ function Flow({
       const [intersection] = rfInstance.getIntersectingNodes(
         node,
         true,
-        agentOrFolderNodes,
+        containerNodes,
       );
 
       let nodeChangeData = null;
@@ -528,6 +656,7 @@ function Flow({
       onConnectEnd={onConnectionEnd}
       onConnect={onConnect}
       onReconnect={onReconnect}
+      onReconnectEnd={onReconnectEnd}
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}
       onDragOver={onDragOver}
@@ -537,11 +666,14 @@ function Flow({
       edgeTypes={edgesTypes}
       connectionLineType={connectionLineType}
       edgesFocusable={!flowOptions.disabled}
+      elevateEdgesOnSelect={false}
+      elevateNodesOnSelect={false}
       nodesDraggable={!flowOptions.disabled}
       nodesConnectable={!flowOptions.disabled}
       nodesFocusable={!flowOptions.disabled}
       deleteKeyCode={["Backspace", "Delete"]}
       panOnDrag={true}
+      minZoom={CANVAS_MIN_ZOOM}
       fitView
       className={
         connectingHandle ? `connecting-from-${connectingHandle.handleType}` : ""

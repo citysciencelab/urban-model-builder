@@ -180,12 +180,23 @@ export default class NodeFormFieldsFormulaComponent extends Component<NodeFormFi
     }
 
     const target = this.args.node;
+    const width = 180;
+    const gap = 40;
+    const targetWidth = target.width || width;
+    const position = {
+      x:
+        target.position.x >= width + gap
+          ? target.position.x - width - gap
+          : target.position.x + targetWidth + gap,
+      y: target.position.y,
+    };
     const source = await this.emberReactConnector.create('node', {
       type: NodeType.Variable,
       name,
       data: { value: '0', units: 'Unitless' },
-      position: { x: Math.max(0, target.position.x - 260), y: target.position.y },
-      width: 180,
+      position,
+      parentId: target.parent?.id || null,
+      width,
       height: 80,
       isParameter: false,
       isOutputParameter: false,

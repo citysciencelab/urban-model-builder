@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { BaseEdge, EdgeProps, getSmoothStepPath } from "@xyflow/react";
+import { BaseEdge, getSmoothStepPath } from "@xyflow/react";
+import type { EdgeProps } from "@xyflow/react";
 
 export function FlowTransitionEdge({
   id,
@@ -12,6 +13,7 @@ export function FlowTransitionEdge({
   markerEnd,
   type,
   sourceHandleId,
+  data,
 }: EdgeProps & { type: string }) {
   const [edgePath] = getSmoothStepPath({
     sourceX,
@@ -22,12 +24,16 @@ export function FlowTransitionEdge({
     targetPosition,
   });
 
-  const hasMarkerEnd = useMemo(
-    () =>
-      sourceHandleId.startsWith("transition") ||
-      sourceHandleId.startsWith("flow"),
-    [sourceHandleId],
-  );
+  const hasMarkerEnd = useMemo(() => {
+    const originalSourceHandle = (
+      data as Record<string, unknown> | undefined
+    )?.["__containerOriginalSourceHandle"] as string | undefined;
+    const effectiveSourceHandle = originalSourceHandle || sourceHandleId;
+    return (
+      effectiveSourceHandle?.startsWith("transition") ||
+      effectiveSourceHandle?.startsWith("flow")
+    );
+  }, [sourceHandleId, data]);
 
   return (
     <>

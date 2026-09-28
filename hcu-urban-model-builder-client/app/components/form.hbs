@@ -6,6 +6,33 @@
       <Ui::SaveIndicator @isSaving={{this.changeset.isSaving}} />
 
       <div class="sidebar__header">
+        {{#if this.canCollapseContainer}}
+          <button
+            type="button"
+            class="sidebar__container-collapse btn btn-sm btn-outline-secondary
+              {{if this.isContainerCollapsed '--collapsed'}}"
+            disabled={{or @disabled this.changeset.isSaving}}
+            title={{if this.isContainerCollapsed "Ausklappen" "Einklappen"}}
+            aria-label={{if
+              this.isContainerCollapsed
+              "Ausklappen"
+              "Einklappen"
+            }}
+            {{on "click" this.toggleContainerCollapsed}}
+          >
+            {{#if this.isContainerCollapsed}}
+              <span
+                class="sidebar__container-window-icon"
+                aria-hidden="true"
+              ></span>
+            {{else}}
+              <span
+                class="sidebar__container-minus-icon"
+                aria-hidden="true"
+              >−</span>
+            {{/if}}
+          </button>
+        {{/if}}
         {{#if this.hasErrors}}
           <BsAlert
             @type="danger"
@@ -68,8 +95,33 @@
             @type="danger"
             @dismissible={{false}}
           >
-            <strong>Invalid variable or formula:</strong>
-            {{this.modelValidationError}}
+            {{#if this.unitMismatchDetails}}
+              <strong>{{t "messages.unit_mismatch.title"}}</strong>
+              <div class="node__validation-unit-details">
+                <span>
+                  {{t "messages.unit_mismatch.incoming"}}:
+                  <code>{{this.unitMismatchDetails.incoming}}</code>
+                </span>
+                <span>
+                  {{t "messages.unit_mismatch.expected"}}:
+                  <code>{{this.unitMismatchDetails.expected}}</code>
+                </span>
+                <small>{{t "messages.unit_mismatch.help"}}</small>
+              </div>
+            {{else}}
+              <strong>Invalid variable or formula:</strong>
+              {{this.modelValidationError}}
+            {{/if}}
+            {{#if this.generatedUnitsFix}}
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger node__validation-auto-fix"
+                disabled={{or @disabled this.changeset.isSaving}}
+                {{on "click" this.autoFixGeneratedUnits}}
+              >
+                {{t "actions.auto_fix_units"}}
+              </button>
+            {{/if}}
           </BsAlert>
         {{/if}}
 

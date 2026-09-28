@@ -224,12 +224,132 @@ main {
 .toolbar__container {
   display: flex;
   align-items: center;
-  gap: get-spacer(3);
+  gap: get-spacer(2);
+  @include soft_bg;
+  border-radius: $border-radius-pill;
+  box-shadow: $box-shadow-lg;
+  padding: get-spacer(2);
+  border: $border-width $border-style $border-color-translucent;
+}
+
+// A visually-grouped segment of related simulate controls (name, run
+// button, deviation count) so they read as one unit inside the pill-shaped
+// floating toolbar instead of three loose, unrelated fields.
+.toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: get-spacer(2);
+
+  .btn {
+    border-radius: $border-radius-pill;
+    white-space: nowrap;
+  }
+}
+
+// Only draw the divider when the "+" primitives button actually rendered
+// before it (it's hidden entirely when the model isn't editable), so the
+// group doesn't end up with a stray line at the start of the toolbar.
+.toolbar__container > .toolbar__group:not(:first-child) {
+  padding-left: get-spacer(2);
+  margin-left: get-spacer(1);
+  border-left: $border-width $border-style $border-color;
+}
+
+.toolbar__field {
+  display: flex;
+  align-items: center;
+  gap: get-spacer(1);
+  height: 2.5rem;
+  padding: 0 get-spacer(3);
   background-color: $white;
+  border: $border-width $border-style $border-color;
+  border-radius: $border-radius-pill;
+  cursor: text;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:focus-within {
+    border-color: $color-primary;
+    box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.4);
+  }
+
+  &--compact {
+    padding-right: get-spacer(2);
+  }
+}
+
+.toolbar__field-icon {
+  flex-shrink: 0;
+  color: $gray-500;
+}
+
+.simulation-toolbar__name,
+.simulation-toolbar__deviation-count {
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.simulation-toolbar__name {
+  width: 9rem;
+}
+
+.simulation-toolbar__deviation-count {
+  width: 2.5rem;
+  text-align: center;
+}
+
+.simulation-batch-progress {
+  position: fixed;
+  right: get-spacer(4);
+  bottom: get-spacer(4);
+  z-index: $zindex-toast;
+  display: flex;
+  align-items: center;
+  gap: get-spacer(3);
+  min-width: 19rem;
+  padding: get-spacer(3) get-spacer(4);
+  @include soft_bg;
+  border: $border-width $border-style $border-color-translucent;
   border-radius: $border-radius-lg;
   box-shadow: $box-shadow-lg;
-  padding: get-spacer(3);
-  border: $border-width $border-style $border-color;
+
+  strong,
+  small {
+    display: block;
+  }
+
+  small {
+    margin-top: get-spacer(1);
+    color: $text-muted;
+  }
+}
+
+.simulation-batch-progress__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.simulation-batch-progress__track {
+  height: 0.375rem;
+  margin-top: get-spacer(2);
+  overflow: hidden;
+  background: $gray-200;
+  border-radius: $border-radius-pill;
+}
+
+.simulation-batch-progress__bar {
+  height: 100%;
+  background: $color-secondary;
+  border-radius: $border-radius-pill;
+  transition: width 0.2s ease;
 }
 
 .node-toolbar__node {
@@ -619,6 +739,17 @@ a.disabled,
   margin: get-spacer(2) 0;
 }
 
+.simulation-batch-run-select {
+  display: flex;
+  align-items: center;
+  gap: get-spacer(2);
+  margin-right: auto;
+
+  span {
+    white-space: nowrap;
+  }
+}
+
 .simulate-model__error-node__select-link {
   text-decoration: none;
 }
@@ -646,7 +777,7 @@ a.disabled,
   margin-bottom: get-spacer(1);
   cursor: pointer;
 
-  input[type='color'] {
+  input[type="color"] {
     width: 1.75rem;
     height: 1.75rem;
     padding: 0;
@@ -718,9 +849,17 @@ a.disabled,
 // The results toggle sits inline among the floating toolbar's round icon
 // buttons, so it has to share their exact shape/size instead of a wider
 // text+badge pill, which was overflowing the toolbar and wrapping onto a new line.
+// Sits as the last item in the toolbar pill - the divider (only drawn once
+// the button inside actually renders) separates it from the simulate group
+// instead of leaving it floating with no visual relationship to the rest.
 .simulate-results-toggle {
   display: inline-flex;
   vertical-align: middle;
+
+  &:has(.simulate-results-toggle__button) {
+    padding-left: get-spacer(2);
+    border-left: $border-width $border-style $border-color;
+  }
 }
 
 .simulate-results-toggle__button {
@@ -735,7 +874,7 @@ a.disabled,
   height: 1.125rem;
   padding: 0 0.3rem;
   border-radius: $border-radius-pill;
-  background: $color-primary;
+  background: $color-secondary;
   color: $white;
   font-size: 0.65rem;
   font-weight: $font-weight-bold;
@@ -744,7 +883,8 @@ a.disabled,
   box-shadow: 0 0 0 2px $white;
 }
 
-body:has(.simulation-results-modal, .simulate-chart-zoom-modal) .modal-backdrop {
+body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
+  .modal-backdrop {
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -761,11 +901,74 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal) .modal-backdrop 
   box-shadow: 0 1.5rem 4rem rgba($black, 0.25);
 }
 
+.simulation-results-modal .modal-header {
+  padding: get-spacer(3) get-spacer(4);
+}
+
+.simulation-results-modal .modal-body {
+  padding: get-spacer(4);
+}
+
+.simulation-results-modal__title {
+  display: flex;
+  align-items: center;
+  gap: get-spacer(2);
+  margin-bottom: 0;
+  color: $color-secondary;
+}
+
 .simulation-results-layout {
+  position: relative;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   gap: 1.5rem;
   min-height: 500px;
+}
+
+.simulation-results-layout--collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.simulation-results-list-toggle {
+  position: absolute;
+  top: 0.5rem;
+  left: 258px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  padding: 0;
+  border: $border-width $border-style $border-color;
+  border-radius: 50%;
+  background: $white;
+  box-shadow: $box-shadow-sm;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    background: $gray-100;
+    box-shadow: $box-shadow;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.5);
+  }
+}
+
+.simulation-results-layout--collapsed .simulation-results-list-toggle {
+  left: 0.5rem;
+}
+
+.simulation-results-layout--collapsed .simulation-results-chart {
+  padding-left: 2.75rem;
+}
+
+.simulation-results-layout--single .simulation-results-chart {
+  padding-left: 0;
 }
 
 .simulation-results-list {
@@ -782,7 +985,7 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal) .modal-backdrop 
   display: grid;
   gap: 0.25rem;
   padding: 0.75rem;
-  border: 1px solid transparent;
+  border: $border-width $border-style transparent;
   border-radius: $border-radius;
   background: $white;
   text-align: left;
@@ -796,6 +999,11 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal) .modal-backdrop 
     border-color: $border-color;
     transform: translateY(-1px);
     box-shadow: 0 0.25rem 0.75rem rgba($black, 0.08);
+  }
+
+  &:focus-within {
+    border-color: $color-primary;
+    box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.35);
   }
 
   &.active {
@@ -841,10 +1049,18 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal) .modal-backdrop 
   background: transparent;
   color: $gray-600;
   cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 
   &:hover {
     background: rgba($black, 0.08);
     color: $danger;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba($danger, 0.4);
   }
 }
 
@@ -874,6 +1090,302 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal) .modal-backdrop 
     align-items: center;
     justify-content: center;
     color: $gray-600;
+  }
+}
+
+.simulation-result-visibility-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: get-spacer(2);
+  margin: get-spacer(3) 0;
+  padding: get-spacer(2);
+  background: $gray-100;
+  border-radius: $border-radius-lg;
+}
+
+.simulation-result-extended {
+  margin-top: get-spacer(3);
+}
+
+.simulation-result-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: get-spacer(2);
+}
+
+.simulation-result-extended__panel {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: get-spacer(3);
+  margin-top: get-spacer(2);
+  padding: get-spacer(3);
+  background: $gray-100;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-lg;
+}
+
+.simulation-result-parameters,
+.simulation-result-run-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: get-spacer(2);
+
+  label {
+    display: grid;
+    gap: get-spacer(1);
+    min-width: 8rem;
+    font-size: 0.8rem;
+    color: $gray-700;
+    font-weight: $font-weight-semibold;
+  }
+
+  input:not([type="color"]) {
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-sm;
+    background: $white;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primary;
+      box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.35);
+    }
+  }
+}
+
+.simulation-result-run-colors {
+  padding-left: get-spacer(3);
+  border-left: $border-width solid $border-color;
+
+  label {
+    display: flex;
+    align-items: center;
+    min-width: auto;
+  }
+}
+
+// Toggle chips (median / tunnel / individual runs). Inactive chips used to
+// rely on opacity alone to signal "off", which left both the text and the
+// little color swatch below WCAG's minimum contrast - they now get a
+// distinct muted background/border instead so the state reads clearly even
+// without color vision.
+.simulation-result-option {
+  position: relative;
+  padding: get-spacer(1) get-spacer(2) get-spacer(1) 1.75rem;
+  background: $white;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-pill;
+  color: $gray-600;
+  font-weight: $font-weight-semibold;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &::before {
+    position: absolute;
+    top: 50%;
+    left: 0.65rem;
+    width: 0.65rem;
+    height: 0.2rem;
+    border-radius: $border-radius-pill;
+    content: "";
+    opacity: 0.5;
+    transform: translateY(-50%);
+  }
+
+  &:hover {
+    border-color: $gray-500;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.4);
+  }
+
+  &.active {
+    background: $color-secondary-light;
+    border-color: $color-secondary;
+    color: $color-secondary;
+
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+.simulation-result-option--median::before {
+  background: #5470c6;
+}
+
+.simulation-result-option--tunnel::before {
+  height: 0.65rem;
+  background: rgba(#5470c6, 0.35);
+}
+
+// The run chip carries its own live color picker instead of a static dot,
+// so it doesn't need the shared ::before indicator (and its reserved
+// padding) that median/tunnel still use.
+.simulation-result-option--run {
+  display: inline-flex;
+  align-items: center;
+  gap: get-spacer(1);
+  padding-left: get-spacer(2);
+
+  &::before {
+    content: none;
+  }
+}
+
+.simulation-result-option__color {
+  flex-shrink: 0;
+  width: 0.9rem;
+  height: 0.9rem;
+  padding: 0;
+  border: $border-width solid #444;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 0 0 2px rgba($black, 0.1);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.5);
+  }
+}
+
+.simulation-result-run-select {
+  width: auto;
+  min-width: 8rem;
+  min-height: 4.5rem;
+}
+
+.simulation-result-y-axis-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: get-spacer(2);
+  margin-left: auto;
+  padding: get-spacer(1) get-spacer(2);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:focus-within {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.4);
+    border-radius: $border-radius-sm;
+  }
+}
+
+.simulation-result-color {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0.15rem;
+  border: $border-width solid $border-color;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 0 0 2px $gray-200;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.4);
+  }
+}
+
+.simulation-result-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: get-spacer(3);
+}
+
+.simulation-result-chart-card {
+  position: relative;
+  min-width: 0;
+  padding: get-spacer(2);
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-lg;
+  background: $white;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover,
+  &:focus-within {
+    border-color: $gray-400;
+    box-shadow: 0 0.25rem 0.75rem rgba($black, 0.06);
+  }
+}
+
+.simulation-result-chart-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: get-spacer(2);
+  margin-bottom: get-spacer(1);
+
+  h6 {
+    overflow: hidden;
+    margin: 0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.simulation-result-chart-card__download {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: $gray-600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: $gray-100;
+    color: $color-secondary;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.4);
+  }
+}
+
+.simulation-result-chart-card__chart {
+  width: 100%;
+  height: 260px;
+}
+
+.simulation-result-grid-loading {
+  display: flex;
+  justify-content: center;
+  padding: get-spacer(5);
+}
+
+@media (max-width: 1100px) {
+  .simulation-result-chart-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -924,27 +1436,27 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal) .modal-backdrop 
 .sub-model__inputs-list {
   label {
     position: absolute;
-    top:-24px;
-    left:0;
-    color:#222;
+    top: -24px;
+    left: 0;
+    color: #222;
   }
   li {
     margin: 30px 0px 0px 0px;
-    border-radius:8px !important;
-    background:whitesmoke;
-    border:1px solid #ccc;
+    border-radius: 8px !important;
+    background: whitesmoke;
+    border: 1px solid #ccc;
 
     &.list-group-item-success {
-      border:1px solid green;
+      border: 1px solid green;
 
       .connection_var_name {
-        color:#222;
-        font-weight:700;
+        color: #222;
+        font-weight: 700;
       }
     }
 
     &.list-group-item-warning {
-      border:1px solid orange;
+      border: 1px solid orange;
     }
   }
 }
@@ -952,9 +1464,9 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal) .modal-backdrop 
 .sub-model__outputs-list {
   li {
     margin: 5px 0px;
-    border-radius:8px !important;
-    background:whitesmoke;
-    border:1px solid #ccc;
+    border-radius: 8px !important;
+    background: whitesmoke;
+    border: 1px solid #ccc;
   }
 }
 
@@ -1226,4 +1738,22 @@ input:focus {
 .node__validation-alert {
   margin-top: 1rem;
   margin-bottom: 1rem;
+
+  .node__validation-auto-fix {
+    display: block;
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  .node__validation-unit-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+
+    code {
+      color: inherit;
+      font-weight: $font-weight-semibold;
+    }
+  }
 }

@@ -19,6 +19,7 @@ import {
   type SimulationResultCreate,
   type SimulationResultsFind,
   type SimulationResultRename,
+  type SimulationResultUpdate,
   type SimulationResultRemove
 } from './models.schema.js'
 import { SimulationAdapter } from '../../shared/simulation-adapter/simulation-adapter.js'
@@ -174,6 +175,19 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     const [updated] = await database('simulation_results')
       .where({ id: data.id })
       .update({ name: data.name, updatedAt: database.fn.now() })
+      .returning('*')
+    return updated
+  }
+
+  async updateSimulationResult(data: SimulationResultUpdate, params?: ServiceParams) {
+    if (!params?.user?.id) throw new Forbidden('Updating simulation results requires authentication.')
+    const existing = await this.app.get('postgresqlClient')('simulation_results').where({ id: data.id }).first()
+    if (!existing) throw new BadRequest('Simulation result not found.')
+    await this.assertModelVersionAccess(existing.modelsVersionsId, params.user, Roles.viewer)
+    const [updated] = await this.app
+      .get('postgresqlClient')('simulation_results')
+      .where({ id: data.id })
+      .update({ result: data.result })
       .returning('*')
     return updated
   }

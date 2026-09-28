@@ -25,6 +25,7 @@ export const modelsMethods: Array<keyof ModelsService> = [
   'saveSimulationResult',
   'findSimulationResults',
   'renameSimulationResult',
+  'updateSimulationResult',
   'deleteSimulationResult'
 ]
 

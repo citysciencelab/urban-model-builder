@@ -5,6 +5,10 @@ import {
 } from '../context/ember-react-connector';
 import { useCallback, useContext, useEffect } from 'react';
 import { NodeType } from 'hcu-urban-model-builder-backend';
+import {
+  applyContainerEdgeVisibility,
+  applyContainerVisibility,
+} from './container-visibility';
 
 export const useEmberEventListeners = () => {
   const emberReactConnector = useContext(EmberReactConnectorContext);
@@ -50,11 +54,15 @@ export const useEmberEventListeners = () => {
       }
       if (newNode.data?.isSubModelInternal) return;
 
-      setNodes((nds) =>
-        nds.concat({
-          ...newNode.raw,
-        }),
-      );
+      setNodes((nds) => {
+        const visibleNodes = applyContainerVisibility(
+          nds.concat({
+            ...newNode.raw,
+          }),
+        );
+        setEdges((edges) => applyContainerEdgeVisibility(edges, visibleNodes));
+        return visibleNodes;
+      });
     },
     [rfInstance, emberReactConnector],
   );
@@ -68,8 +76,8 @@ export const useEmberEventListeners = () => {
         return;
       }
 
-      setNodes((nds) =>
-        nds.map((n) => {
+      setNodes((nds) => {
+        const updatedNodes = nds.map((n) => {
           if (n.id === updatedNode.id) {
             return sender === StoreEventSenderTransport.LOCAL
               ? {
@@ -91,15 +99,24 @@ export const useEmberEventListeners = () => {
           }
 
           return n;
-        }),
-      );
+        });
+        const visibleNodes = applyContainerVisibility(updatedNodes);
+        setEdges((edges) => applyContainerEdgeVisibility(edges, visibleNodes));
+        return visibleNodes;
+      });
     },
     [],
   );
 
   const removeNode = useCallback(
     (deletedNode: { id: string }) => {
-      setNodes((nds) => nds.filter((n) => n.id !== deletedNode.id));
+      setNodes((nds) => {
+        const visibleNodes = applyContainerVisibility(
+          nds.filter((n) => n.id !== deletedNode.id),
+        );
+        setEdges((edges) => applyContainerEdgeVisibility(edges, visibleNodes));
+        return visibleNodes;
+      });
     },
     [rfInstance],
   );
@@ -118,13 +135,9 @@ export const useEmberEventListeners = () => {
 
   const addEdge = useCallback(
     (newEdge: any, sender: StoreEventSenderTransport) => {
-      // Locally created edges are already added to canvas state by the
-      // caller (e.g. onConnect), which sets markerEnd itself; only remote
-      // edges need to be picked up here to avoid racing that local update.
       if (
-        sender === StoreEventSenderTransport.LOCAL ||
-        (newEdge.modelsVersions?.id &&
-          newEdge.modelsVersions.id !== emberReactConnector.currentModelVersionId)
+        newEdge.modelsVersions?.id &&
+        newEdge.modelsVersions.id !== emberReactConnector.currentModelVersionId
       ) {
         return;
       }
@@ -132,18 +145,35 @@ export const useEmberEventListeners = () => {
       const nodes = emberReactConnector.peekAll('node');
       const source = nodes.find((node: any) => node.id === rawEdge.source);
       const target = nodes.find((node: any) => node.id === rawEdge.target);
-      if (source?.data?.isSubModelInternal || target?.data?.isSubModelInternal) return;
+      if (source?.data?.isSubModelInternal || target?.data?.isSubModelInternal)
+        return;
 
       setEdges((eds) =>
-        eds.some((edge) => edge.id === newEdge.id)
+        eds.some((edge) => edge.id === newEdge.id) ||
+        // A hand-drawn connection is inserted optimistically with a temporary
+        // id and replaced by onConnect after persistence. Formula sync and
+        // sub-model import do not create that temporary edge, so their local
+        // create events must be added here to become visible immediately.
+        (sender === StoreEventSenderTransport.LOCAL &&
+          eds.some(
+            (edge) =>
+              edge.id.startsWith('tmp_source-') &&
+              edge.source === rawEdge.source &&
+              edge.target === rawEdge.target &&
+              edge.sourceHandle === rawEdge.sourceHandle &&
+              edge.targetHandle === rawEdge.targetHandle,
+          ))
           ? eds
-          : eds.concat({
-              ...rawEdge,
-              markerEnd: { type: MarkerType.Arrow },
-            }),
+          : applyContainerEdgeVisibility(
+              eds.concat({
+                ...rawEdge,
+                markerEnd: { type: MarkerType.Arrow },
+              }),
+              rfInstance.getNodes(),
+            ),
       );
     },
-    [emberReactConnector, setEdges],
+    [emberReactConnector, rfInstance, setEdges],
   );
 
   const updateEdge = useCallback(
@@ -157,19 +187,22 @@ export const useEmberEventListeners = () => {
       }
 
       setEdges((eds) =>
-        eds.map((e) => {
-          if (e.id === updateEdge.id) {
-            return {
-              ...e,
-              ...updateEdge.raw,
-            };
-          }
+        applyContainerEdgeVisibility(
+          eds.map((e) => {
+            if (e.id === updateEdge.id) {
+              return {
+                ...e,
+                ...updateEdge.raw,
+              };
+            }
 
-          return e;
-        }),
+            return e;
+          }),
+          rfInstance.getNodes(),
+        ),
       );
     },
-    [],
+    [emberReactConnector, rfInstance],
   );
 
   const removeEdge = useCallback((deletedEdge: { id: string }) => {

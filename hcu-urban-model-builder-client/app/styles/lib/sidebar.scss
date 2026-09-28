@@ -23,11 +23,11 @@
 
   position: relative;
 
-  background-color: $white;
-  box-shadow: $box-shadow-lg;
+  @include soft_bg;
+  box-shadow: $box-shadow;
   border-color: $border-color;
-  border-width: $border-width;
-  border-style: $border-style;
+  border-width: 0px;
+  border-style: none;
   border-radius: $border-radius-lg;
 
   display: grid;
@@ -83,6 +83,44 @@
   padding: get-spacer(3);
   flex-direction: column;
   gap: get-spacer(2);
+
+  .sidebar__container-collapse {
+    position: absolute;
+    top: get-spacer(2);
+    right: get-spacer(2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+
+    .sidebar__container-minus-icon {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .sidebar__container-window-icon {
+      position: relative;
+      width: 15px;
+      height: 12px;
+      border: 1.5px solid currentColor;
+      border-radius: 1px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        right: 0;
+        left: 0;
+        border-top: 1px solid currentColor;
+      }
+    }
+  }
+
+  .sidebar__container-collapse ~ .sidebar__primitive-type {
+    padding-right: 2rem;
+  }
   .sidebar__header__row {
     display: flex;
     align-items: center;

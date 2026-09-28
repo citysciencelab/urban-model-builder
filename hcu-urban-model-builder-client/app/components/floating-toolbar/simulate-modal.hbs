@@ -1,35 +1,59 @@
-<BasicDropdown
-  @horizontalPosition="center"
-  @verticalPosition="above"
-  @disabled={{not this.isSimulationPossible}}
-  @renderInPlace={{true}}
-  @onOpen={{this.onOpen}}
-  @onClose={{this.onClose}}
-  @registerAPI={{fn
-    this.floatingToolbarDropdownManager.registerInstance
-    "simulateModal"
-  }}
-  as |modal|
->
+<div class="toolbar__group">
+  <div class="toolbar__field" title={{t "components.simulate_modal.simulation_name"}}>
+    <SvgIcon @icon="edit" @size="xs" class="toolbar__field-icon" />
+    <Input
+      @type="text"
+      @value={{this.simulationName}}
+      class="simulation-toolbar__name"
+      aria-label={{t "components.simulate_modal.simulation_name"}}
+      maxlength="255"
+      {{on "input" this.updateSimulationName}}
+    />
+  </div>
 
-  <modal.Content>
-    <div class="simulate-card">
-      <div class="simulate-card__row">
-        <h4 class="modal-title">
-          {{t "components.simulate_modal.title"}}
-        </h4>
+  <BasicDropdown
+    @horizontalPosition="center"
+    @verticalPosition="above"
+    @disabled={{or (not this.isSimulationPossible) this.isBatchRunning}}
+    @renderInPlace={{true}}
+    @onOpen={{this.onOpen}}
+    @onClose={{this.onClose}}
+    @registerAPI={{fn
+      this.floatingToolbarDropdownManager.registerInstance
+      "simulateModal"
+    }}
+    as |modal|
+  >
 
-        <a
-          class={{if
-            this.floatingToolbarDropdownManager.isSimulateDropdownPinned
-            "pinned"
-          }}
-          href="javascript:void(0)"
-          {{on "click" this.toggleDropdown}}
-        >
-          <SvgIcon @icon="push_pin" @size="xs" />
-        </a>
-      </div>
+    <modal.Content>
+      <div class="simulate-card">
+        <div class="simulate-card__row">
+          <h4 class="modal-title">
+            {{t "components.simulate_modal.title"}}
+          </h4>
+
+          <button
+            type="button"
+            class={{if
+              this.floatingToolbarDropdownManager.isSimulateDropdownPinned
+              "pinned"
+            }}
+            aria-label={{if
+              this.floatingToolbarDropdownManager.isSimulateDropdownPinned
+              (t "actions.unpin")
+              (t "actions.pin")
+            }}
+            aria-pressed={{this.floatingToolbarDropdownManager.isSimulateDropdownPinned}}
+            title={{if
+              this.floatingToolbarDropdownManager.isSimulateDropdownPinned
+              (t "actions.unpin")
+              (t "actions.pin")
+            }}
+            {{on "click" this.toggleDropdown}}
+          >
+            <SvgIcon @icon="push_pin" @size="xs" />
+          </button>
+        </div>
       <BsForm as |form|>
         {{#if this.ALLOW_SERVER_SIDE_SIMULATION}}
           <form.element
@@ -92,6 +116,28 @@
               role="group"
               aria-label={{t "components.simulate_modal.chart_type"}}
             >
+              {{#if (gt this.batchResults.length 1)}}
+                <label class="simulation-batch-run-select">
+                  <span>{{t "components.simulate_modal.selected_run"}}</span>
+                  <select
+                    class="form-select form-select-sm"
+                    value={{this.selectedBatchRun}}
+                    {{on "change" this.selectBatchRun}}
+                  >
+                    <option value="-1">
+                      {{t "components.simulate_modal.batch_overview"}}
+                    </option>
+                    {{#each this.batchRunOptions as |runNumber|}}
+                      <option value={{sub runNumber 1}}>
+                        {{t
+                          "components.simulate_modal.simulation_run"
+                          number=runNumber
+                        }}
+                      </option>
+                    {{/each}}
+                  </select>
+                </label>
+              {{/if}}
               <button
                 type="button"
                 class="btn btn-sm
@@ -250,7 +296,11 @@
               class="btn-sm ms-2"
               title={{t "components.simulate_modal.save_result"}}
               {{on "click" this.saveCurrentResult}}
-              disabled={{or (not this.simulationResult) this.isSavingResult}}
+              disabled={{or
+                (not this.simulationResult)
+                this.isSavingResult
+                this.isCurrentResultSaved
+              }}
             >
               <FaIcon @icon="save" @prefix="fas" />
             </BsButton>
@@ -286,12 +336,65 @@
     {{#unless this.isSimulationPossible}}
       <BsTooltip @title={{t "components.simulate_modal.disabled_tooltip"}} />
     {{/unless}}
-    <BsButton @type="secondary" disabled={{not this.isSimulationPossible}}>
+    <BsButton
+      @type="secondary"
+      disabled={{or (not this.isSimulationPossible) this.isBatchRunning}}
+    >
       {{t "actions.simulate"}}
     </BsButton>
   </modal.Trigger>
 
-</BasicDropdown>
+  </BasicDropdown>
+
+  <div
+    class="toolbar__field toolbar__field--compact"
+    title={{t "components.simulate_modal.deviation_count"}}
+  >
+    <SvgIcon @icon="tune" @size="xs" class="toolbar__field-icon" />
+    <Input
+      @type="number"
+      @value={{this.deviationCount}}
+      class="simulation-toolbar__deviation-count"
+      aria-label={{t "components.simulate_modal.deviation_count"}}
+      min="1"
+      step="1"
+      disabled={{this.isBatchRunning}}
+      {{on "change" this.updateDeviationCount}}
+    />
+  </div>
+</div>
+
+{{#if this.isBatchRunning}}
+  <div class="simulation-batch-progress" role="status" aria-live="polite">
+    <BsSpinner @type="primary" @size="sm" />
+    <div class="simulation-batch-progress__body">
+      <strong>
+        {{t
+          "components.simulate_modal.batch_progress"
+          completed=this.completedSimulations
+          total=this.totalSimulations
+        }}
+      </strong>
+      <div class="simulation-batch-progress__track" aria-hidden="true">
+        <div
+          class="simulation-batch-progress__bar"
+          {{did-insert this.setBatchProgressBarWidth}}
+          {{did-update this.setBatchProgressBarWidth this.batchProgressPercent}}
+        ></div>
+      </div>
+      <small>
+        {{#if this.hasBatchEstimate}}
+          {{t
+            "components.simulate_modal.batch_remaining"
+            time=this.formattedRemainingTime
+          }}
+        {{else}}
+          {{t "components.simulate_modal.batch_estimating"}}
+        {{/if}}
+      </small>
+    </div>
+  </div>
+{{/if}}
 
 <span
   class="simulate-results-toggle"
@@ -320,11 +423,32 @@
   as |modal|
 >
   <modal.header>
-    <h5 class="modal-title">{{t "components.simulate_modal.results"}}</h5>
+    <h5 class="modal-title simulation-results-modal__title">
+      <SvgIcon @icon="bar_chart" @size="sm" />
+      {{t "components.simulate_modal.results"}}
+    </h5>
   </modal.header>
   <modal.body>
-    <div class="simulation-results-layout">
-      <aside class="simulation-results-list">
+    <div
+      class="simulation-results-layout
+        {{unless this.showsResultsList 'simulation-results-layout--collapsed'}}
+        {{unless (gt this.resultsCount 1) 'simulation-results-layout--single'}}"
+    >
+      {{#if (gt this.resultsCount 1)}}
+        <button
+          type="button"
+          class="btn btn-sm btn-light simulation-results-list-toggle"
+          title={{t "components.simulate_modal.toggle_results_list"}}
+          {{on "click" this.toggleResultsList}}
+        >
+          <SvgIcon
+            @icon={{if this.showsResultsList "chevron_left" "chevron_right"}}
+            @size="sm"
+          />
+        </button>
+      {{/if}}
+      {{#if this.showsResultsList}}
+        <aside class="simulation-results-list">
         {{#each this.storedResults as |result|}}
           {{! template-lint-disable no-invalid-interactive }}
           {{! This row contains its own interactive children (rename input, delete
@@ -389,7 +513,8 @@
             </BsButton>
           </div>
         {{/if}}
-      </aside>
+        </aside>
+      {{/if}}
       <section class="simulation-results-chart">
         {{#if this.selectedStoredResult}}
           <BsNav @type="tabs" as |nav|>
@@ -406,106 +531,215 @@
             {{/each}}
           </BsNav>
           {{#if (eq this.activeTab "time-series")}}
-            <div
-              class="simulate-model__chart-mode-controls"
-              role="group"
-              aria-label={{t "components.simulate_modal.chart_type"}}
-            >
-              <button
-                type="button"
-                class="btn btn-sm
-                  {{if
-                    (this.isChartModeActive 'line')
-                    'btn-primary'
-                    'btn-outline-secondary'
-                  }}"
-                title={{t "components.simulate_modal.line_chart"}}
-                aria-pressed={{this.isChartModeActive "line"}}
-                {{on "click" (fn this.switchChartMode "line")}}
-              >
-                <SvgIcon @icon="line_chart" @size="sm" />
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm
-                  {{if
-                    (this.isChartModeActive 'bar')
-                    'btn-primary'
-                    'btn-outline-secondary'
-                  }}"
-                title={{t "components.simulate_modal.bar_chart"}}
-                aria-pressed={{this.isChartModeActive "bar"}}
-                {{on "click" (fn this.switchChartMode "bar")}}
-              >
-                <SvgIcon @icon="bar_chart" @size="sm" />
-              </button>
-              <BsDropdown @closeOnMenuClick={{false}} as |dd|>
-                <dd.button
-                  @type="outline-secondary"
-                  class="btn-sm"
-                  title={{t "components.simulate_modal.chart_colors"}}
+            <div class="simulation-result-extended">
+              <div class="simulation-result-top-actions">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  aria-expanded={{this.showStoredExtendedFunctions}}
+                  title={{t "components.simulate_modal.extended_functions"}}
+                  {{on "click" this.toggleStoredExtendedFunctions}}
                 >
                   <SvgIcon @icon="settings" @size="sm" />
-                </dd.button>
-                <dd.menu>
-                  <div class="simulate-chart-colors-menu">
-                    <h6 class="simulate-chart-colors-menu__title">
-                      {{t "components.simulate_modal.chart_colors"}}
-                    </h6>
-                    {{#each this.storedSeriesNames as |seriesName|}}
-                      <label class="simulate-chart-colors-menu__row">
-                        <span
-                          class="simulate-chart-colors-menu__label"
-                        >{{seriesName}}</span>
-                        <input
-                          type="color"
-                          value={{this.getStoredSeriesColor seriesName}}
+                  {{t "components.simulate_modal.extended_functions"}}
+                </button>
+                <BsButton
+                  @type="outline-secondary"
+                  @size="sm"
+                  title={{t "components.simulate_modal.download_result"}}
+                  {{on "click" this.downloadStoredResultAsJson}}
+                >
+                  <SvgIcon @icon="file_download" @size="sm" />
+                  {{t "components.simulate_modal.download_json"}}
+                </BsButton>
+              </div>
+              {{#if this.showStoredExtendedFunctions}}
+                <div class="simulation-result-extended__panel">
+                  <div class="simulation-result-parameters">
+                    {{#each this.storedParameterInputs as |parameter|}}
+                      <label>
+                        <span>{{parameter.name}}</span>
+                        <Input
+                          @type="number"
+                          @value={{parameter.value}}
+                          min={{parameter.min}}
+                          max={{parameter.max}}
+                          step="any"
                           {{on
                             "input"
-                            (fn this.setStoredSeriesColor seriesName)
+                            (fn this.updateStoredParameter parameter.nodeId)
                           }}
                         />
                       </label>
+                    {{else}}
+                      <small>{{t
+                          "components.simulate_modal.no_input_parameters"
+                        }}</small>
                     {{/each}}
-                    {{#if this.hasStoredColorOverrides}}
-                      <button
-                        type="button"
-                        class="btn btn-link btn-sm simulate-chart-colors-menu__reset"
-                        {{on "click" this.resetStoredSeriesColors}}
-                      >
-                        {{t "components.simulate_modal.reset_colors"}}
-                      </button>
-                    {{/if}}
                   </div>
+                  <BsButton
+                    @type="primary"
+                    @size="sm"
+                    disabled={{or
+                      this.isBatchRunning
+                      (eq this.storedParameterInputs.length 0)
+                    }}
+                    {{on "click" this.addRunToStoredBatch}}
+                  >
+                    {{#if this.isBatchRunning}}
+                      <BsSpinner @size="sm" />
+                    {{/if}}
+                    {{t "components.simulate_modal.add_run"}}
+                  </BsButton>
+                </div>
+              {{/if}}
+            </div>
+            <div class="simulation-result-visibility-controls" role="group">
+              <button
+                type="button"
+                class="btn btn-sm simulation-result-option simulation-result-option--median
+                  {{if this.showStoredMedian 'active'}}"
+                aria-pressed={{this.showStoredMedian}}
+                {{on "click" this.toggleStoredMedian}}
+              >
+                {{t "components.simulate_modal.median"}}
+              </button>
+              <input
+                type="color"
+                class="simulation-result-color"
+                value={{this.storedMedianColor}}
+                aria-label={{t "components.simulate_modal.median_color"}}
+                {{on "input" this.updateStoredMedianColor}}
+              />
+              <button
+                type="button"
+                class="btn btn-sm simulation-result-option simulation-result-option--tunnel
+                  {{if this.showStoredTunnel 'active'}}"
+                aria-pressed={{this.showStoredTunnel}}
+                {{on "click" this.toggleStoredTunnel}}
+              >
+                {{t "components.simulate_modal.tunnel"}}
+              </button>
+              <input
+                type="color"
+                class="simulation-result-color"
+                value={{this.storedTunnelColor}}
+                aria-label={{t "components.simulate_modal.tunnel_color"}}
+                {{on "input" this.updateStoredTunnelColor}}
+              />
+              <BsDropdown @closeOnMenuClick={{false}} as |dd|>
+                <dd.button @type="outline-secondary" class="btn-sm">
+                  {{t
+                    "components.simulate_modal.run_of"
+                    current=this.selectedStoredBatchRuns.length
+                    total=this.storedBatchDatasets.length
+                  }}
+                </dd.button>
+                <dd.menu>
+                  {{#each this.storedBatchRunOptions as |runNumber|}}
+                    <button
+                      type="button"
+                      class="dropdown-item
+                        {{if
+                          (this.isStoredBatchRunSelected (sub runNumber 1))
+                          'active'
+                        }}"
+                      {{on
+                        "click"
+                        (fn this.toggleStoredBatchRun (sub runNumber 1))
+                      }}
+                    >
+                      {{t
+                        "components.simulate_modal.simulation_run"
+                        number=runNumber
+                      }}
+                    </button>
+                  {{/each}}
                 </dd.menu>
               </BsDropdown>
+              {{#each this.selectedStoredBatchRuns as |runIndex|}}
+                {{! template-lint-disable no-nested-interactive }}
+                {{! The color swatch is merged into the run chip itself, so
+                  its click must not bubble up into the button's own toggle
+                  handler - otherwise picking a color would also deselect
+                  the run. }}
+                <button
+                  type="button"
+                  class="btn btn-sm simulation-result-option simulation-result-option--run active"
+                  title={{t "components.simulate_modal.deselect_run"}}
+                  {{on "click" (fn this.toggleStoredBatchRun runIndex)}}
+                >
+                  <input
+                    type="color"
+                    class="simulation-result-option__color"
+                    value={{this.getStoredRunColor runIndex}}
+                    aria-label={{t
+                      "components.simulate_modal.run_color"
+                      number=(add runIndex 1)
+                    }}
+                    {{on "input" (fn this.updateStoredRunColor runIndex)}}
+                    {{on "click" (stop-propagation)}}
+                  />
+                  {{t
+                    "components.simulate_modal.simulation_run"
+                    number=(add runIndex 1)
+                  }}
+                </button>
+              {{/each}}
+              <label class="simulation-result-y-axis-toggle">
+                <Input
+                  @type="checkbox"
+                  @checked={{this.useStoredTightYAxis}}
+                  {{on "change" this.toggleStoredYAxisRange}}
+                />
+                <span>{{t "components.simulate_modal.tight_y_axis"}}</span>
+              </label>
             </div>
-          {{/if}}
-          <div class="simulate-model__chart-wrapper">
-            <div
-              role="button"
-              tabindex="0"
-              class="simulate-model__chart-container simulate-model__chart-container--zoomable"
-              title={{t "components.simulate_modal.zoom_chart"}}
-              {{did-insert this.didInsertStoredChart}}
-              {{on "click" (fn this.openChartZoom "stored")}}
-              {{on "keydown" (fn this.handleChartZoomKeydown "stored")}}
-            ></div>
+            <div class="simulation-result-chart-grid">
+              {{#each this.storedChartCards as |card|}}
+                <article class="simulation-result-chart-card">
+                  <div class="simulation-result-chart-card__header">
+                    <h6>{{card.title}}</h6>
+                    <button
+                      type="button"
+                      class="simulation-result-chart-card__download"
+                      title={{t "components.simulate_modal.download_chart"}}
+                      {{on
+                        "click"
+                        (fn this.downloadStoredChartCardPng card.id card.title)
+                      }}
+                    >
+                      <SvgIcon @icon="image_download" @size="xs" />
+                    </button>
+                  </div>
+                  <div
+                    class="simulation-result-chart-card__chart"
+                    data-chart-id={{card.id}}
+                    {{did-insert this.didInsertStoredChartCard}}
+                  ></div>
+                </article>
+              {{/each}}
+            </div>
             {{#if this.isGeneratingStoredChart}}
-              <div class="simulate-model__chart-loading">
+              <div class="simulation-result-grid-loading">
                 <BsSpinner @type="secondary" />
               </div>
             {{/if}}
-          </div>
-          <div class="simulation-results-chart__actions">
-            <BsButton
-              @type="outline-secondary"
-              class="btn-sm ms-2"
-              title={{t "components.simulate_modal.download_result"}}
-              {{on "click" this.downloadStoredResultAsJson}}
-            >
-              <SvgIcon @icon="file_download" @size="sm" />
-            </BsButton>
+          {{else}}
+            <div class="simulate-model__chart-wrapper">
+              <div
+                class="simulate-model__chart-container"
+                {{did-insert this.didInsertStoredChart}}
+              ></div>
+              {{#if this.isGeneratingStoredChart}}
+                <div class="simulate-model__chart-loading">
+                  <BsSpinner @type="secondary" />
+                </div>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#unless (eq this.activeTab "time-series")}}
+            <div class="simulation-results-chart__actions">
             <BsButton
               @type="outline-secondary"
               class="btn-sm ms-2"
@@ -515,7 +749,8 @@
             >
               <SvgIcon @icon="image_download" @size="sm" />
             </BsButton>
-          </div>
+            </div>
+          {{/unless}}
         {{else}}
           <p>{{t "components.simulate_modal.no_results"}}</p>
         {{/if}}

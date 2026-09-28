@@ -62,6 +62,11 @@ messages:
   general_error: Bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den Support.
   form_error: Es gibt einen Fehler im Formular. Bitte korrigieren um zu speichern.
   saving: Speichern…
+  unit_mismatch:
+    title: Einheit der Formel stimmt nicht überein
+    incoming: Von der Formel erzeugte Einheit
+    expected: Für diese Primitive eingestellte Einheit
+    help: Die Autokorrektur übernimmt die von der Formel erzeugte Einheit für diese Primitive.
 
 actions:
   save: Speichern
@@ -78,8 +83,11 @@ actions:
   close: Schließen
   delete: Löschen
   simulate: Simulieren
+  pin: Anheften
+  unpin: Anheftung lösen
   download: Herunterladen
   publish: Veröffentlichen*
+  auto_fix_units: Autokorrektur
   confirm_delete_model: Sind Sie sicher, dass Sie dieses Modell löschen möchten?
   confirm_remove_own_permissions: Sie sind dabei, Ihre Berechtigungen zu entfernen. Möchten Sie wirklich fortfahren?
   confirm_change_own_permissions: Sie sind dabei, Ihre Berechtigungen zu ändern. Möchten Sie wirklich fortfahren?
@@ -166,6 +174,28 @@ components:
     disclaimer: '*Mit Klick auf Veröffentlichen bestätigen Sie, dass das von Ihnen erstellte Model unter der <a href="https://www.gnu.org/licenses/gpl-3.0.de.html" target="_blank">GPL-3.0 Lizenz</a> veröffentlicht wird.'
     ump_warning: Bitte eine Mail mit Informationen zum Modell an cut@hcu-hamburg.de schicken, damit die Veröffentlichung auf der Urban Model Platform geprüft und freigegeben werden kann
   simulate_modal:
+    simulation_name: Name der Simulation
+    deviation_count: Anzahl der Simulationsvarianten
+    batch_progress: "{completed}/{total} Simulationen ausgeführt"
+    batch_remaining: "Voraussichtlich noch {time}"
+    batch_estimating: Restzeit wird berechnet…
+    selected_run: Ansicht
+    batch_overview: Gesamtergebnis
+    simulation_run: "Simulation {number}"
+    run_of: "Simulation {current}/{total}"
+    median: Median
+    tunnel: Tunnel
+    all_outputs: Alle Ausgabevariablen
+    extended_functions: Erweiterte Funktionen
+    add_run: Weiteren Lauf hinzufügen
+    no_input_parameters: Keine Eingabeparameter verfügbar.
+    median_color: Farbe des Medians
+    tunnel_color: Farbe des Tunnels
+    download_json: JSON herunterladen
+    tight_y_axis: Nur benötigten Wertebereich anzeigen
+    toggle_results_list: Ergebnisliste ein- oder ausblenden
+    deselect_run: Simulationslauf ausblenden
+    run_color: "Farbe für Simulation {number}"
     results: Simulationsergebnisse
     result_name: Name des Simulationsergebnisses
     no_results: Keine Simulationsergebnisse vorhanden.

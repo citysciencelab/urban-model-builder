@@ -153,6 +153,10 @@ export const subModelNodeSchema = Type.Object({
   isSubModelOutput: Type.Optional(Type.Boolean())
 })
 
+export const containerNodeSchema = Type.Object({
+  collapsed: Type.Optional(Type.Boolean())
+})
+
 // Main data model schema
 export const nodesSchema = Type.Object(
   {
@@ -171,7 +175,8 @@ export const nodesSchema = Type.Object(
       transitionNodeSchema,
       populationNodeSchema,
       ogcFeatureNodeSchema,
-      subModelNodeSchema
+      subModelNodeSchema,
+      containerNodeSchema
     ]),
     position: Type.Object({
       x: Type.Number(),

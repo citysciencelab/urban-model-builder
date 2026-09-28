@@ -429,6 +429,122 @@ $direction-config: (
   }
 }
 
+.react-flow__node-container {
+  position: relative;
+
+  .react-flow__node-container-collapse {
+    position: absolute;
+    top: auto;
+    right: 0;
+    bottom: calc(100% + 5px);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    background: $white;
+    color: inherit;
+    cursor: pointer;
+
+    .react-flow__node-container-minus-icon {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .react-flow__node-container-window-icon {
+      position: relative;
+      width: 15px;
+      height: 12px;
+      border: 1.5px solid currentColor;
+      border-radius: 1px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 2px;
+        right: 0;
+        left: 0;
+        border-top: 1px solid currentColor;
+      }
+    }
+
+    &:hover {
+      box-shadow: 0 0 3px 1px currentColor;
+    }
+
+    &:disabled {
+      cursor: wait;
+      opacity: 0.6;
+    }
+  }
+
+  &.--collapsed {
+    align-items: center;
+    justify-content: center;
+
+    .react-flow__node-container-identity {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      column-gap: get-spacer(2);
+      max-width: min(80%, #{$max-node-width});
+      padding: get-spacer(2) get-spacer(3);
+      border: 1px solid currentColor;
+      border-radius: $border-radius-lg;
+      background: $white;
+      box-shadow: 0 1px 4px rgba($black, 0.12);
+    }
+
+    .react-flow__node-container-identity-icon {
+      grid-row: 1 / 3;
+      display: flex;
+      width: 24px;
+      height: 24px;
+    }
+
+    .react-flow__node-container-identity-type {
+      font-size: 0.625rem;
+      font-weight: normal;
+      line-height: 1;
+      opacity: 0.75;
+      text-transform: uppercase;
+    }
+
+    .react-flow__node-container-identity-name {
+      overflow: hidden;
+      font-weight: $headings-font-weight;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .react-flow__node-container-center-handle {
+    top: 50% !important;
+    left: 50% !important;
+    width: 1px;
+    height: 1px;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) !important;
+  }
+}
+
+@each $name in $group-nodes {
+  .react-flow__node-#{$name} .react-flow__node-container.--collapsed {
+    $col: map.get($node-color-map, $name);
+    border-color: $col;
+    background-color: rgba($col, 0.1);
+    color: $col;
+  }
+}
+
 .react-flow__node-folder {
   $col: map-get(
     $map: $node-color-map,
@@ -444,6 +560,13 @@ $direction-config: (
 .react-flow__node-folder {
   .react-flow__node-base__content {
     align-items: flex-start;
+  }
+  .react-flow__node-container.--collapsed {
+    align-items: center;
+  }
+  .react-flow__node-container:not(.--collapsed)
+    .react-flow__node-container-collapse {
+    bottom: calc(100% + 5px);
   }
   .react-flow__node-base__header {
     width: auto;
