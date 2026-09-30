@@ -55,9 +55,11 @@ services:
       KC_HTTP_ENABLED: true
       #KC_LOG_LEVEL: debug
 
-    command: ["start-dev"]
+    command: ["start-dev", "--import-realm"]
     ports:
       - 8081:8080
+    volumes:
+      - ./config/hcu-model-builder-realm.json:/opt/keycloak/data/import/hcu-model-builder-realm.json:ro
     depends_on:
       - postgres
     networks:

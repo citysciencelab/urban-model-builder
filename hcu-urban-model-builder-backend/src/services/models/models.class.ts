@@ -580,7 +580,15 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         const unnestArgs = columns.map(() => '?::uuid[]').join(', ')
         await trx.raw(
           `UPDATE ?? AS t SET ${setClause} FROM (SELECT * FROM unnest(?::uuid[], ${unnestArgs}) AS u(id, ${unnestColumns})) AS u WHERE t.id = u.id`,
-          [table, chunk.map((row) => row.id), ...columns.map((_column, i) => chunk.map((row) => row.refs[i]))]
+          [
+            table,
+            chunk.map((row) => row.id),
+            ...columns.map((_column, i) =>
+              // Knex's RawBinding types do not model nullable PostgreSQL arrays,
+              // although `uuid[]` and `unnest` accept null elements.
+              chunk.map((row) => row.refs[i]) as unknown as string[]
+            )
+          ]
         )
       }
     }

@@ -21,6 +21,11 @@ On Windows / PowerShell, use:
 npm run setup-windows
 ```
 
+The setup starts PostgreSQL, Redis, and Keycloak and imports the local
+`hcu-model-builder` realm. Keycloak is then available at
+`http://localhost:8081`; its development admin credentials are configured in
+`config/.env`.
+
 Start the database:
 ```
 docker compose up

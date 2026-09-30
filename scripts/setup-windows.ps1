@@ -23,7 +23,10 @@ function Invoke-NpmInstall {
 
   Push-Location $Path
   try {
-    & npm.cmd install
+    # npm ci treats package-lock.json as read-only and installs its exact
+    # dependency versions. This avoids both intermittent Windows lockfile-write
+    # failures and incompatible transitive upgrades from broad semver ranges.
+    & npm.cmd ci --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) {
       throw "npm install failed in $Path"
     }

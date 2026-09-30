@@ -21,10 +21,12 @@ module.exports = function (defaults) {
       insertEmberWormholeElementToDom: false,
     },
     sassOptions: {
-      // Bootstrap still uses Sass global built-ins internally. Keep dependency
-      // warnings quiet while retaining deprecations from our own styles.
+      // Bootstrap 5 and the Ember style addons still depend on Sass's shared
+      // global scope. A mechanical @use migration makes their variables and
+      // mixins undefined, so defer it until those dependencies support modules.
+      // Keep all unrelated deprecations visible.
       quietDeps: true,
-      silenceDeprecations: ['global-builtin'],
+      silenceDeprecations: ['global-builtin', 'import'],
     },
     'ember-fetch': {
       nativePromise: true,

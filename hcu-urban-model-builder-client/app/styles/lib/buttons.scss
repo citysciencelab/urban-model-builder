@@ -1,3 +1,5 @@
+@use "sass:color";
+
 a {
   color: var(--bs-link-color-rgb);
 }
@@ -7,12 +9,12 @@ a {
   --bs-btn-bg: #{$color-primary};
   --bs-btn-border-color: #{$color-primary};
   --bs-btn-hover-color: #{$black};
-  --bs-btn-hover-bg: #{darken($color-primary, 5%)};
-  --bs-btn-hover-border-color: #{darken($color-primary, 5%)};
+  --bs-btn-hover-bg: #{color.adjust($color-primary, $lightness: -5%)};
+  --bs-btn-hover-border-color: #{color.adjust($color-primary, $lightness: -5%)};
   --bs-btn-focus-shadow-rgb: 48, 117, 187;
   --bs-btn-active-color: #{$black};
-  --bs-btn-active-bg: #{darken($color-primary, 5%)};
-  --bs-btn-active-border-color: #{darken($color-primary, 5%)};
+  --bs-btn-active-bg: #{color.adjust($color-primary, $lightness: -5%)};
+  --bs-btn-active-border-color: #{color.adjust($color-primary, $lightness: -5%)};
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   --bs-btn-disabled-color: #{$black};
   --bs-btn-disabled-bg: #{$color-primary};
@@ -24,12 +26,12 @@ a {
   --bs-btn-bg: #{$color-secondary};
   --bs-btn-border-color: #{$color-secondary};
   --bs-btn-hover-color: #{$white};
-  --bs-btn-hover-bg: #{darken($color-secondary, 5%)};
-  --bs-btn-hover-border-color: #{darken($color-secondary, 5%)};
+  --bs-btn-hover-bg: #{color.adjust($color-secondary, $lightness: -5%)};
+  --bs-btn-hover-border-color: #{color.adjust($color-secondary, $lightness: -5%)};
   --bs-btn-focus-shadow-rgb: 48, 117, 187;
   --bs-btn-active-color: #{$white};
-  --bs-btn-active-bg: #{darken($color-secondary, 5%)};
-  --bs-btn-active-border-color: #{darken($color-secondary, 5%)};
+  --bs-btn-active-bg: #{color.adjust($color-secondary, $lightness: -5%)};
+  --bs-btn-active-border-color: #{color.adjust($color-secondary, $lightness: -5%)};
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   --bs-btn-disabled-color: #{$white};
   --bs-btn-disabled-bg: #{$color-secondary};

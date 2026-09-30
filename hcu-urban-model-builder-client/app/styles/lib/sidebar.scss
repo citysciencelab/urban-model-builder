@@ -155,8 +155,8 @@
     }
 
     input[type="text"] {
-      @include font-size($h4-font-size);
       font-weight: $font-weight-bold;
+      @include font-size($h4-font-size);
     }
 
     .invalid-feedback {

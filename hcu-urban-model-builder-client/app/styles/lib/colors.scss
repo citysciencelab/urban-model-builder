@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "sass:map";
+
 // TODO: check colors
 $node-color-map: (
   "flow": $color-primary,
@@ -21,9 +24,9 @@ $edge-color-map: (
 );
 
 $edge-color-selected-map: (
-  "flow": darken(map.get($node-color-map, "flow"), 10%),
-  "transition": darken(map.get($node-color-map, "transition"), 20%),
-  "agent-population": darken(map.get($node-color-map, "population"), 20%),
+  "flow": color.adjust(map.get($node-color-map, "flow"), $lightness: -10%),
+  "transition": color.adjust(map.get($node-color-map, "transition"), $lightness: -20%),
+  "agent-population": color.adjust(map.get($node-color-map, "population"), $lightness: -20%),
 );
 
 @function flatten-color($color, $alpha, $background: white) {

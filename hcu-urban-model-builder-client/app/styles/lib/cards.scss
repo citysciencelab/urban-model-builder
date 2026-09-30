@@ -16,10 +16,10 @@
       display: flex;
       align-items: center;
       a {
-        @include font-size($h4-font-size);
         font-weight: $font-weight-bold;
         text-decoration: none;
         color: $black;
+        @include font-size($h4-font-size);
       }
     }
   }

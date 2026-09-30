@@ -406,7 +406,7 @@ $direction-config: (
     margin: 2px;
     text-align: center;
     &:hover {
-      background-color: lighten($dark, 20%);
+      background-color: color.adjust($dark, $lightness: 20%);
     }
   }
 }
