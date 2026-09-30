@@ -294,6 +294,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     );
   }
 
+  get batchProgressTarget() {
+    return document.body;
+  }
+
   @action
   setBatchProgressBarWidth(element: HTMLElement) {
     element.style.width = `${this.batchProgressPercent}%`;
@@ -492,6 +496,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
               ),
             )
           : [];
+
+      // Client-side batches are persistent simulation sessions. Save only
+      // after every run has completed so the database never receives a
+      // partial batch when a worker fails or is superseded.
+      if (this.batchResults.length > 0) {
+        await this.saveCurrentResult();
+      }
 
       this.showScatterPlotTab = await this.isScatterPlotAvailable(
         this.simulationResult,

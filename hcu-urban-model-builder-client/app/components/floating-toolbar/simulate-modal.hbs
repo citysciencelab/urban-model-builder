@@ -366,35 +366,37 @@
 </div>
 
 {{#if this.isBatchRunning}}
-  <div class="simulation-batch-progress" role="status" aria-live="polite">
-    <BsSpinner @type="primary" @size="sm" />
-    <div class="simulation-batch-progress__body">
-      <strong>
-        {{t
-          "components.simulate_modal.batch_progress"
-          completed=this.completedSimulations
-          total=this.totalSimulations
-        }}
-      </strong>
-      <div class="simulation-batch-progress__track" aria-hidden="true">
-        <div
-          class="simulation-batch-progress__bar"
-          {{did-insert this.setBatchProgressBarWidth}}
-          {{did-update this.setBatchProgressBarWidth this.batchProgressPercent}}
-        ></div>
-      </div>
-      <small>
-        {{#if this.hasBatchEstimate}}
+  {{#in-element this.batchProgressTarget insertBefore=null}}
+    <div class="simulation-batch-progress" role="status" aria-live="polite">
+      <BsSpinner @type="primary" @size="sm" />
+      <div class="simulation-batch-progress__body">
+        <strong>
           {{t
-            "components.simulate_modal.batch_remaining"
-            time=this.formattedRemainingTime
+            "components.simulate_modal.batch_progress"
+            completed=this.completedSimulations
+            total=this.totalSimulations
           }}
-        {{else}}
-          {{t "components.simulate_modal.batch_estimating"}}
-        {{/if}}
-      </small>
+        </strong>
+        <div class="simulation-batch-progress__track" aria-hidden="true">
+          <div
+            class="simulation-batch-progress__bar"
+            {{did-insert this.setBatchProgressBarWidth}}
+            {{did-update this.setBatchProgressBarWidth this.batchProgressPercent}}
+          ></div>
+        </div>
+        <small>
+          {{#if this.hasBatchEstimate}}
+            {{t
+              "components.simulate_modal.batch_remaining"
+              time=this.formattedRemainingTime
+            }}
+          {{else}}
+            {{t "components.simulate_modal.batch_estimating"}}
+          {{/if}}
+        </small>
+      </div>
     </div>
-  </div>
+  {{/in-element}}
 {{/if}}
 
 <span
