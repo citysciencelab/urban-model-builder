@@ -193,6 +193,18 @@ components:
     tunnel_color: Farbe des Tunnels
     download_json: JSON herunterladen
     tight_y_axis: Nur benötigten Wertebereich anzeigen
+    search_outputs: Nach Ausgabeparametername suchen
+    loading_results: Simulationsergebnisse werden geladen
+    results_loading_progress: "{completed}/{total} Simulationsergebnisse geladen"
+    result_model_version: "Modellversion: {version}"
+    active_run: aktiv
+    input_variables: Eingabevariablen
+    output_variables: Ausgabevariablen
+    output_toggle_hint: "{name}: Klick zum Umschalten; Rechtsklick setzt alle anderen auf den gegenteiligen Zustand"
+    output_color: "Farbe für {name}"
+    run_activation_hint: "Rechtsklick aktiviert den Lauf für alle Ausgabevariablen; Klick blendet den Lauf aus"
+    input_changes: "Lauf {number}: Abweichende Input-Parameter"
+    no_matching_outputs: Keine Ausgabeparameter entsprechen Ihrer Suche.
     toggle_results_list: Ergebnisliste ein- oder ausblenden
     deselect_run: Simulationslauf ausblenden
     run_color: "Farbe für Simulation {number}"

@@ -1,4 +1,5 @@
 import { action } from '@ember/object';
+import { scheduleOnce } from '@ember/runloop';
 import { service } from '@ember/service';
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
@@ -122,7 +123,7 @@ type StoredSimulationResult = {
 type StoredParameterInput = {
   nodeId: string;
   name: string;
-  value: number;
+  value: number | string;
   min?: number;
   max?: number;
   step?: number;
@@ -193,6 +194,12 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked resultsOpen = false;
   @tracked storedResults: StoredSimulationResult[] = [];
   @tracked resultsCount = 0;
+  @tracked pendingStoredResultsLoads = 0;
+  @tracked showInitialResultsProgress = false;
+  @tracked initialResultsLoaded = 0;
+  @tracked initialResultsTotal: number | null = null;
+  private initialResultsLoadStarted = false;
+  private initialResultsProgressTimer?: ReturnType<typeof setTimeout>;
   @tracked resultsPage = 1;
   @tracked isResultsListCollapsed = false;
   @tracked selectedStoredResult: StoredSimulationResult | null = null;
@@ -201,11 +208,86 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked storedCurrentDataset: TimeSeriesDataset | ScatterPlotDataset | null =
     null;
   @tracked storedChartCards: StoredChartCard[] = [];
+  @tracked storedChartSearch = '';
+
+  get filteredStoredChartCards() {
+    const query = this.storedChartSearch.trim().toLocaleLowerCase();
+    const cards = this.storedChartCards.map((card) =>
+      card.id === 'all'
+        ? { ...card, title: `${card.title} (Simulation ${this.activeStoredRun + 1})` }
+        : card,
+    );
+    return query
+      ? cards.filter(
+          (card) =>
+            card.id !== 'all' && card.title.toLocaleLowerCase().includes(query),
+        )
+      : cards;
+  }
   @tracked storedBatchDatasets: TimeSeriesDataset[] = [];
   @tracked selectedStoredBatchRuns: number[] = [0];
+  @tracked activeStoredRun = 0;
+
+  get activeStoredRunChanges() {
+    const result = this.selectedStoredResult;
+    if (!result || this.activeStoredRun === 0) return [];
+    const baseline = result.result.batchScenarios?.[0] ?? result.scenario;
+    const scenario = result.result.batchScenarios?.[this.activeStoredRun];
+    if (!scenario) return [];
+    return [...new Set([...Object.keys(baseline), ...Object.keys(scenario)])]
+      .filter((id) => baseline[id] !== scenario[id])
+      .map((id) => ({
+        id,
+        name: this.storedParameterInputs.find((input) => input.nodeId === id)?.name ?? id,
+        before: baseline[id] ?? '—',
+        after: scenario[id] ?? '—',
+      }));
+  }
   @tracked showStoredMedian = true;
   @tracked showStoredTunnel = true;
   @tracked showStoredExtendedFunctions = false;
+  @tracked storedExtendedTab: 'inputs' | 'outputs' = 'inputs';
+  @tracked enabledOverviewOutputs: string[] = [];
+  private overviewOutputsInitialized = false;
+  @tracked overviewOutputColors: Record<string, string> = {};
+
+  get overviewOutputOptions() {
+    return (this.storedBatchDatasets[this.activeStoredRun]?.series ?? []).map(
+      (series, index) => ({
+        name: series.name,
+        enabled: this.enabledOverviewOutputs.includes(series.name),
+        color: this.overviewOutputColors[series.name] ?? series.color ??
+          DEFAULT_CHART_COLOR_PALETTE[index % DEFAULT_CHART_COLOR_PALETTE.length]!,
+      }),
+    );
+  }
+
+  @action selectStoredExtendedTab(tab: 'inputs' | 'outputs') {
+    this.storedExtendedTab = tab;
+  }
+
+  @action toggleOverviewOutput(name: string) {
+    this.enabledOverviewOutputs = this.enabledOverviewOutputs.includes(name)
+      ? this.enabledOverviewOutputs.filter((candidate) => candidate !== name)
+      : [...this.enabledOverviewOutputs, name];
+    this.renderStoredChartCards();
+  }
+
+  @action toggleOtherOverviewOutputs(name: string, event: Event) {
+    event.preventDefault();
+    this.enabledOverviewOutputs = this.enabledOverviewOutputs.includes(name)
+      ? [name]
+      : this.overviewOutputOptions.filter((output) => output.name !== name).map((output) => output.name);
+    this.renderStoredChartCards();
+  }
+
+  @action setOverviewOutputColor(name: string, event: Event) {
+    this.overviewOutputColors = {
+      ...this.overviewOutputColors,
+      [name]: (event.target as HTMLInputElement).value,
+    };
+    this.renderStoredChartCards();
+  }
   @tracked storedParameterInputs: StoredParameterInput[] = [];
   @tracked storedMedianColor = '#5470c6';
   @tracked storedTunnelColor = '#5470c6';
@@ -227,6 +309,24 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked zoomedChartContext: 'live' | 'stored' | null = null;
   @tracked zoomedChartContainer?: HTMLElement;
   @tracked zoomedChart?: echarts.ECharts;
+  @tracked zoomedStoredCardId: string | null = null;
+
+  get zoomedChartTitle() {
+    return this.filteredStoredChartCards.find(
+      (card) => card.id === this.zoomedStoredCardId,
+    )?.title ?? this.intl.t('components.simulate_modal.title');
+  }
+
+  @action async openStoredCardZoom(cardId: string) {
+    this.zoomedStoredCardId = cardId;
+    await this.openChartZoom('stored');
+  }
+
+  @action async handleStoredCardZoomKeydown(cardId: string, event: KeyboardEvent) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    await this.openStoredCardZoom(cardId);
+  }
 
   tabNameToChartOptionByIndex = {
     [TabName.TimeSeries]: this.getTimeseriesChartOptionByIndex,
@@ -793,34 +893,69 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   async loadStoredResults(selectFirst = true) {
-    const response = await (
-      this.feathers.app.service('models') as any
-    ).findSimulationResults({
-      modelsVersionsId: this.args.model.id!,
-      $skip: (this.resultsPage - 1) * this.resultsPageSize,
-      $limit: this.resultsPageSize,
-    });
-    this.storedResults = response.data.map(
-      (result: Omit<StoredSimulationResult, 'displayCreatedAt'>) => ({
-        ...result,
-        displayCreatedAt: new Intl.DateTimeFormat('de-DE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        })
-          .format(new Date(result.createdAt))
-          .replace(',', ''),
-      }),
-    );
-    this.resultsCount = response.total;
-    if (!this.simulationNameWasEdited) {
-      this.simulationName = `Simulation ${this.resultsCount + 1}`;
+    const isInitialLoad = !this.initialResultsLoadStarted;
+    this.initialResultsLoadStarted = true;
+    if (isInitialLoad) {
+      this.initialResultsProgressTimer = setTimeout(() => {
+        if (!this.isDestroying && !this.isDestroyed) this.showInitialResultsProgress = true;
+      }, 3000);
     }
-    if (selectFirst && this.storedResults.length) {
-      await this.selectStoredResult(this.storedResults[0]!);
+    this.pendingStoredResultsLoads++;
+    try {
+      const skip = (this.resultsPage - 1) * this.resultsPageSize;
+      const response = await (
+        this.feathers.app.service('models') as any
+      ).findSimulationResults({
+        modelsVersionsId: this.args.model.id!,
+        $skip: skip,
+        $limit: isInitialLoad ? 1 : this.resultsPageSize,
+      });
+      if (isInitialLoad) {
+        this.initialResultsTotal = Math.min(this.resultsPageSize, Math.max(0, response.total - skip));
+        this.initialResultsLoaded = response.data.length;
+        const remaining = await Promise.all(
+          Array.from({ length: Math.max(0, this.initialResultsTotal - response.data.length) }, async (_, index) => {
+            const page = await (this.feathers.app.service('models') as any).findSimulationResults({
+              modelsVersionsId: this.args.model.id!,
+              $skip: skip + index + 1,
+              $limit: 1,
+            });
+            if (!this.isDestroying && !this.isDestroyed) this.initialResultsLoaded += page.data.length;
+            return page.data;
+          }),
+        );
+        response.data = [...response.data, ...remaining.flat()];
+      }
+      if (this.isDestroying || this.isDestroyed) return;
+      this.storedResults = response.data.map(
+        (result: Omit<StoredSimulationResult, 'displayCreatedAt'>) => ({
+          ...result,
+          displayCreatedAt: new Intl.DateTimeFormat('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          })
+            .format(new Date(result.createdAt))
+            .replace(',', ''),
+        }),
+      );
+      this.resultsCount = response.total;
+      if (!this.simulationNameWasEdited) {
+        this.simulationName = `Simulation ${this.resultsCount + 1}`;
+      }
+      if (selectFirst && this.storedResults.length) {
+        await this.selectStoredResult(this.storedResults[0]!);
+      }
+    } finally {
+      if (isInitialLoad) {
+        clearTimeout(this.initialResultsProgressTimer);
+        this.initialResultsProgressTimer = undefined;
+        if (!this.isDestroying && !this.isDestroyed) this.showInitialResultsProgress = false;
+      }
+      this.pendingStoredResultsLoads--;
     }
   }
 
@@ -834,6 +969,16 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action toggleResultsList() {
     this.isResultsListCollapsed = !this.isResultsListCollapsed;
+    scheduleOnce('afterRender', this, this.resizeStoredCharts);
+  }
+
+  private resizeStoredCharts() {
+    if (this.isDestroying || this.isDestroyed || !this.resultsOpen) return;
+    const charts = new Set(this.storedCharts.values());
+    if (this.storedChart) charts.add(this.storedChart);
+    for (const chart of charts) {
+      if (!chart.isDisposed()) chart.resize();
+    }
   }
 
   @action closeStoredResults() {
@@ -876,12 +1021,33 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       this.storedChart = chart;
       this.storedChartContainer = element;
     }
-    chart.setOption(this.getStoredBatchChartOption(card.dataset));
+    chart.setOption(this.getStoredCardOption(card));
+  }
+
+  @action
+  willDestroyStoredChartCard(element: HTMLElement) {
+    const id = element.dataset['chartId'];
+    if (!id) return;
+    const chart = this.storedCharts.get(id);
+    // A replacement card may already have registered a new chart with this ID.
+    if (chart?.getDom() !== element) return;
+    chart.dispose();
+    this.storedCharts.delete(id);
+    if (this.storedChart === chart) {
+      this.storedChart = undefined;
+      this.storedChartContainer = undefined;
+    }
   }
 
   @action
   async selectStoredResult(result: StoredSimulationResult) {
     this.disposeStoredCharts();
+    this.activeStoredRun = 0;
+    this.storedExtendedTab = 'inputs';
+    this.enabledOverviewOutputs = [];
+    this.overviewOutputsInitialized = false;
+    this.overviewOutputColors = {};
+    this.storedChartSearch = '';
     this.selectedStoredResult = result;
     this.showStoredExtendedFunctions = false;
     this.storedMedianColor = '#5470c6';
@@ -946,6 +1112,12 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       if (this.selectedStoredResult !== target) return;
 
       this.storedBatchDatasets = storedBatchDatasets;
+      if (!this.overviewOutputsInitialized) {
+        this.enabledOverviewOutputs = storedBatchDatasets[0]?.series.map(
+          (series) => series.name,
+        ) ?? [];
+        this.overviewOutputsInitialized = true;
+      }
       this.selectedStoredBatchRuns = [0];
       const overview = this.createBatchMedianDataset(
         this.storedBatchDatasets,
@@ -1031,7 +1203,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
               {
                 ...medianSeries,
                 type: 'line',
-                symbol: 'none',
+                symbol: 'circle',
+                symbolSize: 4,
                 lineStyle: { color: medianColor, width: 2 },
                 itemStyle: { color: medianColor },
               },
@@ -1054,7 +1227,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
               name: `${medianSeries.name} – Simulation ${runIndex + 1}`,
               type: 'line',
               data: selectedSeries.data,
-              symbol: 'none',
+              symbol: 'circle',
+              symbolSize: 4,
               lineStyle: { color: runColor, width: 2, type: 'dashed' },
               itemStyle: { color: runColor },
             },
@@ -1067,16 +1241,42 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       grid: { left: 48, right: 18, top: 18, bottom: 42 },
       xAxis: { type: 'category', data: dataset.times },
       yAxis: { type: 'value', scale: this.useStoredTightYAxis },
-      tooltip: { trigger: 'axis' },
+      tooltip: { trigger: 'item' },
       animation: false,
       series: chartSeries,
     };
   }
 
+  private getStoredCardOption(card: StoredChartCard) {
+    if (card.id !== 'all') return this.getStoredBatchChartOption(card.dataset);
+    const dataset = this.storedBatchDatasets[this.activeStoredRun];
+    return {
+      grid: { left: 48, right: 18, top: 18, bottom: 42 },
+      xAxis: { type: 'category', data: dataset?.times ?? [] },
+      yAxis: { type: 'value', scale: this.useStoredTightYAxis },
+      tooltip: { trigger: 'item' },
+      animation: false,
+      series: (dataset?.series ?? []).filter((series) => this.enabledOverviewOutputs.includes(series.name)).map((series) => ({
+        ...series,
+        type: 'line',
+        symbol: 'circle',
+        symbolSize: 4,
+        lineStyle: { color: this.overviewOutputOptions.find((output) => output.name === series.name)?.color },
+        itemStyle: { color: this.overviewOutputOptions.find((output) => output.name === series.name)?.color },
+      })),
+    };
+  }
+
+  @action activateStoredRun(runIndex: number, event: Event) {
+    event.preventDefault();
+    this.activeStoredRun = runIndex;
+    this.renderStoredChartCards();
+  }
+
   private renderStoredChartCards() {
     for (const card of this.storedChartCards) {
       this.storedCharts.get(card.id)?.setOption(
-        this.getStoredBatchChartOption(card.dataset),
+        this.getStoredCardOption(card),
         { replaceMerge: ['series'] },
       );
     }
@@ -1110,9 +1310,23 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action updateStoredParameter(nodeId: string, event: Event) {
-    const value = Number((event.target as HTMLInputElement).value);
+    const value = (event.target as HTMLInputElement).value;
     this.storedParameterInputs = this.storedParameterInputs.map((input) =>
       input.nodeId === nodeId ? { ...input, value } : input,
+    );
+  }
+
+  private parseStoredParameter(value: number | string): number {
+    const normalized = String(value).trim().replace(',', '.');
+    if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(normalized)) {
+      return NaN;
+    }
+    return Number(normalized);
+  }
+
+  get hasInvalidStoredParameters() {
+    return this.storedParameterInputs.some(
+      ({ value }) => !Number.isFinite(this.parseStoredParameter(value)),
     );
   }
 
@@ -1151,9 +1365,12 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action
   async addRunToStoredBatch() {
     const target = this.selectedStoredResult;
-    if (!target || this.isBatchRunning) return;
+    if (!target || this.isBatchRunning || this.hasInvalidStoredParameters) return;
     const scenario = Object.fromEntries(
-      this.storedParameterInputs.map((input) => [input.nodeId, input.value]),
+      this.storedParameterInputs.map((input) => [
+        input.nodeId,
+        this.parseStoredParameter(input.value),
+      ]),
     );
 
     let newResult: SimulationResult | undefined;
@@ -1189,6 +1406,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     if (this.selectedStoredResult !== target) return;
 
     this.selectedStoredBatchRuns = [this.storedBatchDatasets.length - 1];
+    this.activeStoredRun = this.storedBatchDatasets.length - 1;
     this.renderStoredChartCards();
   }
 
@@ -1231,6 +1449,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   async openChartZoom(context: 'live' | 'stored') {
+    if (context === 'live') this.zoomedStoredCardId = null;
     const dataset =
       context === 'live' ? this.currentDataset : this.storedCurrentDataset;
     if (!dataset) return;
@@ -1252,6 +1471,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   @action closeChartZoom() {
+    this.zoomedStoredCardId = null;
     this.isChartZoomOpen = false;
     this.zoomedChartContext = null;
     window.removeEventListener('resize', this.handleZoomedChartResize);
@@ -1272,6 +1492,19 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   private async renderZoomedChart() {
     if (!this.zoomedChartContainer || !this.zoomedChartContext) return;
+
+    if (this.zoomedChartContext === 'stored' && this.zoomedStoredCardId) {
+      const card = this.storedChartCards.find(
+        (candidate) => candidate.id === this.zoomedStoredCardId,
+      );
+      if (!card) return;
+      this.zoomedChart?.dispose();
+      this.zoomedChart = echarts.init(this.zoomedChartContainer, null, {
+        devicePixelRatio: 2,
+      });
+      this.zoomedChart.setOption(this.getStoredCardOption(card));
+      return;
+    }
 
     const dataset =
       this.zoomedChartContext === 'live'
@@ -1894,6 +2127,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   willDestroy(): void {
     super.willDestroy();
+    clearTimeout(this.initialResultsProgressTimer);
     this.cancelRunningSimulationBatch();
     this.eventBus.off('scenario-value-changed', this.restartSimulation);
 

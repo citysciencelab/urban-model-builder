@@ -498,6 +498,9 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         const nodeId = nodeIds.get(nodeKey(original.id, node.id))!
         nodes.push({
           ..._.pick(node, Object.keys(nodesDataSchema.properties)),
+          // Match PostgreSQL's character limit without splitting Unicode surrogate pairs.
+          description:
+            node.description == null ? node.description : Array.from(node.description).slice(0, 255).join(''),
           id: nodeId,
           modelsVersionsId: versionId,
           parentId: null,
