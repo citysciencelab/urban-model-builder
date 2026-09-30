@@ -1172,13 +1172,18 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
 }
 
 // Toggle chips (median / tunnel / individual runs). Inactive chips used to
-// rely on opacity alone to signal "off", which left both the text and the
-// little color swatch below WCAG's minimum contrast - they now get a
-// distinct muted background/border instead so the state reads clearly even
-// without color vision.
+// rely on opacity alone to signal "off", which left the text below WCAG's
+// minimum contrast - they now get a distinct muted background/border
+// instead so the state reads clearly even without color vision. Every
+// variant carries the same merged color-picker swatch (see
+// .simulation-result-option__color below) rather than a static dot, so
+// they all share one flex layout instead of median/tunnel reserving space
+// for a ::before indicator.
 .simulation-result-option {
-  position: relative;
-  padding: get-spacer(1) get-spacer(2) get-spacer(1) 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: get-spacer(1);
+  padding: get-spacer(1) get-spacer(2);
   background: $white;
   border: $border-width solid $border-color;
   border-radius: $border-radius-pill;
@@ -1188,18 +1193,6 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
     background-color 0.15s ease,
     border-color 0.15s ease,
     color 0.15s ease;
-
-  &::before {
-    position: absolute;
-    top: 50%;
-    left: 0.65rem;
-    width: 0.65rem;
-    height: 0.2rem;
-    border-radius: $border-radius-pill;
-    content: "";
-    opacity: 0.5;
-    transform: translateY(-50%);
-  }
 
   &:hover {
     border-color: $gray-500;
@@ -1214,33 +1207,14 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
     background: $color-secondary-light;
     border-color: $color-secondary;
     color: $color-secondary;
-
-    &::before {
-      opacity: 1;
-    }
   }
-}
 
-.simulation-result-option--median::before {
-  background: #5470c6;
-}
-
-.simulation-result-option--tunnel::before {
-  height: 0.65rem;
-  background: rgba(#5470c6, 0.35);
-}
-
-// The run chip carries its own live color picker instead of a static dot,
-// so it doesn't need the shared ::before indicator (and its reserved
-// padding) that median/tunnel still use.
-.simulation-result-option--run {
-  display: inline-flex;
-  align-items: center;
-  gap: get-spacer(1);
-  padding-left: get-spacer(2);
-
-  &::before {
-    content: none;
+  // Inactive median/tunnel chips still show their color swatch (so picking
+  // a color doesn't require switching the layer on first), just dimmed to
+  // match the muted chip state. Run chips are always active, so this never
+  // applies to them.
+  &:not(.active) .simulation-result-option__color {
+    opacity: 0.5;
   }
 }
 
@@ -1252,7 +1226,9 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
   border: $border-width solid #444;
   border-radius: 2px;
   cursor: pointer;
-  transition: box-shadow 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
 
   &:hover {
     box-shadow: 0 0 0 2px rgba($black, 0.1);

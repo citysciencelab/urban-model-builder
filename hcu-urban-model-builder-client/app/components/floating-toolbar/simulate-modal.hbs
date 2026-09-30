@@ -357,6 +357,7 @@
       class="simulation-toolbar__deviation-count"
       aria-label={{t "components.simulate_modal.deviation_count"}}
       min="1"
+      max={{this.maxDeviationCount}}
       step="1"
       disabled={{this.isBatchRunning}}
       {{on "change" this.updateDeviationCount}}
@@ -595,6 +596,11 @@
               {{/if}}
             </div>
             <div class="simulation-result-visibility-controls" role="group">
+              {{! template-lint-disable no-nested-interactive }}
+              {{! The color swatch is merged into the chip itself, so its
+                click must not bubble up into the button's own toggle
+                handler - otherwise picking a color would also hide the
+                median line. }}
               <button
                 type="button"
                 class="btn btn-sm simulation-result-option simulation-result-option--median
@@ -602,15 +608,19 @@
                 aria-pressed={{this.showStoredMedian}}
                 {{on "click" this.toggleStoredMedian}}
               >
+                <input
+                  type="color"
+                  class="simulation-result-option__color"
+                  value={{this.storedMedianColor}}
+                  aria-label={{t "components.simulate_modal.median_color"}}
+                  {{on "input" this.updateStoredMedianColor}}
+                  {{on "click" (stop-propagation)}}
+                />
                 {{t "components.simulate_modal.median"}}
               </button>
-              <input
-                type="color"
-                class="simulation-result-color"
-                value={{this.storedMedianColor}}
-                aria-label={{t "components.simulate_modal.median_color"}}
-                {{on "input" this.updateStoredMedianColor}}
-              />
+              {{! template-lint-disable no-nested-interactive }}
+              {{! Same reasoning as the median chip above - stop the color
+                swatch's click from also toggling the tunnel band off. }}
               <button
                 type="button"
                 class="btn btn-sm simulation-result-option simulation-result-option--tunnel
@@ -618,15 +628,16 @@
                 aria-pressed={{this.showStoredTunnel}}
                 {{on "click" this.toggleStoredTunnel}}
               >
+                <input
+                  type="color"
+                  class="simulation-result-option__color"
+                  value={{this.storedTunnelColor}}
+                  aria-label={{t "components.simulate_modal.tunnel_color"}}
+                  {{on "input" this.updateStoredTunnelColor}}
+                  {{on "click" (stop-propagation)}}
+                />
                 {{t "components.simulate_modal.tunnel"}}
               </button>
-              <input
-                type="color"
-                class="simulation-result-color"
-                value={{this.storedTunnelColor}}
-                aria-label={{t "components.simulate_modal.tunnel_color"}}
-                {{on "input" this.updateStoredTunnelColor}}
-              />
               <BsDropdown @closeOnMenuClick={{false}} as |dd|>
                 <dd.button @type="outline-secondary" class="btn-sm">
                   {{t

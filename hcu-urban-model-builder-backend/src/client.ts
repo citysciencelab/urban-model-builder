@@ -125,7 +125,8 @@ export const createClient = <Configuration = any>(
 
 export {
   SimulationAdapter,
-  NODE_TYPE_TO_PARAMETER_NAME_MAP
+  NODE_TYPE_TO_PARAMETER_NAME_MAP,
+  type SimulationModelData
 } from './shared/simulation-adapter/simulation-adapter.js'
 export { transformFeatures, GEOMETRY_KEY } from './shared/simulation-adapter/utils.js'
 export { OgcApiFeaturesClient } from './shared/simulation-adapter/ogc-api-features-client.js'

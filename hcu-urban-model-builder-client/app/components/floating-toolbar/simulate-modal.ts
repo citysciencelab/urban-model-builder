@@ -83,6 +83,12 @@ type SimulationBatchWorkerMessage =
 
 const BASE_SPEED = 20;
 
+// Each run is simulated sequentially in the worker and, once saved, ends up
+// stored as a full result blob - an unbounded deviation count would let one
+// click freeze the UI for a very long time and produce an arbitrarily large
+// saved payload.
+const MAX_DEVIATION_COUNT = 50;
+
 // Echarts' own default theme palette (model/globalDefault.js) - series
 // without an explicit color are auto-assigned from this list in order, so we
 // replicate it to fill in real colors for the stored-results color picker
@@ -179,6 +185,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked selectedBatchRun = -1;
   private simulationNameWasEdited = false;
   private simulationWorker?: Worker;
+  private simulationWorkerReject?: (reason: unknown) => void;
 
   // The stored-results modal renders its own chart independently of the live
   // simulation chart above (both can be open at the same time), so it gets its
@@ -198,7 +205,6 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked selectedStoredBatchRuns: number[] = [0];
   @tracked showStoredMedian = true;
   @tracked showStoredTunnel = true;
-  @tracked showStoredSelectedRun = true;
   @tracked showStoredExtendedFunctions = false;
   @tracked storedParameterInputs: StoredParameterInput[] = [];
   @tracked storedMedianColor = '#5470c6';
@@ -247,6 +253,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   get ALLOW_SERVER_SIDE_SIMULATION() {
     return config.APP.ALLOW_SERVER_SIDE_SIMULATION;
+  }
+
+  get maxDeviationCount() {
+    return MAX_DEVIATION_COUNT;
   }
 
   get isAnimationFinished() {
@@ -482,9 +492,6 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
               ),
             )
           : [];
-      if (this.batchResults.length > 0) {
-        await this.saveCurrentResult();
-      }
 
       this.showScatterPlotTab = await this.isScatterPlotAvailable(
         this.simulationResult,
@@ -512,6 +519,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       this.startAnimation();
       isCanceled = false;
     } catch (e: any) {
+      // A stale run's own batch worker was terminated by a newer one that
+      // superseded it (see cancelRunningSimulationBatch) - that newer run is
+      // already in charge of the chart/error state, so this instance has
+      // nothing left to do.
+      if (e?.name === 'SimulationBatchCanceled') {
+        return;
+      }
       this.simulationError = e;
       if (e.name === 'SimulationError') {
         if (e.data?.nodeId) {
@@ -579,9 +593,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       this.selectedBatchRun = -1;
       this.simulationResult = this.batchResults[0] ?? null;
     } else {
-      this.simulationWorker?.terminate();
-      this.simulationWorker = undefined;
-      this.isBatchRunning = false;
+      this.cancelRunningSimulationBatch();
       this.batchResults = [];
       this.batchScenarios = [];
       this.batchTimeSeriesDatasets = [];
@@ -594,16 +606,38 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     }
   }
 
+  // Cancels whatever batch is currently in flight (if any) and makes sure
+  // its Promise actually settles instead of being left to hang forever -
+  // worker.terminate() alone never fires onmessage/onerror, so without this
+  // the caller that's still awaiting the old runSimulationBatch() call would
+  // be stuck permanently.
+  private cancelRunningSimulationBatch() {
+    if (!this.simulationWorker) return;
+    this.simulationWorker.terminate();
+    this.simulationWorker = undefined;
+    this.simulationWorkerReject?.(
+      Object.assign(new Error('Simulation batch was superseded by a newer run.'), {
+        name: 'SimulationBatchCanceled',
+      }),
+    );
+    this.simulationWorkerReject = undefined;
+    this.isBatchRunning = false;
+  }
+
   private async runSimulationBatch(
     runCount: number,
     scenario: Record<string, number>,
   ): Promise<SimulationResult[]> {
-    this.simulationWorker?.terminate();
-    const snapshot = await this.createSimulationSnapshot();
+    this.cancelRunningSimulationBatch();
+    // Set synchronously (before the snapshot await below) so a second call
+    // made from another click handler before this one resumes sees the flag
+    // already flipped, instead of both calls racing past the isBatchRunning
+    // guard in addRunToStoredBatch/elsewhere.
+    this.isBatchRunning = true;
     this.completedSimulations = 0;
     this.totalSimulations = runCount;
     this.estimatedRemainingMs = 0;
-    this.isBatchRunning = true;
+    const snapshot = await this.createSimulationSnapshot();
 
     return new Promise((resolve, reject) => {
       const worker = new Worker(
@@ -611,9 +645,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         { type: 'module' },
       );
       this.simulationWorker = worker;
+      this.simulationWorkerReject = reject;
       const cleanUp = () => {
         worker.terminate();
-        if (this.simulationWorker === worker) this.simulationWorker = undefined;
+        if (this.simulationWorker === worker) {
+          this.simulationWorker = undefined;
+          this.simulationWorkerReject = undefined;
+        }
         this.isBatchRunning = false;
       };
 
@@ -737,7 +775,9 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       (event.target as HTMLInputElement).value,
       10,
     );
-    this.deviationCount = Number.isFinite(value) ? Math.max(1, value) : 1;
+    this.deviationCount = Number.isFinite(value)
+      ? Math.min(MAX_DEVIATION_COUNT, Math.max(1, value))
+      : 1;
   }
 
   @action
@@ -855,35 +895,46 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   }
 
   private async prepareStoredParameterInputs() {
-    if (!this.selectedStoredResult) return;
+    // Capture which result this call is for so that if the user selects a
+    // different result before these async node lookups resolve, this now-
+    // stale call doesn't overwrite the newer selection's parameter inputs.
+    const target = this.selectedStoredResult;
+    if (!target) return;
     const inputs = await Promise.all(
-      Object.entries(this.selectedStoredResult.scenario).map(
-        async ([nodeId, value]) => {
-          const node = await this.store.findRecord<Node>('node', nodeId);
-          return {
-            nodeId,
-            name: node.name,
-            value,
-            min: node.parameterMin,
-            max: node.parameterMax,
-            step: node.parameterStep,
-          };
-        },
-      ),
+      Object.entries(target.scenario).map(async ([nodeId, value]) => {
+        const node = await this.store.findRecord<Node>('node', nodeId);
+        return {
+          nodeId,
+          name: node.name,
+          value,
+          min: node.parameterMin,
+          max: node.parameterMax,
+          step: node.parameterStep,
+        };
+      }),
     );
+    if (this.selectedStoredResult !== target) return;
     this.storedParameterInputs = inputs;
   }
 
   private async prepareStoredChartCards() {
-    if (!this.selectedStoredResult) return;
+    // Same staleness guard as prepareStoredParameterInputs - the dataset
+    // build below awaits per-node lookups, so a newer selection can finish
+    // first; without this check, this call would then overwrite the newer
+    // selection's chart cards with data for the result it isn't showing.
+    const target = this.selectedStoredResult;
+    if (!target) return;
     this.isGeneratingStoredChart = true;
     try {
-      const batchResults = this.selectedStoredResult.result.batchResults?.length
-        ? this.selectedStoredResult.result.batchResults
-        : [this.selectedStoredResult.result];
-      this.storedBatchDatasets = await Promise.all(
+      const batchResults = target.result.batchResults?.length
+        ? target.result.batchResults
+        : [target.result];
+      const storedBatchDatasets = await Promise.all(
         batchResults.map((result) => this.getTimeSeriesDataset(result)),
       );
+      if (this.selectedStoredResult !== target) return;
+
+      this.storedBatchDatasets = storedBatchDatasets;
       this.selectedStoredBatchRuns = [0];
       const overview = this.createBatchMedianDataset(
         this.storedBatchDatasets,
@@ -902,7 +953,9 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         })),
       ];
     } finally {
-      this.isGeneratingStoredChart = false;
+      if (this.selectedStoredResult === target) {
+        this.isGeneratingStoredChart = false;
+      }
     }
   }
 
@@ -973,31 +1026,29 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
               },
             ]
           : []),
-        ...(this.showStoredSelectedRun
-          ? this.selectedStoredBatchRuns.flatMap((runIndex) => {
-              const selectedSeries = this.storedBatchDatasets[
-                runIndex
-              ]?.series.find(
-                (candidate) => candidate.name === medianSeries.name,
-              );
-              if (!selectedSeries) return [];
-              const runColor =
-                this.storedRunColors[runIndex] ??
-                DEFAULT_CHART_COLOR_PALETTE[
-                  (runIndex + 2) % DEFAULT_CHART_COLOR_PALETTE.length
-                ]!;
-              return [
-                {
-                  name: `${medianSeries.name} – Simulation ${runIndex + 1}`,
-                  type: 'line',
-                  data: selectedSeries.data,
-                  symbol: 'none',
-                  lineStyle: { color: runColor, width: 2, type: 'dashed' },
-                  itemStyle: { color: runColor },
-                },
-              ];
-            })
-          : []),
+        ...this.selectedStoredBatchRuns.flatMap((runIndex) => {
+          const selectedSeries = this.storedBatchDatasets[
+            runIndex
+          ]?.series.find(
+            (candidate) => candidate.name === medianSeries.name,
+          );
+          if (!selectedSeries) return [];
+          const runColor =
+            this.storedRunColors[runIndex] ??
+            DEFAULT_CHART_COLOR_PALETTE[
+              (runIndex + 2) % DEFAULT_CHART_COLOR_PALETTE.length
+            ]!;
+          return [
+            {
+              name: `${medianSeries.name} – Simulation ${runIndex + 1}`,
+              type: 'line',
+              data: selectedSeries.data,
+              symbol: 'none',
+              lineStyle: { color: runColor, width: 2, type: 'dashed' },
+              itemStyle: { color: runColor },
+            },
+          ];
+        }),
       ];
     });
 
@@ -1027,11 +1078,6 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action toggleStoredTunnel() {
     this.showStoredTunnel = !this.showStoredTunnel;
-    this.renderStoredChartCards();
-  }
-
-  @action toggleStoredSelectedRun() {
-    this.showStoredSelectedRun = !this.showStoredSelectedRun;
     this.renderStoredChartCards();
   }
 
@@ -1093,30 +1139,45 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   async addRunToStoredBatch() {
-    if (!this.selectedStoredResult || this.isBatchRunning) return;
+    const target = this.selectedStoredResult;
+    if (!target || this.isBatchRunning) return;
     const scenario = Object.fromEntries(
       this.storedParameterInputs.map((input) => [input.nodeId, input.value]),
     );
-    const [newResult] = await this.runSimulationBatch(1, scenario);
-    if (!newResult) return;
 
-    const storedResult = this.selectedStoredResult.result;
-    const batchResults = storedResult.batchResults?.length
-      ? [...storedResult.batchResults, newResult]
-      : [storedResult, newResult];
-    const existingScenarios = storedResult.batchScenarios?.length
-      ? storedResult.batchScenarios
-      : [this.selectedStoredResult.scenario];
-    const batchScenarios = [...existingScenarios, scenario];
-    const result = { ...storedResult, batchResults, batchScenarios };
+    let newResult: SimulationResult | undefined;
+    try {
+      [newResult] = await this.runSimulationBatch(1, scenario);
+    } catch (e: any) {
+      // A newer simulation superseded this one (e.g. a scenario change
+      // elsewhere restarted the live preview mid-run) - nothing to do here,
+      // whichever run is now in charge already owns the UI state.
+      if (e?.name === 'SimulationBatchCanceled') return;
+      throw e;
+    }
+    // Bail if the user switched to a different stored result while the run
+    // above was in flight - applying it to whatever is now selected would
+    // silently attach it to the wrong result.
+    if (!newResult || this.selectedStoredResult !== target) return;
 
-    await (this.feathers.app.service('models') as any).updateSimulationResult({
-      id: this.selectedStoredResult.id,
-      result,
+    // The merge (appending this run to the stored batch) happens server-side,
+    // under a row lock, so two concurrent "add run" calls for the same
+    // result can't silently overwrite each other the way a client-side
+    // read-modify-write would.
+    const updated = await (
+      this.feathers.app.service('models') as any
+    ).addSimulationResultRun({
+      id: target.id,
+      run: newResult,
+      scenario,
     });
-    this.selectedStoredResult.result = result;
+    if (this.selectedStoredResult !== target) return;
+
+    target.result = updated.result;
     await this.prepareStoredChartCards();
-    this.selectedStoredBatchRuns = [batchResults.length - 1];
+    if (this.selectedStoredResult !== target) return;
+
+    this.selectedStoredBatchRuns = [this.storedBatchDatasets.length - 1];
     this.renderStoredChartCards();
   }
 
@@ -1822,7 +1883,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   willDestroy(): void {
     super.willDestroy();
-    this.simulationWorker?.terminate();
+    this.cancelRunningSimulationBatch();
     this.eventBus.off('scenario-value-changed', this.restartSimulation);
 
     this.storeEventEmitter.off('node', 'created', this.restartSimulation);

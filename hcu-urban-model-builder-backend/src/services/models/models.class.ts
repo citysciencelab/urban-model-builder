@@ -19,7 +19,7 @@ import {
   type SimulationResultCreate,
   type SimulationResultsFind,
   type SimulationResultRename,
-  type SimulationResultUpdate,
+  type SimulationResultAddRun,
   type SimulationResultRemove
 } from './models.schema.js'
 import { SimulationAdapter } from '../../shared/simulation-adapter/simulation-adapter.js'
@@ -43,6 +43,12 @@ import {
 } from '../../shared/graph-queries.js'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
+
+// Each "add run" call re-stores every previous run's full result payload
+// alongside the new one, so without a ceiling a single stored result's
+// batchResults/batchScenarios arrays (and the JSON blob storing them) could
+// grow without bound.
+const MAX_SIMULATION_BATCH_RUNS = 50
 
 export interface ModelsParams extends KnexAdapterParams<ModelsQuery> {
   serializeForUMP?: boolean
@@ -138,7 +144,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
 
   async saveSimulationResult(data: SimulationResultCreate, params?: ServiceParams) {
     if (!params?.user?.id) throw new Forbidden('Saving simulation results requires authentication.')
-    await this.assertModelVersionAccess(data.modelsVersionsId, params.user, Roles.viewer)
+    await this.assertModelVersionAccess(data.modelsVersionsId, params.user, Roles.collaborator)
     const [saved] = await this.app
       .get('postgresqlClient')('simulation_results')
       .insert({
@@ -171,7 +177,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     const database = this.app.get('postgresqlClient')
     const existing = await database('simulation_results').where({ id: data.id }).first()
     if (!existing) throw new BadRequest('Simulation result not found.')
-    await this.assertModelVersionAccess(existing.modelsVersionsId, params.user, Roles.viewer)
+    await this.assertModelVersionAccess(existing.modelsVersionsId, params.user, Roles.collaborator)
     const [updated] = await database('simulation_results')
       .where({ id: data.id })
       .update({ name: data.name, updatedAt: database.fn.now() })
@@ -179,17 +185,45 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     return updated
   }
 
-  async updateSimulationResult(data: SimulationResultUpdate, params?: ServiceParams) {
+  async addSimulationResultRun(data: SimulationResultAddRun, params?: ServiceParams) {
     if (!params?.user?.id) throw new Forbidden('Updating simulation results requires authentication.')
-    const existing = await this.app.get('postgresqlClient')('simulation_results').where({ id: data.id }).first()
-    if (!existing) throw new BadRequest('Simulation result not found.')
-    await this.assertModelVersionAccess(existing.modelsVersionsId, params.user, Roles.viewer)
-    const [updated] = await this.app
-      .get('postgresqlClient')('simulation_results')
-      .where({ id: data.id })
-      .update({ result: data.result })
-      .returning('*')
-    return updated
+    const user = params.user
+    const database = this.app.get('postgresqlClient')
+    return database.transaction(async (trx) => {
+      // Lock the row for the duration of the transaction so two concurrent
+      // "add run" calls for the same result (two tabs, a double-clicked
+      // button, etc.) can't both read the same batchResults array and
+      // overwrite each other - the second transaction blocks here until the
+      // first commits, then reads the already-updated row instead of the
+      // stale one.
+      const existing = await trx('simulation_results').where({ id: data.id }).forUpdate().first()
+      if (!existing) throw new BadRequest('Simulation result not found.')
+      await this.assertModelVersionAccess(existing.modelsVersionsId, user, Roles.collaborator)
+
+      const currentResult = existing.result ?? {}
+      const existingBatchResults: unknown[] = Array.isArray(currentResult.batchResults)
+        ? currentResult.batchResults
+        : [currentResult]
+      const existingBatchScenarios: Record<string, number>[] = Array.isArray(currentResult.batchScenarios)
+        ? currentResult.batchScenarios
+        : [existing.scenario]
+
+      if (existingBatchResults.length >= MAX_SIMULATION_BATCH_RUNS) {
+        throw new BadRequest(`A simulation result can hold at most ${MAX_SIMULATION_BATCH_RUNS} runs.`)
+      }
+
+      const result = {
+        ...currentResult,
+        batchResults: [...existingBatchResults, data.run],
+        batchScenarios: [...existingBatchScenarios, data.scenario]
+      }
+
+      const [updated] = await trx('simulation_results')
+        .where({ id: data.id })
+        .update({ result, updatedAt: trx.fn.now() })
+        .returning('*')
+      return updated
+    })
   }
 
   async deleteSimulationResult(data: SimulationResultRemove, params?: ServiceParams) {
@@ -197,7 +231,7 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     const database = this.app.get('postgresqlClient')
     const existing = await database('simulation_results').where({ id: data.id }).first()
     if (!existing) throw new BadRequest('Simulation result not found.')
-    await this.assertModelVersionAccess(existing.modelsVersionsId, params.user, Roles.viewer)
+    await this.assertModelVersionAccess(existing.modelsVersionsId, params.user, Roles.collaborator)
     await database('simulation_results').where({ id: data.id }).del()
     return { id: data.id }
   }

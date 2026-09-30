@@ -184,12 +184,13 @@ export const simulationResultRenameSchema = Type.Object({
 export type SimulationResultRename = Static<typeof simulationResultRenameSchema>
 export const simulationResultRenameValidator = getValidator(simulationResultRenameSchema, dataValidator)
 
-export const simulationResultUpdateSchema = Type.Object({
+export const simulationResultAddRunSchema = Type.Object({
   id: Type.String({ format: 'uuid' }),
-  result: Type.Any()
+  run: Type.Any(),
+  scenario: Type.Record(Type.String(), Type.Number())
 })
-export type SimulationResultUpdate = Static<typeof simulationResultUpdateSchema>
-export const simulationResultUpdateValidator = getValidator(simulationResultUpdateSchema, dataValidator)
+export type SimulationResultAddRun = Static<typeof simulationResultAddRunSchema>
+export const simulationResultAddRunValidator = getValidator(simulationResultAddRunSchema, dataValidator)
 
 export const simulationResultRemoveSchema = Type.Object({
   id: Type.String({ format: 'uuid' })
