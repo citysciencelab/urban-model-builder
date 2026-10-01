@@ -538,7 +538,8 @@
               <div class="simulation-result-top-actions">
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-secondary"
+                  class="btn btn-sm btn-outline-secondary
+                    {{if this.showStoredExtendedFunctions 'active'}}"
                   aria-expanded={{this.showStoredExtendedFunctions}}
                   title={{t "components.simulate_modal.extended_functions"}}
                   {{on "click" this.toggleStoredExtendedFunctions}}

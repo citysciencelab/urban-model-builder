@@ -1084,6 +1084,10 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
   display: flex;
   flex-direction: column;
 
+  .nav-tabs {
+    margin-bottom: get-spacer(3);
+  }
+
   p {
     display: flex;
     flex: 1;
@@ -1099,13 +1103,22 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
   flex-wrap: wrap;
   gap: get-spacer(2);
   margin: get-spacer(3) 0;
-  padding: get-spacer(2);
+  padding: get-spacer(3);
   background: $gray-100;
+  border: $border-width solid $border-color;
   border-radius: $border-radius-lg;
 }
 
+// The toggle row and the collapsible parameter panel below it read as one
+// connected block (not two separately-bordered boxes with a gap between
+// them), so the panel is a flush inner section of this card instead of
+// owning its own border/radius.
 .simulation-result-extended {
   margin-top: get-spacer(3);
+  background: $white;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
 }
 
 .simulation-result-top-actions {
@@ -1113,23 +1126,24 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
   align-items: center;
   justify-content: space-between;
   gap: get-spacer(2);
+  padding: get-spacer(2) get-spacer(3);
 }
 
 .simulation-result-extended__panel {
   display: flex;
   align-items: flex-end;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: get-spacer(3);
-  margin-top: get-spacer(2);
   padding: get-spacer(3);
   background: $gray-100;
-  border: $border-width solid $border-color;
-  border-radius: $border-radius-lg;
+  border-top: $border-width solid $border-color;
 }
 
 .simulation-result-parameters,
 .simulation-result-run-colors {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: get-spacer(2);
 
