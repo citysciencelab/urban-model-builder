@@ -49,7 +49,7 @@ export default class SidebarGeneralComponent extends Component<SidebarGeneralSig
     if (view == 'settings') {
       this.modelDialogs.onShowSettingsDialog();
     } else {
-      this.isMinimized = false;
+      this.isMinimized = view === this.activeView && !this.isMinimized;
       this.activeView = view;
     }
   }

@@ -365,6 +365,24 @@
   </div>
 </div>
 
+{{#if (and this.showInitialResultsProgress (not this.isBatchRunning))}}
+  {{#in-element this.batchProgressTarget insertBefore=null}}
+    <div class="simulation-batch-progress" role="status" aria-live="polite">
+      <BsSpinner @type="primary" @size="sm" />
+      <div class="simulation-batch-progress__body">
+        <strong>
+          {{#if (eq this.initialResultsTotal null)}}
+            {{t "components.simulate_modal.loading_results"}}
+          {{else}}
+            {{t "components.simulate_modal.results_loading_progress"
+              completed=this.initialResultsLoaded total=this.initialResultsTotal}}
+          {{/if}}
+        </strong>
+      </div>
+    </div>
+  {{/in-element}}
+{{/if}}
+
 {{#if this.isBatchRunning}}
   {{#in-element this.batchProgressTarget insertBefore=null}}
     <div class="simulation-batch-progress" role="status" aria-live="polite">
@@ -403,7 +421,15 @@
   class="simulate-results-toggle"
   {{did-insert (fn this.loadStoredResults false)}}
 >
-  {{#if (gt this.resultsCount 0)}}
+  {{#if this.pendingStoredResultsLoads}}
+    <span
+      class="simulate-results-toggle__loading"
+      role="status"
+      aria-label={{t "components.simulate_modal.loading_results"}}
+    >
+      <BsSpinner @size="sm" @type="secondary" />
+    </span>
+  {{else if (gt this.resultsCount 0)}}
     <BsButton
       @type="secondary"
       class="btn-round simulate-results-toggle__button"
@@ -445,7 +471,7 @@
           {{on "click" this.toggleResultsList}}
         >
           <SvgIcon
-            @icon={{if this.showsResultsList "chevron_left" "chevron_right"}}
+            @icon={{if this.showsResultsList "chevron_left" "menu"}}
             @size="sm"
           />
         </button>
@@ -481,6 +507,7 @@
               {{on "click" (stop-propagation)}}
             />
             <small>{{result.displayCreatedAt}}</small>
+            <small>{{t "components.simulate_modal.result_model_version" version=@model.versionString}}</small>
           </div>
         {{/each}}
         {{#if (gt this.resultsPages 1)}}
@@ -556,19 +583,33 @@
                   <SvgIcon @icon="file_download" @size="sm" />
                   {{t "components.simulate_modal.download_json"}}
                 </BsButton>
+                <Input
+                  @type="search"
+                  @value={{this.storedChartSearch}}
+                  class="form-control simulation-result-search"
+                  placeholder={{t "components.simulate_modal.search_outputs"}}
+                  aria-label={{t "components.simulate_modal.search_outputs"}}
+                />
               </div>
               {{#if this.showStoredExtendedFunctions}}
                 <div class="simulation-result-extended__panel">
+                  <div class="btn-group w-100" role="group" aria-label={{t "components.simulate_modal.extended_functions"}}>
+                    <button type="button" class="btn btn-sm btn-outline-secondary {{if (eq this.storedExtendedTab 'inputs') 'active'}}" aria-pressed={{eq this.storedExtendedTab "inputs"}} {{on "click" (fn this.selectStoredExtendedTab "inputs")}}>
+                      {{t "components.simulate_modal.input_variables"}}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary {{if (eq this.storedExtendedTab 'outputs') 'active'}}" aria-pressed={{eq this.storedExtendedTab "outputs"}} {{on "click" (fn this.selectStoredExtendedTab "outputs")}}>
+                      {{t "components.simulate_modal.output_variables"}}
+                    </button>
+                  </div>
+                  {{#if (eq this.storedExtendedTab "inputs")}}
                   <div class="simulation-result-parameters">
                     {{#each this.storedParameterInputs as |parameter|}}
                       <label>
-                        <span>{{parameter.name}}</span>
-                        <Input
-                          @type="number"
-                          @value={{parameter.value}}
-                          min={{parameter.min}}
-                          max={{parameter.max}}
-                          step="any"
+                        <span title={{parameter.name}}>{{parameter.name}}</span>
+                        <input
+                          type="text"
+                          value={{parameter.value}}
+                          inputmode="decimal"
                           {{on
                             "input"
                             (fn this.updateStoredParameter parameter.nodeId)
@@ -586,6 +627,7 @@
                     @size="sm"
                     disabled={{or
                       this.isBatchRunning
+                      this.hasInvalidStoredParameters
                       (eq this.storedParameterInputs.length 0)
                     }}
                     {{on "click" this.addRunToStoredBatch}}
@@ -595,6 +637,28 @@
                     {{/if}}
                     {{t "components.simulate_modal.add_run"}}
                   </BsButton>
+                  {{else}}
+                    <div class="simulation-result-output-options">
+                      {{#each this.overviewOutputOptions key="name" as |output|}}
+                        <div class="simulation-result-output-option">
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary {{if output.enabled 'active'}}"
+                            aria-pressed={{output.enabled}}
+                            title={{t "components.simulate_modal.output_toggle_hint" name=output.name}}
+                            {{on "click" (fn this.toggleOverviewOutput output.name)}}
+                            {{on "contextmenu" (fn this.toggleOtherOverviewOutputs output.name)}}
+                          >{{output.name}}</button>
+                          <input
+                            type="color"
+                            value={{output.color}}
+                            aria-label={{t "components.simulate_modal.output_color" name=output.name}}
+                            {{on "input" (fn this.setOverviewOutputColor output.name)}}
+                          />
+                        </div>
+                      {{/each}}
+                    </div>
+                  {{/if}}
                 </div>
               {{/if}}
             </div>
@@ -679,9 +743,10 @@
                   the run. }}
                 <button
                   type="button"
-                  class="btn btn-sm simulation-result-option simulation-result-option--run active"
-                  title={{t "components.simulate_modal.deselect_run"}}
+                  class="btn btn-sm simulation-result-option simulation-result-option--run active {{if (eq this.activeStoredRun runIndex) 'simulation-result-option--current'}}"
+                  title={{t "components.simulate_modal.run_activation_hint"}}
                   {{on "click" (fn this.toggleStoredBatchRun runIndex)}}
+                  {{on "contextmenu" (fn this.activateStoredRun runIndex)}}
                 >
                   <input
                     type="color"
@@ -709,9 +774,31 @@
                 <span>{{t "components.simulate_modal.tight_y_axis"}}</span>
               </label>
             </div>
+            {{#if this.activeStoredRunChanges.length}}
+              <div class="simulation-result-input-changes">
+                <h6>{{t
+                    "components.simulate_modal.input_changes"
+                    number=(add this.activeStoredRun 1)
+                  }}</h6>
+                <ul>
+                  {{#each this.activeStoredRunChanges key="id" as |change|}}
+                    <li>
+                      <span class="simulation-result-input-changes__label" title={{change.name}}>{{change.name}}</span>
+                      <div class="simulation-result-input-changes__values">
+                        <del>{{change.before}}</del>
+                        {{! template-lint-disable no-bare-strings }}
+                        <span aria-hidden="true">→</span>
+                        {{! template-lint-enable no-bare-strings }}
+                        <ins>{{change.after}}</ins>
+                      </div>
+                    </li>
+                  {{/each}}
+                </ul>
+              </div>
+            {{/if}}
             <div class="simulation-result-chart-grid">
-              {{#each this.storedChartCards as |card|}}
-                <article class="simulation-result-chart-card">
+              {{#each this.filteredStoredChartCards key="id" as |card|}}
+                <article class="simulation-result-chart-card {{if (eq card.id 'all') 'simulation-result-chart-card--overview'}}">
                   <div class="simulation-result-chart-card__header">
                     <h6>{{card.title}}</h6>
                     <button
@@ -727,11 +814,24 @@
                     </button>
                   </div>
                   <div
-                    class="simulation-result-chart-card__chart"
+                    class="simulation-result-chart-card__chart simulate-model__chart-container--zoomable"
+                    role="button"
+                    tabindex="0"
+                    title={{t "components.simulate_modal.zoom_chart"}}
+                    aria-label={{card.title}}
                     data-chart-id={{card.id}}
+                    {{on "click" (fn this.openStoredCardZoom card.id)}}
+                    {{on "keydown" (fn this.handleStoredCardZoomKeydown card.id)}}
                     {{did-insert this.didInsertStoredChartCard}}
+                    {{will-destroy this.willDestroyStoredChartCard}}
                   ></div>
                 </article>
+              {{else}}
+                {{#if this.storedChartSearch}}
+                  <p class="text-muted" role="status">{{t
+                      "components.simulate_modal.no_matching_outputs"
+                    }}</p>
+                {{/if}}
               {{/each}}
             </div>
             {{#if this.isGeneratingStoredChart}}
@@ -742,7 +842,13 @@
           {{else}}
             <div class="simulate-model__chart-wrapper">
               <div
-                class="simulate-model__chart-container"
+                class="simulate-model__chart-container simulate-model__chart-container--zoomable"
+                role="button"
+                tabindex="0"
+                title={{t "components.simulate_modal.zoom_chart"}}
+                aria-label={{t "components.simulate_modal.zoom_chart"}}
+                {{on "click" (fn this.openChartZoom "stored")}}
+                {{on "keydown" (fn this.handleChartZoomKeydown "stored")}}
                 {{did-insert this.didInsertStoredChart}}
               ></div>
               {{#if this.isGeneratingStoredChart}}
@@ -782,10 +888,10 @@
   as |modal|
 >
   <modal.header>
-    <h5 class="modal-title">{{t "components.simulate_modal.title"}}</h5>
+    <h5 class="modal-title">{{this.zoomedChartTitle}}</h5>
   </modal.header>
   <modal.body>
-    {{#if (eq this.activeTab "time-series")}}
+    {{#if (and (eq this.activeTab "time-series") (not this.zoomedStoredCardId))}}
       <div
         class="simulate-model__chart-mode-controls"
         role="group"
