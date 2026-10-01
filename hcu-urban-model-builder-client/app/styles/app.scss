@@ -1250,11 +1250,47 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
   > .btn-primary {
     margin-left: auto;
   }
+}
 
-  // Even out the "Input variables" / "Output variables" segmented toggle so
-  // it reads as a real tab switch rather than two mismatched buttons.
-  > .btn-group > .btn {
-    flex: 1;
+// The sort toggle is two independent chips (unlike the merged .btn-group
+// below), so it gets its own flex layout with a real gap between them.
+.simulation-result-output-sort {
+  display: flex;
+  align-items: center;
+  gap: get-spacer(1);
+}
+
+// A quiet segmented switch for "Input variables" / "Output variables", and
+// for the output list's A-Z / highest-first sort toggle - both shrink-to-fit
+// rather than stretched full-width, and muted like the visibility-control
+// chips instead of Bootstrap's bold solid-fill btn-outline-secondary
+// hover/active, which made them compete with the primary actions above.
+.simulation-result-extended-tabs,
+.simulation-result-output-sort {
+  .btn {
+    padding: 0.2rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: $font-weight-semibold;
+    color: $gray-600;
+    border-color: $border-color;
+
+    &:hover {
+      background: $gray-100;
+      border-color: $gray-500;
+      color: $gray-700;
+    }
+
+    &.active {
+      background: $color-secondary-light;
+      border-color: $color-secondary;
+      color: $color-secondary;
+
+      &:hover {
+        background: $color-secondary-light;
+        border-color: $color-secondary;
+        color: $color-secondary;
+      }
+    }
   }
 }
 
@@ -1279,6 +1315,10 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
   min-width: 0;
   align-items: center;
 
+  // Bootstrap's default btn-outline-secondary gives hover and .active the
+  // same solid-fill treatment, so a toggled-on output was indistinguishable
+  // from one you were merely hovering over. Hover now stays a light neutral
+  // tint; only .active takes the secondary color.
   button {
     flex: 1;
     min-width: 0;
@@ -1286,6 +1326,24 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 0.75rem;
+
+    &:hover {
+      background: $gray-100;
+      border-color: $gray-500;
+      color: $gray-700;
+    }
+
+    &.active {
+      background: $color-secondary-light;
+      border-color: $color-secondary;
+      color: $color-secondary;
+
+      &:hover {
+        background: $color-secondary-light;
+        border-color: $color-secondary;
+        color: $color-secondary;
+      }
+    }
   }
 
   input {

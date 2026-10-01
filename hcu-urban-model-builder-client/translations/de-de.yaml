@@ -205,6 +205,11 @@ components:
     run_activation_hint: "Rechtsklick aktiviert den Lauf für alle Ausgabevariablen; Klick blendet den Lauf aus"
     input_changes: "Lauf {number}: Abweichende Input-Parameter"
     no_matching_outputs: Keine Ausgabeparameter entsprechen Ihrer Suche.
+    sort_outputs: Ausgabevariablen sortieren
+    sort_alphabetical: A–Z
+    sort_alphabetical_hint: Ausgaben alphabetisch sortieren
+    sort_by_value: Höchste zuerst
+    sort_by_value_hint: Ausgaben nach Wert im aktiven Lauf sortieren, absteigend
     toggle_results_list: Ergebnisliste ein- oder ausblenden
     deselect_run: Simulationslauf ausblenden
     run_color: "Farbe für Simulation {number}"

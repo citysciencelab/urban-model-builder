@@ -250,20 +250,29 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked enabledOverviewOutputs: string[] = [];
   private overviewOutputsInitialized = false;
   @tracked overviewOutputColors: Record<string, string> = {};
+  @tracked overviewOutputSort: 'alphabetical' | 'value' = 'alphabetical';
 
   get overviewOutputOptions() {
-    return (this.storedBatchDatasets[this.activeStoredRun]?.series ?? []).map(
-      (series, index) => ({
-        name: series.name,
-        enabled: this.enabledOverviewOutputs.includes(series.name),
-        color: this.overviewOutputColors[series.name] ?? series.color ??
-          DEFAULT_CHART_COLOR_PALETTE[index % DEFAULT_CHART_COLOR_PALETTE.length]!,
-      }),
-    );
+    const options = (
+      this.storedBatchDatasets[this.activeStoredRun]?.series ?? []
+    ).map((series, index) => ({
+      name: series.name,
+      value: series.data[series.data.length - 1] ?? 0,
+      enabled: this.enabledOverviewOutputs.includes(series.name),
+      color: this.overviewOutputColors[series.name] ?? series.color ??
+        DEFAULT_CHART_COLOR_PALETTE[index % DEFAULT_CHART_COLOR_PALETTE.length]!,
+    }));
+    return this.overviewOutputSort === 'value'
+      ? options.sort((a, b) => b.value - a.value)
+      : options.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   @action selectStoredExtendedTab(tab: 'inputs' | 'outputs') {
     this.storedExtendedTab = tab;
+  }
+
+  @action setOverviewOutputSort(sort: 'alphabetical' | 'value') {
+    this.overviewOutputSort = sort;
   }
 
   @action toggleOverviewOutput(name: string) {

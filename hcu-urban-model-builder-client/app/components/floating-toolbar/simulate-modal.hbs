@@ -593,7 +593,7 @@
               </div>
               {{#if this.showStoredExtendedFunctions}}
                 <div class="simulation-result-extended__panel">
-                  <div class="btn-group w-100" role="group" aria-label={{t "components.simulate_modal.extended_functions"}}>
+                  <div class="btn-group simulation-result-extended-tabs" role="group" aria-label={{t "components.simulate_modal.extended_functions"}}>
                     <button type="button" class="btn btn-sm btn-outline-secondary {{if (eq this.storedExtendedTab 'inputs') 'active'}}" aria-pressed={{eq this.storedExtendedTab "inputs"}} {{on "click" (fn this.selectStoredExtendedTab "inputs")}}>
                       {{t "components.simulate_modal.input_variables"}}
                     </button>
@@ -638,6 +638,32 @@
                     {{t "components.simulate_modal.add_run"}}
                   </BsButton>
                   {{else}}
+                    <div
+                      class="simulation-result-output-sort"
+                      role="group"
+                      aria-label={{t "components.simulate_modal.sort_outputs"}}
+                    >
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary
+                          {{if (eq this.overviewOutputSort 'alphabetical') 'active'}}"
+                        aria-pressed={{eq this.overviewOutputSort "alphabetical"}}
+                        title={{t "components.simulate_modal.sort_alphabetical_hint"}}
+                        {{on "click" (fn this.setOverviewOutputSort "alphabetical")}}
+                      >
+                        {{t "components.simulate_modal.sort_alphabetical"}}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary
+                          {{if (eq this.overviewOutputSort 'value') 'active'}}"
+                        aria-pressed={{eq this.overviewOutputSort "value"}}
+                        title={{t "components.simulate_modal.sort_by_value_hint"}}
+                        {{on "click" (fn this.setOverviewOutputSort "value")}}
+                      >
+                        {{t "components.simulate_modal.sort_by_value"}}
+                      </button>
+                    </div>
                     <div class="simulation-result-output-options">
                       {{#each this.overviewOutputOptions key="name" as |output|}}
                         <div class="simulation-result-output-option">
