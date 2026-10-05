@@ -35,6 +35,31 @@ export type ScenariosData = Static<typeof scenariosDataSchema>
 export const scenariosDataValidator = getValidator(scenariosDataSchema, dataValidator)
 export const scenariosDataResolver = resolve<Scenarios, HookContext<ScenariosService>>({})
 
+// What `create` accepts: a named scenario (preset) can bring its values
+// along, so the scenario and its values are stored in one transaction.
+export const scenariosCreateSchema = Type.Object(
+  {
+    name: Type.String(),
+    modelsVersionsId: Type.String({ format: 'uuid' }),
+    isDefault: Type.Boolean(),
+    values: Type.Optional(
+      Type.Array(
+        Type.Object(
+          {
+            nodesId: Type.String({ format: 'uuid' }),
+            value: Type.Number()
+          },
+          { additionalProperties: false }
+        ),
+        { maxItems: 10000 }
+      )
+    )
+  },
+  { $id: 'ScenariosCreate', additionalProperties: false }
+)
+export type ScenariosCreate = Static<typeof scenariosCreateSchema>
+export const scenariosCreateValidator = getValidator(scenariosCreateSchema, dataValidator)
+
 // Schema for updating existing entries
 export const scenariosPatchSchema = Type.Partial(scenariosSchema, {
   $id: 'ScenariosPatch'

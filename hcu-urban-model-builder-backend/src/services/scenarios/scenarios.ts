@@ -3,7 +3,7 @@
 import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import {
-  scenariosDataValidator,
+  scenariosCreateValidator,
   scenariosPatchValidator,
   scenariosQueryValidator,
   scenariosResolver,
@@ -13,7 +13,7 @@ import {
   scenariosQueryResolver
 } from './scenarios.schema.js'
 
-import { STASH_BEFORE_KEY, type Application } from '../../declarations.js'
+import { STASH_BEFORE_KEY, type Application, type HookContext } from '../../declarations.js'
 import { ScenariosService, getOptions } from './scenarios.class.js'
 import { scenariosPath, scenariosMethods } from './scenarios.shared.js'
 import { addModelPermissionFilterQuery } from '../../hooks/add-model-permission-filter-query.js'
@@ -21,9 +21,24 @@ import { Roles } from '../../client.js'
 import { iff, isProvider } from 'feathers-hooks-common'
 import { checkModelPermission } from '../../hooks/check-model-permission.js'
 import { checkModelVersionState } from '../../hooks/check-model-version-state.js'
+import { preventFieldChanges } from '../../hooks/prevent-field-changes.js'
 
 export * from './scenarios.class.js'
 export * from './scenarios.schema.js'
+
+// The default scenario is part of the model definition: collaborators may
+// change it, but only on the latest unpublished draft. Named scenarios are
+// presets that only the owner manages, also on published versions; see
+// checkScenarioValueModelVersionState.
+const checkScenarioWriteAccess = (
+  modelsVersionsIdField: string,
+  isDefaultScenario: (context: HookContext) => boolean
+) =>
+  iff(
+    isDefaultScenario,
+    checkModelPermission(modelsVersionsIdField, 'models-versions', Roles.collaborator),
+    checkModelVersionState(modelsVersionsIdField, 'models-versions')
+  ).else(checkModelPermission(modelsVersionsIdField, 'models-versions', Roles.owner))
 
 // A configure function that registers the service and its hooks via `app.configure`
 export const scenarios = (app: Application) => {
@@ -50,17 +65,11 @@ export const scenarios = (app: Application) => {
       find: [addModelPermissionFilterQuery(Roles.viewer)],
       get: [addModelPermissionFilterQuery(Roles.viewer)],
       create: [
-        schemaHooks.validateData(scenariosDataValidator),
+        schemaHooks.validateData(scenariosCreateValidator),
         schemaHooks.resolveData(scenariosDataResolver),
         iff(
           isProvider('external'),
-          checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
-          // Named scenarios are presets and may be added to published versions,
-          // see checkScenarioValueModelVersionState.
-          iff(
-            (context) => context.data.isDefault,
-            checkModelVersionState('data.modelsVersionsId', 'models-versions')
-          )
+          checkScenarioWriteAccess('data.modelsVersionsId', (context) => context.data.isDefault)
         )
       ],
       patch: [
@@ -68,28 +77,20 @@ export const scenarios = (app: Application) => {
         schemaHooks.resolveData(scenariosPatchResolver),
         iff(
           isProvider('external'),
-          checkModelPermission(
+          // The access check reads the scenario as it was before the patch.
+          preventFieldChanges(['isDefault', 'modelsVersionsId']),
+          checkScenarioWriteAccess(
             `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
-            'models-versions',
-            Roles.collaborator
-          ),
-          iff(
-            (context) => context.params[STASH_BEFORE_KEY].isDefault,
-            checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
+            (context) => context.params[STASH_BEFORE_KEY].isDefault
           )
         )
       ],
       remove: [
         iff(
           isProvider('external'),
-          checkModelPermission(
+          checkScenarioWriteAccess(
             `params.${STASH_BEFORE_KEY}.modelsVersionsId`,
-            'models-versions',
-            Roles.collaborator
-          ),
-          iff(
-            (context) => context.params[STASH_BEFORE_KEY].isDefault,
-            checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
+            (context) => context.params[STASH_BEFORE_KEY].isDefault
           )
         )
       ]

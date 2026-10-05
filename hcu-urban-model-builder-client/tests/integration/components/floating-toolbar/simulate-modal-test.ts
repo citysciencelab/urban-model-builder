@@ -14,6 +14,7 @@ import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios
 import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
 import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import { StoreEventSenderTransport } from 'hcu-urban-model-builder-client/services/store-event-emitter';
+import type ScenarioSelectionService from 'hcu-urban-model-builder-client/services/scenario-selection';
 
 type Scenario = Record<string, number>;
 
@@ -282,6 +283,45 @@ module(
 
       assert.dom('.simulate-card').doesNotExist();
       assert.strictEqual(runs.length, 1);
+    });
+
+    test('a result keeps the preset and values its run started with', async function (this: Context, assert) {
+      const scenarioSelection = this.owner.lookup(
+        'service:scenario-selection',
+      ) as ScenarioSelectionService;
+      scenarioSelection.setActivePreset('version', {
+        id: 'preset',
+        name: 'Workshop A',
+      });
+      // While the run is going, the user moves a slider, so the values no
+      // longer match the preset.
+      prototype.runSimulationBatch = async (_runCount, scenario) => {
+        runs.push(scenario);
+        setSliderValue(this, 99);
+        scenarioSelection.setActivePreset('version', null);
+        return [{ nodes: {}, times: [2025, 2026] }];
+      };
+      await renderPanel();
+
+      await clickSimulate();
+      await runsFinished(1);
+
+      assert.strictEqual(this.feathers.saved.length, 1);
+      const [saved] = this.feathers.saved as Record<string, unknown>[];
+      assert.strictEqual(saved!['scenariosId'], 'preset');
+      assert.strictEqual(saved!['scenarioName'], 'Workshop A');
+      assert.deepEqual(saved!['scenario'], { slider: 10 });
+    });
+
+    test('a result without a preset carries no preset', async function (this: Context, assert) {
+      await renderPanel();
+
+      await clickSimulate();
+      await runsFinished(1);
+
+      const [saved] = this.feathers.saved as Record<string, unknown>[];
+      assert.false('scenariosId' in saved!);
+      assert.false('scenarioName' in saved!);
     });
 
     test('switching the chart tab starts no run', async function (this: Context, assert) {

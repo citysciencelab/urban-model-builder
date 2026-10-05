@@ -22,6 +22,7 @@ import { addScenarioValuesModelPermissionFilterQuery } from '../../hooks/scenari
 import { iff, isProvider } from 'feathers-hooks-common'
 import { checkScenarioValuePermission } from '../../hooks/scenarios-values/check-model-permission.js'
 import { checkScenarioValueModelVersionState } from '../../hooks/scenarios-values/check-model-version-state.js'
+import { preventFieldChanges } from '../../hooks/prevent-field-changes.js'
 
 export * from './scenarios-values.class.js'
 export * from './scenarios-values.schema.js'
@@ -56,7 +57,7 @@ export const scenarioValues = (app: Application) => {
         schemaHooks.resolveData(scenarioValuesDataResolver),
         iff(
           isProvider('external'),
-          checkScenarioValuePermission('data.scenariosId', Roles.collaborator),
+          checkScenarioValuePermission('data.scenariosId', Roles.collaborator, Roles.owner),
           checkScenarioValueModelVersionState('data.scenariosId')
         )
       ],
@@ -65,14 +66,16 @@ export const scenarioValues = (app: Application) => {
         schemaHooks.resolveData(scenarioValuesPatchResolver),
         iff(
           isProvider('external'),
-          checkScenarioValuePermission(`params.${STASH_BEFORE_KEY}.scenariosId`, Roles.collaborator),
+          // The checks below read the value as it was before the patch.
+          preventFieldChanges(['scenariosId', 'nodesId']),
+          checkScenarioValuePermission(`params.${STASH_BEFORE_KEY}.scenariosId`, Roles.collaborator, Roles.owner),
           checkScenarioValueModelVersionState(`params.${STASH_BEFORE_KEY}.scenariosId`)
         )
       ],
       remove: [
         iff(
           isProvider('external'),
-          checkScenarioValuePermission(`params.${STASH_BEFORE_KEY}.scenariosId`, Roles.collaborator),
+          checkScenarioValuePermission(`params.${STASH_BEFORE_KEY}.scenariosId`, Roles.collaborator, Roles.owner),
           checkScenarioValueModelVersionState(`params.${STASH_BEFORE_KEY}.scenariosId`)
         )
       ]

@@ -19,7 +19,11 @@ export type ChartEditorResult = {
   name: string;
   sources: ChartEditorSource[];
   selectedSourceIds: string[];
+  // Empty until the result's data is loaded (on its first expand).
   variables: ChartEditorVariable[];
+  isLoaded: boolean;
+  isLoading?: boolean;
+  loadFailed?: boolean;
 };
 
 interface ChartEditorSidebarSignature {
@@ -32,7 +36,8 @@ interface ChartEditorSidebarSignature {
     onToggleTightYAxis: (event: Event) => void;
     onToggleSidebar: () => void;
     onToggleVariable: (resultId: string, variableName: string) => void;
-    onChangeSources: (resultId: string, sources: ChartEditorSource[]) => void;
+    onChangeSources: (resultId: string, sourceIds: string[]) => void;
+    onExpandResult: (resultId: string) => void;
   };
   Element: HTMLElement;
 }
@@ -99,9 +104,12 @@ export default class ChartEditorSidebarComponent extends Component<ChartEditorSi
 
   @action toggleResult(resultId: string) {
     const expanded = this.expandedResultIds;
-    this.userExpandedResultIds = expanded.includes(resultId)
-      ? expanded.filter((id) => id !== resultId)
-      : [...expanded, resultId];
+    if (expanded.includes(resultId)) {
+      this.userExpandedResultIds = expanded.filter((id) => id !== resultId);
+      return;
+    }
+    this.userExpandedResultIds = [...expanded, resultId];
+    this.args.onExpandResult(resultId);
   }
 
   @action updateSearch(event: Event) {
@@ -136,9 +144,6 @@ export default class ChartEditorSidebarComponent extends Component<ChartEditorSi
     const selected = this.isSourceSelected(result, sourceId)
       ? result.selectedSourceIds.filter((id) => id !== sourceId)
       : [...result.selectedSourceIds, sourceId];
-    this.args.onChangeSources(
-      result.id,
-      result.sources.filter((source) => selected.includes(source.id)),
-    );
+    this.args.onChangeSources(result.id, selected);
   }
 }

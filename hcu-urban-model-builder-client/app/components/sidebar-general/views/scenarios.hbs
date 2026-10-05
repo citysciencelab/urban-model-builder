@@ -8,22 +8,33 @@
     {{t "components.scenarios.title"}}
   </h4>
 </div>
-<div class="scenario-panel {{if this.hasScenarioChanges 'scenario-panel--has-save'}}">
+<div
+  class="scenario-panel
+    {{if this.hasScenarioChanges 'scenario-panel--has-save'}}
+    {{unless @modelVersion.canManageScenarios 'scenario-panel--reset-only'}}"
+>
   {{#if this.namedScenarios.length}}
     <div class="scenario-panel__selector">
       <label for="scenario-select">{{t "components.scenarios.select"}}</label>
       <div class="scenario-panel__selector-controls">
+        {{! The selection is set per option: a value on the select itself is
+          applied before its options exist, e.g. right after a preset is saved. }}
         <select
           id="scenario-select"
           class="form-select"
-          value={{this.selectedScenarioId}}
           {{on "change" this.selectScenario}}
         >
           {{#if this.defaultScenario}}
-            <option value={{this.defaultScenario.id}}>{{t "components.scenarios.default"}}</option>
+            <option
+              value={{this.defaultScenario.id}}
+              selected={{eq this.defaultScenario.id this.selectedScenarioId}}
+            >{{t "components.scenarios.default"}}</option>
           {{/if}}
           {{#each this.namedScenarios as |scenario|}}
-            <option value={{scenario.id}}>{{scenario.name}}</option>
+            <option
+              value={{scenario.id}}
+              selected={{eq scenario.id this.selectedScenarioId}}
+            >{{scenario.name}}</option>
           {{/each}}
         </select>
         {{#if this.canDeleteSelectedScenario}}
@@ -134,37 +145,49 @@
   </div>
   {{#if this.hasScenarioChanges}}
     <div class="scenario-panel__save">
-      <button
-        type="button"
-        class="scenario-panel__reset"
-        title={{t "components.scenarios.reset"}}
-        aria-label={{t "components.scenarios.reset"}}
-        {{on "click" this.openResetConfirm}}
-      >
-        <FaIcon @icon="times" />
-      </button>
-      {{#if this.scenarioSaveError}}
-        <div class="text-danger small">{{t "messages.general_error"}}</div>
-      {{/if}}
-      <label for="scenario-name">{{t "components.scenarios.name"}}</label>
-      <div class="scenario-panel__save-controls">
-        <Input
-          id="scenario-name"
-          class="form-control"
-          @value={{this.scenarioName}}
-          placeholder={{t "components.scenarios.name_placeholder"}}
-          {{on "input" this.updateScenarioName}}
-        />
+      {{! Only the owner saves presets; everyone else can still reset. }}
+      {{#if @modelVersion.canManageScenarios}}
         <button
           type="button"
-          class="btn btn-primary w-100"
-          disabled={{or this.isSavingScenario (not this.scenarioName)}}
-          {{on "click" this.saveNamedScenario}}
+          class="scenario-panel__reset"
+          title={{t "components.scenarios.reset"}}
+          aria-label={{t "components.scenarios.reset"}}
+          {{on "click" this.openResetConfirm}}
         >
-          {{#if this.isSavingScenario}}<FaIcon @icon="spinner" @spin={{true}} />{{/if}}
-          {{t "components.scenarios.save"}}
+          <FaIcon @icon="times" />
         </button>
-      </div>
+        {{#if this.scenarioSaveError}}
+          <div class="text-danger small">{{t "messages.general_error"}}</div>
+        {{/if}}
+        <label for="scenario-name">{{t "components.scenarios.name"}}</label>
+        <div class="scenario-panel__save-controls">
+          <Input
+            id="scenario-name"
+            class="form-control"
+            @value={{this.scenarioName}}
+            placeholder={{t "components.scenarios.name_placeholder"}}
+            {{on "input" this.updateScenarioName}}
+          />
+          <button
+            type="button"
+            class="btn btn-primary w-100"
+            disabled={{or this.isSavingScenario (not this.scenarioName)}}
+            {{on "click" this.saveNamedScenario}}
+          >
+            {{#if this.isSavingScenario}}<FaIcon @icon="spinner" @spin={{true}} />{{/if}}
+            {{t "components.scenarios.save"}}
+          </button>
+        </div>
+      {{else}}
+        <button
+          type="button"
+          class="btn btn-outline-secondary w-100"
+          {{on "click" this.openResetConfirm}}
+        >
+          <FaIcon @icon="times" />
+          {{t "components.scenarios.reset"}}
+        </button>
+      {{/if}}
     </div>
   {{/if}}
 </div>

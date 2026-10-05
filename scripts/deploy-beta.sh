@@ -6,13 +6,18 @@ set -Eeuo pipefail
 # variable, e.g. BRANCH=feature/foo ./scripts/deploy-beta.sh all
 APP_DIR="${APP_DIR:-/var/www/vhosts/comodeling.city/beta_metalbuilder/urban-model-builder}"
 DEPLOY_USER="${DEPLOY_USER:-modelbuilder}"
-BRANCH="${BRANCH:-main}"
+BRANCH="${BRANCH:-bh_master}"
 COMPOSE_PROJECT="${COMPOSE_PROJECT:-urban-model-builder-beta}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose-staging.yml}"
 MIGRATE_COMPOSE_FILE="${MIGRATE_COMPOSE_FILE:-docker-compose-staging-migrate.yml}"
 BACKEND_SERVICE="${BACKEND_SERVICE:-hcu-model-builder-backend}"
+BACKEND_PORT="${BACKEND_PORT:-3032}"
+BACKEND_IMAGE="${BACKEND_IMAGE:-hcu-model-builder-backend-beta}"
+APP_NETWORK="${APP_NETWORK:-hcu-model-builder-beta-network}"
 FRONTEND_DIR="${FRONTEND_DIR:-hcu-urban-model-builder-client}"
 MODE="${1:-all}"
+
+export BACKEND_PORT BACKEND_IMAGE APP_NETWORK
 
 case "$MODE" in
   frontend|fe) MODE="frontend" ;;
@@ -46,6 +51,7 @@ run_as_deploy_user() {
 command -v git >/dev/null || fail "git is not installed."
 command -v npm >/dev/null || fail "npm is not installed."
 command -v docker >/dev/null || fail "docker is not installed."
+command -v curl >/dev/null || fail "curl is not installed."
 [[ "$(id -u)" -eq 0 ]] || fail "Run this deployment script as root."
 [[ -d "$APP_DIR/.git" ]] || fail "No Git repository found at $APP_DIR."
 [[ -f "$APP_DIR/$COMPOSE_FILE" ]] || fail "$COMPOSE_FILE is missing."
@@ -61,14 +67,14 @@ run_as_deploy_user git fetch origin "$BRANCH"
 run_as_deploy_user git checkout "$BRANCH"
 run_as_deploy_user git merge --ff-only "origin/$BRANCH"
 
-deploy_frontend() {
+deploy_frontend() (
   local frontend_path="$APP_DIR/$FRONTEND_DIR"
   local release_path
 
   [[ -f "$frontend_path/package-lock.json" ]] || fail "Frontend package-lock.json is missing."
   release_path="$(mktemp -d "$APP_DIR/.frontend-release.XXXXXX")"
+  trap 'rm -rf -- "$release_path"' EXIT
   chown "$DEPLOY_USER:psaserv" "$release_path"
-  trap 'rm -rf -- "${release_path:-}"' RETURN
 
   log "Installing frontend dependencies"
   run_as_deploy_user npm --prefix "$frontend_path" ci
@@ -84,10 +90,13 @@ deploy_frontend() {
   chown -R "$DEPLOY_USER:psaserv" "$frontend_path/dist"
   find "$frontend_path/dist" -type d -exec chmod 755 {} +
   find "$frontend_path/dist" -type f -exec chmod 644 {} +
-}
+)
 
 deploy_backend() {
   [[ -f "$APP_DIR/$MIGRATE_COMPOSE_FILE" ]] || fail "$MIGRATE_COMPOSE_FILE is missing."
+
+  log "Starting beta database and Redis"
+  docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" up -d postgres redis
 
   log "Building backend image"
   docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" build "$BACKEND_SERVICE"
@@ -99,9 +108,9 @@ deploy_backend() {
   log "Replacing backend container"
   docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" up -d --no-deps "$BACKEND_SERVICE"
 
-  log "Waiting for backend on http://127.0.0.1:3032"
+  log "Waiting for backend on http://127.0.0.1:$BACKEND_PORT"
   for _ in {1..30}; do
-    if curl --silent --output /dev/null --max-time 2 http://127.0.0.1:3032/; then
+    if curl --fail --silent --output /dev/null --max-time 2 "http://127.0.0.1:$BACKEND_PORT/"; then
       docker compose -p "$COMPOSE_PROJECT" -f "$COMPOSE_FILE" ps "$BACKEND_SERVICE"
       return 0
     fi

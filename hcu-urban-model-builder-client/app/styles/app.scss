@@ -1664,6 +1664,7 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
 // they all share one flex layout instead of median/tunnel reserving space
 // for a ::before indicator.
 .simulation-result-option {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: get-spacer(1);
@@ -1682,8 +1683,8 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
     border-color: $gray-500;
   }
 
-  &:focus-visible {
-    outline: none;
+  // The chip is a container; its toggle button takes the keyboard focus.
+  &:has(> .simulation-result-option__toggle:focus-visible) {
     box-shadow: 0 0 0 0.2rem rgba($color-primary, 0.4);
   }
 
@@ -1702,7 +1703,33 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
   }
 }
 
+// The chip's label is its toggle button. It has no look of its own, and its
+// ::after stretches over the whole chip, so a click anywhere on the chip apart
+// from the swatch and the inline action toggles it.
+.simulation-result-option__toggle {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: $border-radius-pill;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
 .simulation-result-option__color {
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
   width: 0.9rem;
   height: 0.9rem;
@@ -1727,10 +1754,16 @@ body:has(.simulation-results-modal, .simulate-chart-zoom-modal)
 // Inline control inside a chip doing what right-clicking the chip does
 // (activate a run / invert the other outputs).
 .simulation-result-option__action {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   padding: 0 2px;
+  border: 0;
   border-radius: 2px;
+  background: none;
+  color: inherit;
+  line-height: 1;
   opacity: 0.6;
   cursor: pointer;
   transition: opacity 0.15s ease;
@@ -2094,6 +2127,10 @@ fieldset {
 
 .scenario-panel--has-save .sidebar__content--scenarios {
   padding-bottom: 7.5rem;
+}
+
+.scenario-panel--has-save.scenario-panel--reset-only .sidebar__content--scenarios {
+  padding-bottom: 4rem;
 }
 
 .scenario-panel__selector,

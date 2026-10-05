@@ -162,7 +162,10 @@ export const modelsImportResolver = resolve<ModelsImport, HookContext<ModelsServ
 
 export const simulationResultCreateSchema = Type.Object({
   modelsVersionsId: Type.String({ format: 'uuid' }),
+  // The preset selected when the simulation was started. Its name is stored
+  // with the result, so it stays readable after the preset is deleted.
   scenariosId: Type.Optional(Type.String({ format: 'uuid' })),
+  scenarioName: Type.Optional(Type.String({ minLength: 1, maxLength: 255 })),
   name: Type.Optional(Type.String({ minLength: 1, maxLength: 255 })),
   scenario: Type.Record(Type.String(), Type.Number()),
   result: Type.Any()
@@ -172,6 +175,10 @@ export const simulationResultCreateValidator = getValidator(simulationResultCrea
 
 export const simulationResultsFindSchema = Type.Object({
   modelsVersionsId: Type.String({ format: 'uuid' }),
+  // Only this result (still scoped to the model version).
+  id: Type.Optional(Type.String({ format: 'uuid' })),
+  // Leave out the (large) result data and report its number of runs instead.
+  summary: Type.Optional(Type.Boolean()),
   $skip: Type.Optional(Type.Integer({ minimum: 0 })),
   $limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 }))
 })

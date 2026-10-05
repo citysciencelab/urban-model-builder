@@ -91,4 +91,61 @@ describe('models service simulation results', () => {
       }
     )
   })
+
+  it('keeps the name of the preset after the preset is deleted', async () => {
+    const preset = await app
+      .service('scenarios')
+      .create({ name: 'Workshop preset', isDefault: false, modelsVersionsId, values: [] }, params)
+    const saved = await app.service('models').saveSimulationResult(
+      {
+        modelsVersionsId,
+        scenariosId: preset.id,
+        scenarioName: preset.name,
+        name: 'With preset',
+        scenario: {},
+        result: batch(1)
+      },
+      params
+    )
+    assert.strictEqual(saved.scenariosId, preset.id)
+
+    await app.service('scenarios').remove(preset.id, params)
+    const { data } = await app
+      .service('models')
+      .findSimulationResults({ modelsVersionsId, id: saved.id }, params)
+
+    assert.strictEqual(data.length, 1)
+    assert.strictEqual(data[0].scenariosId, null)
+    assert.strictEqual(data[0].scenarioName, 'Workshop preset')
+  })
+
+  it('saves a result whose preset was deleted while it was simulated', async () => {
+    const saved = await app.service('models').saveSimulationResult(
+      {
+        modelsVersionsId,
+        scenariosId: '00000000-0000-4000-8000-000000000000',
+        scenarioName: 'Gone',
+        name: 'Deleted preset',
+        scenario: {},
+        result: batch(1)
+      },
+      params
+    )
+
+    assert.strictEqual(saved.scenariosId, null)
+    assert.strictEqual(saved.scenarioName, 'Gone')
+  })
+
+  it('lists results without their data, with the number of runs', async () => {
+    const saved = await save(3)
+    const { data } = await app
+      .service('models')
+      .findSimulationResults({ modelsVersionsId, summary: true, $limit: 100 }, params)
+    const found = data.find((result: any) => result.id === saved.id)
+
+    assert.strictEqual(found.name, 'Batch 3')
+    assert.strictEqual(found.runCount, 3)
+    assert.strictEqual('result' in found, false)
+    assert.strictEqual(data.find((result: any) => result.name === 'With preset').runCount, 1)
+  })
 })

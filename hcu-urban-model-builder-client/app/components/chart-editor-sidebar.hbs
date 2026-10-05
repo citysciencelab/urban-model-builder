@@ -60,40 +60,50 @@
             </button>
             {{#if (this.isExpanded result.id)}}
               <div class="chart-editor-result__panel">
-                {{#if (gt result.sources.length 1)}}
-                  {{! Same pattern as the run picker in the stored results:
-                    a dropdown whose items toggle in place and keep it open. }}
-                  <BsDropdown
-                    @closeOnMenuClick={{false}}
-                    class="chart-editor-result__sources"
-                    as |dd|
-                  >
-                    {{#let (this.selectedSourcesLabel result) as |label|}}
-                      <dd.button
-                        @type="outline-secondary"
-                        class="btn-sm"
-                        title={{label}}
-                        aria-label={{t "components.simulate_modal.chart_sources"}}
-                      >
-                        <span class="chart-editor-result__sources-label">
-                          {{if label label (t "components.simulate_modal.chart_sources_placeholder")}}
-                        </span>
-                      </dd.button>
-                    {{/let}}
-                    <dd.menu>
-                      {{#each result.sources key="id" as |source|}}
-                        <button
-                          type="button"
-                          class="dropdown-item
-                            {{if (this.isSourceSelected result source.id) 'active'}}"
-                          aria-pressed={{if (this.isSourceSelected result source.id) "true" "false"}}
-                          {{on "click" (fn this.toggleSource result source.id)}}
+                {{#if result.loadFailed}}
+                  <p class="chart-editor-sidebar__message text-danger">
+                    {{t "components.simulate_modal.chart_editor_result_failed"}}
+                  </p>
+                {{else if (not result.isLoaded)}}
+                  <p class="chart-editor-sidebar__message">
+                    <BsSpinner @size="sm" />
+                    {{t "components.simulate_modal.chart_editor_result_loading"}}
+                  </p>
+                {{else}}
+                  {{#if (gt result.sources.length 1)}}
+                    {{! Same pattern as the run picker in the stored results:
+                      a dropdown whose items toggle in place and keep it open. }}
+                    <BsDropdown
+                      @closeOnMenuClick={{false}}
+                      class="chart-editor-result__sources"
+                      as |dd|
+                    >
+                      {{#let (this.selectedSourcesLabel result) as |label|}}
+                        <dd.button
+                          @type="outline-secondary"
+                          class="btn-sm"
+                          title={{label}}
+                          aria-label={{t "components.simulate_modal.chart_sources"}}
                         >
-                          {{source.label}}
-                        </button>
-                      {{/each}}
-                    </dd.menu>
-                  </BsDropdown>
+                          <span class="chart-editor-result__sources-label">
+                            {{if label label (t "components.simulate_modal.chart_sources_placeholder")}}
+                          </span>
+                        </dd.button>
+                      {{/let}}
+                      <dd.menu>
+                        {{#each result.sources key="id" as |source|}}
+                          <button
+                            type="button"
+                            class="dropdown-item
+                              {{if (this.isSourceSelected result source.id) 'active'}}"
+                            aria-pressed={{if (this.isSourceSelected result source.id) "true" "false"}}
+                            {{on "click" (fn this.toggleSource result source.id)}}
+                          >
+                            {{source.label}}
+                          </button>
+                        {{/each}}
+                      </dd.menu>
+                    </BsDropdown>
                 {{/if}}
                 <div class="chart-editor-result__filter">
                   <input
@@ -126,6 +136,7 @@
                     </p>
                   {{/each}}
                 </div>
+                {{/if}}
               </div>
             {{/if}}
           </section>

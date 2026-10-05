@@ -5,11 +5,22 @@ import { Roles } from '../../client.js'
 import _ from 'lodash'
 import { checkModelPermission } from '../check-model-permission.js'
 
-export const checkScenarioValuePermission = (scenarioIdField: string, minRole: Roles) => {
-  const _checkModelPermission = checkModelPermission(
+// `minRole` applies to the values of the default scenario,
+// `namedScenarioMinRole` to the values of a named scenario (preset).
+export const checkScenarioValuePermission = (
+  scenarioIdField: string,
+  minRole: Roles,
+  namedScenarioMinRole: Roles = minRole
+) => {
+  const checkDefaultScenarioPermission = checkModelPermission(
     'params.stashedScenario.modelsVersionsId',
     'models-versions',
     minRole
+  )
+  const checkNamedScenarioPermission = checkModelPermission(
+    'params.stashedScenario.modelsVersionsId',
+    'models-versions',
+    namedScenarioMinRole
   )
 
   return async (context: HookContext) => {
@@ -33,6 +44,10 @@ export const checkScenarioValuePermission = (scenarioIdField: string, minRole: R
       throw new Error('Could not find valid model version associated with this scenario')
     }
 
-    await _checkModelPermission(context)
+    if (context.params.stashedScenario.isDefault) {
+      await checkDefaultScenarioPermission(context)
+    } else {
+      await checkNamedScenarioPermission(context)
+    }
   }
 }

@@ -1,6 +1,6 @@
 networks:
   default:
-    name: hcu-model-builder-network
+    name: ${APP_NETWORK:-hcu-model-builder-network}
 
 services:
   migrate:

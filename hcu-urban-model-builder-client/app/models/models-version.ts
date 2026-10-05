@@ -92,6 +92,11 @@ export default class ModelsVersion extends Model {
     return this.role >= Roles.co_owner;
   }
 
+  // Named scenarios (presets) are created and deleted by the owner only.
+  get canManageScenarios() {
+    return this.role >= Roles.owner;
+  }
+
   get canClone() {
     return this.role != null && this.role >= Roles.none;
   }

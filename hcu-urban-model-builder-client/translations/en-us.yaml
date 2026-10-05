@@ -219,6 +219,8 @@ components:
     current_simulation: Current simulation
     chart_editor_loading: Loading results…
     chart_editor_no_results: No simulation results available.
+    chart_editor_result_loading: Loading result…
+    chart_editor_result_failed: The result could not be loaded.
     chart_sources: Data sources
     chart_sources_placeholder: Choose median, spread or runs
     sort_outputs: Sort output variables

@@ -16,11 +16,21 @@ export const addScenarioValuesModelPermissionFilterQuery = (minRequiredRole: Rol
     }
 
     const query = context.service.createQuery(context.params)
+    const postgresqlClient = context.app.get('postgresqlClient')
 
+    // Only the current user's membership is joined. Joining every member made
+    // a published version return each value once per member, and `get` then
+    // reported such a value as not found.
     query
       .join('scenarios', `scenarios_values.scenariosId`, '=', 'scenarios.id')
       .join('models_versions', 'scenarios.modelsVersionsId', '=', 'models_versions.id')
-      .join('models_users', 'models_versions.modelId', '=', 'models_users.modelId')
+      .leftJoin('models_users', function () {
+        this.on('models_versions.modelId', '=', 'models_users.modelId').andOn(
+          'models_users.userId',
+          '=',
+          postgresqlClient.raw('?', [userId])
+        )
+      })
       .where(function () {
         this.where(function () {
           this.where('models_users.userId', userId).andWhere('models_users.role', '>=', minRequiredRole)

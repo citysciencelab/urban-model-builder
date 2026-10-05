@@ -153,17 +153,20 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
       throw new BadRequest(`A simulation result can hold at most ${this.maxSimulationBatchRuns} runs.`)
     }
     await this.assertModelVersionAccess(data.modelsVersionsId, params.user, Roles.collaborator)
-    if (data.scenariosId) {
-      const scenario = await this.app.get('postgresqlClient')('scenarios')
-        .where({ id: data.scenariosId, modelsVersionsId: data.modelsVersionsId })
-        .first()
-      if (!scenario) throw new BadRequest('Scenario does not belong to this model version.')
-    }
+    // The preset may have been deleted while the simulation ran; the result
+    // then keeps only its name. A preset of another version is not linked.
+    const scenario = data.scenariosId
+      ? await this.app
+          .get('postgresqlClient')('scenarios')
+          .where({ id: data.scenariosId, modelsVersionsId: data.modelsVersionsId })
+          .first()
+      : undefined
     const [saved] = await this.app
       .get('postgresqlClient')('simulation_results')
       .insert({
         modelsVersionsId: data.modelsVersionsId,
-        scenariosId: data.scenariosId ?? null,
+        scenariosId: scenario?.id ?? null,
+        scenarioName: data.scenarioName ?? null,
         createdBy: params.user.id,
         name: data.name ?? `Simulation ${new Date().toISOString()}`,
         scenario: data.scenario,
@@ -178,12 +181,30 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     await this.assertModelVersionAccess(data.modelsVersionsId, params.user, Roles.viewer)
     const database = this.app.get('postgresqlClient')
     const baseQuery = database('simulation_results').where({ modelsVersionsId: data.modelsVersionsId })
+    if (data.id) baseQuery.where({ id: data.id })
     const [{ count }] = await baseQuery.clone().count<{ count: string }[]>('* as count')
-    const rows = await database('simulation_results')
-      .leftJoin('scenarios', 'simulation_results.scenariosId', 'scenarios.id')
-      .where('simulation_results.modelsVersionsId', data.modelsVersionsId)
-      .select('simulation_results.*', 'scenarios.name as scenarioName')
-      .orderBy('simulation_results.createdAt', 'desc')
+    const rows = await baseQuery
+      .clone()
+      .select(
+        data.summary
+          ? [
+              'id',
+              'modelsVersionsId',
+              'createdBy',
+              'name',
+              'scenariosId',
+              'scenarioName',
+              'createdAt',
+              'updatedAt',
+              database.raw(
+                `CASE WHEN jsonb_typeof(result->'batchResults') = 'array'
+                  THEN GREATEST(jsonb_array_length(result->'batchResults'), 1)
+                  ELSE 1 END AS "runCount"`
+              )
+            ]
+          : '*'
+      )
+      .orderBy('createdAt', 'desc')
       .offset(data.$skip ?? 0)
       .limit(data.$limit ?? 10)
     return { total: Number(count), data: rows }

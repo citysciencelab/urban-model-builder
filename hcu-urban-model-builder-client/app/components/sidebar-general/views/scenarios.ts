@@ -9,6 +9,8 @@ import type Store from '@ember-data/store';
 import type StoreEventEmitterService from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import { tracked } from '@glimmer/tracking';
 import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-version';
+import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
+import type ScenarioSelectionService from 'hcu-urban-model-builder-client/services/scenario-selection';
 
 export interface SidebarGeneralViewsScenariosSignature {
   // The arguments accepted by the component
@@ -27,6 +29,8 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
   @service declare eventBus: EventBus;
   @service() declare storeEventEmitter: StoreEventEmitterService;
   @service declare store: Store;
+  @service declare feathers: FeathersService;
+  @service declare scenarioSelection: ScenarioSelectionService;
 
   @tracked defaultScenario: Scenario | null = null;
   @tracked scenarioValues: ScenariosValue[] = [];
@@ -42,9 +46,16 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
   // Named scenario id -> (node id -> value), used to recognise when the
   // working values match a preset.
   @tracked presetValues = new Map<string, Map<string, number>>();
+  // Bumped on every load, so an older load that finishes last can't overwrite
+  // a newer one.
+  private loadToken = 0;
 
   get canDeleteSelectedScenario() {
-    return !!this.activeScenario && !this.activeScenario.isDefault;
+    return (
+      this.args.modelVersion.canManageScenarios &&
+      !!this.activeScenario &&
+      !this.activeScenario.isDefault
+    );
   }
 
   // The scenario whose values equal the working values. The explicitly
@@ -84,7 +95,7 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
         this.isChangedFromDefault(value),
       );
     }
-    const preset = this.presetValues.get(scenario.id);
+    const preset = this.presetValues.get(scenario.id!);
     if (!preset) return false;
     // Applying a preset resets the parameters it doesn't cover to their
     // defaults, so those have to be at their default to match.
@@ -116,6 +127,19 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
   // becomes the selection the dropdown falls back to.
   syncSelectedScenario() {
     this.selectedScenario = this.matchingScenario ?? this.selectedScenario;
+    this.publishActivePreset();
+  }
+
+  // Tells the simulation which preset the working values equal, so a run
+  // started now can record it.
+  publishActivePreset() {
+    const preset = this.matchingScenario;
+    this.scenarioSelection.setActivePreset(
+      this.args.modelVersion.id!,
+      preset && !preset.isDefault
+        ? { id: preset.id!, name: preset.name }
+        : null,
+    );
   }
 
   async loadPresetValues(scenarios: Scenario[]) {
@@ -125,10 +149,10 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
         const byNode = new Map(
           values.map((value) => [this.nodeIdOf(value), Number(value.value)]),
         );
-        return [scenario.id, byNode] as const;
+        return [scenario.id!, byNode] as const;
       }),
     );
-    this.presetValues = new Map(entries);
+    return new Map(entries);
   }
 
   @action updateBoolParameter(
@@ -177,36 +201,52 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
         await value.save();
       }
     });
+    // The saved values are the new defaults, which can change what matches.
+    this.syncSelectedScenario();
   }
 
   @action async loadDefaultScenario(modelsVersion: ModelsVersion) {
+    const loadToken = ++this.loadToken;
+    const isStale = () =>
+      loadToken !== this.loadToken || this.isDestroying || this.isDestroyed;
+
     const defaultScenarios = (await this.store.query('scenario', {
       modelsVersionsId: modelsVersion.id,
       isDefault: true,
     })) as Scenario[];
+    if (isStale()) return;
     if (defaultScenarios.length === 0) {
       this.defaultScenario = null;
       this.scenarioValues = [];
+      this.publishActivePreset();
       return;
     }
-    this.defaultScenario = defaultScenarios[0] as Scenario;
-    this.scenarioValues = [...(await this.defaultScenario.scenariosValues)];
+    const defaultScenario = defaultScenarios[0] as Scenario;
+    const scenarioValues = [...(await defaultScenario.scenariosValues)];
+    if (isStale()) return;
+    this.defaultScenario = defaultScenario;
+    this.scenarioValues = scenarioValues;
     this.selectedScenario ??= this.defaultScenario;
 
+    let namedScenarios: Scenario[] = [];
+    let presetValues = new Map<string, Map<string, number>>();
     try {
-      const namedScenarios = (await this.store.query('scenario', {
-        modelsVersionsId: modelsVersion.id,
-        isDefault: false,
-      })) as Scenario[];
-      this.namedScenarios = namedScenarios.filter(
-        (scenario) => !scenario.isDefault,
-      );
-      await this.loadPresetValues(this.namedScenarios);
+      namedScenarios = (
+        (await this.store.query('scenario', {
+          modelsVersionsId: modelsVersion.id,
+          isDefault: false,
+        })) as Scenario[]
+      ).filter((scenario) => !scenario.isDefault);
+      presetValues = await this.loadPresetValues(namedScenarios);
     } catch {
       // Named presets are optional; a failed preset request must never hide
       // the model's editable default parameters.
-      this.namedScenarios = [];
+      namedScenarios = [];
     }
+    if (isStale()) return;
+    this.namedScenarios = namedScenarios;
+    this.presetValues = presetValues;
+    this.publishActivePreset();
   }
 
   @action updateScenarioName(event: Event) {
@@ -233,7 +273,7 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
       targetValues.map((value) => [this.nodeIdOf(value), Number(value.value)]),
     );
     this.presetValues = new Map(this.presetValues).set(
-      scenario.id,
+      scenario.id!,
       valuesByNode,
     );
     for (const workingValue of this.scenarioValues) {
@@ -247,6 +287,7 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
       this.emitScenarioValueChanged(workingValue);
     }
     this.selectedScenario = scenario;
+    this.publishActivePreset();
   }
 
   @action resetToDefaults() {
@@ -258,6 +299,7 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
     this.selectedScenario = this.defaultScenario;
     this.scenarioName = '';
     this.scenarioSaveError = false;
+    this.publishActivePreset();
   }
 
   @action openResetConfirm() {
@@ -297,7 +339,7 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
         (item) => item !== scenario,
       );
       const presetValues = new Map(this.presetValues);
-      presetValues.delete(scenarioId);
+      presetValues.delete(scenarioId!);
       this.presetValues = presetValues;
       this.showDeleteConfirmModal = false;
       this.resetToDefaults();
@@ -317,50 +359,54 @@ export default class SidebarGeneralViewsScenariosComponent extends Component<Sid
     });
   }
 
+  // The preset and its values are created in one request (and one database
+  // transaction), so a failure leaves nothing behind and the store doesn't
+  // emit an event per value.
   @action async saveNamedScenario() {
     const name = this.scenarioName.trim();
-    if (!name || !this.defaultScenario || this.isSavingScenario) return;
+    if (
+      !name ||
+      !this.defaultScenario ||
+      this.isSavingScenario ||
+      !this.args.modelVersion.canManageScenarios
+    ) {
+      return;
+    }
     this.isSavingScenario = true;
     this.scenarioSaveError = false;
-    let scenario: Scenario | null = null;
     try {
-      scenario = this.store.createRecord('scenario', {
+      const values = this.scenarioValues
+        .map((value) => ({
+          nodesId: this.nodeIdOf(value),
+          value: Number(value.value),
+        }))
+        .filter((value) => value.nodesId);
+      const created = await (
+        this.feathers.app.service('scenarios') as any
+      ).create({
         name,
         isDefault: false,
-        modelsVersions: this.args.modelVersion,
-      }) as Scenario;
-      await scenario.save();
-      const savedValues = new Map<string, number>();
-      for (const source of this.scenarioValues) {
-        // `nodes` is an async belongsTo; createRecord needs the record itself,
-        // not the promise proxy the getter returns.
-        const node = await source.nodes;
-        const value = this.store.createRecord('scenarios-value', {
-          value: Number(source.value),
-          nodes: node,
-          scenarios: scenario,
-        }) as ScenariosValue;
-        await value.save();
-        savedValues.set(this.nodeIdOf(source), Number(source.value));
-      }
+        modelsVersionsId: this.args.modelVersion.id,
+        values,
+      });
+      const scenario = this.feathers.pushRecordIntoStore(
+        'scenario',
+        created,
+      ) as unknown as Scenario;
       this.presetValues = new Map(this.presetValues).set(
-        scenario.id,
-        savedValues,
+        scenario.id!,
+        new Map(values.map((value) => [value.nodesId, value.value])),
       );
       this.namedScenarios = [
-        ...this.namedScenarios.filter((item) => item.id !== scenario?.id),
+        ...this.namedScenarios.filter((item) => item.id !== scenario.id),
         scenario,
       ];
       this.selectedScenario = scenario;
       this.scenarioName = '';
+      this.publishActivePreset();
     } catch (error) {
       console.error('Saving the named scenario failed', error);
       this.scenarioSaveError = true;
-      if (scenario?.isNew) {
-        scenario.unloadRecord();
-      } else if (scenario) {
-        await scenario.destroyRecord();
-      }
     } finally {
       this.isSavingScenario = false;
     }

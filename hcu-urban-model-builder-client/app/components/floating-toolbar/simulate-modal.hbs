@@ -677,18 +677,13 @@
                     </div>
                     <div class="simulation-result-output-options">
                       {{#each this.overviewOutputOptions key="name" as |output|}}
-                        {{! template-lint-disable no-nested-interactive }}
-                        {{! Same layout as the run chips: swatch and invert
-                          control live inside the toggle, so their clicks must
-                          not bubble up and toggle the output too. }}
-                        <button
-                          type="button"
+                        {{! Same layout as the run chips: swatch, toggle and
+                          invert control side by side; the toggle's click area
+                          covers the rest of the chip. }}
+                        <div
                           class="btn btn-sm simulation-result-option simulation-result-output-option
                             {{if output.enabled 'active'}}"
-                          aria-pressed={{output.enabled}}
                           title={{t "components.simulate_modal.output_toggle_hint" name=output.name}}
-                          {{on "click" (fn this.toggleOverviewOutput output.name)}}
-                          {{on "contextmenu" (fn this.toggleOtherOverviewOutputs output.name)}}
                         >
                           <input
                             type="color"
@@ -696,22 +691,24 @@
                             value={{output.color}}
                             aria-label={{t "components.simulate_modal.output_color" name=output.name}}
                             {{on "input" (fn this.setOverviewOutputColor output.name)}}
-                            {{on "click" (stop-propagation)}}
                           />
-                          <span class="simulation-result-output-option__name">{{output.name}}</span>
-                          {{! template-lint-disable require-presentational-children }}
-                          <span
-                            role="button"
-                            tabindex="0"
+                          <button
+                            type="button"
+                            class="simulation-result-option__toggle simulation-result-output-option__name"
+                            aria-pressed={{output.enabled}}
+                            {{on "click" (fn this.toggleOverviewOutput output.name)}}
+                            {{on "contextmenu" (fn this.toggleOtherOverviewOutputs output.name)}}
+                          >{{output.name}}</button>
+                          <button
+                            type="button"
                             class="simulation-result-option__action"
                             title={{t "components.simulate_modal.output_invert_others_hint" name=output.name}}
                             aria-label={{t "components.simulate_modal.output_invert_others_hint" name=output.name}}
                             {{on "click" (fn this.toggleOtherOverviewOutputs output.name)}}
-                            {{on "keydown" (fn this.toggleOtherOverviewOutputsByKey output.name)}}
                           >
                             <FaIcon @icon="right-left" @prefix="fas" @size="xs" />
-                          </span>
-                        </button>
+                          </button>
+                        </div>
                       {{/each}}
                     </div>
                   {{/if}}
@@ -719,17 +716,11 @@
               {{/if}}
             </div>
             <div class="simulation-result-visibility-controls" role="group">
-              {{! template-lint-disable no-nested-interactive }}
-              {{! The color swatch is merged into the chip itself, so its
-                click must not bubble up into the button's own toggle
-                handler - otherwise picking a color would also hide the
-                median line. }}
-              <button
-                type="button"
+              {{! A chip holds its color swatch next to its toggle button
+                (not inside it), so picking a color never toggles the layer. }}
+              <div
                 class="btn btn-sm simulation-result-option simulation-result-option--median
                   {{if this.showStoredMedian 'active'}}"
-                aria-pressed={{this.showStoredMedian}}
-                {{on "click" this.toggleStoredMedian}}
               >
                 <input
                   type="color"
@@ -737,19 +728,17 @@
                   value={{this.storedMedianColor}}
                   aria-label={{t "components.simulate_modal.median_color"}}
                   {{on "input" this.updateStoredMedianColor}}
-                  {{on "click" (stop-propagation)}}
                 />
-                {{t "components.simulate_modal.median"}}
-              </button>
-              {{! template-lint-disable no-nested-interactive }}
-              {{! Same reasoning as the median chip above - stop the color
-                swatch's click from also toggling the tunnel band off. }}
-              <button
-                type="button"
+                <button
+                  type="button"
+                  class="simulation-result-option__toggle"
+                  aria-pressed={{this.showStoredMedian}}
+                  {{on "click" this.toggleStoredMedian}}
+                >{{t "components.simulate_modal.median"}}</button>
+              </div>
+              <div
                 class="btn btn-sm simulation-result-option simulation-result-option--tunnel
                   {{if this.showStoredTunnel 'active'}}"
-                aria-pressed={{this.showStoredTunnel}}
-                {{on "click" this.toggleStoredTunnel}}
               >
                 <input
                   type="color"
@@ -757,10 +746,14 @@
                   value={{this.storedTunnelColor}}
                   aria-label={{t "components.simulate_modal.tunnel_color"}}
                   {{on "input" this.updateStoredTunnelColor}}
-                  {{on "click" (stop-propagation)}}
                 />
-                {{t "components.simulate_modal.tunnel"}}
-              </button>
+                <button
+                  type="button"
+                  class="simulation-result-option__toggle"
+                  aria-pressed={{this.showStoredTunnel}}
+                  {{on "click" this.toggleStoredTunnel}}
+                >{{t "components.simulate_modal.tunnel"}}</button>
+              </div>
               <BsDropdown @closeOnMenuClick={{false}} as |dd|>
                 <dd.button @type="outline-secondary" class="btn-sm">
                   {{t
@@ -792,17 +785,11 @@
                 </dd.menu>
               </BsDropdown>
               {{#each this.selectedStoredBatchRuns as |runIndex|}}
-                {{! template-lint-disable no-nested-interactive }}
-                {{! The color swatch is merged into the run chip itself, so
-                  its click must not bubble up into the button's own toggle
-                  handler - otherwise picking a color would also deselect
-                  the run. }}
-                <button
-                  type="button"
+                {{! Swatch, toggle and activate control side by side; the
+                  toggle's click area covers the rest of the chip. }}
+                <div
                   class="btn btn-sm simulation-result-option simulation-result-option--run active {{if (eq this.activeStoredRun runIndex) 'simulation-result-option--current'}}"
                   title={{t "components.simulate_modal.run_activation_hint"}}
-                  {{on "click" (fn this.toggleStoredBatchRun runIndex)}}
-                  {{on "contextmenu" (fn this.activateStoredRun runIndex)}}
                 >
                   <input
                     type="color"
@@ -813,27 +800,26 @@
                       number=(add runIndex 1)
                     }}
                     {{on "input" (fn this.updateStoredRunColor runIndex)}}
-                    {{on "click" (stop-propagation)}}
                   />
-                  {{t
-                    "components.simulate_modal.simulation_run"
-                    number=(add runIndex 1)
-                  }}
-                  {{! A real <button> can't nest inside the chip, hence the
-                    span; the icon is decorative and the aria-label names it. }}
-                  {{! template-lint-disable require-presentational-children }}
-                  <span
-                    role="button"
-                    tabindex="0"
+                  <button
+                    type="button"
+                    class="simulation-result-option__toggle"
+                    {{on "click" (fn this.toggleStoredBatchRun runIndex)}}
+                    {{on "contextmenu" (fn this.activateStoredRun runIndex)}}
+                  >{{t
+                      "components.simulate_modal.simulation_run"
+                      number=(add runIndex 1)
+                    }}</button>
+                  <button
+                    type="button"
                     class="simulation-result-option__action"
                     title={{t "components.simulate_modal.run_activate_hint" number=(add runIndex 1)}}
                     aria-label={{t "components.simulate_modal.run_activate_hint" number=(add runIndex 1)}}
                     {{on "click" (fn this.activateStoredRun runIndex)}}
-                    {{on "keydown" (fn this.activateStoredRunByKey runIndex)}}
                   >
                     <FaIcon @icon="bullseye" @prefix="fas" @size="xs" />
-                  </span>
-                </button>
+                  </button>
+                </div>
               {{/each}}
               <label class="simulation-result-y-axis-toggle">
                 <Input
@@ -1045,13 +1031,14 @@
         <ChartEditorSidebar
           @open={{this.isChartEditorSidebarOpen}}
           @results={{this.chartEditorResults}}
-          @currentResultId={{this.chartEditorOriginResultIdForSidebar}}
+          @currentResultId={{this.chartEditorOriginId}}
           @loading={{this.isChartEditorLoading}}
           @tightYAxis={{this.useStoredTightYAxis}}
           @onToggleTightYAxis={{this.toggleZoomedYAxisRange}}
           @onToggleSidebar={{this.toggleChartEditorSidebar}}
           @onToggleVariable={{this.toggleChartEditorVariable}}
           @onChangeSources={{this.changeChartEditorSources}}
+          @onExpandResult={{this.loadChartEditorResult}}
         />
       {{/if}}
     </div>

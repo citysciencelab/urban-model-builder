@@ -1,17 +1,17 @@
 networks:
   default:
-    name: hcu-model-builder-network
+    name: ${APP_NETWORK:-hcu-model-builder-network}
 
 services:
   hcu-model-builder-backend:
-    image: hcu-model-builder-backend
+    image: ${BACKEND_IMAGE:-hcu-model-builder-backend}
     build:
       context: .
       dockerfile: ./Dockerfile
     restart: always
     env_file: ./config/.env
     ports:
-      - "3030:3030"
+      - "${BACKEND_PORT:-3030}:3030"
     networks:
       default:
         aliases:

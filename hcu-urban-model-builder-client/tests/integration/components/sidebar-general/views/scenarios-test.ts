@@ -10,11 +10,16 @@ import type ModelsVersion from 'hcu-urban-model-builder-client/models/models-ver
 import type Scenario from 'hcu-urban-model-builder-client/models/scenario';
 import type ScenariosValue from 'hcu-urban-model-builder-client/models/scenarios-value';
 import type EventBus from 'hcu-urban-model-builder-client/services/event-bus';
+import type ScenarioSelectionService from 'hcu-urban-model-builder-client/services/scenario-selection';
+import Service from '@ember/service';
+import { Roles } from 'hcu-urban-model-builder-backend';
 
 interface Context extends TestContext {
   modelVersion: ModelsVersion;
   store: Store;
   changes: number;
+  createdScenarios: Record<string, unknown>[];
+  scenarioSelection: ScenarioSelectionService;
 }
 
 const scenarioValue = (context: Context, id: string) =>
@@ -126,6 +131,36 @@ module(
       this.changes = 0;
       const eventBus = this.owner.lookup('service:event-bus') as EventBus;
       eventBus.on('scenario-value-changed', () => this.changes++);
+
+      // Presets are created through the backend in a single request.
+      const context = this;
+      context.createdScenarios = [];
+      class FeathersStub extends Service {
+        app = {
+          service: () => ({
+            create: async (data: Record<string, unknown>) => {
+              context.createdScenarios.push(data);
+              return {
+                id: 'preset',
+                name: data['name'],
+                isDefault: false,
+                modelsVersionsId: data['modelsVersionsId'],
+              };
+            },
+          }),
+        };
+        pushRecordIntoStore(modelName: string, record: Record<string, unknown>) {
+          const store = context.store as unknown as {
+            normalize: (modelName: string, record: unknown) => unknown;
+            push: (document: unknown) => unknown;
+          };
+          return store.push(store.normalize(modelName, record));
+        }
+      }
+      this.owner.register('service:feathers', FeathersStub);
+      this.scenarioSelection = this.owner.lookup(
+        'service:scenario-selection',
+      ) as ScenarioSelectionService;
     });
 
     const renderPanel = async () => {
@@ -175,6 +210,56 @@ module(
       await fillIn('input[type="range"]', '30');
 
       assert.true(scenarioValue(this, 'slider-value').hasDirtyAttributes);
+    });
+
+    test('the owner saves a preset with all its values in one request', async function (this: Context, assert) {
+      this.modelVersion.role = Roles.owner;
+      await renderPanel();
+
+      await fillIn('input[type="range"]', '30');
+      await fillIn('#scenario-name', 'Workshop A');
+      await click('.scenario-panel__save .btn-primary');
+
+      assert.deepEqual(this.createdScenarios, [
+        {
+          name: 'Workshop A',
+          isDefault: false,
+          modelsVersionsId: 'version',
+          values: [
+            { nodesId: 'bool', value: 0 },
+            { nodesId: 'slider', value: 30 },
+            { nodesId: 'select', value: 1 },
+          ],
+        },
+      ]);
+      assert
+        .dom('#scenario-select option:checked')
+        .hasText('Workshop A', 'the new preset is selected');
+      assert.dom('.scenario-panel__save').doesNotExist('nothing left to save');
+      assert.deepEqual(
+        this.scenarioSelection.activePresetFor('version'),
+        { id: 'preset', name: 'Workshop A' },
+        'a run started now records the preset',
+      );
+
+      await fillIn('input[type="range"]', '31');
+
+      assert.strictEqual(
+        this.scenarioSelection.activePresetFor('version'),
+        null,
+        'changed values match no preset',
+      );
+    });
+
+    test('others can reset their changes but not save presets', async function (this: Context, assert) {
+      this.modelVersion.role = Roles.co_owner;
+      await renderPanel();
+
+      await fillIn('input[type="range"]', '30');
+
+      assert.dom('#scenario-name').doesNotExist();
+      assert.dom('.scenario-panel__save .btn-primary').doesNotExist();
+      assert.dom('.scenario-panel__save button').hasText('Auf Standardeinstellungen zurücksetzen');
     });
   },
 );

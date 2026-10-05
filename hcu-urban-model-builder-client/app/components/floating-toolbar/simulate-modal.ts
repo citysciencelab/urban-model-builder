@@ -26,6 +26,8 @@ import { cached } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
 import { downloadUtf8Json } from 'hcu-urban-model-builder-client/utils/utf8-json';
 import type IntlService from 'ember-intl/services/intl';
+import type ScenarioSelectionService from 'hcu-urban-model-builder-client/services/scenario-selection';
+import type { ActivePreset } from 'hcu-urban-model-builder-client/services/scenario-selection';
 import type {
   ChartEditorResult,
   ChartEditorSource,
@@ -121,6 +123,12 @@ const DEFAULT_CHART_COLOR_PALETTE = [
 // Chart editor entry standing in for an unsaved live simulation run.
 const LIVE_CHART_EDITOR_RESULT_ID = '__live__';
 
+// The most results the backend returns per request.
+const CHART_EDITOR_RESULTS_PAGE_SIZE = 100;
+
+// A stored result as the chart editor lists it before its data is loaded.
+type ChartEditorResultSummary = { id: string; name: string; runCount: number };
+
 // Dash patterns telling a variable's individual runs apart in the chart
 // editor when they're drawn alongside its median or each other.
 const CHART_EDITOR_RUN_DASHES = [
@@ -174,6 +182,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   declare floatingToolbarDropdownManager: FloatingToolbarDropdownManagerService;
   @service declare modelDialogs: ModelDialogsService;
   @service declare intl: IntlService;
+  @service declare scenarioSelection: ScenarioSelectionService;
   basicDropdownInstance: EmberBasicDropdownAPI | null = null;
 
   @tracked show = false;
@@ -194,6 +203,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked chart?: echarts.ECharts;
 
   @tracked simulationResult?: SimulationResult | null;
+  // The parameter values and the preset the current result was simulated
+  // with, taken when its run started. Saving uses these, not the values at
+  // save time, which may have changed during a long run.
+  private simulatedScenario?: {
+    values: Record<string, number>;
+    preset: ActivePreset | null;
+  };
 
   @tracked simulationError?: any;
   @tracked simulationErrorNode: Node | null = null;
@@ -309,20 +325,13 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.renderStoredChartCards();
   }
 
-  // Shared by the output chip's right-click and its invert button, which sits
-  // inside the chip - so stop the click from also toggling the output itself.
+  // Shared by the output chip's right-click and its invert button.
   @action toggleOtherOverviewOutputs(name: string, event: Event) {
     event.preventDefault();
-    event.stopPropagation();
     this.enabledOverviewOutputs = this.enabledOverviewOutputs.includes(name)
       ? [name]
       : this.overviewOutputOptions.filter((output) => output.name !== name).map((output) => output.name);
     this.renderStoredChartCards();
-  }
-
-  @action toggleOtherOverviewOutputsByKey(name: string, event: KeyboardEvent) {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    this.toggleOtherOverviewOutputs(name, event);
   }
 
   @action setOverviewOutputColor(name: string, event: Event) {
@@ -366,11 +375,15 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   // Bumped on every zoom open/close so a slow results load that finishes
   // after the user moved on doesn't overwrite the newer editor state.
   private chartEditorLoadToken = 0;
+  // The results list is only loaded once the sidebar is first opened.
+  private isChartEditorPrepared = false;
   // Watches the zoom chart's own box rather than the window, so the chart
   // also follows the sidebar opening/closing (including its transition).
   private zoomedChartResizeObserver?: ResizeObserver;
 
-  get chartEditorOriginResultId() {
+  // The editor entry the zoomed chart was opened from.
+  get chartEditorOriginId() {
+    if (this.zoomedChartContext === 'live') return LIVE_CHART_EDITOR_RESULT_ID;
     return this.zoomedChartContext === 'stored'
       ? (this.selectedStoredResult?.id ?? null)
       : null;
@@ -389,6 +402,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action toggleChartEditorSidebar() {
     this.isChartEditorSidebarOpen = !this.isChartEditorSidebarOpen;
+    if (this.isChartEditorSidebarOpen && !this.isChartEditorPrepared) {
+      this.isChartEditorPrepared = true;
+      void this.prepareChartEditorResults(this.chartEditorLoadToken);
+    }
   }
 
   @action toggleChartEditorVariable(resultId: string, variableName: string) {
@@ -428,11 +445,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     void this.renderZoomedChart();
   }
 
-  @action changeChartEditorSources(
-    resultId: string,
-    sources: ChartEditorSource[],
-  ) {
-    const ids = new Set(sources.map((source) => source.id));
+  @action changeChartEditorSources(resultId: string, sourceIds: string[]) {
+    const ids = new Set(sourceIds);
     this.chartEditorResults = this.chartEditorResults.map((result) =>
       result.id === resultId
         ? {
@@ -637,29 +651,6 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     }, new Map<string, number>());
 
     return scenarioNodeValueMap;
-  }
-
-  get matchingNamedScenario(): Scenario | undefined {
-    const current = this.inMemoryScenario;
-    return this.store
-      .peekAll<Scenario>('scenario')
-      .find((scenario) => {
-        if (
-          scenario.isDefault ||
-          scenario.modelsVersions.id !== this.args.model.id
-        ) {
-          return false;
-        }
-        const values = this.store
-          .peekAll<ScenariosValue>('scenarios-value')
-          .filter((value) => value.scenarios.id === scenario.id);
-        return (
-          values.length === current.size &&
-          values.every(
-            (value) => current.get(value.nodes.id!) === Number(value.value),
-          )
-        );
-      });
   }
 
   @action
@@ -911,6 +902,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action
   async simulate() {
     const nodeValuesMap = this.inMemoryScenario;
+    const simulatedScenario = {
+      values: Object.fromEntries(nodeValuesMap),
+      preset: this.scenarioSelection.activePresetFor(this.args.model.id!),
+    };
 
     if (this.isClientSideCalculation) {
       this.batchResults = await this.runSimulationBatch(
@@ -921,6 +916,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       this.batchScenarios = this.batchResults.map(() => ({ ...scenario }));
       this.selectedBatchRun = -1;
       this.simulationResult = this.batchResults[0] ?? null;
+      this.simulatedScenario = simulatedScenario;
     } else {
       this.cancelRunningSimulationBatch();
       this.batchResults = [];
@@ -932,6 +928,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
           id: this.args.model.id!,
           nodeIdToParameterValueMap: Object.fromEntries(nodeValuesMap),
         })) as any;
+      this.simulatedScenario = simulatedScenario;
     }
   }
 
@@ -1078,13 +1075,18 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     try {
       const name =
         this.simulationName.trim() || `Simulation ${this.resultsCount + 1}`;
+      const simulated = this.simulatedScenario;
       await (this.feathers.app.service('models') as any).saveSimulationResult({
         modelsVersionsId: this.args.model.id!,
-        ...(this.matchingNamedScenario
-          ? { scenariosId: this.matchingNamedScenario.id }
+        ...(simulated?.preset
+          ? {
+              scenariosId: simulated.preset.id,
+              scenarioName: simulated.preset.name,
+            }
           : {}),
         name,
-        scenario: Object.fromEntries(this.inMemoryScenario),
+        scenario:
+          simulated?.values ?? Object.fromEntries(this.inMemoryScenario),
         result: this.resultPayload,
       });
       this.isCurrentResultSaved = true;
@@ -1324,12 +1326,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     if (!target) return;
     this.isGeneratingStoredChart = true;
     try {
-      const batchResults = target.result.batchResults?.length
-        ? target.result.batchResults
-        : [target.result];
-      const storedBatchDatasets = await Promise.all(
-        batchResults.map((result) => this.getTimeSeriesDataset(result)),
-      );
+      const storedBatchDatasets = await this.getRunDatasets(target.result);
       if (this.selectedStoredResult !== target) return;
 
       this.storedBatchDatasets = storedBatchDatasets;
@@ -1491,21 +1488,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     };
   }
 
-  // Shared by the run chip's right-click and its activate button. The button
-  // sits inside the chip, so the click must not bubble up into the chip's own
-  // toggle handler - otherwise activating a run would also hide it.
+  // Shared by the run chip's right-click and its activate button.
   @action activateStoredRun(runIndex: number, event: Event) {
     event.preventDefault();
-    event.stopPropagation();
     this.activeStoredRun = runIndex;
     this.renderStoredChartCards();
-  }
-
-  // The activate control nested in a run chip can't be a real <button>, so it
-  // needs Enter/Space handled by hand to stay keyboard-operable.
-  @action activateStoredRunByKey(runIndex: number, event: KeyboardEvent) {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    this.activateStoredRun(runIndex, event);
   }
 
   private renderStoredChartCards() {
@@ -1696,14 +1683,10 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.chartEditorResults = [];
     this.chartEditorRuns = new Map();
     this.chartEditorColors = new Map();
-    const loadToken = ++this.chartEditorLoadToken;
+    this.chartEditorLoadToken++;
+    this.isChartEditorPrepared = false;
     this.isChartZoomOpen = true;
     if (this.zoomedChartContainer) await this.renderZoomedChart();
-    // Loading every stored result can take a while, so the zoomed chart opens
-    // right away and the editor sidebar fills in once the data is there.
-    if (this.activeTab === TabName.TimeSeries) {
-      void this.prepareChartEditorResults(loadToken);
-    }
   }
 
   @action
@@ -1727,6 +1710,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.chartEditorHasChanges = false;
     this.isChartEditorLoading = false;
     this.chartEditorLoadToken++;
+    this.isChartEditorPrepared = false;
     this.zoomedChartResizeObserver?.disconnect();
     this.zoomedChartResizeObserver = undefined;
     this.zoomedChart?.dispose();
@@ -1820,6 +1804,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     await this.renderZoomedChart();
   }
 
+  // Lists every stored result of this version, but loads only the data the
+  // zoomed chart already shows (its own result or the live run). The other
+  // results come as names and run counts; their data is loaded when they are
+  // expanded (loadChartEditorResult), as a version can hold many results of
+  // several MB each.
   private async prepareChartEditorResults(loadToken: number) {
     const isStale = () =>
       loadToken !== this.chartEditorLoadToken ||
@@ -1827,46 +1816,20 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       this.isDestroyed;
     this.isChartEditorLoading = true;
     try {
-      let results: Pick<StoredSimulationResult, 'id' | 'name' | 'result'>[] =
-        this.storedResults;
-      if (this.resultsCount > results.length) {
-        const response = await (
-          this.feathers.app.service('models') as any
-        ).findSimulationResults({
-          modelsVersionsId: this.args.model.id!,
-          $skip: 0,
-          $limit: this.resultsCount,
-        });
-        if (isStale()) return;
-        results = response.data;
-      }
+      const summaries = await this.findChartEditorResultSummaries(isStale);
+      if (isStale()) return;
 
       const origin =
         this.zoomedChartContext === 'stored' ? this.selectedStoredResult : null;
-      if (origin && !results.some((result) => result.id === origin.id)) {
-        results = [origin, ...results];
+      const runsByResult = new Map<string, TimeSeriesDataset[]>();
+      if (origin) {
+        // The open result's runs are already prepared for its charts.
+        const originRuns = this.storedBatchDatasets.length
+          ? this.storedBatchDatasets
+          : await this.getRunDatasets(origin.result);
+        if (isStale()) return;
+        runsByResult.set(origin.id, originRuns);
       }
-
-      const runsByResult = new Map<string, TimeSeriesDataset[]>(
-        await Promise.all(
-          results.map(async (result) => {
-            // The open result's runs are already prepared for its charts.
-            if (result.id === origin?.id && this.storedBatchDatasets.length) {
-              return [result.id, this.storedBatchDatasets] as const;
-            }
-            const runs = result.result.batchResults?.length
-              ? result.result.batchResults
-              : [result.result];
-            return [
-              result.id,
-              await Promise.all(
-                runs.map((run) => this.getTimeSeriesDataset(run)),
-              ),
-            ] as const;
-          }),
-        ),
-      );
-      if (isStale()) return;
 
       // Preselect exactly what the zoomed chart shows. The "all outputs" card
       // holds every series but only draws the outputs switched on in the
@@ -1908,42 +1871,53 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         );
       }
 
+      const entries: ChartEditorResultSummary[] = [...summaries];
+      if (origin && !entries.some((entry) => entry.id === origin.id)) {
+        entries.unshift({
+          id: origin.id,
+          name: origin.name,
+          runCount: runsByResult.get(origin.id)!.length,
+        });
+      }
       // A live chart isn't a stored result, so list it as its own entry -
       // otherwise the first checkbox click would replace the chart the user
       // opened with a single unrelated variable.
-      const entries: { id: string; name: string }[] = [...results];
-      let originId = origin?.id ?? null;
       const liveDataset = this.currentDataset as TimeSeriesDataset | null;
       if (this.zoomedChartContext === 'live' && liveDataset) {
-        originId = LIVE_CHART_EDITOR_RESULT_ID;
-        runsByResult.set(
-          originId,
+        const liveRuns =
           this.batchTimeSeriesDatasets.length > 1
             ? this.batchTimeSeriesDatasets
-            : [liveDataset],
-        );
+            : [liveDataset];
+        runsByResult.set(LIVE_CHART_EDITOR_RESULT_ID, liveRuns);
         entries.unshift({
-          id: originId,
+          id: LIVE_CHART_EDITOR_RESULT_ID,
           name: this.intl.t('components.simulate_modal.current_simulation'),
+          runCount: liveRuns.length,
         });
       }
+      const originId = this.chartEditorOriginId;
 
       this.chartEditorRuns = runsByResult;
       this.chartEditorResults = entries.map((entry) => {
-        const runs = runsByResult.get(entry.id) ?? [];
-        const sources = this.getChartEditorSources(runs.length);
+        const runs = runsByResult.get(entry.id);
+        const sources = this.getChartEditorSources(
+          runs?.length ?? entry.runCount,
+        );
         return {
           id: entry.id,
           name: entry.name,
           sources,
           selectedSourceIds:
             entry.id === originId
-              ? this.getOriginChartEditorSourceIds(runs.length)
+              ? this.getOriginChartEditorSourceIds(
+                  runs?.length ?? entry.runCount,
+                )
               : [sources[0]!.id],
-          variables: (runs[0]?.series ?? []).map((series) => ({
+          variables: (runs?.[0]?.series ?? []).map((series) => ({
             name: series.name,
             selected: entry.id === originId && selectedNames.has(series.name),
           })),
+          isLoaded: !!runs,
         };
       });
       // The preselected variables count as added first, keeping the colors
@@ -1963,6 +1937,108 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         this.isChartEditorLoading = false;
       }
     }
+  }
+
+  // Names and run counts of every stored result of this version, without
+  // their data, in pages the backend accepts.
+  private async findChartEditorResultSummaries(isStale: () => boolean) {
+    const summaries: ChartEditorResultSummary[] = [];
+    for (;;) {
+      const page = await (
+        this.feathers.app.service('models') as any
+      ).findSimulationResults({
+        modelsVersionsId: this.args.model.id!,
+        summary: true,
+        $skip: summaries.length,
+        $limit: CHART_EDITOR_RESULTS_PAGE_SIZE,
+      });
+      if (isStale()) return summaries;
+      summaries.push(...page.data);
+      if (!page.data.length || summaries.length >= page.total) {
+        return summaries;
+      }
+    }
+  }
+
+  // Loads the data of a result once it is expanded in the editor.
+  @action async loadChartEditorResult(resultId: string) {
+    const entry = this.chartEditorResults.find(
+      (candidate) => candidate.id === resultId,
+    );
+    if (!entry || entry.isLoaded || entry.isLoading) return;
+    const loadToken = this.chartEditorLoadToken;
+    const isStale = () =>
+      loadToken !== this.chartEditorLoadToken ||
+      this.isDestroying ||
+      this.isDestroyed;
+    this.updateChartEditorResult(resultId, {
+      isLoading: true,
+      loadFailed: false,
+    });
+    try {
+      // The current page of the results list already holds the data.
+      const result =
+        this.storedResults.find((candidate) => candidate.id === resultId) ??
+        (
+          await (
+            this.feathers.app.service('models') as any
+          ).findSimulationResults({
+            modelsVersionsId: this.args.model.id!,
+            id: resultId,
+            $limit: 1,
+          })
+        ).data[0];
+      if (isStale()) return;
+      if (!result) throw new Error(`Simulation result ${resultId} not found`);
+      const runs = await this.getRunDatasets(result.result);
+      if (isStale()) return;
+
+      this.chartEditorRuns.set(resultId, runs);
+      const sources = this.getChartEditorSources(runs.length);
+      const sourceIds = new Set(sources.map((source) => source.id));
+      const current = this.chartEditorResults.find(
+        (candidate) => candidate.id === resultId,
+      );
+      const selectedSourceIds = (current?.selectedSourceIds ?? []).filter(
+        (id) => sourceIds.has(id),
+      );
+      this.updateChartEditorResult(resultId, {
+        sources,
+        selectedSourceIds: selectedSourceIds.length
+          ? selectedSourceIds
+          : [sources[0]!.id],
+        variables: (runs[0]?.series ?? []).map((series) => ({
+          name: series.name,
+          selected: false,
+        })),
+        isLoaded: true,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error('Failed to load a result for the chart editor', error);
+      if (!isStale()) {
+        this.updateChartEditorResult(resultId, {
+          isLoading: false,
+          loadFailed: true,
+        });
+      }
+    }
+  }
+
+  private updateChartEditorResult(
+    resultId: string,
+    changes: Partial<ChartEditorResult>,
+  ) {
+    this.chartEditorResults = this.chartEditorResults.map((result) =>
+      result.id === resultId ? { ...result, ...changes } : result,
+    );
+  }
+
+  // Every run of a stored result as a time series; a result without a batch
+  // is its own single run.
+  private getRunDatasets(result: StoredSimulationResult['result']) {
+    const runs = result.batchResults?.length ? result.batchResults : [result];
+    return Promise.all(runs.map((run) => this.getTimeSeriesDataset(run)));
   }
 
   // A batch offers its median, the spread band and each single run; a plain
@@ -2013,12 +2089,6 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         .sort((a, b) => a - b)
         .map((runIndex) => `run-${runIndex}`),
     ];
-  }
-
-  get chartEditorOriginResultIdForSidebar() {
-    return this.zoomedChartContext === 'live'
-      ? LIVE_CHART_EDITOR_RESULT_ID
-      : this.chartEditorOriginResultId;
   }
 
   private chartEditorColorKey(resultId: string, variableName: string) {
@@ -2852,7 +2922,9 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   async downloadSimulationResults() {
     await this.downloadResultAsJson(
       this.resultPayload,
-      this.inMemoryScenario,
+      this.simulatedScenario
+        ? new Map(Object.entries(this.simulatedScenario.values))
+        : this.inMemoryScenario,
     );
   }
 
