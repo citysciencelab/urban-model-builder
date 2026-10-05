@@ -60,6 +60,10 @@ import {
   applyContainerVisibility,
   CANVAS_EDGE_Z_INDEX,
 } from "./lib/utils/container-visibility.ts";
+import {
+  applyValidationErrors,
+  changesRequireValidation,
+} from "./lib/utils/validation.ts";
 
 type FlowOptions = {
   disabled?: boolean;
@@ -142,15 +146,9 @@ function Flow({
 
     validationTimeoutRef.current = setTimeout(async () => {
       const errors = await nodeActions.validateModel();
-      setNodes((nds) =>
-        nds.map((node) => ({
-          ...node,
-          data: {
-            ...node.data,
-            validationError: errors[node.id] || null,
-          },
-        })),
-      );
+      // null: a newer check superseded this one and will set the markers.
+      if (!errors) return;
+      setNodes((nds) => applyValidationErrors(nds, errors));
     }, 350);
   }, [nodeActions]);
 
@@ -160,8 +158,9 @@ function Flow({
       if (validationTimeoutRef.current) {
         clearTimeout(validationTimeoutRef.current);
       }
+      nodeActions.cancelModelValidation();
     };
-  }, [validateNodes]);
+  }, [nodeActions, validateNodes]);
 
   useEffect(() => {
     nodeActions.eventBus.on("model:validate", validateNodes);
@@ -217,7 +216,7 @@ function Flow({
       setNodes((nds) => {
         return applyNodeChanges(changes, nds);
       });
-      if (changes.some((change) => change.type !== "select")) {
+      if (changesRequireValidation(changes)) {
         validateNodes();
       }
     },
@@ -234,7 +233,7 @@ function Flow({
       }
 
       setEdges((eds) => applyEdgeChanges(changes, eds));
-      if (changes.some((change) => change.type !== "select")) {
+      if (changesRequireValidation(changes)) {
         validateNodes();
       }
     },
@@ -556,11 +555,13 @@ function Flow({
         );
 
         await nodeActions.save("node", node.id, nodeChangeData);
+        // A new parent can move the node into or out of an agent.
+        validateNodes();
       } else {
         setNodes((ns) => ns.map((n) => ({ ...n, className: "" })));
       }
     },
-    [rfInstance],
+    [rfInstance, validateNodes],
   );
 
   const [connectingHandle, setConnectingHandle] =
