@@ -185,28 +185,42 @@ components:
     simulation_run: "Simulation {number}"
     run_of: "Simulation {current}/{total}"
     median: Median
-    tunnel: Tunnel
+    tunnel: Streuung
     all_outputs: Alle Ausgabevariablen
     extended_functions: Erweiterte Funktionen
     add_run: Weiteren Lauf hinzufügen
     max_runs_reached: "Ein Ergebnis kann höchstens {max} Läufe enthalten."
     no_input_parameters: Keine Eingabeparameter verfügbar.
     median_color: Farbe des Medians
-    tunnel_color: Farbe des Tunnels
+    tunnel_color: Streuungsfarbe
     download_json: JSON herunterladen
     tight_y_axis: Nur benötigten Wertebereich anzeigen
     search_outputs: Nach Ausgabeparametername suchen
     loading_results: Simulationsergebnisse werden geladen
     results_loading_progress: "{completed}/{total} Simulationsergebnisse geladen"
     result_model_version: "Modellversion: {version}"
+    result_scenario: "Szenario: {name}"
     active_run: aktiv
     input_variables: Eingabevariablen
     output_variables: Ausgabevariablen
     output_toggle_hint: "{name}: Klick zum Umschalten; Rechtsklick setzt alle anderen auf den gegenteiligen Zustand"
     output_color: "Farbe für {name}"
+    output_invert_others_hint: "{name}: alle anderen Ausgabevariablen auf den gegenteiligen Zustand setzen"
     run_activation_hint: "Rechtsklick aktiviert den Lauf für alle Ausgabevariablen; Klick blendet den Lauf aus"
+    run_activate_hint: "Lauf {number} für alle Ausgabevariablen aktivieren"
     input_changes: "Lauf {number}: Abweichende Input-Parameter"
     no_matching_outputs: Keine Ausgabeparameter entsprechen Ihrer Suche.
+    chart_editor: Diagramm-Editor
+    open_chart_editor: Diagramm-Editor öffnen
+    close_chart_editor: Diagramm-Editor schließen
+    filter_output_variables: Ausgabevariablen filtern
+    available_output_count: "{count} verfügbare Ausgabevariablen"
+    selected_output_count: "{count} ausgewählte Ausgabevariablen"
+    current_simulation: Aktuelle Simulation
+    chart_editor_loading: Ergebnisse werden geladen…
+    chart_editor_no_results: Keine Simulationsergebnisse vorhanden.
+    chart_sources: Datenquellen
+    chart_sources_placeholder: Median, Streuung oder Läufe wählen
     sort_outputs: Ausgabevariablen sortieren
     sort_alphabetical: A–Z
     sort_alphabetical_hint: Ausgaben alphabetisch sortieren
@@ -318,6 +332,19 @@ components:
   scenarios:
     title: Szenario
     no_parameters: Keine Parameter
+    select: Szenario auswählen
+    default: Standardeinstellungen
+    name: Szenarioname
+    name_placeholder: Szenario benennen…
+    save: Szenario speichern
+    changed: Geändert
+    reset: Auf Standardeinstellungen zurücksetzen
+    reset_confirm_title: Auf Standardeinstellungen zurücksetzen?
+    reset_confirm_body: Alle Eingabeparameter werden auf ihre Standardwerte zurückgesetzt. Nicht gespeicherte Änderungen gehen dabei verloren.
+    reset_confirm: Zurücksetzen
+    delete: Szenario löschen
+    delete_confirm_title: Szenario löschen?
+    delete_confirm_body: "Das Szenario „{name}“ wird endgültig gelöscht. Dies kann nicht rückgängig gemacht werden."
   share:
     latest: Neuestes
     new_draft: Neuer Entwurf

@@ -31,6 +31,13 @@ export const checkScenarioValueModelVersionState = (scenarioIdField: string) => 
       throw new Error('Could not find valid model version associated with this scenario')
     }
 
+    // Named scenarios are user-created simulation presets. They do not alter
+    // the model definition, so they may be saved for a published model. Keep
+    // the draft/latest restriction for the model's shared default scenario.
+    if (!context.params.stashedScenario.isDefault) {
+      return
+    }
+
     await _checkModelVersionState(context)
   }
 }

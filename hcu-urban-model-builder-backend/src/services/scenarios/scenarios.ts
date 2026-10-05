@@ -55,7 +55,12 @@ export const scenarios = (app: Application) => {
         iff(
           isProvider('external'),
           checkModelPermission('data.modelsVersionsId', 'models-versions', Roles.collaborator),
-          checkModelVersionState('data.modelsVersionsId', 'models-versions')
+          // Named scenarios are presets and may be added to published versions,
+          // see checkScenarioValueModelVersionState.
+          iff(
+            (context) => context.data.isDefault,
+            checkModelVersionState('data.modelsVersionsId', 'models-versions')
+          )
         )
       ],
       patch: [
@@ -68,7 +73,10 @@ export const scenarios = (app: Application) => {
             'models-versions',
             Roles.collaborator
           ),
-          checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
+          iff(
+            (context) => context.params[STASH_BEFORE_KEY].isDefault,
+            checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
+          )
         )
       ],
       remove: [
@@ -79,7 +87,10 @@ export const scenarios = (app: Application) => {
             'models-versions',
             Roles.collaborator
           ),
-          checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
+          iff(
+            (context) => context.params[STASH_BEFORE_KEY].isDefault,
+            checkModelVersionState(`params.${STASH_BEFORE_KEY}.modelsVersionsId`, 'models-versions')
+          )
         )
       ]
     },

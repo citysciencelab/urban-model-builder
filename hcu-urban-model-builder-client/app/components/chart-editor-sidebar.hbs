@@ -1,0 +1,145 @@
+<aside
+  class="chart-editor-sidebar
+    {{if @open 'chart-editor-sidebar--open'}}
+    {{if this.isRevealed 'chart-editor-sidebar--revealed'}}"
+  ...attributes
+  {{did-insert this.syncReveal @open}}
+  {{did-update this.syncReveal @open}}
+  {{on "transitionend" this.handleTransitionEnd}}
+>
+  <div class="chart-editor-sidebar__header">
+    <button
+      type="button"
+      class="chart-editor-sidebar__toggle"
+      title={{t (if @open "components.simulate_modal.close_chart_editor" "components.simulate_modal.open_chart_editor")}}
+      aria-label={{t (if @open "components.simulate_modal.close_chart_editor" "components.simulate_modal.open_chart_editor")}}
+      aria-expanded={{if @open "true" "false"}}
+      {{on "click" @onToggleSidebar}}
+    >
+      <FaIcon @icon={{if @open "chevron-right" "chevron-left"}} @prefix="fas" @size="sm" />
+    </button>
+    {{#if @open}}
+      <h6 class="chart-editor-sidebar__title chart-editor-sidebar__reveal">{{t "components.simulate_modal.chart_editor"}}</h6>
+    {{/if}}
+  </div>
+
+  {{#if @open}}
+    <div class="chart-editor-sidebar__body chart-editor-sidebar__reveal">
+      <label class="chart-editor-sidebar__option">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          checked={{@tightYAxis}}
+          {{on "change" @onToggleTightYAxis}}
+        />
+        <span>{{t "components.simulate_modal.tight_y_axis"}}</span>
+      </label>
+      <div class="chart-editor-sidebar__results">
+        {{#each @results key="id" as |result|}}
+          <section class="chart-editor-result">
+            <button
+              type="button"
+              class="chart-editor-result__header"
+              aria-expanded={{if (this.isExpanded result.id) "true" "false"}}
+              {{on "click" (fn this.toggleResult result.id)}}
+            >
+              <span class="chart-editor-result__name" title={{result.name}}>{{result.name}}</span>
+              {{#let (this.selectedCount result) as |selectedCount|}}
+                {{#if selectedCount}}
+                  <span
+                    class="chart-editor-result__badge"
+                    title={{t "components.simulate_modal.selected_output_count" count=selectedCount}}
+                  >{{selectedCount}}</span>
+                {{/if}}
+              {{/let}}
+              <FaIcon
+                @icon={{if (this.isExpanded result.id) "chevron-up" "chevron-down"}}
+                @prefix="fas"
+                @size="xs"
+              />
+            </button>
+            {{#if (this.isExpanded result.id)}}
+              <div class="chart-editor-result__panel">
+                {{#if (gt result.sources.length 1)}}
+                  {{! Same pattern as the run picker in the stored results:
+                    a dropdown whose items toggle in place and keep it open. }}
+                  <BsDropdown
+                    @closeOnMenuClick={{false}}
+                    class="chart-editor-result__sources"
+                    as |dd|
+                  >
+                    {{#let (this.selectedSourcesLabel result) as |label|}}
+                      <dd.button
+                        @type="outline-secondary"
+                        class="btn-sm"
+                        title={{label}}
+                        aria-label={{t "components.simulate_modal.chart_sources"}}
+                      >
+                        <span class="chart-editor-result__sources-label">
+                          {{if label label (t "components.simulate_modal.chart_sources_placeholder")}}
+                        </span>
+                      </dd.button>
+                    {{/let}}
+                    <dd.menu>
+                      {{#each result.sources key="id" as |source|}}
+                        <button
+                          type="button"
+                          class="dropdown-item
+                            {{if (this.isSourceSelected result source.id) 'active'}}"
+                          aria-pressed={{if (this.isSourceSelected result source.id) "true" "false"}}
+                          {{on "click" (fn this.toggleSource result source.id)}}
+                        >
+                          {{source.label}}
+                        </button>
+                      {{/each}}
+                    </dd.menu>
+                  </BsDropdown>
+                {{/if}}
+                <div class="chart-editor-result__filter">
+                  <input
+                    type="search"
+                    class="form-control form-control-sm"
+                    value={{this.search}}
+                    placeholder={{t "components.simulate_modal.filter_output_variables"}}
+                    aria-label={{t "components.simulate_modal.filter_output_variables"}}
+                    {{on "input" this.updateSearch}}
+                  />
+                  <span
+                    class="chart-editor-result__count"
+                    title={{t "components.simulate_modal.available_output_count" count=result.variables.length}}
+                  >{{result.variables.length}}</span>
+                </div>
+                <div class="chart-editor-result__variables">
+                  {{#each (this.filteredVariables result) key="name" as |variable|}}
+                    <label class="chart-editor-variable" title={{variable.name}}>
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        checked={{variable.selected}}
+                        {{on "change" (fn @onToggleVariable result.id variable.name)}}
+                      />
+                      <span>{{variable.name}}</span>
+                    </label>
+                  {{else}}
+                    <p class="chart-editor-sidebar__message">
+                      {{t "components.simulate_modal.no_matching_outputs"}}
+                    </p>
+                  {{/each}}
+                </div>
+              </div>
+            {{/if}}
+          </section>
+        {{else}}
+          <p class="chart-editor-sidebar__message">
+            {{#if @loading}}
+              <BsSpinner @size="sm" />
+              {{t "components.simulate_modal.chart_editor_loading"}}
+            {{else}}
+              {{t "components.simulate_modal.chart_editor_no_results"}}
+            {{/if}}
+          </p>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+</aside>

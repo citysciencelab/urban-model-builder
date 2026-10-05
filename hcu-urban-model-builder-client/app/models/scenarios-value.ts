@@ -12,6 +12,6 @@ export default class ScenariosValue extends Model {
   @belongsTo('scenario', { async: true, inverse: 'scenariosValues' })
   declare scenarios: Scenario;
 
-  @attr('date') declare createdAt: Date;
-  @attr('date') declare updatedAt: Date;
+  @attr('date', { readOnly: true }) declare createdAt: Date;
+  @attr('date', { readOnly: true }) declare updatedAt: Date;
 }

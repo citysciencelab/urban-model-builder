@@ -199,14 +199,28 @@ components:
     loading_results: Loading simulation results
     results_loading_progress: "{completed}/{total} simulation results loaded"
     result_model_version: "Model version: {version}"
+    result_scenario: "Scenario: {name}"
     active_run: active
     input_variables: Input variables
     output_variables: Output variables
     output_toggle_hint: "{name}: click to toggle; right-click to set all others to the opposite state"
     output_color: "Color for {name}"
+    output_invert_others_hint: "{name}: set all other outputs to the opposite state"
     run_activation_hint: "Right-click to activate for all outputs; click to hide this run"
+    run_activate_hint: "Activate run {number} for all outputs"
     input_changes: "Run {number}: Changed input parameters"
     no_matching_outputs: No output parameters match your search.
+    chart_editor: Chart editor
+    open_chart_editor: Open chart editor
+    close_chart_editor: Close chart editor
+    filter_output_variables: Filter output variables
+    available_output_count: "{count} available output variables"
+    selected_output_count: "{count} selected output variables"
+    current_simulation: Current simulation
+    chart_editor_loading: Loading results…
+    chart_editor_no_results: No simulation results available.
+    chart_sources: Data sources
+    chart_sources_placeholder: Choose median, spread or runs
     sort_outputs: Sort output variables
     sort_alphabetical: A–Z
     sort_alphabetical_hint: Sort outputs alphabetically
@@ -318,6 +332,19 @@ components:
   scenarios:
     title: Scenario
     no_parameters: No Parameters
+    select: Select scenario
+    default: Default settings
+    name: Scenario name
+    name_placeholder: Name this scenario…
+    save: Save scenario
+    changed: Changed
+    reset: Reset to default settings
+    reset_confirm_title: Reset to default settings?
+    reset_confirm_body: All input parameters will be reset to their default values. Unsaved changes will be lost.
+    reset_confirm: Reset
+    delete: Delete scenario
+    delete_confirm_title: Delete scenario?
+    delete_confirm_body: "The scenario “{name}” will be deleted permanently. This cannot be undone."
   share:
     latest: Latest
     new_draft: New Draft

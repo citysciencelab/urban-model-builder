@@ -1,6 +1,8 @@
 <PowerSelect
   @options={{@options}}
   @selected={{this.selected}}
+  @title={{this.selected.label}}
+  @triggerClass="scenario__select"
   @onChange={{@onChange}} as |option|
 >
   {{option.label}}

@@ -1,42 +1,49 @@
 <div class="range-input__min-max">
   {{! Error: Out of bounds - MIN }}
   <BsAlert
+    class="scenario__alert"
     @type="warning"
     @visible={{gt @min @scenarioValue.value}}
     @dismissible={{false}}
   >
-    <strong>
-      {{t "messages.warning"}}:
-    </strong>
-    {{t "components.parameter_slider.below_minimum_value"}}
+    <FaIcon @icon="triangle-exclamation" class="scenario__alert__icon" />
+    <span>
+      <strong>{{t "messages.warning"}}:</strong>
+      {{t "components.parameter_slider.below_minimum_value"}}
+    </span>
   </BsAlert>
   {{! Error: Out of bounds - Max }}
   <BsAlert
+    class="scenario__alert"
     @type="warning"
     @visible={{lt @max @scenarioValue.value}}
     @dismissible={{false}}
   >
-    <strong>
-      {{t "messages.warning"}}::
-    </strong>
-    {{t "components.parameter_slider.above_maximum_value"}}
+    <FaIcon @icon="triangle-exclamation" class="scenario__alert__icon" />
+    <span>
+      <strong>{{t "messages.warning"}}:</strong>
+      {{t "components.parameter_slider.above_maximum_value"}}
+    </span>
   </BsAlert>
   {{! Error: Step size issue }}
   <BsAlert
+    class="scenario__alert"
     @type="warning"
     @visible={{not (check-step-in-range @min @step @scenarioValue.value)}}
     @dismissible={{false}}
   >
-    <strong>
-      {{t "messages.warning"}}::
-    </strong>
-    {{t "components.parameter_slider.not_a_multiple"}}
+    <FaIcon @icon="triangle-exclamation" class="scenario__alert__icon" />
+    <span>
+      <strong>{{t "messages.warning"}}:</strong>
+      {{t "components.parameter_slider.not_a_multiple"}}
+    </span>
   </BsAlert>
   {{! Slider }}
   <div class="range-input__min-max__control">
     {{! template-lint-disable require-input-label }}
     <Input
       @type="range"
+      class="form-range"
       @value={{@scenarioValue.value}}
       min={{@min}}
       max={{@max}}
@@ -51,14 +58,12 @@
     </div>
     <div class="range-input__min_max__meta__value">
       {{@scenarioValue.value}}
+      {{#if @units}}
+        <span class="range-input__min_max__meta__unit">{{@units}}</span>
+      {{/if}}
     </div>
     <div class="range-input__min_max__meta__max">
       {{@max}}
     </div>
-    {{#if @units}}
-      <div class="range-input__min_max__meta__unit">
-        {{@units}}
-      </div>
-    {{/if}}
   </div>
 </div>

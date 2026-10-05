@@ -8,7 +8,39 @@
     {{t "components.scenarios.title"}}
   </h4>
 </div>
-<div class="sidebar__content">
+<div class="scenario-panel {{if this.hasScenarioChanges 'scenario-panel--has-save'}}">
+  {{#if this.namedScenarios.length}}
+    <div class="scenario-panel__selector">
+      <label for="scenario-select">{{t "components.scenarios.select"}}</label>
+      <div class="scenario-panel__selector-controls">
+        <select
+          id="scenario-select"
+          class="form-select"
+          value={{this.selectedScenarioId}}
+          {{on "change" this.selectScenario}}
+        >
+          {{#if this.defaultScenario}}
+            <option value={{this.defaultScenario.id}}>{{t "components.scenarios.default"}}</option>
+          {{/if}}
+          {{#each this.namedScenarios as |scenario|}}
+            <option value={{scenario.id}}>{{scenario.name}}</option>
+          {{/each}}
+        </select>
+        {{#if this.canDeleteSelectedScenario}}
+          <button
+            type="button"
+            class="scenario-panel__delete"
+            title={{t "components.scenarios.delete"}}
+            aria-label={{t "components.scenarios.delete"}}
+            {{on "click" this.openDeleteConfirm}}
+          >
+            <FaIcon @icon="trash" />
+          </button>
+        {{/if}}
+      </div>
+    </div>
+  {{/if}}
+  <div class="sidebar__content sidebar__content--scenarios">
   <SaveStateManager as |saveAction isSaving isError|>
     {{! SCENARIO ERROR }}
     {{! ERROR }}
@@ -21,12 +53,25 @@
     {{! DEFAULT SCENARIO }}
 
     {{#if this.defaultScenario}}
-      {{#each this.defaultScenario.scenariosValues as |scenarioValue|}}
-        <div class="scenario__value">
+      {{#each this.scenarioValues as |scenarioValue|}}
+        <div
+          class="scenario__value
+            {{if
+              (this.isChangedFromDefault scenarioValue)
+              'scenario__value--changed'
+            }}"
+        >
           {{#let scenarioValue.nodes as |node|}}
-            <h5>
-              {{node.name}}
-            </h5>
+            <div class="scenario__value__header">
+              <h5 class="scenario__value__name">
+                {{node.name}}
+              </h5>
+              {{#if (this.isChangedFromDefault scenarioValue)}}
+                <span class="scenario__value__badge">
+                  {{t "components.scenarios.changed"}}
+                </span>
+              {{/if}}
+            </div>
 
             {{#if (or (eq node.parameterType "boolean") (eq node.type 4))}}
               <SidebarGeneral::ParameterBool
@@ -86,4 +131,109 @@
       {{t "components.scenarios.no_parameters"}}
     {{/if}}
   </SaveStateManager>
+  </div>
+  {{#if this.hasScenarioChanges}}
+    <div class="scenario-panel__save">
+      <button
+        type="button"
+        class="scenario-panel__reset"
+        title={{t "components.scenarios.reset"}}
+        aria-label={{t "components.scenarios.reset"}}
+        {{on "click" this.openResetConfirm}}
+      >
+        <FaIcon @icon="times" />
+      </button>
+      {{#if this.scenarioSaveError}}
+        <div class="text-danger small">{{t "messages.general_error"}}</div>
+      {{/if}}
+      <label for="scenario-name">{{t "components.scenarios.name"}}</label>
+      <div class="scenario-panel__save-controls">
+        <Input
+          id="scenario-name"
+          class="form-control"
+          @value={{this.scenarioName}}
+          placeholder={{t "components.scenarios.name_placeholder"}}
+          {{on "input" this.updateScenarioName}}
+        />
+        <button
+          type="button"
+          class="btn btn-primary w-100"
+          disabled={{or this.isSavingScenario (not this.scenarioName)}}
+          {{on "click" this.saveNamedScenario}}
+        >
+          {{#if this.isSavingScenario}}<FaIcon @icon="spinner" @spin={{true}} />{{/if}}
+          {{t "components.scenarios.save"}}
+        </button>
+      </div>
+    </div>
+  {{/if}}
 </div>
+<BsModal
+  @open={{this.showResetConfirmModal}}
+  @onSubmit={{this.confirmReset}}
+  @onHide={{this.cancelReset}}
+  as |modal|
+>
+  <modal.header>
+    <h5 class="modal-title">
+      {{t "components.scenarios.reset_confirm_title"}}
+    </h5>
+  </modal.header>
+  <modal.body>
+    <div class="alert alert-warning scenario__alert mb-0">
+      <FaIcon @icon="triangle-exclamation" class="scenario__alert__icon" />
+      <span>{{t "components.scenarios.reset_confirm_body"}}</span>
+    </div>
+  </modal.body>
+  <modal.footer>
+    <Ui::ModalButtons
+      @onCancel={{this.cancelReset}}
+      @onSubmit={{this.confirmReset}}
+      @cancelText={{t "actions.cancel"}}
+      @submitText={{t "components.scenarios.reset_confirm"}}
+    />
+  </modal.footer>
+</BsModal>
+<BsModal
+  @open={{this.showDeleteConfirmModal}}
+  @onSubmit={{this.confirmDelete}}
+  @onHide={{this.cancelDelete}}
+  as |modal|
+>
+  <modal.header>
+    <h5 class="modal-title">
+      {{t "components.scenarios.delete_confirm_title"}}
+    </h5>
+  </modal.header>
+  <modal.body>
+    <p class="mb-0">
+      {{t
+        "components.scenarios.delete_confirm_body"
+        name=this.activeScenario.name
+      }}
+    </p>
+    {{#if this.scenarioDeleteError}}
+      <div class="text-danger small mt-2">{{t "messages.general_error"}}</div>
+    {{/if}}
+  </modal.body>
+  <modal.footer>
+    <BsButton
+      @type="secondary"
+      @outline={{true}}
+      @onClick={{this.cancelDelete}}
+      disabled={{this.isDeletingScenario}}
+    >
+      {{t "actions.cancel"}}
+    </BsButton>
+    <BsButton
+      @type="danger"
+      @onClick={{this.confirmDelete}}
+      disabled={{this.isDeletingScenario}}
+    >
+      {{#if this.isDeletingScenario}}
+        <FaIcon @icon="spinner" @spin={{true}} />
+      {{/if}}
+      {{t "actions.delete"}}
+    </BsButton>
+  </modal.footer>
+</BsModal>

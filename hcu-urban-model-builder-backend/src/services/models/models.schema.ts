@@ -162,6 +162,7 @@ export const modelsImportResolver = resolve<ModelsImport, HookContext<ModelsServ
 
 export const simulationResultCreateSchema = Type.Object({
   modelsVersionsId: Type.String({ format: 'uuid' }),
+  scenariosId: Type.Optional(Type.String({ format: 'uuid' })),
   name: Type.Optional(Type.String({ minLength: 1, maxLength: 255 })),
   scenario: Type.Record(Type.String(), Type.Number()),
   result: Type.Any()

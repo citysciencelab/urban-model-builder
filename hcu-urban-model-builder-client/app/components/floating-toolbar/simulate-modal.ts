@@ -26,6 +26,10 @@ import { cached } from '@glimmer/tracking';
 import { TrackedAsyncData } from 'ember-async-data';
 import { downloadUtf8Json } from 'hcu-urban-model-builder-client/utils/utf8-json';
 import type IntlService from 'ember-intl/services/intl';
+import type {
+  ChartEditorResult,
+  ChartEditorSource,
+} from 'hcu-urban-model-builder-client/components/chart-editor-sidebar';
 
 export interface FloatingToolbarSimulateModalSignature {
   // The arguments accepted by the component
@@ -114,6 +118,19 @@ const DEFAULT_CHART_COLOR_PALETTE = [
   '#ea7ccc',
 ];
 
+// Chart editor entry standing in for an unsaved live simulation run.
+const LIVE_CHART_EDITOR_RESULT_ID = '__live__';
+
+// Dash patterns telling a variable's individual runs apart in the chart
+// editor when they're drawn alongside its median or each other.
+const CHART_EDITOR_RUN_DASHES = [
+  [6, 3],
+  [2, 3],
+  [10, 3, 2, 3],
+  [4, 6],
+  [1, 2],
+];
+
 type EmberBasicDropdownAPI = { actions: { close: () => void } };
 
 type StoredSimulationResult = {
@@ -124,6 +141,8 @@ type StoredSimulationResult = {
     batchScenarios?: Record<string, number>[];
   };
   scenario: Record<string, number>;
+  scenariosId?: string | null;
+  scenarioName?: string | null;
   createdAt: string;
   displayCreatedAt: string;
 };
@@ -290,12 +309,20 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.renderStoredChartCards();
   }
 
+  // Shared by the output chip's right-click and its invert button, which sits
+  // inside the chip - so stop the click from also toggling the output itself.
   @action toggleOtherOverviewOutputs(name: string, event: Event) {
     event.preventDefault();
+    event.stopPropagation();
     this.enabledOverviewOutputs = this.enabledOverviewOutputs.includes(name)
       ? [name]
       : this.overviewOutputOptions.filter((output) => output.name !== name).map((output) => output.name);
     this.renderStoredChartCards();
+  }
+
+  @action toggleOtherOverviewOutputsByKey(name: string, event: KeyboardEvent) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    this.toggleOtherOverviewOutputs(name, event);
   }
 
   @action setOverviewOutputColor(name: string, event: Event) {
@@ -327,6 +354,27 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @tracked zoomedChartContainer?: HTMLElement;
   @tracked zoomedChart?: echarts.ECharts;
   @tracked zoomedStoredCardId: string | null = null;
+  @tracked isChartEditorSidebarOpen = false;
+  @tracked chartEditorResults: ChartEditorResult[] = [];
+  @tracked chartEditorHasChanges = false;
+  @tracked isChartEditorLoading = false;
+  // Every run per result (a single entry for results without a batch), so
+  // median, spread and individual runs can all be derived on demand.
+  private chartEditorRuns = new Map<string, TimeSeriesDataset[]>();
+  // Line color per result + variable, fixed when the variable is added.
+  private chartEditorColors = new Map<string, string>();
+  // Bumped on every zoom open/close so a slow results load that finishes
+  // after the user moved on doesn't overwrite the newer editor state.
+  private chartEditorLoadToken = 0;
+  // Watches the zoom chart's own box rather than the window, so the chart
+  // also follows the sidebar opening/closing (including its transition).
+  private zoomedChartResizeObserver?: ResizeObserver;
+
+  get chartEditorOriginResultId() {
+    return this.zoomedChartContext === 'stored'
+      ? (this.selectedStoredResult?.id ?? null)
+      : null;
+  }
 
   get zoomedChartTitle() {
     return this.filteredStoredChartCards.find(
@@ -337,6 +385,68 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action async openStoredCardZoom(cardId: string) {
     this.zoomedStoredCardId = cardId;
     await this.openChartZoom('stored');
+  }
+
+  @action toggleChartEditorSidebar() {
+    this.isChartEditorSidebarOpen = !this.isChartEditorSidebarOpen;
+  }
+
+  @action toggleChartEditorVariable(resultId: string, variableName: string) {
+    const result = this.chartEditorResults.find(
+      (candidate) => candidate.id === resultId,
+    );
+    const wasSelected = result?.variables.find(
+      (variable) => variable.name === variableName,
+    )?.selected;
+    if (wasSelected) {
+      // Free the color for whatever gets added next.
+      this.chartEditorColors.delete(
+        this.chartEditorColorKey(resultId, variableName),
+      );
+    } else {
+      this.assignChartEditorColor(
+        resultId,
+        variableName,
+        this.chartEditorRuns
+          .get(resultId)?.[0]
+          ?.series.find((series) => series.name === variableName)?.color,
+      );
+    }
+    this.chartEditorResults = this.chartEditorResults.map((result) =>
+      result.id === resultId
+        ? {
+            ...result,
+            variables: result.variables.map((variable) =>
+              variable.name === variableName
+                ? { ...variable, selected: !variable.selected }
+                : variable,
+            ),
+          }
+        : result,
+    );
+    this.chartEditorHasChanges = true;
+    void this.renderZoomedChart();
+  }
+
+  @action changeChartEditorSources(
+    resultId: string,
+    sources: ChartEditorSource[],
+  ) {
+    const ids = new Set(sources.map((source) => source.id));
+    this.chartEditorResults = this.chartEditorResults.map((result) =>
+      result.id === resultId
+        ? {
+            ...result,
+            // Keep the option order (median, spread, runs) regardless of the
+            // order the user clicked them in, so legends stay predictable.
+            selectedSourceIds: result.sources
+              .filter((source) => ids.has(source.id))
+              .map((source) => source.id),
+          }
+        : result,
+    );
+    this.chartEditorHasChanges = true;
+    void this.renderZoomedChart();
   }
 
   @action async handleStoredCardZoomKeydown(cardId: string, event: KeyboardEvent) {
@@ -527,6 +637,29 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     }, new Map<string, number>());
 
     return scenarioNodeValueMap;
+  }
+
+  get matchingNamedScenario(): Scenario | undefined {
+    const current = this.inMemoryScenario;
+    return this.store
+      .peekAll<Scenario>('scenario')
+      .find((scenario) => {
+        if (
+          scenario.isDefault ||
+          scenario.modelsVersions.id !== this.args.model.id
+        ) {
+          return false;
+        }
+        const values = this.store
+          .peekAll<ScenariosValue>('scenarios-value')
+          .filter((value) => value.scenarios.id === scenario.id);
+        return (
+          values.length === current.size &&
+          values.every(
+            (value) => current.get(value.nodes.id!) === Number(value.value),
+          )
+        );
+      });
   }
 
   @action
@@ -947,6 +1080,9 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         this.simulationName.trim() || `Simulation ${this.resultsCount + 1}`;
       await (this.feathers.app.service('models') as any).saveSimulationResult({
         modelsVersionsId: this.args.model.id!,
+        ...(this.matchingNamedScenario
+          ? { scenariosId: this.matchingNamedScenario.id }
+          : {}),
         name,
         scenario: Object.fromEntries(this.inMemoryScenario),
         result: this.resultPayload,
@@ -1122,7 +1258,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   async selectStoredResult(result: StoredSimulationResult) {
-    this.disposeStoredCharts();
+    // Chart cards are keyed by their stable IDs in the template. When two
+    // results contain the same outputs, Ember reuses those DOM elements and
+    // does not run didInsertStoredChartCard again. Keep their ECharts
+    // instances alive here and update them once the new datasets are ready;
+    // removed cards are still disposed by willDestroyStoredChartCard.
     this.activeStoredRun = 0;
     this.storedExtendedTab = 'inputs';
     this.enabledOverviewOutputs = [];
@@ -1216,6 +1356,9 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
           dataset: { times: overview.times, series: [series] },
         })),
       ];
+      // Existing keyed card elements are reused when switching results, so
+      // explicitly apply the freshly prepared datasets to their charts.
+      this.renderStoredChartCards();
     } finally {
       if (this.selectedStoredResult === target) {
         this.isGeneratingStoredChart = false;
@@ -1348,10 +1491,21 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     };
   }
 
+  // Shared by the run chip's right-click and its activate button. The button
+  // sits inside the chip, so the click must not bubble up into the chip's own
+  // toggle handler - otherwise activating a run would also hide it.
   @action activateStoredRun(runIndex: number, event: Event) {
     event.preventDefault();
+    event.stopPropagation();
     this.activeStoredRun = runIndex;
     this.renderStoredChartCards();
+  }
+
+  // The activate control nested in a run chip can't be a real <button>, so it
+  // needs Enter/Space handled by hand to stay keyboard-operable.
+  @action activateStoredRunByKey(runIndex: number, event: KeyboardEvent) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    this.activateStoredRun(runIndex, event);
   }
 
   private renderStoredChartCards() {
@@ -1537,9 +1691,19 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     if (!dataset) return;
 
     this.zoomedChartContext = context;
+    this.isChartEditorSidebarOpen = false;
+    this.chartEditorHasChanges = false;
+    this.chartEditorResults = [];
+    this.chartEditorRuns = new Map();
+    this.chartEditorColors = new Map();
+    const loadToken = ++this.chartEditorLoadToken;
     this.isChartZoomOpen = true;
-    window.addEventListener('resize', this.handleZoomedChartResize);
     if (this.zoomedChartContainer) await this.renderZoomedChart();
+    // Loading every stored result can take a while, so the zoomed chart opens
+    // right away and the editor sidebar fills in once the data is there.
+    if (this.activeTab === TabName.TimeSeries) {
+      void this.prepareChartEditorResults(loadToken);
+    }
   }
 
   @action
@@ -1556,7 +1720,15 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.zoomedStoredCardId = null;
     this.isChartZoomOpen = false;
     this.zoomedChartContext = null;
-    window.removeEventListener('resize', this.handleZoomedChartResize);
+    this.isChartEditorSidebarOpen = false;
+    this.chartEditorResults = [];
+    this.chartEditorRuns = new Map();
+    this.chartEditorColors = new Map();
+    this.chartEditorHasChanges = false;
+    this.isChartEditorLoading = false;
+    this.chartEditorLoadToken++;
+    this.zoomedChartResizeObserver?.disconnect();
+    this.zoomedChartResizeObserver = undefined;
     this.zoomedChart?.dispose();
     this.zoomedChart = undefined;
     this.zoomedChartContainer = undefined;
@@ -1565,6 +1737,11 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action
   async didInsertZoomedChartContainer(element: HTMLElement) {
     this.zoomedChartContainer = element;
+    this.zoomedChartResizeObserver?.disconnect();
+    this.zoomedChartResizeObserver = new ResizeObserver(
+      this.handleZoomedChartResize,
+    );
+    this.zoomedChartResizeObserver.observe(element);
     await this.renderZoomedChart();
   }
 
@@ -1574,6 +1751,19 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   private async renderZoomedChart() {
     if (!this.zoomedChartContainer || !this.zoomedChartContext) return;
+
+    if (this.chartEditorHasChanges) {
+      // Reuse the instance across checkbox toggles instead of re-creating it
+      // each time, which flickered; notMerge drops deselected series.
+      this.zoomedChart ??= echarts.init(this.zoomedChartContainer, null, {
+        devicePixelRatio: (window.devicePixelRatio || 1) * 2,
+      });
+      this.zoomedChart.setOption(
+        this.withTightYAxisRange(this.getChartEditorOption()),
+        { notMerge: true },
+      );
+      return;
+    }
 
     if (this.zoomedChartContext === 'stored' && this.zoomedStoredCardId) {
       const card = this.storedChartCards.find(
@@ -1608,7 +1798,396 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         ? this.storedSeriesColorOverrides
         : undefined,
     );
-    this.zoomedChart.setOption(optionsByIndex);
+    this.zoomedChart.setOption(
+      this.activeTab === TabName.TimeSeries
+        ? this.withTightYAxisRange(optionsByIndex)
+        : optionsByIndex,
+    );
+  }
+
+  // The stored result charts read useStoredTightYAxis in their own options;
+  // the zoomed time-series chart builds its options elsewhere, so the same
+  // setting is applied on top here.
+  private withTightYAxisRange<T extends { yAxis?: object }>(option: T): T {
+    return {
+      ...option,
+      yAxis: { ...option.yAxis, scale: this.useStoredTightYAxis },
+    };
+  }
+
+  @action async toggleZoomedYAxisRange(event: Event) {
+    this.toggleStoredYAxisRange(event);
+    await this.renderZoomedChart();
+  }
+
+  private async prepareChartEditorResults(loadToken: number) {
+    const isStale = () =>
+      loadToken !== this.chartEditorLoadToken ||
+      this.isDestroying ||
+      this.isDestroyed;
+    this.isChartEditorLoading = true;
+    try {
+      let results: Pick<StoredSimulationResult, 'id' | 'name' | 'result'>[] =
+        this.storedResults;
+      if (this.resultsCount > results.length) {
+        const response = await (
+          this.feathers.app.service('models') as any
+        ).findSimulationResults({
+          modelsVersionsId: this.args.model.id!,
+          $skip: 0,
+          $limit: this.resultsCount,
+        });
+        if (isStale()) return;
+        results = response.data;
+      }
+
+      const origin =
+        this.zoomedChartContext === 'stored' ? this.selectedStoredResult : null;
+      if (origin && !results.some((result) => result.id === origin.id)) {
+        results = [origin, ...results];
+      }
+
+      const runsByResult = new Map<string, TimeSeriesDataset[]>(
+        await Promise.all(
+          results.map(async (result) => {
+            // The open result's runs are already prepared for its charts.
+            if (result.id === origin?.id && this.storedBatchDatasets.length) {
+              return [result.id, this.storedBatchDatasets] as const;
+            }
+            const runs = result.result.batchResults?.length
+              ? result.result.batchResults
+              : [result.result];
+            return [
+              result.id,
+              await Promise.all(
+                runs.map((run) => this.getTimeSeriesDataset(run)),
+              ),
+            ] as const;
+          }),
+        ),
+      );
+      if (isStale()) return;
+
+      // Preselect exactly what the zoomed chart shows. The "all outputs" card
+      // holds every series but only draws the outputs switched on in the
+      // extended options, so its selection comes from that list instead.
+      const isOverviewCard = this.zoomedStoredCardId === 'all';
+      const sourceSeries = this.zoomedStoredCardId
+        ? (this.storedChartCards.find(
+            (card) => card.id === this.zoomedStoredCardId,
+          )?.dataset.series ?? [])
+        : this.zoomedChartContext === 'stored'
+          ? ((this.storedCurrentDataset as TimeSeriesDataset | null)?.series ??
+            [])
+          : ((this.currentDataset as TimeSeriesDataset | null)?.series ?? []);
+      const selectedNames = new Set(
+        isOverviewCard
+          ? this.enabledOverviewOutputs
+          : sourceSeries.map((series) => series.name),
+      );
+
+      // Likewise keep the overview's custom output colors, so the chart
+      // doesn't change colors the moment the selection is edited.
+      const originRuns = origin ? runsByResult.get(origin.id) : undefined;
+      if (isOverviewCard && origin && originRuns) {
+        const colors = new Map(
+          this.overviewOutputOptions.map((output) => [
+            output.name,
+            output.color,
+          ]),
+        );
+        runsByResult.set(
+          origin.id,
+          originRuns.map((run) => ({
+            ...run,
+            series: run.series.map((series) => ({
+              ...series,
+              color: colors.get(series.name) ?? series.color,
+            })),
+          })),
+        );
+      }
+
+      // A live chart isn't a stored result, so list it as its own entry -
+      // otherwise the first checkbox click would replace the chart the user
+      // opened with a single unrelated variable.
+      const entries: { id: string; name: string }[] = [...results];
+      let originId = origin?.id ?? null;
+      const liveDataset = this.currentDataset as TimeSeriesDataset | null;
+      if (this.zoomedChartContext === 'live' && liveDataset) {
+        originId = LIVE_CHART_EDITOR_RESULT_ID;
+        runsByResult.set(
+          originId,
+          this.batchTimeSeriesDatasets.length > 1
+            ? this.batchTimeSeriesDatasets
+            : [liveDataset],
+        );
+        entries.unshift({
+          id: originId,
+          name: this.intl.t('components.simulate_modal.current_simulation'),
+        });
+      }
+
+      this.chartEditorRuns = runsByResult;
+      this.chartEditorResults = entries.map((entry) => {
+        const runs = runsByResult.get(entry.id) ?? [];
+        const sources = this.getChartEditorSources(runs.length);
+        return {
+          id: entry.id,
+          name: entry.name,
+          sources,
+          selectedSourceIds:
+            entry.id === originId
+              ? this.getOriginChartEditorSourceIds(runs.length)
+              : [sources[0]!.id],
+          variables: (runs[0]?.series ?? []).map((series) => ({
+            name: series.name,
+            selected: entry.id === originId && selectedNames.has(series.name),
+          })),
+        };
+      });
+      // The preselected variables count as added first, keeping the colors
+      // the zoomed chart already shows them in.
+      const originSeries = originId
+        ? (runsByResult.get(originId)?.[0]?.series ?? [])
+        : [];
+      for (const series of originSeries) {
+        if (selectedNames.has(series.name)) {
+          this.assignChartEditorColor(originId!, series.name, series.color);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load results for the chart editor', error);
+    } finally {
+      if (loadToken === this.chartEditorLoadToken) {
+        this.isChartEditorLoading = false;
+      }
+    }
+  }
+
+  // A batch offers its median, the spread band and each single run; a plain
+  // result only has its one run, so there's nothing to choose.
+  private getChartEditorSources(runCount: number): ChartEditorSource[] {
+    if (runCount <= 1) {
+      return [
+        {
+          id: 'run-0',
+          label: this.intl.t('components.simulate_modal.simulation_run', {
+            number: 1,
+          }),
+        },
+      ];
+    }
+    return [
+      { id: 'median', label: this.intl.t('components.simulate_modal.median') },
+      { id: 'tunnel', label: this.intl.t('components.simulate_modal.tunnel') },
+      ...Array.from({ length: runCount }, (_, runIndex) => ({
+        id: `run-${runIndex}`,
+        label: this.intl.t('components.simulate_modal.simulation_run', {
+          number: runIndex + 1,
+        }),
+      })),
+    ];
+  }
+
+  // The sources the zoomed chart itself currently draws for the result it
+  // was opened from.
+  private getOriginChartEditorSourceIds(runCount: number): string[] {
+    if (runCount <= 1) return ['run-0'];
+    if (this.zoomedChartContext === 'live') {
+      return [
+        'median',
+        ...(this.chartMode === ChartMode.Line ? ['tunnel'] : []),
+        ...(this.selectedBatchRun >= 0 ? [`run-${this.selectedBatchRun}`] : []),
+      ];
+    }
+    // The overview card draws only the active run of every enabled output.
+    if (this.zoomedStoredCardId === 'all') {
+      return [`run-${this.activeStoredRun}`];
+    }
+    if (!this.zoomedStoredCardId) return ['median'];
+    return [
+      ...(this.showStoredMedian ? ['median'] : []),
+      ...(this.showStoredTunnel ? ['tunnel'] : []),
+      ...[...this.selectedStoredBatchRuns]
+        .sort((a, b) => a - b)
+        .map((runIndex) => `run-${runIndex}`),
+    ];
+  }
+
+  get chartEditorOriginResultIdForSidebar() {
+    return this.zoomedChartContext === 'live'
+      ? LIVE_CHART_EDITOR_RESULT_ID
+      : this.chartEditorOriginResultId;
+  }
+
+  private chartEditorColorKey(resultId: string, variableName: string) {
+    return `${resultId}\u0000${variableName}`;
+  }
+
+  // A variable keeps the color it got when it was added for as long as it
+  // stays selected, so adding or removing others never recolors the lines
+  // already on the chart. It gets its own chart color when that is still
+  // free (the same variable from two results would otherwise look alike),
+  // else the first palette color nobody uses yet.
+  private assignChartEditorColor(
+    resultId: string,
+    variableName: string,
+    preferredColor?: string,
+  ) {
+    const key = this.chartEditorColorKey(resultId, variableName);
+    const assigned = this.chartEditorColors.get(key);
+    if (assigned) return assigned;
+    const used = new Set(this.chartEditorColors.values());
+    const color =
+      preferredColor && !used.has(preferredColor)
+        ? preferredColor
+        : (DEFAULT_CHART_COLOR_PALETTE.find(
+            (candidate) => !used.has(candidate),
+          ) ??
+          DEFAULT_CHART_COLOR_PALETTE[
+            used.size % DEFAULT_CHART_COLOR_PALETTE.length
+          ]!);
+    this.chartEditorColors.set(key, color);
+    return color;
+  }
+
+  // Builds the zoomed chart from the editor selection: for every selected
+  // variable one line per chosen median/run and a band for the spread.
+  private getChartEditorOption() {
+    const contributing = this.chartEditorResults.filter(
+      (result) =>
+        result.selectedSourceIds.length > 0 &&
+        result.variables.some((variable) => variable.selected),
+    );
+    const bands: object[] = [];
+    const lines: object[] = [];
+    const legendNames: string[] = [];
+    // Results can cover different time ranges; use the longest axis so no
+    // selected series gets cut off.
+    let times: TimeSeriesDataset['times'] = [];
+
+    for (const result of contributing) {
+      const runs = this.chartEditorRuns.get(result.id) ?? [];
+      const firstRun = runs[0];
+      if (!firstRun) continue;
+      if (firstRun.times.length > times.length) times = firstRun.times;
+      const hasSourceChoice = result.sources.length > 1;
+      const lineSourceCount = result.selectedSourceIds.filter(
+        (id) => id !== 'tunnel',
+      ).length;
+
+      for (const variable of result.variables) {
+        if (!variable.selected) continue;
+        const baseSeries = firstRun.series.find(
+          (series) => series.name === variable.name,
+        );
+        if (!baseSeries) continue;
+        // Median, runs and spread of one variable share its color.
+        const color = this.assignChartEditorColor(
+          result.id,
+          variable.name,
+          baseSeries.color,
+        );
+        const valuesAt = (timeIndex: number) =>
+          this.getBatchSeriesValues(variable.name, timeIndex, runs);
+
+        for (const sourceId of result.selectedSourceIds) {
+          const source = result.sources.find(
+            (candidate) => candidate.id === sourceId,
+          );
+          if (!source) continue;
+          const name = hasSourceChoice
+            ? `${result.name} · ${variable.name} · ${source.label}`
+            : `${result.name} · ${variable.name}`;
+
+          if (sourceId === 'tunnel') {
+            // A band only reads as such on a line chart.
+            if (this.chartMode !== ChartMode.Line) continue;
+            const lower = baseSeries.data.map((_, timeIndex) =>
+              this.quantile(valuesAt(timeIndex), 0.1),
+            );
+            const upper = baseSeries.data.map((_, timeIndex) =>
+              this.quantile(valuesAt(timeIndex), 0.9),
+            );
+            const stack = `chart-editor-tunnel-${bands.length}`;
+            bands.push(
+              {
+                name: `${name}-base`,
+                type: 'line',
+                stack,
+                stackStrategy: 'all',
+                data: lower,
+                symbol: 'none',
+                lineStyle: { opacity: 0 },
+                areaStyle: { opacity: 0 },
+                tooltip: { show: false },
+                silent: true,
+              },
+              {
+                name,
+                type: 'line',
+                stack,
+                stackStrategy: 'all',
+                data: upper.map(
+                  (value, timeIndex) => value - lower[timeIndex]!,
+                ),
+                symbol: 'none',
+                lineStyle: { opacity: 0 },
+                areaStyle: { color, opacity: 0.18 },
+                itemStyle: { color },
+                tooltip: { show: false },
+                silent: true,
+              },
+            );
+            legendNames.push(name);
+            continue;
+          }
+
+          const isMedian = sourceId === 'median';
+          const runIndex = isMedian
+            ? -1
+            : Number(sourceId.slice('run-'.length));
+          const data = isMedian
+            ? baseSeries.data.map((_, timeIndex) =>
+                this.quantile(valuesAt(timeIndex), 0.5),
+              )
+            : runs[runIndex]?.series.find(
+                (series) => series.name === variable.name,
+              )?.data;
+          if (!data) continue;
+          // With several lines for one variable the median stays solid and
+          // each run gets its own dash pattern.
+          const isDashed = lineSourceCount > 1 && !isMedian;
+          lines.push({
+            name,
+            type: this.chartMode,
+            data,
+            symbol: 'none',
+            lineStyle: {
+              color,
+              width: isMedian ? 2.5 : 1.5,
+              type: isDashed
+                ? CHART_EDITOR_RUN_DASHES[
+                    runIndex % CHART_EDITOR_RUN_DASHES.length
+                  ]
+                : 'solid',
+            },
+            itemStyle: { color },
+          });
+          legendNames.push(name);
+        }
+      }
+    }
+
+    return {
+      legend: { type: 'scroll', data: legendNames, top: 10 },
+      xAxis: { data: times },
+      yAxis: {},
+      tooltip: { trigger: 'axis' },
+      animation: false,
+      series: [...bands, ...lines],
+    };
   }
 
   get isZoomedChartDownloadDisabled() {
@@ -2248,7 +2827,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
       this.restartSimulationIfAutomatic,
     );
 
-    window.removeEventListener('resize', this.handleZoomedChartResize);
+    this.zoomedChartResizeObserver?.disconnect();
   }
 
   @action
@@ -2399,6 +2978,100 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     await this.downloadChartAsPng(chart, !chart, title);
   }
 
+  // An exported image has to explain itself, but the on-screen charts either
+  // have no legend or a paginated one. So the export renders a copy of the
+  // chart off-screen with every legend entry laid out in full below the plot,
+  // growing the image as tall as that legend needs.
+  private getChartPngWithLegend(chart: echarts.ECharts) {
+    const option = chart.getOption() as {
+      legend?: { data?: unknown[]; selected?: Record<string, boolean> }[];
+      grid?: { bottom?: number | string }[];
+      series?: { name?: string; silent?: boolean }[];
+    };
+    const existingLegend = option.legend?.[0];
+    // A curated legend list (e.g. the chart editor's) already leaves out the
+    // invisible helper series that draw spread bands; otherwise those helpers
+    // are the silent series, so list every other named series.
+    const names = (
+      existingLegend?.data?.length
+        ? existingLegend.data.map((item) =>
+            typeof item === 'string' ? item : (item as { name: string }).name,
+          )
+        : (option.series ?? [])
+            .filter((series) => !series.silent)
+            .map((series) => series.name)
+    ).filter((name): name is string => Boolean(name));
+    const uniqueNames = [...new Set(names)];
+
+    const exportPng = (target: echarts.ECharts) =>
+      target.getDataURL({
+        type: 'png',
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+      });
+    if (!uniqueNames.length) return exportPng(chart);
+
+    const width = chart.getWidth();
+    const fontSize = 12;
+    const sidePadding = 16;
+    const rowHeight = 22;
+    const itemGap = 16;
+    const iconWidth = 25 + 5;
+    // Lay the entries out the way echarts' plain legend wraps them, to know
+    // how many rows - and so how much extra image height - they need.
+    const context = document.createElement('canvas').getContext('2d');
+    if (context) context.font = `${fontSize}px sans-serif`;
+    const availableWidth = width - sidePadding * 2;
+    let rows = 1;
+    let rowWidth = 0;
+    for (const name of uniqueNames) {
+      const itemWidth =
+        iconWidth +
+        (context?.measureText(name).width ?? name.length * 7) +
+        itemGap;
+      if (rowWidth > 0 && rowWidth + itemWidth > availableWidth) {
+        rows++;
+        rowWidth = 0;
+      }
+      rowWidth += itemWidth;
+    }
+    const legendHeight = rows * rowHeight + sidePadding;
+
+    const originalBottom = option.grid?.[0]?.bottom;
+    const plotBottom = typeof originalBottom === 'number' ? originalBottom : 60;
+    const container = document.createElement('div');
+    const exportChart = echarts.init(container, null, {
+      width,
+      height: chart.getHeight() + legendHeight,
+    });
+    try {
+      exportChart.setOption({
+        ...option,
+        animation: false,
+        grid: (option.grid?.length ? option.grid : [{}]).map((grid, index) =>
+          index === 0 ? { ...grid, bottom: plotBottom + legendHeight } : grid,
+        ),
+        legend: [
+          {
+            type: 'plain',
+            show: true,
+            data: uniqueNames,
+            selected: existingLegend?.selected,
+            orient: 'horizontal',
+            left: sidePadding,
+            right: sidePadding,
+            bottom: sidePadding / 2,
+            itemGap,
+            textStyle: { fontSize, color: '#333' },
+          },
+        ],
+      });
+      return exportPng(exportChart);
+    } finally {
+      exportChart.dispose();
+    }
+  }
+
   private async downloadChartAsPng(
     chart: echarts.ECharts | undefined,
     disabled: boolean,
@@ -2411,11 +3084,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     const model = await this.args.model.model;
     const modelName = model?.internalName || 'model';
     const link = document.createElement('a');
-    link.href = chart.getDataURL({
-      type: 'png',
-      pixelRatio: 2,
-      backgroundColor: '#ffffff',
-    });
+    link.href = this.getChartPngWithLegend(chart);
     const safeSuffix = filenameSuffix
       ?.trim()
       .replace(/[^a-z0-9_-]+/gi, '-')

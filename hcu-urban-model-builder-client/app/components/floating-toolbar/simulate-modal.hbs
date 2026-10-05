@@ -508,6 +508,9 @@
             />
             <small>{{result.displayCreatedAt}}</small>
             <small>{{t "components.simulate_modal.result_model_version" version=@model.versionString}}</small>
+            {{#if result.scenarioName}}
+              <small>{{t "components.simulate_modal.result_scenario" name=result.scenarioName}}</small>
+            {{/if}}
           </div>
         {{/each}}
         {{#if (gt this.resultsPages 1)}}
@@ -674,22 +677,41 @@
                     </div>
                     <div class="simulation-result-output-options">
                       {{#each this.overviewOutputOptions key="name" as |output|}}
-                        <div class="simulation-result-output-option">
-                          <button
-                            type="button"
-                            class="btn btn-sm btn-outline-secondary {{if output.enabled 'active'}}"
-                            aria-pressed={{output.enabled}}
-                            title={{t "components.simulate_modal.output_toggle_hint" name=output.name}}
-                            {{on "click" (fn this.toggleOverviewOutput output.name)}}
-                            {{on "contextmenu" (fn this.toggleOtherOverviewOutputs output.name)}}
-                          >{{output.name}}</button>
+                        {{! template-lint-disable no-nested-interactive }}
+                        {{! Same layout as the run chips: swatch and invert
+                          control live inside the toggle, so their clicks must
+                          not bubble up and toggle the output too. }}
+                        <button
+                          type="button"
+                          class="btn btn-sm simulation-result-option simulation-result-output-option
+                            {{if output.enabled 'active'}}"
+                          aria-pressed={{output.enabled}}
+                          title={{t "components.simulate_modal.output_toggle_hint" name=output.name}}
+                          {{on "click" (fn this.toggleOverviewOutput output.name)}}
+                          {{on "contextmenu" (fn this.toggleOtherOverviewOutputs output.name)}}
+                        >
                           <input
                             type="color"
+                            class="simulation-result-option__color"
                             value={{output.color}}
                             aria-label={{t "components.simulate_modal.output_color" name=output.name}}
                             {{on "input" (fn this.setOverviewOutputColor output.name)}}
+                            {{on "click" (stop-propagation)}}
                           />
-                        </div>
+                          <span class="simulation-result-output-option__name">{{output.name}}</span>
+                          {{! template-lint-disable require-presentational-children }}
+                          <span
+                            role="button"
+                            tabindex="0"
+                            class="simulation-result-option__action"
+                            title={{t "components.simulate_modal.output_invert_others_hint" name=output.name}}
+                            aria-label={{t "components.simulate_modal.output_invert_others_hint" name=output.name}}
+                            {{on "click" (fn this.toggleOtherOverviewOutputs output.name)}}
+                            {{on "keydown" (fn this.toggleOtherOverviewOutputsByKey output.name)}}
+                          >
+                            <FaIcon @icon="right-left" @prefix="fas" @size="xs" />
+                          </span>
+                        </button>
                       {{/each}}
                     </div>
                   {{/if}}
@@ -797,6 +819,20 @@
                     "components.simulate_modal.simulation_run"
                     number=(add runIndex 1)
                   }}
+                  {{! A real <button> can't nest inside the chip, hence the
+                    span; the icon is decorative and the aria-label names it. }}
+                  {{! template-lint-disable require-presentational-children }}
+                  <span
+                    role="button"
+                    tabindex="0"
+                    class="simulation-result-option__action"
+                    title={{t "components.simulate_modal.run_activate_hint" number=(add runIndex 1)}}
+                    aria-label={{t "components.simulate_modal.run_activate_hint" number=(add runIndex 1)}}
+                    {{on "click" (fn this.activateStoredRun runIndex)}}
+                    {{on "keydown" (fn this.activateStoredRunByKey runIndex)}}
+                  >
+                    <FaIcon @icon="bullseye" @prefix="fas" @size="xs" />
+                  </span>
                 </button>
               {{/each}}
               <label class="simulation-result-y-axis-toggle">
@@ -1000,10 +1036,25 @@
         {{/if}}
       </div>
     {{/if}}
-    <div
-      class="simulate-chart-zoom__chart-container"
-      {{did-insert this.didInsertZoomedChartContainer}}
-    ></div>
+    <div class="chart-editor">
+      <div
+        class="simulate-chart-zoom__chart-container"
+        {{did-insert this.didInsertZoomedChartContainer}}
+      ></div>
+      {{#if (eq this.activeTab "time-series")}}
+        <ChartEditorSidebar
+          @open={{this.isChartEditorSidebarOpen}}
+          @results={{this.chartEditorResults}}
+          @currentResultId={{this.chartEditorOriginResultIdForSidebar}}
+          @loading={{this.isChartEditorLoading}}
+          @tightYAxis={{this.useStoredTightYAxis}}
+          @onToggleTightYAxis={{this.toggleZoomedYAxisRange}}
+          @onToggleSidebar={{this.toggleChartEditorSidebar}}
+          @onToggleVariable={{this.toggleChartEditorVariable}}
+          @onChangeSources={{this.changeChartEditorSources}}
+        />
+      {{/if}}
+    </div>
   </modal.body>
   <modal.footer>
     <BsButton
