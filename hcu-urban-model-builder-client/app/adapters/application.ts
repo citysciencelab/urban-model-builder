@@ -44,8 +44,6 @@ export default class ApplicationAdapter extends Adapter {
   ): Promise<AdapterPayload> {
     const data = this.serialize(snapshot, {});
 
-    this.feathers.app.service('edges').find();
-
     return this.feathers.app
       .service(this.feathers.getServiceNameByModelName(type.modelName))
       .create(data);
