@@ -5,7 +5,6 @@ set -Eeuo pipefail
 # Beta deployment defaults. Every value can be overridden via an environment
 # variable, e.g. BRANCH=feature/foo ./scripts/deploy-beta.sh all
 APP_DIR="${APP_DIR:-/var/www/vhosts/comodeling.city/beta_metalbuilder/urban-model-builder}"
-DEPLOY_USER="${DEPLOY_USER:-modelbuilder}"
 BRANCH="${BRANCH:-bh_master}"
 COMPOSE_PROJECT="${COMPOSE_PROJECT:-urban-model-builder-beta}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose-staging.yml}"
@@ -39,16 +38,6 @@ fail() {
   exit 1
 }
 
-run_as_deploy_user() {
-  if [[ "$(id -un)" == "$DEPLOY_USER" ]]; then
-    "$@"
-  elif [[ "$(id -u)" -eq 0 ]]; then
-    runuser -u "$DEPLOY_USER" -- "$@"
-  else
-    fail "Run this script as root or as $DEPLOY_USER."
-  fi
-}
-
 command -v git >/dev/null || fail "git is not installed."
 command -v npm >/dev/null || fail "npm is not installed."
 command -v docker >/dev/null || fail "docker is not installed."
@@ -59,14 +48,14 @@ command -v curl >/dev/null || fail "curl is not installed."
 
 cd "$APP_DIR"
 
-if [[ -n "$(run_as_deploy_user git status --porcelain)" ]]; then
+if [[ -n "$(git status --porcelain)" ]]; then
   fail "The working tree contains local changes. Commit or stash them first."
 fi
 
 log "Pulling origin/$BRANCH"
-run_as_deploy_user git fetch origin "$BRANCH"
-run_as_deploy_user git checkout "$BRANCH"
-run_as_deploy_user git merge --ff-only "origin/$BRANCH"
+git fetch origin "$BRANCH"
+git checkout "$BRANCH"
+git merge --ff-only "origin/$BRANCH"
 
 deploy_frontend() (
   local frontend_path="$APP_DIR/$FRONTEND_DIR"
@@ -75,20 +64,18 @@ deploy_frontend() (
   [[ -f "$frontend_path/package-lock.json" ]] || fail "Frontend package-lock.json is missing."
   release_path="$(mktemp -d "$APP_DIR/.frontend-release.XXXXXX")"
   trap 'rm -rf -- "$release_path"' EXIT
-  chown "$DEPLOY_USER:psaserv" "$release_path"
 
   log "Installing frontend dependencies"
-  run_as_deploy_user npm --prefix "$frontend_path" ci
+  npm --prefix "$frontend_path" ci
 
   log "Building frontend"
-  run_as_deploy_user npm --prefix "$frontend_path" run build -- --output-path="$release_path"
+  npm --prefix "$frontend_path" run build -- --output-path="$release_path"
   [[ -f "$release_path/index.html" ]] || fail "Frontend build did not create index.html."
 
   log "Publishing frontend to $frontend_path/dist"
   mkdir -p "$frontend_path/dist"
   command -v rsync >/dev/null || fail "rsync is required (apt install rsync)."
   rsync -a --delete "$release_path/" "$frontend_path/dist/"
-  chown -R "$DEPLOY_USER:psaserv" "$frontend_path/dist"
   find "$frontend_path/dist" -type d -exec chmod 755 {} +
   find "$frontend_path/dist" -type f -exec chmod 644 {} +
 )
