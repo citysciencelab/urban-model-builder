@@ -86,9 +86,17 @@ const BASE_SPEED = 20;
 
 // Each run is simulated sequentially in the worker and, once saved, ends up
 // stored as a full result blob - an unbounded deviation count would let one
-// click freeze the UI for a very long time and produce an arbitrarily large
-// saved payload.
-const MAX_DEVIATION_COUNT = 50;
+// click keep the worker busy for a very long time and produce a saved payload
+// beyond the backend's Socket.IO message limit. The ceiling comes from
+// config/environment.js.
+const MAX_DEVIATION_COUNT = config.APP.MAX_SIMULATION_BATCH_RUNS;
+
+export function clampDeviationCount(value: unknown): number {
+  const count = Math.floor(Number(value));
+  return Number.isFinite(count)
+    ? Math.min(MAX_DEVIATION_COUNT, Math.max(1, count))
+    : 1;
+}
 
 // Echarts' own default theme palette (model/globalDefault.js) - series
 // without an explicit color are auto-assigned from this list in order, so we
@@ -366,6 +374,12 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   get maxDeviationCount() {
     return MAX_DEVIATION_COUNT;
+  }
+
+  // Results saved under an earlier, higher ceiling stay readable but cannot
+  // grow any further; the backend rejects such runs as well.
+  get isStoredBatchFull() {
+    return this.storedBatchDatasets.length >= MAX_DEVIATION_COUNT;
   }
 
   get isAnimationFinished() {
@@ -705,7 +719,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
     if (this.isClientSideCalculation) {
       this.batchResults = await this.runSimulationBatch(
-        Math.max(1, this.deviationCount),
+        clampDeviationCount(this.deviationCount),
         Object.fromEntries(nodeValuesMap),
       );
       const scenario = Object.fromEntries(nodeValuesMap);
@@ -891,13 +905,9 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   updateDeviationCount(event: Event) {
-    const value = Number.parseInt(
+    this.deviationCount = clampDeviationCount(
       (event.target as HTMLInputElement).value,
-      10,
     );
-    this.deviationCount = Number.isFinite(value)
-      ? Math.min(MAX_DEVIATION_COUNT, Math.max(1, value))
-      : 1;
   }
 
   @action
@@ -1375,6 +1385,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   async addRunToStoredBatch() {
     const target = this.selectedStoredResult;
     if (!target || this.isBatchRunning || this.hasInvalidStoredParameters) return;
+    if ((target.result.batchResults?.length || 1) >= MAX_DEVIATION_COUNT) return;
     const scenario = Object.fromEntries(
       this.storedParameterInputs.map((input) => [
         input.nodeId,

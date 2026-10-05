@@ -17,6 +17,11 @@ module.exports = function (environment) {
 
     APP: {
       ALLOW_SERVER_SIDE_SIMULATION: false,
+      // Upper bound for runs per simulation batch. A saved batch stores every
+      // run again (2.5 MB each for a 600-agent model) and must stay below the
+      // backend's Socket.IO message limit; keep in sync with the backend's
+      // `maxSimulationBatchRuns`.
+      MAX_SIMULATION_BATCH_RUNS: 5,
     },
     'ember-simple-auth': {
       routeAfterAuthentication: 'models.index',

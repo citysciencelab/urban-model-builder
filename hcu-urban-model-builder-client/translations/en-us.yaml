@@ -188,6 +188,7 @@ components:
     all_outputs: All output variables
     extended_functions: Extended functions
     add_run: Add another run
+    max_runs_reached: "A result can hold at most {max} runs."
     no_input_parameters: No input parameters available.
     median_color: Median color
     tunnel_color: Tunnel color
