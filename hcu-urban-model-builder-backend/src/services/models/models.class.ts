@@ -44,11 +44,12 @@ import {
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
 
-// Each "add run" call re-stores every previous run's full result payload
-// alongside the new one, so without a ceiling a single stored result's
-// batchResults/batchScenarios arrays (and the JSON blob storing them) could
-// grow without bound.
-const MAX_SIMULATION_BATCH_RUNS = 50
+// A stored batch keeps every run's full result payload (2.5 MB per run for a
+// 600-agent model), and saving one sends the whole batch in a single Socket.IO
+// message, which must stay below `maxHttpBufferSize` (src/app.ts). The ceiling
+// comes from the `maxSimulationBatchRuns` setting (config/default.json).
+const countSimulationRuns = (result: any) =>
+  Array.isArray(result?.batchResults) ? result.batchResults.length : 1
 
 export interface ModelsParams extends KnexAdapterParams<ModelsQuery> {
   serializeForUMP?: boolean
@@ -142,8 +143,15 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
     return modelVersion
   }
 
+  private get maxSimulationBatchRuns(): number {
+    return this.app.get('maxSimulationBatchRuns')
+  }
+
   async saveSimulationResult(data: SimulationResultCreate, params?: ServiceParams) {
     if (!params?.user?.id) throw new Forbidden('Saving simulation results requires authentication.')
+    if (countSimulationRuns(data.result) > this.maxSimulationBatchRuns) {
+      throw new BadRequest(`A simulation result can hold at most ${this.maxSimulationBatchRuns} runs.`)
+    }
     await this.assertModelVersionAccess(data.modelsVersionsId, params.user, Roles.collaborator)
     const [saved] = await this.app
       .get('postgresqlClient')('simulation_results')
@@ -208,8 +216,10 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
         ? currentResult.batchScenarios
         : [existing.scenario]
 
-      if (existingBatchResults.length >= MAX_SIMULATION_BATCH_RUNS) {
-        throw new BadRequest(`A simulation result can hold at most ${MAX_SIMULATION_BATCH_RUNS} runs.`)
+      // Results saved under an earlier, higher ceiling stay readable; they
+      // just cannot grow any further.
+      if (existingBatchResults.length >= this.maxSimulationBatchRuns) {
+        throw new BadRequest(`A simulation result can hold at most ${this.maxSimulationBatchRuns} runs.`)
       }
 
       const result = {

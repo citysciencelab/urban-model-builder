@@ -26,6 +26,8 @@ export const modelsVersionsSchema = Type.Object(
     isLatest: Nullable(Type.Boolean()),
     algorithm: Nullable(Literals<AlgorithmType>('Euler', 'RK4')),
     globals: Nullable(Type.String()),
+    // Re-run the simulation after every model or scenario change instead of only on demand.
+    autoSimulate: Type.Optional(Type.Boolean()),
     // Custom units map unit names to referenced node ids.
     customUnits: Nullable(Type.Object({ data: Type.Record(Type.String(), Type.Array(Type.String())) })),
     createdBy: Nullable(Type.String({ format: 'uuid' })),
@@ -65,6 +67,7 @@ export const modelsVersionsDataSchema = Type.Pick(
     'timeStep',
     'algorithm',
     'globals',
+    'autoSimulate',
     'publishedToUMPAt'
   ],
   {
@@ -93,6 +96,7 @@ export const modelsVersionsQueryProperties = Type.Pick(modelsVersionsSchema, [
   'timeLength',
   'algorithm',
   'globals',
+  'autoSimulate',
   'createdAt',
   'publishedToUMPAt',
   'publishedToUMPApprovedAt'

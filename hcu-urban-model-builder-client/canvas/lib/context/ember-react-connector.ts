@@ -15,7 +15,8 @@ export type NodeActions = {
   onSidebarInserted: (element: HTMLElement) => void;
   onToolbarInserted: (element: HTMLElement) => void;
   confirmDeleteNodes: (nodeIds: string[]) => boolean;
-  validateModel: () => Promise<Record<string, string>>;
+  validateModel: () => Promise<Record<string, string> | null>;
+  cancelModelValidation: () => void;
   currentModelVersionId: string;
   storeEventEmitter: {
     on: (

@@ -11,6 +11,7 @@ declare const config: {
   apiURL: string;
   APP: {
     ALLOW_SERVER_SIDE_SIMULATION: boolean;
+    MAX_SIMULATION_BATCH_RUNS: number;
   } & Record<string, unknown>;
   'ember-simple-auth-oidc': Record<string, unknown>;
   'ember-simple-auth': Record<string, unknown>;

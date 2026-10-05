@@ -330,7 +330,7 @@
 
   </modal.Content>
   <modal.Trigger
-    {{on "click" (fn this.removePinOnClose modal)}}
+    {{on "click" (fn this.simulateFromTrigger modal)}}
     class={{if this.isSimulationPossible "" "disabled"}}
   >
     {{#unless this.isSimulationPossible}}
@@ -629,6 +629,14 @@
                       this.isBatchRunning
                       this.hasInvalidStoredParameters
                       (eq this.storedParameterInputs.length 0)
+                      this.isStoredBatchFull
+                    }}
+                    title={{if
+                      this.isStoredBatchFull
+                      (t
+                        "components.simulate_modal.max_runs_reached"
+                        max=this.maxDeviationCount
+                      )
                     }}
                     {{on "click" this.addRunToStoredBatch}}
                   >

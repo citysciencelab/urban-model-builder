@@ -89,6 +89,7 @@ export const modelsVersions = (app: Application) => {
             'timeStep',
             'algorithm',
             'globals',
+            'autoSimulate',
             'customUnits',
             'publishedToUMPAt'
           )

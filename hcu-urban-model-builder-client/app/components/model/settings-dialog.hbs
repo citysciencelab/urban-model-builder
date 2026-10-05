@@ -82,6 +82,16 @@
 
       <div class="row">
         <form.element
+          @controlType="switch"
+          @label={{t "models.models_version.attributes.autoSimulate"}}
+          @property="autoSimulate"
+          @helpText={{t "components.settings_dialog.auto_simulate_help"}}
+          class="col-12"
+        />
+      </div>
+
+      <div class="row">
+        <form.element
           @controlType="textarea"
           @label={{t "models.models_version.attributes.globals"}}
           @property="globals"

@@ -35,6 +35,7 @@ export default class ModelsVersion extends Model {
   @attr('string') declare timeUnits: string;
   @attr('string') declare algorithm: string;
   @attr('string') declare globals: string;
+  @attr('boolean') declare autoSimulate: boolean;
 
   @attr() declare customUnits: { data: { [key: string]: string[] } };
 

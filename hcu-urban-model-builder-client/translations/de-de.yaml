@@ -120,6 +120,7 @@ models:
       timeStep: Intervall
       algorithm: Algorithmus
       globals: Globals & Makros
+      autoSimulate: Automatisch simulieren
   nodes:
     attributes:
       name: Name
@@ -188,6 +189,7 @@ components:
     all_outputs: Alle Ausgabevariablen
     extended_functions: Erweiterte Funktionen
     add_run: Weiteren Lauf hinzufügen
+    max_runs_reached: "Ein Ergebnis kann höchstens {max} Läufe enthalten."
     no_input_parameters: Keine Eingabeparameter verfügbar.
     median_color: Farbe des Medians
     tunnel_color: Farbe des Tunnels
@@ -245,6 +247,7 @@ components:
     title: Modelleinstellungen
     intro: Hier können Sie die (Simulations-)Einstellungen des Modells bearbeiten.
     publish_to_ump_label: Veröffentlichen auf Urban Model Platform
+    auto_simulate_help: Startet nach jeder Änderung eine neue Simulation.
   data_transformation:
     title: Datentransformation
     select_all: Alle auswählen

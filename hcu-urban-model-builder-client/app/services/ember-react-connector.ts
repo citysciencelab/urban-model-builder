@@ -13,14 +13,15 @@ import type { LegacyRelationshipSchema } from '@warp-drive/core-types/schema/fie
 import type ApplicationStateService from './application-state';
 import {
   NodeType,
-  SimulationAdapter,
   type Edges,
-  type ModelsVersions,
   type Nodes,
+  type SimulationModelData,
 } from 'hcu-urban-model-builder-backend';
 import { StoreEventSenderTransport } from 'hcu-urban-model-builder-client/services/store-event-emitter';
 import type IntlService from 'ember-intl/services/intl';
-import type FeathersService from './feathers';
+import type ModelValidationService from './model-validation';
+import type { ModelValidationErrors } from './model-validation';
+import { createValidationSnapshot } from 'hcu-urban-model-builder-client/utils/validation-snapshot';
 
 export default class EmberReactConnectorService extends Service {
   @service declare applicationState: ApplicationStateService;
@@ -28,7 +29,7 @@ export default class EmberReactConnectorService extends Service {
   @service declare storeEventEmitter: StoreEventEmitterService;
   @service declare eventBus: EventBus;
   @service declare intl: IntlService;
-  @service declare feathers: FeathersService;
+  @service declare modelValidation: ModelValidationService;
 
   @tracked selected: (Node | Edge)[] = [];
   @tracked currentModel: ModelsVersion | null = null;
@@ -137,73 +138,77 @@ export default class EmberReactConnectorService extends Service {
     return true;
   }
 
-  /** Runs against the graph already held in Ember's store; no API reads occur. */
+  /**
+   * Checks the graph already held in Ember's store; no API reads occur. The
+   * simulation runs in a web worker (see the model-validation service), so
+   * only the snapshot is built here. Resolves with `null` when the check was
+   * superseded by a newer one or the model changed meanwhile.
+   */
   @action
-  async validateModel(): Promise<Record<string, string>> {
-    if (!this.currentModelVersionId) {
+  async validateModel(): Promise<ModelValidationErrors | null> {
+    const model = this.currentModel;
+    if (!model?.id) {
       this.validationErrors = {};
       return {};
     }
 
+    let snapshot: SimulationModelData;
     try {
-      const nodes = (await this.currentModel!.nodes).map((node) => {
-          return {
-            id: node.id!,
-            modelsVersionsId: this.currentModelVersionId,
-            type: node.type,
-            name: node.name,
-            description: node.description,
-            data: node.data,
-            position: node.position,
-            height: node.height,
-            width: node.width,
-            parentId: node.parent?.id ?? null,
-            ghostParentId: node.ghostParent?.id ?? null,
-            isParameter: node.isParameter,
-            parameterMin: node.parameterMin ?? null,
-            parameterMax: node.parameterMax ?? null,
-            parameterStep: node.parameterStep ?? null,
-            parameterType: node.parameterType,
-            parameterOptions: node.parameterOptions ?? null,
-            isOutputParameter: node.isOutputParameter,
-          } as Nodes;
-        });
-      const edges = (await this.currentModel!.edges).map((edge) => {
-          return {
-            id: edge.id!,
-            modelsVersionsId: this.currentModelVersionId,
-            type: edge.type,
-            sourceId: edge.source.id!,
-            targetId: edge.target.id!,
-            sourceHandle: edge.sourceHandle,
-            targetHandle: edge.targetHandle,
-            points: edge.points ?? null,
-          } as Edges;
-        });
-      await new SimulationAdapter(
-        this.feathers.app,
-        this.currentModelVersionId,
-        new Map<string, number>(),
-        console,
-        {
-          modelVersion: this.currentModel! as unknown as ModelsVersions,
-          nodes,
-          edges,
-        },
-      ).simulate();
-      this.validationErrors = {};
-      return {};
-    } catch (error: any) {
-      if (error?.name === 'SimulationError' && error.data?.nodeId) {
-        const errors = {
-          [error.data.nodeId]: String(error.message).replace(/<[^>]*>/g, ''),
-        };
-        this.validationErrors = errors;
-        return errors;
-      }
+      const nodes = (await model.nodes).map((node) => {
+        return {
+          id: node.id!,
+          modelsVersionsId: model.id,
+          type: node.type,
+          name: node.name,
+          description: node.description,
+          data: node.data,
+          position: node.position,
+          height: node.height,
+          width: node.width,
+          parentId: node.parent?.id ?? null,
+          ghostParentId: node.ghostParent?.id ?? null,
+          isParameter: node.isParameter,
+          parameterMin: node.parameterMin ?? null,
+          parameterMax: node.parameterMax ?? null,
+          parameterStep: node.parameterStep ?? null,
+          parameterType: node.parameterType,
+          parameterOptions: node.parameterOptions ?? null,
+          isOutputParameter: node.isOutputParameter,
+        } as Nodes;
+      });
+      const edges = (await model.edges).map((edge) => {
+        return {
+          id: edge.id!,
+          modelsVersionsId: model.id,
+          type: edge.type,
+          sourceId: edge.source.id!,
+          targetId: edge.target.id!,
+          sourceHandle: edge.sourceHandle,
+          targetHandle: edge.targetHandle,
+          points: edge.points ?? null,
+        } as Edges;
+      });
+      snapshot = createValidationSnapshot(model, nodes, edges);
+    } catch (error) {
+      console.error('Model validation could not read the model:', error);
       this.validationErrors = {};
       return {};
     }
+    if (this.currentModel !== model) {
+      return null;
+    }
+
+    const errors = await this.modelValidation.validate(model.id, snapshot);
+    if (errors === null || this.currentModel !== model) {
+      return null;
+    }
+    this.validationErrors = errors;
+    return errors;
+  }
+
+  @action
+  cancelModelValidation() {
+    this.modelValidation.cancel();
   }
 
   private saveRecord(record: Model, rawData: any) {
