@@ -11,13 +11,14 @@ COMPOSE_PROJECT="${COMPOSE_PROJECT:-urban-model-builder-beta}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose-staging.yml}"
 MIGRATE_COMPOSE_FILE="${MIGRATE_COMPOSE_FILE:-docker-compose-staging-migrate.yml}"
 BACKEND_SERVICE="${BACKEND_SERVICE:-hcu-model-builder-backend}"
+BACKEND_BIND_IP="${BACKEND_BIND_IP:-127.0.0.1}"
 BACKEND_PORT="${BACKEND_PORT:-3032}"
 BACKEND_IMAGE="${BACKEND_IMAGE:-hcu-model-builder-backend-beta}"
 APP_NETWORK="${APP_NETWORK:-hcu-model-builder-beta-network}"
 FRONTEND_DIR="${FRONTEND_DIR:-hcu-urban-model-builder-client}"
 MODE="${1:-all}"
 
-export BACKEND_PORT BACKEND_IMAGE APP_NETWORK
+export BACKEND_BIND_IP BACKEND_PORT BACKEND_IMAGE APP_NETWORK
 
 case "$MODE" in
   frontend|fe) MODE="frontend" ;;

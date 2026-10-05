@@ -11,7 +11,7 @@ services:
     restart: always
     env_file: ./config/.env
     ports:
-      - "${BACKEND_PORT:-3030}:3030"
+      - "${BACKEND_BIND_IP:-0.0.0.0}:${BACKEND_PORT:-3030}:3030"
     networks:
       default:
         aliases:
