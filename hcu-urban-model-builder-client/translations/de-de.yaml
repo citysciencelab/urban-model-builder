@@ -120,6 +120,7 @@ models:
       timeStep: Intervall
       algorithm: Algorithmus
       globals: Globals & Makros
+      autoSimulate: Automatisch simulieren
   nodes:
     attributes:
       name: Name
@@ -246,6 +247,7 @@ components:
     title: Modelleinstellungen
     intro: Hier können Sie die (Simulations-)Einstellungen des Modells bearbeiten.
     publish_to_ump_label: Veröffentlichen auf Urban Model Platform
+    auto_simulate_help: Startet nach jeder Änderung eine neue Simulation.
   data_transformation:
     title: Datentransformation
     select_all: Alle auswählen

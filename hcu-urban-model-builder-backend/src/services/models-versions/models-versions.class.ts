@@ -178,7 +178,8 @@ export class ModelsVersionsService<ServiceParams extends Params = ModelsVersions
       'timeLength',
       'timeStep',
       'algorithm',
-      'globals'
+      'globals',
+      'autoSimulate'
     ])
 
     if (Object.keys(versionPatchData).length > 0) {
