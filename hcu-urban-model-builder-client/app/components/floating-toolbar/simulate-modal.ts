@@ -357,15 +357,42 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   constructor(owner: unknown, args: any) {
     super(owner, args);
-    this.eventBus.on('scenario-value-changed', this.restartSimulation);
+    this.eventBus.on(
+      'scenario-value-changed',
+      this.restartSimulationIfAutomatic,
+    );
 
-    this.storeEventEmitter.on('node', 'created', this.restartSimulation);
-    this.storeEventEmitter.on('node', 'updated', this.restartSimulation);
-    this.storeEventEmitter.on('node', 'deleted', this.restartSimulation);
+    this.storeEventEmitter.on(
+      'node',
+      'created',
+      this.restartSimulationIfAutomatic,
+    );
+    this.storeEventEmitter.on(
+      'node',
+      'updated',
+      this.restartSimulationIfAutomatic,
+    );
+    this.storeEventEmitter.on(
+      'node',
+      'deleted',
+      this.restartSimulationIfAutomatic,
+    );
 
-    this.storeEventEmitter.on('edge', 'created', this.restartSimulation);
-    this.storeEventEmitter.on('edge', 'updated', this.restartSimulation);
-    this.storeEventEmitter.on('edge', 'deleted', this.restartSimulation);
+    this.storeEventEmitter.on(
+      'edge',
+      'created',
+      this.restartSimulationIfAutomatic,
+    );
+    this.storeEventEmitter.on(
+      'edge',
+      'updated',
+      this.restartSimulationIfAutomatic,
+    );
+    this.storeEventEmitter.on(
+      'edge',
+      'deleted',
+      this.restartSimulationIfAutomatic,
+    );
   }
 
   get ALLOW_SERVER_SIDE_SIMULATION() {
@@ -524,7 +551,7 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action
   async toggleClientSideCalculation(value: boolean) {
     this.isClientSideCalculation = value;
-    await this.restartSimulation();
+    await this.restartSimulationIfAutomatic();
   }
 
   @action isTabActive(tabName: TabName) {
@@ -561,8 +588,8 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
 
   @action
   async switchTab(tabName: TabName) {
-    this.activeTab = tabName;
     if (this.resultsOpen && this.selectedStoredResult) {
+      this.activeTab = tabName;
       if (tabName === TabName.TimeSeries) {
         this.disposeStoredCharts();
         await this.prepareStoredChartCards();
@@ -570,8 +597,33 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
         await this.renderStoredResult();
       }
     } else {
-      await this.restartSimulation();
+      await this.showLiveTab(tabName);
     }
+  }
+
+  // Switching tabs only redraws the current result; it neither runs nor saves
+  // a new simulation.
+  private async showLiveTab(tabName: TabName) {
+    const result = this.simulationResult;
+    // A run that is about to start or still running draws whatever tab is
+    // active once it is done.
+    if (!result || this.simulationTask.isRunning) {
+      this.activeTab = tabName;
+      return;
+    }
+    const dataset =
+      tabName === TabName.TimeSeries && this.batchTimeSeriesDatasets.length > 1
+        ? this.createBatchMedianDataset()
+        : await this.tabNameToDatasetFunction[tabName](result);
+    if (result !== this.simulationResult || this.simulationTask.isRunning) {
+      return;
+    }
+    // Tab and dataset change together, so a running chart animation never
+    // draws one tab's dataset with the other tab's chart options.
+    this.activeTab = tabName;
+    this.currentDataset = dataset;
+    this.chart?.clear();
+    await this.updateDatasetFromAnimationCursor();
   }
 
   @action
@@ -589,6 +641,16 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
   @action
   async restartSimulation() {
     this.simulationTask.perform();
+  }
+
+  // Model and scenario changes only start a run when the model version is set
+  // to simulate automatically; otherwise the next run starts from the
+  // "Simulate" button.
+  @action
+  async restartSimulationIfAutomatic() {
+    if (this.args.model.autoSimulate) {
+      await this.restartSimulation();
+    }
   }
 
   simulationTask = task({ restartable: true }, async () => {
@@ -2149,15 +2211,42 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     super.willDestroy();
     clearTimeout(this.initialResultsProgressTimer);
     this.cancelRunningSimulationBatch();
-    this.eventBus.off('scenario-value-changed', this.restartSimulation);
+    this.eventBus.off(
+      'scenario-value-changed',
+      this.restartSimulationIfAutomatic,
+    );
 
-    this.storeEventEmitter.off('node', 'created', this.restartSimulation);
-    this.storeEventEmitter.off('node', 'updated', this.restartSimulation);
-    this.storeEventEmitter.off('node', 'deleted', this.restartSimulation);
+    this.storeEventEmitter.off(
+      'node',
+      'created',
+      this.restartSimulationIfAutomatic,
+    );
+    this.storeEventEmitter.off(
+      'node',
+      'updated',
+      this.restartSimulationIfAutomatic,
+    );
+    this.storeEventEmitter.off(
+      'node',
+      'deleted',
+      this.restartSimulationIfAutomatic,
+    );
 
-    this.storeEventEmitter.off('edge', 'created', this.restartSimulation);
-    this.storeEventEmitter.off('edge', 'updated', this.restartSimulation);
-    this.storeEventEmitter.off('edge', 'deleted', this.restartSimulation);
+    this.storeEventEmitter.off(
+      'edge',
+      'created',
+      this.restartSimulationIfAutomatic,
+    );
+    this.storeEventEmitter.off(
+      'edge',
+      'updated',
+      this.restartSimulationIfAutomatic,
+    );
+    this.storeEventEmitter.off(
+      'edge',
+      'deleted',
+      this.restartSimulationIfAutomatic,
+    );
 
     window.removeEventListener('resize', this.handleZoomedChartResize);
   }
@@ -2167,12 +2256,16 @@ export default class FloatingToolbarSimulateModalComponent extends Component<Flo
     this.floatingToolbarDropdownManager.togglePin('simulateModal');
   }
 
-  @action removePinOnClose(dd: any) {
+  // Opening the panel already runs a simulation (onOpen). A pinned panel stays
+  // open, so a click on "Simulate" there starts the next run instead of
+  // closing it. An open panel that is not pinned closes as before.
+  @action simulateFromTrigger(dd: { isOpen: boolean; disabled: boolean }) {
     if (
       dd.isOpen &&
+      !dd.disabled &&
       this.floatingToolbarDropdownManager.isSimulateDropdownPinned
     ) {
-      this.floatingToolbarDropdownManager.isSimulateDropdownPinned = false;
+      this.restartSimulation();
     }
   }
 

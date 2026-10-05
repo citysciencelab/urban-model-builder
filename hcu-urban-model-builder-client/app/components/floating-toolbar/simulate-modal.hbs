@@ -330,7 +330,7 @@
 
   </modal.Content>
   <modal.Trigger
-    {{on "click" (fn this.removePinOnClose modal)}}
+    {{on "click" (fn this.simulateFromTrigger modal)}}
     class={{if this.isSimulationPossible "" "disabled"}}
   >
     {{#unless this.isSimulationPossible}}
