@@ -76,33 +76,33 @@ export const modelsVersions = (app: Application) => {
         // JSONB serialization hook for create operations
         (context) => {
           if (context.data && typeof context.data === 'object' && !Array.isArray(context.data)) {
-            const data = context.data as any;
-            
+            const data = context.data as any
+
             // Handle ogcEndpoints JSONB serialization
             if (data.ogcEndpoints !== undefined) {
               // Ensure it's a valid array before stringifying
               if (Array.isArray(data.ogcEndpoints)) {
-                data.ogcEndpoints = JSON.stringify(data.ogcEndpoints);
+                data.ogcEndpoints = JSON.stringify(data.ogcEndpoints)
               } else if (typeof data.ogcEndpoints === 'string') {
                 try {
                   // Try to parse and re-stringify to ensure valid JSON
-                  const parsed = JSON.parse(data.ogcEndpoints);
-                  data.ogcEndpoints = JSON.stringify(Array.isArray(parsed) ? parsed : []);
+                  const parsed = JSON.parse(data.ogcEndpoints)
+                  data.ogcEndpoints = JSON.stringify(Array.isArray(parsed) ? parsed : [])
                 } catch (error) {
-                  data.ogcEndpoints = JSON.stringify([]);
+                  data.ogcEndpoints = JSON.stringify([])
                 }
               } else {
                 // If it's neither array nor string, default to empty array
-                data.ogcEndpoints = JSON.stringify([]);
+                data.ogcEndpoints = JSON.stringify([])
               }
             }
-            
+
             // Handle customUnits JSONB serialization if needed
             if (data.customUnits !== undefined && typeof data.customUnits === 'object') {
-              data.customUnits = JSON.stringify(data.customUnits);
+              data.customUnits = JSON.stringify(data.customUnits)
             }
           }
-          return context;
+          return context
         }
       ],
       patch: [
@@ -127,33 +127,33 @@ export const modelsVersions = (app: Application) => {
         // JSONB serialization hook - AFTER validation to avoid schema conflicts
         (context) => {
           if (context.data && typeof context.data === 'object' && !Array.isArray(context.data)) {
-            const data = context.data as any;
-            
+            const data = context.data as any
+
             // Handle ogcEndpoints JSONB serialization
             if (data.ogcEndpoints !== undefined) {
               // Ensure it's a valid array before stringifying
               if (Array.isArray(data.ogcEndpoints)) {
-                data.ogcEndpoints = JSON.stringify(data.ogcEndpoints);
+                data.ogcEndpoints = JSON.stringify(data.ogcEndpoints)
               } else if (typeof data.ogcEndpoints === 'string') {
                 try {
                   // Try to parse and re-stringify to ensure valid JSON
-                  const parsed = JSON.parse(data.ogcEndpoints);
-                  data.ogcEndpoints = JSON.stringify(Array.isArray(parsed) ? parsed : []);
+                  const parsed = JSON.parse(data.ogcEndpoints)
+                  data.ogcEndpoints = JSON.stringify(Array.isArray(parsed) ? parsed : [])
                 } catch (error) {
-                  data.ogcEndpoints = JSON.stringify([]);
+                  data.ogcEndpoints = JSON.stringify([])
                 }
               } else {
                 // If it's neither array nor string, default to empty array
-                data.ogcEndpoints = JSON.stringify([]);
+                data.ogcEndpoints = JSON.stringify([])
               }
             }
-            
+
             // Handle customUnits JSONB serialization if needed
             if (data.customUnits !== undefined && typeof data.customUnits === 'object') {
-              data.customUnits = JSON.stringify(data.customUnits);
+              data.customUnits = JSON.stringify(data.customUnits)
             }
           }
-          return context;
+          return context
         }
       ],
       remove: [disallow('external')],
@@ -175,33 +175,33 @@ export const modelsVersions = (app: Application) => {
               // Deserialize ogcEndpoints from JSONB string back to array
               if (typeof result.ogcEndpoints === 'string') {
                 try {
-                  result.ogcEndpoints = JSON.parse(result.ogcEndpoints);
+                  result.ogcEndpoints = JSON.parse(result.ogcEndpoints)
                 } catch (error) {
-                  result.ogcEndpoints = [];
+                  result.ogcEndpoints = []
                 }
               }
-              
+
               // Deserialize customUnits from JSONB string back to object
               if (typeof result.customUnits === 'string') {
                 try {
-                  result.customUnits = JSON.parse(result.customUnits);
+                  result.customUnits = JSON.parse(result.customUnits)
                 } catch (error) {
-                  result.customUnits = null;
+                  result.customUnits = null
                 }
               }
             }
-            return result;
-          };
+            return result
+          }
 
           if (Array.isArray(context.result)) {
             // Handle array results (find operations)
-            context.result = context.result.map(deserializeResult);
+            context.result = context.result.map(deserializeResult)
           } else if (context.result) {
             // Handle single result (get, create, patch operations)
-            context.result = deserializeResult(context.result);
+            context.result = deserializeResult(context.result)
           }
 
-          return context;
+          return context
         }
       ]
     },

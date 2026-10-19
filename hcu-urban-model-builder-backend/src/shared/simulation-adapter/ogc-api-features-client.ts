@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, isAxiosError } from 'axios'
 import _ from 'lodash'
+import { DEFAULT_OGC_ENDPOINT } from './ogc-endpoints.js'
 
 export type Feature = {
   id: number
@@ -16,14 +17,13 @@ type FeaturesResponse = {
 
 type Api = {
   id: string
-  title?: string
-  name?: string
-  description?: string
+  title: string
+  description: string
 }
 
 type Collection = {
   id: string
-  title?: string
+  title: string
   name?: string
   description?: string
 }
@@ -51,12 +51,16 @@ type FilterQuery = {
   [key: string]: any
 }
 
+// OGC API Features Part 6 adds the `properties` (and `skipGeometry`) query parameters
+const PROPERTY_SELECTION_CONFORMANCE = 'http://www.opengis.net/spec/ogcapi-features-6/0.0/conf/properties'
+
 export class OgcApiFeaturesClient {
   client: AxiosInstance
 
   private propertiesSchemaCache = new Map<string, Promise<Record<string, Property>>>()
+  private conformanceCache = new Map<string, Promise<string[]>>()
 
-  constructor(baseURL: string = 'https://api.hamburg.de/datasets/v1') {
+  constructor(baseURL: string = DEFAULT_OGC_ENDPOINT.baseUrl) {
     this.client = axios.create({
       baseURL,
       headers: {
@@ -74,58 +78,22 @@ export class OgcApiFeaturesClient {
   }
 
   async getApis(): Promise<Api[]> {
-    try {
-      const response = await this.client.get('/')
-      const apis = response.data.apis || []
-      
-      // Ensure each API has proper display properties
-      return apis.map((api: any) => ({
-        id: api.id,
-        title: api.title || api.name || api.id,
-        description: api.description || ''
-      }))
-    } catch (error) {
-      console.error('Error fetching APIs:', error)
-      return []
-    }
+    const response = await this.client.get('/')
+    return (response.data.apis || []).map((api: any) => ({
+      id: api.id,
+      title: api.title || api.name || api.id,
+      description: api.description || ''
+    }))
   }
 
   async getCollections(apiId: string): Promise<Collection[]> {
-    try {
-      console.log(`[OGC] Fetching collections for API: ${apiId}`)
-      // For single API endpoints, use collections directly from root
-      const url = apiId ? `${apiId}/collections` : 'collections';
-      console.log(`[OGC] Full URL: ${this.client.defaults.baseURL}/${url}`)
-      
-      const response = await this.client.get(url)
-      console.log(`[OGC] Response status:`, response.status)
-      console.log(`[OGC] Response headers:`, response.headers)
-      console.log(`[OGC] Raw response data:`, response.data)
-      
-      const collections = response.data.collections || []
-      console.log(`[OGC] Raw collections:`, collections)
-      
-      // Ensure each collection has proper display properties
-      const processedCollections = collections.map((collection: any) => ({
-        id: collection.id,
-        title: collection.title || collection.name || collection.id,
-        name: collection.name,
-        description: collection.description
-      }))
-      
-      console.log(`[OGC] Processed collections:`, processedCollections)
-      return processedCollections
-    } catch (error) {
-      console.error(`[OGC] Error fetching collections for API ${apiId}:`, error)
-      return []
-    }
-  }
-
-  async getAvailableCollections(apiId: string): Promise<Collection[]> {
-    console.log(`[OGC] getAvailableCollections called for API: ${apiId}`)
-    const result = await this.getCollections(apiId)
-    console.log(`[OGC] getAvailableCollections returning:`, result)
-    return result
+    const response = await this.client.get(this.collectionsPath(apiId))
+    return (response.data.collections || []).map((collection: any) => ({
+      id: collection.id,
+      title: collection.title || collection.name || collection.id,
+      name: collection.name,
+      description: collection.description
+    }))
   }
 
   async fetchFeatures(
@@ -133,22 +101,28 @@ export class OgcApiFeaturesClient {
     collectionId: string,
     query: FilterQuery = {}
   ): Promise<FeaturesResponse> {
-    // For single API endpoints, use collections directly from root
-    const baseUrl = apiId ? `${apiId}/collections` : 'collections';
-    const propertiesSchema = await this.getPropertiesSchema(apiId, collectionId)
+    const [propertiesSchema, supportsPropertySelection] = await Promise.all([
+      this.getPropertiesSchema(apiId, collectionId),
+      this.supportsPropertySelection(apiId)
+    ])
     const collectionData = await this.client.get<FeaturesResponse>(
-      `${baseUrl}/${collectionId}/items`,
+      `${this.collectionsPath(apiId)}/${collectionId}/items`,
       {
-        params: this.serializeFeatureQuery(query, propertiesSchema),
+        params: this.serializeFeatureQuery(query, propertiesSchema, supportsPropertySelection),
         headers: {
           Accept: 'application/geo+json, application/problem+json;q=0.9'
         }
       }
     )
+    const selectedProperties = this.getSelectedProperties(query, propertiesSchema)
     const data = collectionData.data
     data.features = data.features.map((feature: any) => {
       if (query.skipGeometry) {
         delete feature.geometry
+      }
+      // servers without property selection return all properties
+      if (selectedProperties.length > 0 && feature.properties) {
+        feature.properties = _.pick(feature.properties, selectedProperties)
       }
       if (feature.properties === null) {
         delete feature.properties
@@ -159,42 +133,13 @@ export class OgcApiFeaturesClient {
   }
 
   async getQueryableProperties(apiId: string, collectionId: string): Promise<Record<string, Property>> {
-    try {
-      const baseUrl = apiId ? `${apiId}/collections` : 'collections';
-      const url = `${baseUrl}/${collectionId}/queryables`;
-      
-      console.log(`[OGC] Fetching queryable properties for API: ${apiId}, Collection: ${collectionId}`);
-      console.log(`[OGC] Queryables URL: ${this.client.defaults.baseURL}/${url}`);
-      
-      const response = await this.client.get(url, {
-        params: {
-          f: 'application/schema+json'
-        },
-        headers: {
-          Accept: 'application/schema+json'
-        }
-      });
-      
-      console.log(`[OGC] Queryables response status:`, response.status);
-      console.log(`[OGC] Queryables response headers:`, response.headers);
-      console.log(`[OGC] Queryables raw response data:`, response.data);
-      
-      const properties = response.data.properties || {};
-      console.log(`[OGC] Processed queryable properties:`, properties);
-      console.log(`[OGC] Number of queryable properties:`, Object.keys(properties).length);
-      
-      return properties;
-    } catch (error) {
-      console.error(`[OGC] Error fetching queryable properties for API ${apiId}, Collection ${collectionId}:`, error);
-      console.error(`[OGC] Error details:`, {
-        message: (error as any).message,
-        status: (error as any).response?.status,
-        statusText: (error as any).response?.statusText,
-        url: (error as any).config?.url,
-        method: (error as any).config?.method
-      });
-      return {};
-    }
+    const response = await this.client.get(`${this.collectionsPath(apiId)}/${collectionId}/queryables`, {
+      headers: {
+        Accept: 'application/schema+json, application/problem+json;q=0.9'
+      }
+    })
+
+    return response.data.properties || {}
   }
 
   async getPropertiesSchema(apiId: string, collectionId: string): Promise<Record<string, Property>> {
@@ -208,55 +153,64 @@ export class OgcApiFeaturesClient {
     return this.propertiesSchemaCache.get(cacheKey)!
   }
 
-  private async fetchPropertiesSchema(apiId: string, collectionId: string): Promise<Record<string, Property>> {
+  private async fetchPropertiesSchema(
+    apiId: string,
+    collectionId: string
+  ): Promise<Record<string, Property>> {
     try {
-      const baseUrl = apiId ? `${apiId}/collections` : 'collections';
-      const url = `${baseUrl}/${collectionId}/schema`;
-      
-      console.log(`[OGC] Fetching properties schema for API: ${apiId}, Collection: ${collectionId}`);
-      console.log(`[OGC] Schema URL: ${this.client.defaults.baseURL}/${url}`);
-      
-      const response = await this.client.get(url, {
-        params: {
-          f: 'application/schema+json'
-        },
+      const response = await this.client.get(`${this.collectionsPath(apiId)}/${collectionId}/schema`, {
         headers: {
-          Accept: 'application/schema+json'
+          Accept: 'application/schema+json, application/problem+json;q=0.9'
         }
-      });
-      
-      console.log(`[OGC] Schema response status:`, response.status);
-      console.log(`[OGC] Schema response headers:`, response.headers);
-      console.log(`[OGC] Schema raw response data:`, response.data);
-      
-      const properties = response.data.properties || {};
-      console.log(`[OGC] Processed schema properties:`, properties);
-      console.log(`[OGC] Number of schema properties:`, Object.keys(properties).length);
-      
-      return properties;
+      })
+      return response.data.properties || {}
     } catch (error) {
-      console.error(`[OGC] Error fetching properties schema for API ${apiId}, Collection ${collectionId}:`, error);
-      console.error(`[OGC] Error details:`, {
-        message: (error as any).message,
-        status: (error as any).response?.status,
-        statusText: (error as any).response?.statusText,
-        url: (error as any).config?.url,
-        method: (error as any).config?.method
-      });
-      
-      // Fallback: Try queryables endpoint if schema fails
-      console.log(`[OGC] Schema failed, trying queryables endpoint as fallback...`);
-      return this.getQueryableProperties(apiId, collectionId);
+      // the schema endpoint is optional (OGC API Features Part 5), fall back to the queryables
+      if (isAxiosError(error) && error.response?.status === 404) {
+        return this.getQueryableProperties(apiId, collectionId)
+      }
+      throw error
     }
   }
 
+  private async supportsPropertySelection(apiId: string) {
+    if (!this.conformanceCache.has(apiId)) {
+      const request = this.client
+        .get(apiId ? `${apiId}/conformance` : 'conformance')
+        .then((response) => (response.data.conformsTo as string[]) || [])
+        // without conformance information only core parameters are sent
+        .catch(() => [])
+      this.conformanceCache.set(apiId, request)
+    }
+    const conformsTo = await this.conformanceCache.get(apiId)!
+    return conformsTo.includes(PROPERTY_SELECTION_CONFORMANCE)
+  }
+
   /**
-   * The API only accepts known query parameters and property names (unknown ones are rejected with 400).
-   * Since the geometry is treated as a regular property, it has to be requested explicitly via `properties`.
+   * Single API endpoints serve their collections from the root, multi API endpoints below the api id
    */
-  private serializeFeatureQuery(query: FilterQuery, propertiesSchema: Record<string, Property>) {
-    const { propertyFilters = {}, filter, properties, limit, offset, skipGeometry } = query
-    const rest: Record<string, any> = { limit, offset, skipGeometry }
+  private collectionsPath(apiId: string) {
+    return apiId ? `${apiId}/collections` : 'collections'
+  }
+
+  // drop properties that no longer exist in the collection (e.g. renamed geometry properties of older nodes)
+  private getSelectedProperties(query: FilterQuery, propertiesSchema: Record<string, Property>) {
+    return (query.properties ?? []).filter(
+      (key) => key in propertiesSchema && !isGeometryProperty(propertiesSchema[key])
+    )
+  }
+
+  /**
+   * Servers may reject unknown query parameters and property names with 400, so only supported parameters are sent.
+   * With property selection the geometry is treated as a regular property and has to be requested explicitly.
+   */
+  private serializeFeatureQuery(
+    query: FilterQuery,
+    propertiesSchema: Record<string, Property>,
+    supportsPropertySelection: boolean
+  ) {
+    const { propertyFilters = {}, filter, limit, offset, skipGeometry } = query
+    const rest: Record<string, any> = { limit, offset }
     const propertyQueryParams: Record<string, any> = {}
     let filtersFromProperties = ''
 
@@ -276,16 +230,19 @@ export class OgcApiFeaturesClient {
       }
     }
 
-    // drop properties that no longer exist in the collection (e.g. renamed geometry properties of older nodes)
-    const selectedProperties = (properties ?? []).filter(
-      (key) => key in propertiesSchema && !isGeometryProperty(propertiesSchema[key])
-    )
-    if (selectedProperties.length > 0) {
-      if (!skipGeometry) {
-        selectedProperties.push(...getGeometryPropertyNames(propertiesSchema))
+    if (supportsPropertySelection) {
+      const selectedProperties = this.getSelectedProperties(query, propertiesSchema)
+      if (selectedProperties.length > 0) {
+        if (!skipGeometry) {
+          selectedProperties.push(...getGeometryPropertyNames(propertiesSchema))
+        }
+        rest.properties = selectedProperties.join(',')
       }
-      rest.properties = selectedProperties.join(',')
+      if (skipGeometry) {
+        rest.skipGeometry = true
+      }
     }
+
     if (filter && filtersFromProperties) {
       rest.filter = `(${filter}) AND ${filtersFromProperties}`
     } else if (filter) {

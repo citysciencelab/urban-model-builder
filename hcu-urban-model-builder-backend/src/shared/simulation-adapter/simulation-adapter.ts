@@ -14,6 +14,7 @@ import {
 } from 'simulation/blocks'
 import { Edges, EdgeType } from '../../services/edges/edges.shared.js'
 import { primitiveFactory } from './primitive-factory.js'
+import { OgcEndpoint } from './ogc-endpoints.js'
 import { Results } from 'simulation/Results'
 import { Logger } from 'winston'
 import { ClientApplication } from '../../client.js'
@@ -53,6 +54,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
   private primitiveIdTypeMap = new Map<string, NodeType>()
   private outputParameterNodesIds: Set<string> = new Set()
   private simulationResultBeforeSerialization: Results | null = null
+  private ogcEndpoints: OgcEndpoint[] | null = null
 
   constructor(
     app: T,
@@ -108,6 +110,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     })
 
     model.globals = modelInDB.globals || ''
+    this.ogcEndpoints = modelInDB.ogcEndpoints ?? null
 
     return model
   }
@@ -123,7 +126,7 @@ export class SimulationAdapter<T extends ClientApplication | Application> {
     })
 
     for (const node of nodes.data) {
-      const simulationPrimitive = await primitiveFactory(model, node)
+      const simulationPrimitive = await primitiveFactory(model, node, { ogcEndpoints: this.ogcEndpoints })
 
       this.setParameter(node, simulationPrimitive)
 

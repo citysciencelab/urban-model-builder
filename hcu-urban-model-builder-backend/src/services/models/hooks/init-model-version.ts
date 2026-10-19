@@ -1,5 +1,6 @@
 import { checkContext } from 'feathers-hooks-common'
 import { HookContext } from '../../../declarations.js'
+import { DEFAULT_OGC_ENDPOINT } from '../../../shared/simulation-adapter/ogc-endpoints.js'
 
 export const initModelVersion = async (context: HookContext) => {
   checkContext(context, 'after', 'create')
@@ -17,7 +18,7 @@ export const initModelVersion = async (context: HookContext) => {
       algorithm: 'Euler',
       timeUnits: 'Years',
       globals: '',
-      ogcEndpoints: []
+      ogcEndpoints: [DEFAULT_OGC_ENDPOINT]
     },
     { user: context.params.user }
   )

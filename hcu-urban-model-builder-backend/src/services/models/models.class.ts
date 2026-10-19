@@ -25,6 +25,7 @@ import { isServerCall } from '../../utils/is-server-call.js'
 import { scenariosDataSchema } from '../scenarios/scenarios.schema.js'
 import { scenarioValuesDataSchema } from '../scenarios-values/scenarios-values.schema.js'
 import { Roles } from '../../client.js'
+import { DEFAULT_OGC_ENDPOINT } from '../../shared/simulation-adapter/ogc-endpoints.js'
 import { QueryBuilder } from 'knex'
 
 export type { Models, ModelsData, ModelsPatch, ModelsQuery }
@@ -250,9 +251,9 @@ export class ModelsService<ServiceParams extends Params = ModelsParams> extends 
   ) {
     const createObjectData = _.pick(currentModelVersion, Object.keys(modelsVersionsDataSchema.properties))
 
-    // Ensure ogcEndpoints is a valid JSON array
-    if (createObjectData.ogcEndpoints === undefined || createObjectData.ogcEndpoints === null) {
-      createObjectData.ogcEndpoints = []
+    // versions created before endpoints were configurable get the default endpoint
+    if (!createObjectData.ogcEndpoints || createObjectData.ogcEndpoints.length === 0) {
+      createObjectData.ogcEndpoints = [DEFAULT_OGC_ENDPOINT]
     }
 
     // TODO: ensure createdBy is set on a hook using params

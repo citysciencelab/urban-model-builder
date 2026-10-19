@@ -8,13 +8,15 @@ import { dataValidator, queryValidator } from '../../validators.js'
 import type { ModelsVersionsService } from './models-versions.class.js'
 import { AlgorithmType } from 'simulation'
 import { Literals, Nullable } from '../../utils/schema.js'
+import type { OgcApiType } from '../../shared/simulation-adapter/ogc-endpoints.js'
 
 // OGC Endpoint schema
 export const ogcEndpointSchema = Type.Object({
   id: Type.String(),
   name: Type.String(),
   baseUrl: Type.String(),
-  isDefault: Type.Boolean()
+  isDefault: Type.Boolean(),
+  apiType: Type.Optional(Literals<OgcApiType>('multi-api', 'single-api', 'unknown'))
 })
 
 // Main data model schema

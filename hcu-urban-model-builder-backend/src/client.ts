@@ -132,3 +132,9 @@ export {
   OgcApiFeaturesClient,
   isGeometryProperty
 } from './shared/simulation-adapter/ogc-api-features-client.js'
+export {
+  DEFAULT_OGC_ENDPOINT,
+  resolveOgcEndpoint,
+  isSingleApiEndpoint
+} from './shared/simulation-adapter/ogc-endpoints.js'
+export type { OgcEndpoint, OgcApiType } from './shared/simulation-adapter/ogc-endpoints.js'

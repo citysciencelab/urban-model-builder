@@ -1,7 +1,13 @@
 import { Model } from 'simulation'
 import { Nodes, NodeType } from '../../client.js'
 import { OgcApiFeaturesClient } from './ogc-api-features-client.js'
+import { isSingleApiEndpoint, OgcEndpoint, resolveOgcEndpoint } from './ogc-endpoints.js'
+import { SimulationError } from './simulation-error.js'
 import { transformFeatures } from './utils.js'
+
+type PrimitiveFactoryContext = {
+  ogcEndpoints?: OgcEndpoint[] | null
+}
 
 const getUnitsDefault = (node: Nodes) => {
   return node.data.units || 'Unitless'
@@ -99,25 +105,18 @@ const simulationFactoryMap = {
   [NodeType.Ghost]: (model: Model, node: Nodes) => {
     throw new Error('Ghost nodes are not supported. Can not create a primitive for a ghost node.')
   },
-  [NodeType.OgcApiFeatures]: async (model: Model, node: Nodes) => {
-    // Use the baseURL stored in the node data
-    const baseUrl = node.data.baseUrl;
-    if (!baseUrl) {
-      throw new Error(`No baseURL found for OgcApiFeatures node ${node.id}`);
+  [NodeType.OgcApiFeatures]: async (model: Model, node: Nodes, context: PrimitiveFactoryContext = {}) => {
+    const endpoint = resolveOgcEndpoint(node.data, context.ogcEndpoints)
+    const client = new OgcApiFeaturesClient(endpoint.baseUrl)
+    // single API endpoints serve their collections from the root
+    const apiId = isSingleApiEndpoint(endpoint) ? '' : node.data.apiId || ''
+
+    let features
+    try {
+      features = await client.fetchFeatures(apiId, node.data.collectionId!, node.data.query)
+    } catch (error: any) {
+      throw new SimulationError(error.message, { nodeId: node.id })
     }
-    
-    const client = new OgcApiFeaturesClient(baseUrl);
-    
-    // For Single API endpoints, apiId should be empty string
-    const apiId = node.data.apiType === 'single-api' ? '' : (node.data.apiId || '');
-    
-    console.log(`[PrimitiveFactory] Creating OgcApiFeatures primitive for node ${node.id}`);
-    console.log(`[PrimitiveFactory] baseUrl: ${baseUrl}`);
-    console.log(`[PrimitiveFactory] apiType: ${node.data.apiType}`);
-    console.log(`[PrimitiveFactory] apiId: "${apiId}"`);
-    console.log(`[PrimitiveFactory] collectionId: ${node.data.collectionId}`);
-    
-    const features = await client.fetchFeatures(apiId, node.data.collectionId!, node.data.query);
 
     return model.Variable({
       name: node.name!,
@@ -130,6 +129,9 @@ const simulationFactoryMap = {
   }
 }
 
-export const primitiveFactory = async (model: Model, node: Nodes) => {
+export const primitiveFactory = async (model: Model, node: Nodes, context: PrimitiveFactoryContext = {}) => {
+  if (node.type === NodeType.OgcApiFeatures) {
+    return simulationFactoryMap[NodeType.OgcApiFeatures](model, node, context)
+  }
   return simulationFactoryMap[node.type](model, node)
 }
