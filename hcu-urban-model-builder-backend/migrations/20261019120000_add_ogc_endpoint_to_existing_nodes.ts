@@ -7,7 +7,7 @@ const OGC_API_FEATURES_NODE_TYPE = 11
 export async function up(knex: Knex): Promise<void> {
   await knex('nodes')
     .where({ type: OGC_API_FEATURES_NODE_TYPE })
-    .whereRaw(`NOT (data ? 'endpointId') AND NOT (data ? 'baseUrl')`)
+    .whereRaw(`data->>'endpointId' IS NULL AND data->>'baseUrl' IS NULL`)
     .update({
       data: knex.raw(`data || ?::jsonb`, [
         JSON.stringify({

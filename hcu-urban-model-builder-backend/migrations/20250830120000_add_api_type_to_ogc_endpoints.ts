@@ -7,7 +7,7 @@ export async function up(knex: Knex): Promise<void> {
     SET "ogcEndpoints" = (
       SELECT jsonb_agg(
         CASE
-          WHEN endpoint->>'id' = 'hamburg-api' AND NOT endpoint ? 'apiType'
+          WHEN endpoint->>'id' = 'hamburg-api' AND endpoint->>'apiType' IS NULL
             THEN endpoint || '{"apiType": "multi-api"}'::jsonb
           ELSE endpoint
         END
