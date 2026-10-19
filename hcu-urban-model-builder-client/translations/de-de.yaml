@@ -207,6 +207,7 @@ components:
     nothing_found: Keine Ergebnisse
   ogc_api:
     endpoint_label: OGC API Endpunkt
+    load_error: 'Daten konnten nicht vom Endpunkt geladen werden:'
     more_info: Mehr Informationen zur API
     collection_info: Mehr Informationen zur Sammlung
     total: Datensätze gesamt

@@ -8,6 +8,11 @@ import lookupValidator from 'ember-changeset-validations';
 import modelValidator from 'hcu-urban-model-builder-client/validations/model';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 import type IntlService from 'ember-intl/services/intl';
+import {
+  DEFAULT_OGC_ENDPOINT,
+  type OgcApiType,
+  type OgcEndpoint,
+} from 'hcu-urban-model-builder-backend';
 
 export interface SidebarGeneralViewsModelInfoSignature {
   // The arguments accepted by the component
@@ -34,8 +39,9 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
   @tracked newEndpointName = '';
   @tracked newEndpointUrl = '';
   @tracked isCheckingApiType = false;
-  @tracked detectedApiType: 'multi-api' | 'single-api' | 'unknown' | null = null;
+  @tracked detectedApiType: OgcApiType | null = null;
   @tracked apiTypeError: string | null = null;
+  @tracked endpointSaveError: string | null = null;
 
   private apiTypeCheckTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -52,29 +58,17 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
   @action async initialize() {
     this.record = await this.args.modelVersion.model;
     this.changeset = new TrackedChangeset(this.record!, this.validator);
+  }
 
-    // Initialize ogcEndpoints if not present
-    if (!this.args.modelVersion.ogcEndpoints || this.args.modelVersion.ogcEndpoints.length === 0) {
-      const defaultEndpoints = [
-        {
-          id: 'hamburg-api',
-          name: 'Urban Data Platform Hamburg',
-          baseUrl: 'https://api.hamburg.de/datasets/v1',
-          isDefault: true,
-          apiType: 'multi-api' as const
-        }
-      ];
+  // versions created before endpoints were configurable use the default endpoint
+  get ogcEndpoints(): OgcEndpoint[] {
+    const endpoints = this.args.modelVersion.ogcEndpoints;
+    return endpoints && endpoints.length > 0
+      ? endpoints
+      : [DEFAULT_OGC_ENDPOINT];
+  }
 
-      this.args.modelVersion.ogcEndpoints = defaultEndpoints;
-
-      // Save the model version to persist the default endpoint
-      try {
-        await this.args.modelVersion.save();
-      } catch (error) {
-        console.error('Error saving default OGC endpoint:', error);
-      }
-    }
-  }  @action showAddEndpointModal() {
+  @action showAddEndpointModal() {
     this.showAddModal = true;
     this.newEndpointName = '';
     this.newEndpointUrl = '';
@@ -157,11 +151,13 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
       }
       // Check if the response contains collections (single-api)
       // Example: https://api.pdok.nl/lv/bgt/ogc/v1/ or https://gis.lfrz.gv.at/api/geodata/i009501/ogc/features/v1/
-      else if (data.collections ||
-               (data.links && Array.isArray(data.links)) ||
-               (data.conformsTo && Array.isArray(data.conformsTo)) ||
-               data.title ||
-               data.description) {
+      else if (
+        data.collections ||
+        (data.links && Array.isArray(data.links)) ||
+        (data.conformsTo && Array.isArray(data.conformsTo)) ||
+        data.title ||
+        data.description
+      ) {
         this.detectedApiType = 'single-api';
       }
       // If neither, mark as unknown
@@ -169,8 +165,10 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
         this.detectedApiType = 'unknown';
       }
     } catch (error) {
-      console.error('Error detecting API type:', error);
-      this.apiTypeError = error instanceof Error ? error.message : this.intl.t('components.model_info.api_type_error_default');
+      this.apiTypeError =
+        error instanceof Error
+          ? error.message
+          : this.intl.t('components.model_info.api_type_error_default');
       this.detectedApiType = null;
     } finally {
       this.isCheckingApiType = false;
@@ -182,49 +180,49 @@ export default class SidebarGeneralViewsModelInfoComponent extends Component<Sid
       return;
     }
 
-    const newEndpoint = {
+    const newEndpoint: OgcEndpoint = {
       id: `custom-${Date.now()}`,
       name: this.newEndpointName,
       baseUrl: this.newEndpointUrl,
       isDefault: false,
-      apiType: this.detectedApiType || 'unknown'
+      apiType: this.detectedApiType || 'unknown',
     };
 
-    // Get current endpoints and ensure it's an array
-    const currentEndpoints = this.args.modelVersion.ogcEndpoints || [];
-
-    // Create new array with the added endpoint
-    const newEndpointsArray = [...currentEndpoints, newEndpoint];
-
-    // Set the new array
-    this.args.modelVersion.ogcEndpoints = newEndpointsArray;
-
-    try {
-      await this.args.modelVersion.save();
-      // Reset form and hide it
+    // based on this.ogcEndpoints, so the default endpoint is kept for older versions
+    const saved = await this.saveOgcEndpoints([
+      ...this.ogcEndpoints,
+      newEndpoint,
+    ]);
+    if (saved) {
       this.closeAddEndpointModal();
-    } catch (error) {
-      console.error('Error saving OGC endpoint:', error);
-      // Restore the original array if save failed
-      this.args.modelVersion.ogcEndpoints = currentEndpoints;
     }
-  }  @action async removeOgcEndpoint(index: number) {
-    const currentEndpoints = this.args.modelVersion.ogcEndpoints || [];
-    const endpoint = currentEndpoints[index];
+  }
+
+  @action async removeOgcEndpoint(index: number) {
+    const endpoint = this.ogcEndpoints[index];
 
     // Don't allow removing default endpoint or invalid index
     if (!endpoint || endpoint.isDefault) return;
 
-    // Create new array without the removed endpoint
-    const newEndpoints = currentEndpoints.filter((_, i) => i !== index);
-    this.args.modelVersion.ogcEndpoints = newEndpoints;
+    await this.saveOgcEndpoints(
+      this.ogcEndpoints.filter((_, i) => i !== index),
+    );
+  }
+
+  private async saveOgcEndpoints(endpoints: OgcEndpoint[]) {
+    const previousEndpoints = this.args.modelVersion.ogcEndpoints;
+    this.args.modelVersion.ogcEndpoints = endpoints;
+    this.endpointSaveError = null;
 
     try {
       await this.args.modelVersion.save();
+      return true;
     } catch (error) {
-      console.error('Error removing OGC endpoint:', error);
-      // Restore the original array if save failed
-      this.args.modelVersion.ogcEndpoints = currentEndpoints;
+      // restore the previous endpoints if saving failed
+      this.args.modelVersion.ogcEndpoints = previousEndpoints;
+      this.endpointSaveError =
+        error instanceof Error ? error.message : String(error);
+      return false;
     }
   }
 }

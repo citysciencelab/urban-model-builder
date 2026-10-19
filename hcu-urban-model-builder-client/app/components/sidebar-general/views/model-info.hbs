@@ -74,18 +74,18 @@
       <BsAccordion class="sidebar-accordion" as |acc|>
         <acc.item
           @value="urban-data-platforms"
-          @title="{{t 'components.model_info.urban_data_platforms_title'}} ({{@modelVersion.ogcEndpoints.length}})"
+          @title="{{t 'components.model_info.urban_data_platforms_title'}} ({{this.ogcEndpoints.length}})"
         >
           <p class="text-muted mb-3">
             <small>{{t "components.model_info.urban_data_platforms_description"}}</small>
           </p>
 
-            {{#each @modelVersion.ogcEndpoints as |endpoint index|}}
+            {{#each this.ogcEndpoints as |endpoint index|}}
               <div class="card mb-2 border-0 bg-light">
                 <div class="card-body p-3">
                   <div class="d-flex justify-content-between align-items-start">
                     <div class="flex-grow-1">
-                      <!-- Endpoint Name -->
+                      {{! Endpoint Name }}
                       <div class="d-flex align-items-center justify-content-between mb-2">
                         <div class="d-flex align-items-center">
                           <strong class="me-2">{{endpoint.name}}</strong>
@@ -105,9 +105,9 @@
                         {{/unless}}
                       </div>
 
-                      <!-- URL -->
+                      {{! URL }}
                       <div class="d-flex align-items-center mb-1 text-muted">
-                        <FaIcon @icon="external-link-alt" class="me-2 text-primary" style="width: 14px;" title="{{t 'components.model_info.endpoint_url_label'}}" />
+                        <FaIcon @icon="external-link-alt" class="me-2 text-primary" @fixedWidth={{true}} title="{{t 'components.model_info.endpoint_url_label'}}" />
                         <small>
                           <a href="{{endpoint.baseUrl}}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted">
                             {{endpoint.baseUrl}}
@@ -115,17 +115,17 @@
                         </small>
                       </div>
 
-                      <!-- API Type -->
+                      {{! API Type }}
                       {{#if endpoint.apiType}}
                         <div class="d-flex align-items-center text-muted">
                           {{#if (eq endpoint.apiType "multi-api")}}
-                            <FaIcon @icon="list" class="me-2 text-primary" style="width: 14px;" title="{{t 'components.model_info.api_type_multi'}}" />
+                            <FaIcon @icon="list" class="me-2 text-primary" @fixedWidth={{true}} title="{{t 'components.model_info.api_type_multi'}}" />
                             <small>{{t "components.model_info.api_type_multi"}}</small>
                           {{else if (eq endpoint.apiType "single-api")}}
-                            <FaIcon @icon="file" class="me-2 text-primary" style="width: 14px;" title="{{t 'components.model_info.api_type_single'}}" />
+                            <FaIcon @icon="file" class="me-2 text-primary" @fixedWidth={{true}} title="{{t 'components.model_info.api_type_single'}}" />
                             <small>{{t "components.model_info.api_type_single"}}</small>
                           {{else if (eq endpoint.apiType "unknown")}}
-                            <FaIcon @icon="question" class="me-2 text-primary" style="width: 14px;" title="{{t 'components.model_info.api_type_unknown'}}" />
+                            <FaIcon @icon="question" class="me-2 text-primary" @fixedWidth={{true}} title="{{t 'components.model_info.api_type_unknown'}}" />
                             <small>{{t "components.model_info.api_type_unknown"}}</small>
                           {{/if}}
                         </div>
@@ -136,17 +136,23 @@
               </div>
             {{else}}
               <div class="text-center py-4">
-                <i class="fas fa-database fa-2x text-muted mb-2"></i>
+                <FaIcon @icon="database" @size="2x" class="text-muted mb-2" />
                 <p class="text-muted">{{t "components.model_info.no_endpoints_configured"}}</p>
               </div>
             {{/each}}
+
+            {{#if this.endpointSaveError}}
+              <div class="alert alert-danger mt-3" role="alert">
+                {{this.endpointSaveError}}
+              </div>
+            {{/if}}
 
             <div class="d-grid mt-3">
               <BsButton
                 @type="primary"
                 @onClick={{this.showAddEndpointModal}}
               >
-                <i class="fas fa-plus me-2"></i>
+                <FaIcon @icon="plus" class="me-2" />
                 {{t "components.model_info.add_new_endpoint"}}
               </BsButton>
             </div>
@@ -171,11 +177,12 @@
   <modal.body>
 
     <div class="mb-3">
-      <label class="form-label">
-        <i class="fas fa-tag me-1"></i>
+      <label class="form-label" for="ogc-endpoint-name">
+        <FaIcon @icon="tag" class="me-1" />
         {{t "components.model_info.endpoint_name_label"}}
       </label>
       <input
+        id="ogc-endpoint-name"
         type="text"
         class="form-control"
         value={{this.newEndpointName}}
@@ -186,11 +193,12 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label">
-        <i class="fas fa-link me-1"></i>
+      <label class="form-label" for="ogc-endpoint-url">
+        <FaIcon @icon="link" class="me-1" />
         {{t "components.model_info.endpoint_url_label"}}
       </label>
       <input
+        id="ogc-endpoint-url"
         type="url"
         class="form-control"
         value={{this.newEndpointUrl}}
@@ -208,7 +216,7 @@
             @onClick={{this.detectApiType}}
             @disabled={{this.isCheckingApiType}}
           >
-            <i class="fas fa-search me-1"></i>
+            <FaIcon @icon="search" class="me-1" />
             {{t "components.model_info.api_type_check_button"}}
           </BsButton>
         </div>
@@ -228,17 +236,17 @@
         <div class="mt-2">
           {{#if (eq this.detectedApiType "multi-api")}}
             <div class="alert alert-info p-2">
-              <i class="fas fa-info-circle me-1"></i>
+              <FaIcon @icon="info-circle" class="me-1" />
               <strong>{{t "components.model_info.api_type_multi_detected"}}</strong> {{t "components.model_info.api_type_multi_description"}}
             </div>
           {{else if (eq this.detectedApiType "single-api")}}
             <div class="alert alert-success p-2">
-              <i class="fas fa-check-circle me-1"></i>
+              <FaIcon @icon="check-circle" class="me-1" />
               <strong>{{t "components.model_info.api_type_single_detected"}}</strong> {{t "components.model_info.api_type_single_description"}}
             </div>
           {{else if (eq this.detectedApiType "unknown")}}
             <div class="alert alert-warning p-2">
-              <i class="fas fa-exclamation-triangle me-1"></i>
+              <FaIcon @icon="exclamation-triangle" class="me-1" />
               <strong>{{t "components.model_info.api_type_unknown_detected"}}</strong> {{t "components.model_info.api_type_unknown_description"}}
             </div>
           {{/if}}
@@ -246,7 +254,7 @@
       {{else if this.apiTypeError}}
         <div class="mt-2">
           <div class="alert alert-danger p-2">
-            <i class="fas fa-exclamation-circle me-1"></i>
+            <FaIcon @icon="exclamation-circle" class="me-1" />
             <strong>{{t "components.model_info.api_type_error"}}</strong> {{this.apiTypeError}}
           </div>
         </div>

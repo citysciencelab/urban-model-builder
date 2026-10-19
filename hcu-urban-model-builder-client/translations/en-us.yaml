@@ -207,7 +207,8 @@ components:
     nothing_found: Nothing found
   ogc_api:
     endpoint_label: OGC API Endpoint
-    more_info: Mehr Informationen zur API
+    load_error: 'Could not load data from the endpoint:'
+    more_info: More information about the API
     collection_info: More information about the collection
     total: Total items
     matching: Matching items

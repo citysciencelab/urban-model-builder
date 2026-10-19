@@ -48,7 +48,7 @@ export default class NodeFormFieldsOgcApiFeaturesPropertyQueryComponent extends 
       const res = await this.ogcApiFeatures.getQueryableProperties(
         apiId,
         collectionId,
-        this.args.baseUrl
+        this.args.baseUrl,
       );
 
       return Object.entries(res).map(([id, value]) => ({
