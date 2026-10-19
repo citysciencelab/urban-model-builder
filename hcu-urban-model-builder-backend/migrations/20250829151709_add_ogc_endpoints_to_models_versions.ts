@@ -12,7 +12,8 @@ export async function up(knex: Knex): Promise<void> {
         id: 'hamburg-api',
         name: 'Urban Data Platform Hamburg',
         baseUrl: 'https://api.hamburg.de/datasets/v1',
-        isDefault: true
+        isDefault: true,
+        apiType: 'multi-api'
       }
     ])
   })
