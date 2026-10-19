@@ -190,6 +190,7 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
       this.availableApis,
       this.availableCollections,
       this.propertiesSchema,
+      this.currentQueryResult,
     ]) {
       if (data.isRejected) {
         return (data.error as Error)?.message ?? String(data.error);

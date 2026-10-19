@@ -26,6 +26,8 @@ type Collection = {
   title: string
   name?: string
   description?: string
+  itemCount?: number
+  [key: string]: any
 }
 
 type Property = {
@@ -89,10 +91,8 @@ export class OgcApiFeaturesClient {
   async getCollections(apiId: string): Promise<Collection[]> {
     const response = await this.client.get(this.collectionsPath(apiId))
     return (response.data.collections || []).map((collection: any) => ({
-      id: collection.id,
-      title: collection.title || collection.name || collection.id,
-      name: collection.name,
-      description: collection.description
+      ...collection,
+      title: collection.title || collection.name || collection.id
     }))
   }
 
@@ -210,7 +210,8 @@ export class OgcApiFeaturesClient {
     supportsPropertySelection: boolean
   ) {
     const { propertyFilters = {}, filter, limit, offset, skipGeometry } = query
-    const rest: Record<string, any> = { limit, offset }
+    // offset is not part of OGC API Features Core and rejected by some servers, so it is only sent when needed
+    const rest: Record<string, any> = { limit, offset: offset ? offset : undefined }
     const propertyQueryParams: Record<string, any> = {}
     let filtersFromProperties = ''
 
