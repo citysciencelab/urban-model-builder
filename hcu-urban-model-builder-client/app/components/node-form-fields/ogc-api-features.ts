@@ -10,6 +10,7 @@ import type OgcApiFeaturesService from 'hcu-urban-model-builder-client/services/
 import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
 import {
   GEOMETRY_KEY,
+  isGeometryProperty,
   transformFeatures,
   type Nodes,
 } from 'hcu-urban-model-builder-backend';
@@ -233,12 +234,15 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
         console.log(`[Component] propertiesSchema: Raw properties received:`, properties);
         console.log(`[Component] propertiesSchema: Number of properties:`, Object.keys(properties || {}).length);
 
-        const mappedProperties = Object.entries(properties || {}).map(([id, property]) => ({
-          id: id,
-          ...property,
-          title: (property as any).title || id, // Use id as fallback for title
-          type: (property as any).type || 'string', // Default type
-        }));
+        // geometry is controlled by the skip geometry toggle and added to the request automatically
+        const mappedProperties = Object.entries(properties || {})
+          .filter(([, property]) => !isGeometryProperty(property))
+          .map(([id, property]) => ({
+            id: id,
+            ...property,
+            title: (property as any).title || id, // Use id as fallback for title
+            type: (property as any).type || 'string', // Default type
+          }));
 
         console.log(`[Component] propertiesSchema: Mapped properties:`, mappedProperties);
         console.log(`[Component] propertiesSchema: Number of mapped properties:`, mappedProperties.length);
@@ -268,9 +272,12 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     console.log(`[Component] selectedProperties: Query properties:`, queryProperties);
 
     const selected = (
-      queryProperties?.map((id: string) =>
-        this.propertiesSchema.value!.find((property) => property.id === id),
-      ) ?? []
+      // properties that no longer exist in the collection are ignored
+      queryProperties
+        ?.map((id: string) =>
+          this.propertiesSchema.value!.find((property) => property.id === id),
+        )
+        .filter(Boolean) ?? []
     );
 
     console.log(`[Component] selectedProperties: Selected properties:`, selected);

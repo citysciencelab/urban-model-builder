@@ -1,4 +1,5 @@
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance, isAxiosError } from 'axios'
+import _ from 'lodash'
 
 export type Feature = {
   id: number
@@ -28,8 +29,10 @@ type Collection = {
 }
 
 type Property = {
-  type: string
+  type?: string
   title: string
+  format?: string
+  'x-ogc-role'?: string
 }
 
 type PropertyFilter = {
@@ -42,6 +45,8 @@ type FilterQuery = {
   offset?: number
   skipGeometry?: boolean
   selectedProperties?: string[]
+  properties?: string[]
+  filter?: string
   propertyFilters?: Record<string, PropertyFilter>
   [key: string]: any
 }
@@ -49,12 +54,22 @@ type FilterQuery = {
 export class OgcApiFeaturesClient {
   client: AxiosInstance
 
+  private propertiesSchemaCache = new Map<string, Promise<Record<string, Property>>>()
+
   constructor(baseURL: string = 'https://api.hamburg.de/datasets/v1') {
     this.client = axios.create({
       baseURL,
       headers: {
         Accept: 'application/json'
       }
+    })
+    // the API answers errors with application/problem+json, surface its detail instead of the generic axios message
+    this.client.interceptors.response.use(undefined, (error) => {
+      const detail = isAxiosError(error) ? error.response?.data?.detail : undefined
+      if (typeof detail === 'string') {
+        error.message = `OGC API Features: ${detail}`
+      }
+      return Promise.reject(error)
     })
   }
 
@@ -120,12 +135,13 @@ export class OgcApiFeaturesClient {
   ): Promise<FeaturesResponse> {
     // For single API endpoints, use collections directly from root
     const baseUrl = apiId ? `${apiId}/collections` : 'collections';
+    const propertiesSchema = await this.getPropertiesSchema(apiId, collectionId)
     const collectionData = await this.client.get<FeaturesResponse>(
       `${baseUrl}/${collectionId}/items`,
       {
-        params: this.serializeFeatureQuery(query),
+        params: this.serializeFeatureQuery(query, propertiesSchema),
         headers: {
-          Accept: 'application/geo+json'
+          Accept: 'application/geo+json, application/problem+json;q=0.9'
         }
       }
     )
@@ -182,6 +198,17 @@ export class OgcApiFeaturesClient {
   }
 
   async getPropertiesSchema(apiId: string, collectionId: string): Promise<Record<string, Property>> {
+    const cacheKey = `${apiId}/${collectionId}`
+    if (!this.propertiesSchemaCache.has(cacheKey)) {
+      const request = this.fetchPropertiesSchema(apiId, collectionId)
+      // do not cache failed requests
+      request.catch(() => this.propertiesSchemaCache.delete(cacheKey))
+      this.propertiesSchemaCache.set(cacheKey, request)
+    }
+    return this.propertiesSchemaCache.get(cacheKey)!
+  }
+
+  private async fetchPropertiesSchema(apiId: string, collectionId: string): Promise<Record<string, Property>> {
     try {
       const baseUrl = apiId ? `${apiId}/collections` : 'collections';
       const url = `${baseUrl}/${collectionId}/schema`;
@@ -223,12 +250,20 @@ export class OgcApiFeaturesClient {
     }
   }
 
-  private serializeFeatureQuery(query: FilterQuery) {
-    const { propertyFilters = {}, filter, properties, ...rest } = query
+  /**
+   * The API only accepts known query parameters and property names (unknown ones are rejected with 400).
+   * Since the geometry is treated as a regular property, it has to be requested explicitly via `properties`.
+   */
+  private serializeFeatureQuery(query: FilterQuery, propertiesSchema: Record<string, Property>) {
+    const { propertyFilters = {}, filter, properties, limit, offset, skipGeometry } = query
+    const rest: Record<string, any> = { limit, offset, skipGeometry }
     const propertyQueryParams: Record<string, any> = {}
     let filtersFromProperties = ''
 
     for (const [key, filter] of Object.entries(propertyFilters)) {
+      if (!(key in propertiesSchema) || isGeometryProperty(propertiesSchema[key])) {
+        continue
+      }
       if (!filter.operator || filter.operator === '=') {
         propertyQueryParams[key] = filter.value
       } else {
@@ -241,8 +276,15 @@ export class OgcApiFeaturesClient {
       }
     }
 
-    if (properties && properties.length > 0) {
-      rest.properties = properties.join(',')
+    // drop properties that no longer exist in the collection (e.g. renamed geometry properties of older nodes)
+    const selectedProperties = (properties ?? []).filter(
+      (key) => key in propertiesSchema && !isGeometryProperty(propertiesSchema[key])
+    )
+    if (selectedProperties.length > 0) {
+      if (!skipGeometry) {
+        selectedProperties.push(...getGeometryPropertyNames(propertiesSchema))
+      }
+      rest.properties = selectedProperties.join(',')
     }
     if (filter && filtersFromProperties) {
       rest.filter = `(${filter}) AND ${filtersFromProperties}`
@@ -252,9 +294,23 @@ export class OgcApiFeaturesClient {
       rest.filter = filtersFromProperties
     }
 
-    return {
-      ...propertyQueryParams,
-      ...rest
-    }
+    return _.omitBy(
+      { ...propertyQueryParams, ...rest },
+      (value) => value === undefined || value === null || value === ''
+    )
   }
+}
+
+export function isGeometryProperty(property: Property) {
+  return property['x-ogc-role'] === 'primary-geometry' || !!property.format?.startsWith('geometry-')
+}
+
+function getGeometryPropertyNames(propertiesSchema: Record<string, Property>) {
+  const geometryProperties = Object.entries(propertiesSchema).filter(([, property]) =>
+    isGeometryProperty(property)
+  )
+  const primaryGeometry = geometryProperties.find(
+    ([, property]) => property['x-ogc-role'] === 'primary-geometry'
+  )
+  return primaryGeometry ? [primaryGeometry[0]] : geometryProperties.map(([key]) => key)
 }
