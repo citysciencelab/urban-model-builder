@@ -128,4 +128,7 @@ export {
   NODE_TYPE_TO_PARAMETER_NAME_MAP
 } from './shared/simulation-adapter/simulation-adapter.js'
 export { transformFeatures, GEOMETRY_KEY } from './shared/simulation-adapter/utils.js'
-export { OgcApiFeaturesClient } from './shared/simulation-adapter/ogc-api-features-client.js'
+export {
+  OgcApiFeaturesClient,
+  isGeometryProperty
+} from './shared/simulation-adapter/ogc-api-features-client.js'

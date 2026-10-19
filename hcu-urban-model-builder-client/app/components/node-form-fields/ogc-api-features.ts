@@ -10,6 +10,7 @@ import type OgcApiFeaturesService from 'hcu-urban-model-builder-client/services/
 import type { TrackedChangeset } from 'hcu-urban-model-builder-client/utils/tracked-changeset';
 import {
   GEOMETRY_KEY,
+  isGeometryProperty,
   transformFeatures,
   type Nodes,
 } from 'hcu-urban-model-builder-backend';
@@ -98,10 +99,13 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
         collectionId,
       );
 
-      return Object.entries(properties).map(([id, property]) => ({
-        id: id,
-        ...property,
-      }));
+      // geometry is controlled by the skip geometry toggle and added to the request automatically
+      return Object.entries(properties)
+        .filter(([, property]) => !isGeometryProperty(property))
+        .map(([id, property]) => ({
+          id: id,
+          ...property,
+        }));
     };
     return new TrackedAsyncData(fetch());
   }
@@ -110,10 +114,13 @@ export default class NodeFormFieldsOgcApiFeaturesComponent extends Component<Nod
     if (!this.propertiesSchema.value) {
       return [];
     }
+    // properties that no longer exist in the collection are ignored
     return (
-      this.nodeData.query?.['properties']?.map((id) =>
-        this.propertiesSchema.value!.find((property) => property.id === id),
-      ) ?? []
+      this.nodeData.query?.['properties']
+        ?.map((id: string) =>
+          this.propertiesSchema.value!.find((property) => property.id === id),
+        )
+        .filter(Boolean) ?? []
     );
   }
 
