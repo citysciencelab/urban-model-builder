@@ -1,27 +1,54 @@
 import Service from '@ember/service';
-import { OgcApiFeaturesClient } from 'hcu-urban-model-builder-backend/';
+import {
+  DEFAULT_OGC_ENDPOINT,
+  OgcApiFeaturesClient,
+} from 'hcu-urban-model-builder-backend/';
+
+type FeatureQuery = Parameters<OgcApiFeaturesClient['fetchFeatures']>[2];
 
 export default class OgcApiFeaturesService extends Service {
-  private client = new OgcApiFeaturesClient();
+  // one client per endpoint, so the schema and conformance caches are shared
+  private clientCache = new Map<string, OgcApiFeaturesClient>();
 
-  async getAvailableApis() {
-    return this.client.getApis();
+  private getClient(baseUrl?: string): OgcApiFeaturesClient {
+    const url = baseUrl || DEFAULT_OGC_ENDPOINT.baseUrl;
+    if (!this.clientCache.has(url)) {
+      this.clientCache.set(url, new OgcApiFeaturesClient(url));
+    }
+    return this.clientCache.get(url)!;
   }
 
-  async getAvailableCollections(apiId: string) {
-    return this.client.getCollections(apiId);
+  async getAvailableApis(baseUrl?: string) {
+    return this.getClient(baseUrl).getApis();
   }
 
-  async getQueryableProperties(apiId: string, collectionId: string) {
-    return this.client.getQueryableProperties(apiId, collectionId);
+  async getAvailableCollections(apiId: string, baseUrl?: string) {
+    return this.getClient(baseUrl).getCollections(apiId);
   }
 
-  async getPropertiesSchema(apiId: string, collectionId: string) {
-    return this.client.getPropertiesSchema(apiId, collectionId);
+  async getQueryableProperties(
+    apiId: string,
+    collectionId: string,
+    baseUrl?: string,
+  ) {
+    return this.getClient(baseUrl).getQueryableProperties(apiId, collectionId);
   }
 
-  async fetchFeatures(apiId: string, collectionId: string, query?: any) {
-    return this.client.fetchFeatures(apiId, collectionId, query);
+  async getPropertiesSchema(
+    apiId: string,
+    collectionId: string,
+    baseUrl?: string,
+  ) {
+    return this.getClient(baseUrl).getPropertiesSchema(apiId, collectionId);
+  }
+
+  async fetchFeatures(
+    apiId: string,
+    collectionId: string,
+    query?: FeatureQuery,
+    baseUrl?: string,
+  ) {
+    return this.getClient(baseUrl).fetchFeatures(apiId, collectionId, query);
   }
 }
 
