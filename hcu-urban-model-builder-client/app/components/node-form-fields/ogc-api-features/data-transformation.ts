@@ -36,7 +36,11 @@ export default class NodeFormFieldsOgcApiFeaturesDataTransformationComponent ext
   }
 
   get valueOptions() {
-    if (!this.args.propertiesSchema.isResolved) {
+    // the schema resolves to null as long as no collection is selected
+    if (
+      !this.args.propertiesSchema.isResolved ||
+      !this.args.propertiesSchema.value
+    ) {
       return null;
     }
 
