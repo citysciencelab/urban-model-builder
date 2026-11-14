@@ -1,18 +1,20 @@
 {{#let
   (if
     (eq this.intl.primaryLocale "de-de")
-    (hash locale="en-us" name="En")
-    (hash locale="de-de" name="De")
-  ) as |countryInfo|
+    (hash locale="en-us" name="EN")
+    (hash locale="de-de" name="DE")
+  )
+  as |target|
 }}
-  <li class="nav-item">
-    <a
-      href="javascript:void(0)"
-      class="nav-link"
-      {{on "click" (fn this.changeLocaleTo countryInfo.locale)}}
-    >
-      <FaIcon @icon="globe" />
-      {{countryInfo.name}}
-    </a>
-  </li>
+  <button
+    type="button"
+    class="umb-rail__item"
+    lang={{target.locale}}
+    title={{t "components.app_rail.language_title"}}
+    {{on "click" (fn this.changeLocaleTo target.locale)}}
+    ...attributes
+  >
+    <SvgIcon @icon="language" @size="sm" />
+    {{target.name}}
+  </button>
 {{/let}}

@@ -8,10 +8,12 @@ import type { Params } from '@feathersjs/feathers';
 import type { LegacyHasManyField } from '@warp-drive/core-types/schema/fields';
 import type { AdapterHasManyQuery } from 'global';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
+import type SaveStatusService from 'hcu-urban-model-builder-client/services/save-status';
 
 export default class ApplicationAdapter extends Adapter {
   @service feathers!: FeathersService;
   @service session!: any;
+  @service declare saveStatus: SaveStatusService;
 
   async findAll(store: Store, type: ModelSchema): Promise<AdapterPayload> {
     return this.query(store, type, {});
@@ -46,9 +48,11 @@ export default class ApplicationAdapter extends Adapter {
 
     this.feathers.app.service('edges').find();
 
-    return this.feathers.app
-      .service(this.feathers.getServiceNameByModelName(type.modelName))
-      .create(data);
+    return this.saveStatus.track(
+      this.feathers.app
+        .service(this.feathers.getServiceNameByModelName(type.modelName))
+        .create(data),
+    );
   }
 
   async updateRecord(
@@ -57,9 +61,11 @@ export default class ApplicationAdapter extends Adapter {
     snapshot: Snapshot,
   ): Promise<AdapterPayload> {
     const data = this.serialize(snapshot, {});
-    return this.feathers.app
-      .service(this.feathers.getServiceNameByModelName(type.modelName))
-      .patch(snapshot.id, data);
+    return this.saveStatus.track(
+      this.feathers.app
+        .service(this.feathers.getServiceNameByModelName(type.modelName))
+        .patch(snapshot.id, data),
+    );
   }
 
   async deleteRecord(
@@ -67,9 +73,11 @@ export default class ApplicationAdapter extends Adapter {
     type: ModelSchema,
     snapshot: Snapshot,
   ): Promise<AdapterPayload> {
-    return this.feathers.app
-      .service(this.feathers.getServiceNameByModelName(type.modelName))
-      .remove(snapshot.id);
+    return this.saveStatus.track(
+      this.feathers.app
+        .service(this.feathers.getServiceNameByModelName(type.modelName))
+        .remove(snapshot.id),
+    );
   }
 
   async findHasMany(

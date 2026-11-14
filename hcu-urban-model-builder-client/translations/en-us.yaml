@@ -149,6 +149,61 @@ routes:
     title: Demo
 
 components:
+  app_rail:
+    label: Main navigation
+    models: Models
+    public: Public
+    docs: Docs
+    account: Account
+    theme_night: Night
+    theme_paper: Paper
+    theme_title: Switch between the Paper and Night theme
+    language_title: Switch language
+  title_block:
+    back_library: Back to the Library
+    back_home: Back to the start page
+    saving: saving…
+    saved_at: saved {time}
+    not_saved: not saved
+  library:
+    eyebrow: "Library · {count, plural, =1 {# model} other {# models}}"
+    tabs: Library sections
+    tab_mine: Mine
+    tab_public: Public
+    search: Search models
+    clear_search: Clear search
+    sort: Sort order
+    view: View
+    view_grid: Grid view
+    view_table: Table view
+    new_model: New model
+    continue: Continue
+    nodes: "{count, plural, =1 {# node} other {# nodes}}"
+    node_mix: "Node mix: {parts}"
+    node_mix_empty: No nodes yet
+    paradigm_percent: "{name} {percent} percent"
+    paradigm:
+      sd: system dynamics
+      abm: agent-based
+      geo: geodata
+    paradigm_short:
+      sd: SD
+      abm: ABM
+      geo: GEO
+    ump: UMP
+    ump_title: Published to the Urban Model Platform
+    actions_for: Actions for {name}
+    open: Open
+    edit_details: Edit details
+    empty_search: No models match “{q}”
+    table:
+      name: Name
+      state: State
+      version: Version
+      last_edit: Last edit
+      nodes: Nodes
+      role: Role
+      actions: Actions
   edit_state_badge:
     view_mode:
       tooltip: This version can no longer be edited

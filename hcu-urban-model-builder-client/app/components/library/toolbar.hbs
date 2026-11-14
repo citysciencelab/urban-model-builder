@@ -1,0 +1,101 @@
+{{! One toolbar row above the Library: search, sort, grid/table toggle and,
+    on "Mine", the primary action. }}
+<div class="umb-library__toolbar" ...attributes>
+  {{#let (unique-id) as |searchId|}}
+    <div class="umb-library__search">
+      <label class="visually-hidden" for={{searchId}}>
+        {{t "components.library.search"}}
+      </label>
+      <SvgIcon @icon="search" @size="sm" />
+      <input
+        id={{searchId}}
+        type="text"
+        enterkeyhint="search"
+        autocomplete="off"
+        value={{@q}}
+        placeholder={{t "components.library.search"}}
+        data-test-library-search
+        {{on "change" @onSearch}}
+      />
+      {{#if @q}}
+        <button
+          type="button"
+          class="umb-btn umb-btn--ghost umb-btn--icon umb-btn--sm umb-library__search-clear"
+          aria-label={{t "components.library.clear_search"}}
+          {{on "click" @onClearSearch}}
+        >
+          <SvgIcon @icon="close" @size="sm" />
+        </button>
+      {{/if}}
+    </div>
+  {{/let}}
+
+  <BsDropdown as |dd|>
+    <dd.toggle class="umb-btn" aria-label={{t "components.library.sort"}}>
+      <SvgIcon @icon="sort" @size="sm" />
+      {{t (concat "general." @sortKey "_" @sortDirection)}}
+    </dd.toggle>
+    <dd.menu as |menu|>
+      {{#each this.sortOptions as |option|}}
+        <menu.item>
+          <button
+            type="button"
+            class="dropdown-item
+              {{if
+                (and
+                  (eq @sortKey option.key) (eq @sortDirection option.direction)
+                )
+                'active'
+              }}"
+            {{on "click" (fn @onSortChange option.key option.direction)}}
+          >
+            {{t (concat "general." option.key "_" option.direction)}}
+          </button>
+        </menu.item>
+      {{/each}}
+    </dd.menu>
+  </BsDropdown>
+
+  <span class="umb-library__toolbar-spacer"></span>
+
+  <div
+    class="umb-library__view"
+    role="group"
+    aria-label={{t "components.library.view"}}
+  >
+    <button
+      type="button"
+      class="umb-btn umb-btn--icon"
+      aria-pressed={{if (eq @view "grid") "true" "false"}}
+      aria-label={{t "components.library.view_grid"}}
+      title={{t "components.library.view_grid"}}
+      data-test-view="grid"
+      {{on "click" (fn @onViewChange "grid")}}
+    >
+      <SvgIcon @icon="grid_view" @size="sm" />
+    </button>
+    <button
+      type="button"
+      class="umb-btn umb-btn--icon"
+      aria-pressed={{if (eq @view "table") "true" "false"}}
+      aria-label={{t "components.library.view_table"}}
+      title={{t "components.library.view_table"}}
+      data-test-view="table"
+      {{on "click" (fn @onViewChange "table")}}
+    >
+      <SvgIcon @icon="view_list" @size="sm" />
+    </button>
+  </div>
+
+  {{#if @onCreate}}
+    <button
+      type="button"
+      class="umb-btn umb-btn--primary"
+      data-test-new-model
+      {{on "click" @onCreate}}
+    >
+      <SvgIcon @icon="add" @size="sm" />
+      {{t "components.library.new_model"}}
+    </button>
+  {{/if}}
+</div>

@@ -1,6 +1,6 @@
 {{#if @model.hasVersion}}
   <BsDropdown @tagName="span" as |dd|>
-    <dd.toggle class="badge rounded-pill text-bg-primary text-black">
+    <dd.toggle class="umb-chip umb-chip--quiet">
       {{#if @currentVersion}}
         {{@currentVersion.versionString}}
       {{else}}
@@ -18,15 +18,11 @@
               {{modelVersion.versionString}}
             </div>
             {{#if modelVersion.isPublished}}
-              <span
-                class="badge rounded-pill badge-success text-bg-success text-light"
-              >
+              <span class="umb-chip umb-chip--published">
                 {{t "models.model.states.published"}}
               </span>
             {{else}}
-              <span
-                class="badge rounded-pill badge-success text-bg-secondary text-light"
-              >
+              <span class="umb-chip umb-chip--draft">
                 {{t "models.model.states.draft"}}
               </span>
             {{/if}}

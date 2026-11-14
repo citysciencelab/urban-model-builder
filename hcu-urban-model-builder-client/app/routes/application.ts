@@ -5,17 +5,20 @@ import type Transition from '@ember/routing/transition';
 import { service } from '@ember/service';
 import type ModelVersionChannelManagerService from 'hcu-urban-model-builder-client/services/model-version-channel-manager';
 import { action } from '@ember/object';
+import type ThemeService from 'hcu-urban-model-builder-client/services/theme';
 
 export default class ApplicationRoute extends Route {
   @service declare router: RouterService;
   @service declare session: any;
   @service declare intl: any;
+  @service declare theme: ThemeService;
   @service
   declare modelVersionChannelManager: ModelVersionChannelManagerService;
 
   constructor(owner?: Owner) {
     super(owner);
     this.modelVersionChannelManager.listen();
+    this.theme.setup();
   }
 
   async beforeModel(transition: Transition) {

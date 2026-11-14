@@ -1,0 +1,239 @@
+// UMB Design System — Library screens (My models, Public models).
+//
+// Title with eyebrow, tabs, one toolbar row, then the grid of model sheets
+// (or the compact table) and the pagination.
+
+.umb-library {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  width: 100%;
+  max-width: 1600px;
+  padding: var(--s-10) var(--s-14) var(--s-14);
+}
+
+.umb-library__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.umb-library__title {
+  @include titel-xl;
+
+  margin: 0;
+}
+
+.umb-library__tabs {
+  display: flex;
+  gap: var(--s-6);
+  border-bottom: var(--linie-haar) solid var(--grau-85);
+}
+
+.umb-library__tab {
+  @include ui-strong;
+
+  margin-bottom: -1px;
+  padding: var(--s-2) 0;
+  color: var(--grau-text);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+
+  &:hover {
+    color: var(--ink);
+  }
+
+  &.active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+}
+
+.umb-library__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+}
+
+.umb-library__search {
+  position: relative;
+  display: flex;
+  flex: 1 1 240px;
+  align-items: center;
+  max-width: 420px;
+
+  > svg {
+    position: absolute;
+    left: var(--s-3);
+    color: var(--grau-55);
+    pointer-events: none;
+  }
+
+  input {
+    @include umb-input;
+
+    height: var(--hit-target);
+    padding-right: var(--hit-target);
+    padding-left: 40px;
+  }
+}
+
+.umb-library__search-clear {
+  position: absolute;
+  right: 4px;
+}
+
+.umb-library__toolbar-spacer {
+  flex: 1;
+}
+
+.umb-library__view {
+  display: inline-flex;
+
+  .umb-btn + .umb-btn {
+    margin-left: -1px;
+  }
+}
+
+.umb-library__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--s-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    display: flex;
+    min-width: 0;
+
+    > .umb-card {
+      flex: 1;
+    }
+  }
+}
+
+@media (min-width: 900px) {
+  .umb-library__grid > li.umb-library__featured {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+}
+
+// Empty state: white space is design, so no box and no illustration.
+.umb-library__empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  align-items: flex-start;
+  padding: var(--s-10) 0;
+
+  p {
+    @include titel-l;
+
+    margin: 0;
+  }
+}
+
+// Compact table view: hairline dividers, no icons for meta.
+.umb-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    @include plan-label;
+
+    padding: var(--s-2) var(--s-3);
+    color: var(--grau-meta);
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: var(--linie-haar) solid var(--ink);
+  }
+
+  td {
+    padding: var(--s-3);
+    vertical-align: middle;
+    border-bottom: var(--linie-haar) solid var(--grau-85);
+  }
+
+  tbody tr:hover {
+    background: var(--paper-2);
+  }
+
+  th:first-child,
+  td:first-child {
+    padding-left: 0;
+  }
+}
+
+.umb-table__name {
+  @include titel-m;
+
+  display: block;
+  max-width: 32rem;
+  overflow: hidden;
+  color: var(--ink);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+}
+
+.umb-table__mix {
+  width: 12rem;
+
+  .umb-mix {
+    margin-bottom: 4px;
+  }
+}
+
+.umb-table__actions {
+  width: 1%;
+  white-space: nowrap;
+
+  .dropdown-toggle::after {
+    display: none;
+  }
+}
+
+.umb-library__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--s-4);
+  border-top: var(--linie-haar) solid var(--grau-85);
+}
+
+.pagination__count,
+.pagination__limit-select label {
+  @include plan-meta;
+
+  color: var(--grau-meta);
+}
+
+.pagination__limit-select {
+  display: flex;
+  gap: var(--s-2);
+  align-items: center;
+
+  label {
+    margin: 0;
+  }
+}
+
+@media (max-width: 899.98px) {
+  .umb-library {
+    padding: var(--s-6) var(--s-4) var(--s-10);
+  }
+
+  .umb-library__title {
+    font-size: 40px;
+  }
+}

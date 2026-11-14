@@ -39,6 +39,7 @@ export default class UiPaginationComponent extends Component<UiPaginationSignatu
   }
 
   get limits() {
-    return [10, 50, 100];
+    // Multiples of the Library grid's column counts (2, 3, 4).
+    return [12, 24, 48, 96];
   }
 }

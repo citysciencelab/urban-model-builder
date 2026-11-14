@@ -1,0 +1,158 @@
+// UMB Design System — application shell.
+//
+// Library and content screens: 64px rail on the left, content beside it.
+// Editor: no bar at all; the canvas fills the window and the title block
+// floats top left.
+
+html,
+body {
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  text-underline-offset: 3px;
+}
+
+.umb-shell {
+  display: flex;
+  min-height: 100vh;
+
+  > .umb-rail {
+    position: sticky;
+    top: 0;
+    z-index: 1040;
+    flex: none;
+    height: 100vh;
+  }
+}
+
+main {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+.umb-shell--editor main {
+  height: 100vh;
+  overflow: hidden;
+}
+
+// Below 640px the rail turns into a bottom bar with the same items.
+@media (max-width: 639.98px) {
+  .umb-shell {
+    flex-direction: column;
+
+    > .umb-rail {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      flex-direction: row;
+      width: 100%;
+      height: 60px;
+      border-top: var(--linie-haar) solid var(--grau-85);
+      border-right: 0;
+    }
+  }
+
+  .umb-rail__item,
+  .umb-rail__item--mark {
+    flex: 1;
+    height: 100%;
+  }
+
+  .umb-rail .dropdown {
+    display: flex;
+    flex: 1;
+  }
+
+  .umb-shell:not(.umb-shell--editor) main {
+    padding-bottom: 60px;
+  }
+}
+
+// Editor title block, inset s-3 from the canvas edge.
+.umb-editor__titleblock {
+  position: absolute;
+  top: var(--s-3);
+  left: var(--s-3);
+  z-index: 1052;
+  max-width: calc(100% - 2 * var(--s-3));
+}
+
+// Content pages (legal, login, 404).
+.main-content {
+  display: grid;
+  margin-top: var(--s-10);
+  margin-bottom: var(--s-10);
+}
+
+.content-page {
+  margin-top: var(--s-10);
+}
+
+.card--login {
+  @include make-col(6);
+
+  align-self: center;
+  justify-self: center;
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+  }
+}
+
+// Landing page: the hero is an ink surface.
+.main-home {
+  display: grid;
+  min-height: 100vh;
+  overflow: hidden;
+  overscroll-behavior: auto;
+  color: var(--on-ink);
+  background-color: var(--ink);
+}
+
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--s-4);
+
+  .btn {
+    --bs-btn-color: var(--ink);
+    --bs-btn-bg: var(--paper);
+    --bs-btn-border-color: var(--paper);
+    --bs-btn-hover-color: var(--ink);
+    --bs-btn-hover-bg: var(--paper-2);
+    --bs-btn-hover-border-color: var(--paper-2);
+  }
+}
+
+.hero-section__title {
+  @include titel-xl;
+
+  max-width: 16ch;
+}
+
+.landing-band {
+  background-color: var(--paper-2);
+}
+
+// The partner logos in the footer exist in white only, so the footer stays a
+// dark surface in both themes.
+.landing-footer {
+  background-color: #0f0f0f;
+
+  .bg-body {
+    background-color: #fff !important;
+  }
+}

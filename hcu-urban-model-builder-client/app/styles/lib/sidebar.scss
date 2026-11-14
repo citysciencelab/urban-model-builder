@@ -17,18 +17,14 @@
 }
 
 .sidebar {
+  @extend .umb-float;
+
   width: 400px;
   min-height: 50vh;
-  max-height: calc(100vh - 144px);
+  // Window minus the bottom toolbar zone and the margins around the panel.
+  max-height: calc(100vh - 124px);
 
   position: relative;
-
-  background-color: $white;
-  box-shadow: $box-shadow-lg;
-  border-color: $border-color;
-  border-width: $border-width;
-  border-style: $border-style;
-  border-radius: $border-radius-lg;
 
   display: grid;
   grid-template-columns: auto 1fr;
@@ -39,39 +35,31 @@
 
 .sidebar__bar {
   grid-area: bar;
-  border-right: $border-width $border-style $border-color;
+  border-right: var(--linie-haar) solid var(--grau-85);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 
-  .nav-item:first-child a {
-    border-top-left-radius: $border-radius-lg;
-    .sidebar__container--minimized & {
-      border-top-right-radius: $border-radius-lg;
-    }
-  }
-
   .nav-link {
     padding: get-spacer(3);
-    color: $black;
+    color: var(--ink);
     text-align: center;
-    border-bottom: $border-width $border-style $border-color;
+    border-bottom: var(--linie-haar) solid var(--grau-85);
 
-    &.active,
     &:hover {
-      background-color: $color-secondary;
-      color: $white;
-      fill: $white;
+      background-color: var(--paper-2);
+    }
+
+    &.active {
+      background-color: var(--ink);
+      color: var(--on-ink);
+      fill: var(--on-ink);
     }
   }
 
   .nav-link.toggle-minimize {
     border-bottom: 0;
-    border-top: $border-width $border-style $border-color;
-    border-bottom-left-radius: $border-radius-lg;
-    .sidebar__container--minimized & {
-      border-bottom-right-radius: $border-radius-lg;
-    }
+    border-top: var(--linie-haar) solid var(--grau-85);
   }
 }
 
@@ -108,7 +96,7 @@
     .invalid-feedback {
       font-size: $font-size-sm;
       font-weight: normal;
-      font-family: $font-family-sans-serif;
+      font-family: var(--font-sans);
     }
   }
 }
@@ -131,13 +119,8 @@
   left: 0;
   right: auto;
   bottom: calc(60px + #{get-spacer(3)});
-  height: calc(100vh - 144px);
-  // z-index: 1055;
   .sidebar__content {
     align-items: initial;
-  }
-  .sidebar__header {
-    // padding-right: 46px; // removed by TBR, why was this in there?
   }
   &.sidebar__container--minimized {
     bottom: auto;
@@ -149,6 +132,15 @@
         border-right: 0;
       }
     }
+  }
+}
+
+// The left sidebar starts below the floating title block.
+.sidebar__container--left {
+  top: calc(var(--titleblock-height) + var(--s-3));
+
+  .sidebar {
+    max-height: calc(100vh - 124px - var(--titleblock-height) - var(--s-3));
   }
 }
 

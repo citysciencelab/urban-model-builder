@@ -2,7 +2,7 @@
 
 
 
-<div class="main-home overflow-hidden" style="background-color: #465166;">
+<div class="main-home">
 
     <div class="position-absolute bottom-0 end-0 p-1 z-0 w-30 opacity-25">
         <img src="/assets/images/comodeling_illustration.png" alt="Illustration of Comodeling"
@@ -12,11 +12,11 @@
 
     <div class="hero-section text-center py-5 position-relative z-5">
 
-        <h1 class="display-3 text-white mb-4 w-75 fw-bold">
+        <h1 class="hero-section__title mb-4">
             {{t "landingpage.title"}}
         </h1>
 
-        <p class="lead text-white mb-5 w-75 fw-normal">
+        <p class="lead mb-5 w-75 fw-normal">
             {{t "landingpage.subtitle"}}
         </p>
 
@@ -50,12 +50,12 @@
 
     <div class="row my-5">
         <div class="col-12 col-lg-6">
-            <div class="rounded overflow-hidden bg-white px-2 align-items-center justify-content-center">
-          <video autoplay muted loop style="width: 100%; border-radius: 1rem;">
+            <div class="rounded overflow-hidden bg-body px-2 align-items-center justify-content-center">
+          <video autoplay muted loop style="width: 100%;">
               <source src="/assets/videos/720p_modelbuilder_2.mp4" type="video/mp4">
               {{t "landingpage.video_not_supported"}}
           </video>
-          <p class="text-center mt-2 text-muted" style="font-size: 0.875rem; color:#434343;">
+          <p class="text-center mt-2 text-muted small">
               {{{t "landingpage.video_credits"}}}
           </p>
             </div>
@@ -89,7 +89,7 @@
             </div>
         </div>
         <div class="col-md-4 col-sm-12">
-            <div class=" overflow-hidden bg-white px-2 h-100  align-items-center justify-content-center">
+            <div class=" overflow-hidden bg-body px-2 h-100  align-items-center justify-content-center">
                 <video controls autoplay loop muted style="width: 100%;">
                     <source src="/assets/videos/SD.mp4" type="video/mp4">
                     {{t "landingpage.video_not_supported"}}
@@ -97,7 +97,7 @@
             </div>
         </div>
         <div class="col-md-4 col-sm-12">
-            <div class=" overflow-hidden bg-white px-2 h-100 d-flex align-items-center justify-content-center">
+            <div class=" overflow-hidden bg-body px-2 h-100 d-flex align-items-center justify-content-center">
                 <video controls autoplay muted style="width: 100%;">
                     <source src="/assets/videos/ABM.mp4" type="video/mp4">
                     {{t "landingpage.video_not_supported"}}
@@ -108,7 +108,7 @@
 
     <div class="row my-5">
         <div class="col-md-6 col-sm-12">
-            <div class="overflow-hidden bg-white px-2 h-100 d-flex align-items-center justify-content-center">
+            <div class="overflow-hidden bg-body px-2 h-100 d-flex align-items-center justify-content-center">
                 <video controls autoplay loop muted style="width: 100%;">
                     <source src="/assets/videos/API Features.mp4" type="video/mp4">
                     {{t "landingpage.video_not_supported"}}
@@ -131,10 +131,10 @@
     </div>
 </div>
 
-<div class="main-home" style="background-color: #a3c4ff; min-height: auto;">
+<div class="landing-band">
 
     <div class="container text-center py-5 landingpage">
-        <h2 class="display-4 mb-4 fw-bold" style="color: #465166;">
+        <h2 class="display-4 mb-4 fw-bold">
             {{t "landingpage.comodeling"}}
         </h2>
         <p class="lead mb-5 w-75 mx-auto">
@@ -167,7 +167,7 @@
 
 <div class="container landingpage main-content">
     <div class="row my-5">
-        <h2 class="display-4 mb-4 fw-bold" style="color: #465166;">
+        <h2 class="display-4 mb-4 fw-bold">
             {{t "landingpage.oss"}}
         </h2>
         <p class="lead mb-5 w-75 mx-auto">
@@ -177,7 +177,7 @@
 </div>
 
 
-<footer class="footer text-white mt-5 py-4 " style="background-color: #465166;">
+<footer class="landing-footer text-white mt-5 py-4">
     <div class="container landingpage">
         <div class="row text-center text-md-start">
             <div class="col-md-4 mb-3 mb-md-0 ">
@@ -230,7 +230,7 @@
 
             <div class="col-md-4">
                 <h5>{{t "landingpage.footer.funded_by"}}</h5>
-                <p class="bg-white p-1 rounded mt-2">
+                <p class="bg-body p-1 rounded mt-2">
                     <img src="/assets/images/CUT_Funders.svg" alt="Funded By" class="img-fluid mt-2"
                         style="max-height: 150px;">
                 </p>

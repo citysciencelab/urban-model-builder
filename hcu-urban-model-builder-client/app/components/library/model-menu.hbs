@@ -1,0 +1,39 @@
+{{! Secondary actions of a model in the Library. }}
+<BsDropdown as |dd|>
+  <dd.toggle
+    class="umb-btn umb-btn--icon umb-btn--sm"
+    aria-label={{t "components.library.actions_for" name=@model.internalName}}
+  >
+    <SvgIcon @icon="more_horiz" @size="sm" />
+  </dd.toggle>
+  <dd.menu @align="right" as |menu|>
+    <menu.item>
+      <menu.linkTo
+        @route="models.versions.show"
+        @models={{array @model.id @version}}
+      >
+        {{t "components.library.open"}}
+      </menu.linkTo>
+    </menu.item>
+    <menu.item>
+      <button
+        type="button"
+        class="dropdown-item"
+        disabled={{not @model.canEdit}}
+        {{on "click" (fn @onEdit @model)}}
+      >
+        {{t "components.library.edit_details"}}
+      </button>
+    </menu.item>
+    <menu.item>
+      <button
+        type="button"
+        class="dropdown-item"
+        disabled={{not @model.canDelete}}
+        {{on "click" (fn @onDelete @model)}}
+      >
+        {{t "actions.delete"}}
+      </button>
+    </menu.item>
+  </dd.menu>
+</BsDropdown>

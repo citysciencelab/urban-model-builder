@@ -1,0 +1,21 @@
+{{! The node-mix bar: one segment per node type, width = share, colour = its
+    node token. @graph is what Library::ModelSummary yields. }}
+<svg
+  class="umb-mix"
+  viewBox="0 0 100 6"
+  preserveAspectRatio="none"
+  role="img"
+  aria-label={{@graph.ariaLabel}}
+  data-test-node-mix
+  ...attributes
+>
+  {{#each @graph.summary.segments as |segment|}}
+    <rect
+      class="umb-mix__segment umb-mix__segment--{{segment.type}}"
+      x={{segment.offset}}
+      y="0"
+      width={{segment.share}}
+      height="6"
+    />
+  {{/each}}
+</svg>

@@ -1,100 +1,15 @@
 {{page-title (t "routes.application.title")}}
 
-<BsNavbar
-  @type="dark"
-  @backgroundColor="dark"
-  @fluid={{false}}
-  @collapsed={{false}}
-  @toggleBreakpoint={{null}}
-  id="navbar-main" as |navbar|
->
-  <div class="navbar-header ">
-    <navbar.toggle />
-    <LinkTo @route="index" class="navbar-brand">
-      <img
-        src="/assets/images/urban-model-builder-logo.svg"
-        alt={{t "routes.application.title"}}
-      />
-      {{t "general.brand"}}
-    </LinkTo>
-  </div>
-  {{#if this.session.isAuthenticated}}
-    <navbar.content>
-      <navbar.nav as |nav|>
-        <nav.item>
-          <nav.linkTo @route="models">
-            {{t "routes.models.title"}}
-          </nav.linkTo>
-        </nav.item>
-        <nav.item>
-          <nav.linkTo @route="public-models">
-            {{t "routes.public_models.title"}}
-          </nav.linkTo>
-        </nav.item>
-      </navbar.nav>
-    </navbar.content>
-  {{/if}}
-  
-  <navbar.nav as |nav|>
-    {{#unless this.session.isAuthenticated}}
-      <nav.item>
-        <nav.linkTo @route="login">
-            <FaIcon @icon="right-to-bracket" />
-          {{t "actions.login"}}
-        </nav.linkTo>
-      </nav.item>
-    {{/unless}}
-    {{#unless (eq this.router.currentRouteName "index")}}
-    <nav.dropdown as |dd|>
-      <dd.toggle>
-        {{t "general.legal"}}
-        <span class="caret"></span>
-      </dd.toggle>
-      <dd.menu as |ddm|>
-        <ddm.item>
-          <ddm.link-to @route="impressum">
-            {{t "general.imprint"}}
-          </ddm.link-to>
-        </ddm.item>
-        <ddm.item>
-          <ddm.link-to @route="datenschutz">
-            {{t "general.privacy_policy"}}
-          </ddm.link-to>
-        </ddm.item>
-         <ddm.item>
-          <ddm.link-to @route="nutzungsbedingungen">
-            {{t "general.terms_of_service"}}
-          </ddm.link-to>
-        </ddm.item>
-      </dd.menu>
-    </nav.dropdown>
-    {{/unless}}
-    <LangSwitch />
-    {{#if this.session.isAuthenticated}}
-      <li class="nav-item navbar-text">
-        <span class="nav-link">
-          <FaIcon @icon="user" />
-          {{this.session.data.authenticated.userinfo.name}}
-        </span>
-      </li>
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          type="button"
-          {{on "click" this.invalidateSession}}
-        >
-          <FaIcon @icon="power-off" />
-          {{t "actions.logout"}}
-        </button>
-      </li>
-    {{/if}}
-    
-  </navbar.nav>
-</BsNavbar>
+<div class="umb-shell {{if this.isEditor 'umb-shell--editor'}}">
+  {{! The editor has no rail: its title block leads back to the Library. }}
+  {{#unless this.isEditor}}
+    <AppRail @onLogout={{this.invalidateSession}} />
+  {{/unless}}
+
+  <main>
+    {{outlet}}
+  </main>
+</div>
 
 <div id="ember-bootstrap-wormhole"></div>
 <BasicDropdownWormhole />
-
-<main>
-  {{outlet}}
-</main>
