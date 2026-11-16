@@ -36,6 +36,8 @@ declare module '@feathersjs/feathers' {
   interface Params {
     user?: User
     isTouch?: Boolean
+    /** Internal calls only: do not emit the service event, the caller emits it later. */
+    deferEvents?: boolean
   }
 }
 

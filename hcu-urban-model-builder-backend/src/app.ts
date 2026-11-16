@@ -80,7 +80,13 @@ app.hooks({
           ].includes(context.path) && !context.path.startsWith('admin/'),
         authenticate('oidc')
       ),
-      iff((context) => context.path.startsWith('admin/'), adminTokenAuthenticate)
+      iff((context) => context.path.startsWith('admin/'), adminTokenAuthenticate),
+      (context) => {
+        // batched writes emit their events themselves once their transaction is committed
+        if (context.params.deferEvents) {
+          context.event = null
+        }
+      }
     ],
     create: [
       (context) => {

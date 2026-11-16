@@ -54,6 +54,7 @@
     "hash-password": "node ./scripts/hash-password.mjs"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^1.1.8",
     "@feathersjs/adapter-commons": "^5.0.33",
     "@feathersjs/authentication": "^5.0.33",
     "@feathersjs/authentication-client": "^5.0.33",
