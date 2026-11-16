@@ -863,3 +863,12 @@ input:focus {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.access-tokens__code {
+  padding: get-spacer(3);
+  border-radius: var(--bs-border-radius);
+  background: var(--bs-tertiary-bg);
+  // commands and tokens are long and must stay readable on narrow screens
+  white-space: pre-wrap;
+  word-break: break-all;
+}

@@ -143,6 +143,37 @@ routes:
   public_models:
     title: Public Models
     list_of_models: Public Models
+  access_tokens:
+    nav: AI access
+    title: AI access
+    intro: Connect an AI assistant such as Claude to the Urban Model Builder. The assistant can then read, build, edit and simulate your models on your behalf, using the Model Context Protocol (MCP).
+    endpoint: MCP endpoint
+    tokens_title: Access tokens
+    tokens_intro: An access token lets a program act as you, with all your permissions. Create one token per program, keep it secret and revoke it when you no longer need it.
+    no_tokens: You have no access tokens yet.
+    name: Name
+    name_placeholder: e.g. Claude Desktop on my laptop
+    validity: Valid for
+    days: "{days} days"
+    token: Token
+    created: Created
+    expires: Expires
+    expired: Expired
+    last_used: Last used
+    never_used: Never
+    create: Create token
+    revoke: Revoke
+    confirm_revoke: Revoke the token "{name}"? Programs using it lose access immediately.
+    created_title: Your new access token
+    created_notice: Copy the token now. It is shown only this once and cannot be retrieved later.
+    copy: Copy
+    copied: Copied
+    setup_title: Connect a program
+    setup_claude_code: "Claude Code: run this command in a terminal."
+    setup_json: "Claude Desktop and other programs that use a configuration file: add this entry."
+    setup_placeholder_notice: Replace <YOUR_TOKEN> with a token you created above.
+    setup_limitation: The connectors of claude.ai and ChatGPT in the browser require a different sign-in procedure (OAuth), which is not supported yet.
+    error: The request failed. Please try again.
   login:
     title: Login
   demo:

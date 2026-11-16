@@ -7,6 +7,13 @@ const authenticationClient =
   authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { accessTokensClient } from './services/access-tokens/access-tokens.shared.js'
+export type {
+  AccessTokens,
+  AccessTokensData,
+  AccessTokensQuery
+} from './services/access-tokens/access-tokens.shared.js'
+
 import { adminPublicModelVersionsUnapproveClient } from './services/admin/public-model-versions/unapprove/unapprove.shared.js'
 export type {
   AdminPublicModelVersionsUnapprove,
@@ -120,6 +127,7 @@ export const createClient = <Configuration = any>(
   client.configure(adminPublicModelVersionsClient)
   client.configure(adminPublicModelVersionsApproveClient)
   client.configure(adminPublicModelVersionsUnapproveClient)
+  client.configure(accessTokensClient)
   return client
 }
 

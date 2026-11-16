@@ -143,6 +143,37 @@ routes:
   public_models:
     title: Öffentliche Modelle
     list_of_models: Öffentliche Modelle
+  access_tokens:
+    nav: KI-Zugriff
+    title: KI-Zugriff
+    intro: Verbinden Sie einen KI-Assistenten wie Claude mit dem Urban Model Builder. Der Assistent kann dann in Ihrem Namen Ihre Modelle lesen, erstellen, bearbeiten und simulieren. Grundlage ist das Model Context Protocol (MCP).
+    endpoint: MCP-Endpunkt
+    tokens_title: Zugriffstoken
+    tokens_intro: Mit einem Zugriffstoken handelt ein Programm in Ihrem Namen und mit all Ihren Berechtigungen. Erstellen Sie ein Token pro Programm, halten Sie es geheim und widerrufen Sie es, wenn Sie es nicht mehr benötigen.
+    no_tokens: Sie haben noch keine Zugriffstoken.
+    name: Name
+    name_placeholder: z. B. Claude Desktop auf meinem Laptop
+    validity: Gültig für
+    days: "{days} Tage"
+    token: Token
+    created: Erstellt
+    expires: Läuft ab
+    expired: Abgelaufen
+    last_used: Zuletzt verwendet
+    never_used: Nie
+    create: Token erstellen
+    revoke: Widerrufen
+    confirm_revoke: Das Token „{name}“ widerrufen? Programme, die es verwenden, verlieren sofort den Zugriff.
+    created_title: Ihr neues Zugriffstoken
+    created_notice: Kopieren Sie das Token jetzt. Es wird nur dieses eine Mal angezeigt und kann später nicht mehr abgerufen werden.
+    copy: Kopieren
+    copied: Kopiert
+    setup_title: Programm verbinden
+    setup_claude_code: "Claude Code: Führen Sie diesen Befehl in einem Terminal aus."
+    setup_json: "Claude Desktop und andere Programme mit Konfigurationsdatei: Fügen Sie diesen Eintrag hinzu."
+    setup_placeholder_notice: Ersetzen Sie <YOUR_TOKEN> durch ein oben erstelltes Token.
+    setup_limitation: Die Konnektoren von claude.ai und ChatGPT im Browser erfordern ein anderes Anmeldeverfahren (OAuth), das noch nicht unterstützt wird.
+    error: Die Anfrage ist fehlgeschlagen. Bitte versuchen Sie es erneut.
   login:
     title: Login
   demo:

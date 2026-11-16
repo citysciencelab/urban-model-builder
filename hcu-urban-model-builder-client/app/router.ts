@@ -15,6 +15,7 @@ Router.map(function () {
       });
     });
     this.route('public-models', { resetNamespace: true });
+    this.route('access-tokens', { resetNamespace: true });
   });
   this.route('login');
   this.route('/');

@@ -1,6 +1,6 @@
 # MCP integration plan
 
-Status: phase 1 implemented, phases 2–6 open.
+Status: phases 1 and 2 implemented, phases 3–6 open.
 
 ## Goal
 
@@ -61,13 +61,25 @@ Deliberately left out of phase 1:
 - Creating or editing OGC API Features nodes, and simulating models whose OGC nodes point to hosts outside the
   allowlist: see "Risks".
 
-### Phase 2: MCP endpoint with personal access tokens
+### Phase 2: MCP endpoint with personal access tokens (implemented)
 
-- Migration and service `access-tokens`: only the hash is stored, the token is shown once, it can be revoked and has
-  an expiry date.
-- `/mcp` mounted on Koa via `@modelcontextprotocol/sdk` (Streamable HTTP, stateless). The bearer token resolves to a
-  user, which is passed to the tool layer.
-- Client: settings page to create and revoke tokens, with a copyable configuration snippet.
+- Migration and service `access-tokens` (`find`, `create`, `remove`): only the SHA-256 hash of a token is stored, the
+  token is shown once on creation, it can be revoked, and it expires after 90 days by default (at most 365). Tokens
+  can only be managed in a session signed in through Keycloak, not with a token.
+- `/mcp` on the backend (`src/mcp/mcp.ts`), a Koa middleware using `@modelcontextprotocol/sdk` (Streamable HTTP,
+  stateless, JSON responses). The bearer token resolves to a user, who is passed to the tool layer. Tool errors are
+  returned as tool results, so the model can read and correct them.
+- Client: page "AI access" (`/access-tokens`) to create and revoke tokens, with copyable configuration for
+  Claude Code and for programs that use an `mcpServers` configuration file.
+
+Connecting, for example with Claude Code:
+
+```
+claude mcp add --transport http urban-model-builder https://<backend>/mcp --header "Authorization: Bearer <token>"
+```
+
+Deployment: run the migration, and make sure a reverse proxy in front of the backend forwards `/mcp` and the
+`Authorization` header.
 
 ### Phase 3: chat backend
 

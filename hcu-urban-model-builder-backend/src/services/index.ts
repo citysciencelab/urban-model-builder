@@ -1,3 +1,4 @@
+import { accessTokens } from './access-tokens/access-tokens.js'
 import { adminPublicModelVersionsUnapprove } from './admin/public-model-versions/unapprove/unapprove.js'
 import { adminPublicModelVersionsApprove } from './admin/public-model-versions/approve/approve.js'
 import { adminPublicModelVersions } from './admin/public-model-versions/public-model-versions.js'
@@ -18,6 +19,7 @@ import type { Application } from '../declarations.js'
 import { touchParent } from '../utils/touch-parent.js'
 
 export const services = (app: Application) => {
+  app.configure(accessTokens)
   app.configure(adminPublicModelVersionsUnapprove)
   app.configure(adminPublicModelVersionsApprove)
   app.configure(adminPublicModelVersions)

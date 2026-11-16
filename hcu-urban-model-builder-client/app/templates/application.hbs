@@ -77,6 +77,12 @@
           {{this.session.data.authenticated.userinfo.name}}
         </span>
       </li>
+      <nav.item>
+        <nav.linkTo @route="access-tokens">
+          <FaIcon @icon="key" />
+          {{t "routes.access_tokens.nav"}}
+        </nav.linkTo>
+      </nav.item>
       <li class="nav-item">
         <button
           class="nav-link"

@@ -1,7 +1,7 @@
 {
   "name": "hcu-urban-model-builder-backend",
   "description": "",
-  "version": "1.0.0-15",
+  "version": "1.0.0-16",
   "homepage": "",
   "private": true,
   "keywords": [
@@ -70,6 +70,7 @@
     "@feathersjs/socketio": "^5.0.33",
     "@feathersjs/transport-commons": "^5.0.33",
     "@feathersjs/typebox": "^5.0.33",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@types/lodash": "^4.17.16",
     "axios": "^1.7.9",
     "bullmq": "^5.26.2",

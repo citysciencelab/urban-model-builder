@@ -17,6 +17,7 @@ import { authenticate } from '@feathersjs/authentication'
 import { errorHandler as errorHandlerHook } from './hooks/error-handler.js'
 import { adminTokenAuthenticate } from './hooks/admin-token-authenticate.js'
 import feathersSwagger from 'feathers-swagger'
+import { mcpMiddleware } from './mcp/mcp.js'
 
 const app: Application = koa(feathers())
 
@@ -47,6 +48,8 @@ app.use(serveStatic(app.get('public')))
 app.use(errorHandler())
 app.use(parseAuthentication())
 app.use(bodyParser())
+// The MCP endpoint is not a Feathers service: it authenticates with personal access tokens itself
+app.use(mcpMiddleware(app))
 
 // Configure services and transports
 app.configure(rest())
