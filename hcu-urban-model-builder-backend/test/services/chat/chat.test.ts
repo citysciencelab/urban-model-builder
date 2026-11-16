@@ -4,6 +4,7 @@ import type { AddressInfo } from 'net'
 import { app } from '../../../src/app.js'
 import { Roles } from '../../../src/client.js'
 import { callTool } from '../../../src/model-tools/index.js'
+import type { ChatResponse } from '../../../src/services/chat/chat.js'
 import type { User } from '../../../src/services/users/users.js'
 
 const KEY = 'sk-or-v1-0123456789abcdef0123456789abcdef'
@@ -55,7 +56,7 @@ describe('chat service', () => {
   let requests: { authorization?: string; body: any }[] = []
   const originalLlmConfig = { ...app.get('llm') }
 
-  const chat = (user: User, overrides: Record<string, unknown> = {}) =>
+  const chat = (user: User, overrides: Record<string, unknown> = {}): Promise<ChatResponse> =>
     app.service('chat').create(
       {
         requestId: REQUEST_ID,
@@ -64,7 +65,7 @@ describe('chat service', () => {
         ...overrides
       } as any,
       paramsFor(user)
-    )
+    ) as Promise<ChatResponse>
 
   before(async () => {
     await knex().table('models').del()
@@ -381,30 +382,99 @@ describe('chat service', () => {
     assert.strictEqual((await chat(owner)).message.content, 'second')
   })
 
-  it('publishes progress to the calling connection only', async () => {
-    replies.push(textReply('Hi'))
+  describe('over a real-time connection', () => {
     const connection = { id: 'caller' }
-    const published: { connections: unknown[]; data: any }[] = []
+    let published: { connections: unknown[]; data: any }[]
     const listener = (event: string, channel: any, hook: unknown, data: any) => {
       if (event === 'progress') {
         // the transports send `dataFor(connection)` if the publisher set it
         published.push({ connections: channel.connections, data: channel.dataFor(connection) ?? data })
       }
     }
-    app.on('publish', listener)
+    const start = () =>
+      app
+        .service('chat')
+        .create(
+          { requestId: REQUEST_ID, modelVersionId, messages: [{ role: 'user', content: 'Hi' }] },
+          { ...paramsFor(owner), connection }
+        )
+    const finished = async () => {
+      for (let attempt = 0; attempt < 100; attempt++) {
+        if (published.some(({ data }) => data.type === 'done' || data.type === 'error')) {
+          // publishing is asynchronous, give the channel time to be left
+          await new Promise((resolve) => setTimeout(resolve, 20))
+          return
+        }
+        await new Promise((resolve) => setTimeout(resolve, 10))
+      }
+      assert.fail('the turn did not finish')
+    }
 
-    await app
-      .service('chat')
-      .create(
-        { requestId: REQUEST_ID, modelVersionId, messages: [{ role: 'user', content: 'Hi' }] },
-        { ...paramsFor(owner), connection }
+    beforeEach(() => {
+      published = []
+      app.on('publish', listener)
+    })
+    afterEach(() => {
+      app.off('publish', listener)
+    })
+
+    it('returns at once and sends the answer as the last event, to the caller only', async () => {
+      replies.push({ ...textReply('Hi'), delayMs: 50 })
+
+      const result = await start()
+      assert.deepStrictEqual(result, { requestId: REQUEST_ID, status: 'started' })
+      assert.strictEqual(published.length, 0)
+
+      await finished()
+      assert.deepStrictEqual(
+        published.map(({ data }) => data.type),
+        ['text_delta', 'done']
       )
-    // publishing is asynchronous
-    await new Promise((resolve) => setTimeout(resolve, 20))
-    app.off('publish', listener)
+      for (const { connections, data } of published) {
+        assert.deepStrictEqual(connections, [connection])
+        assert.strictEqual(data.requestId, REQUEST_ID)
+        assert.strictEqual(data._channel, undefined)
+      }
+      assert.strictEqual(published[1].data.response.message.content, 'Hi')
+      assert.strictEqual(published[1].data.response.status, 'completed')
+      assert.strictEqual(app.channels.filter((name) => name.startsWith('chat:')).length, 0)
 
-    assert.strictEqual(published.length, 1)
-    assert.deepStrictEqual(published[0].connections, [connection])
-    assert.deepStrictEqual(published[0].data, { type: 'text_delta', text: 'Hi', requestId: REQUEST_ID })
+      // the user can send the next message
+      replies.push(textReply('Again'))
+      await start()
+      await finished()
+    })
+
+    it('reports a failing turn as an event', async () => {
+      replies.push({ status: 401, body: { error: { message: 'bad key' } } })
+
+      await start()
+      await finished()
+
+      assert.deepStrictEqual(
+        published.map(({ data }) => data.type),
+        ['error']
+      )
+      assert.strictEqual(published[0].data.reason, 'invalid_api_key')
+      assert.ok(!JSON.stringify(published[0].data).includes(KEY))
+    })
+
+    it('rejects a request that cannot start right away', async () => {
+      await assert.rejects(
+        app
+          .service('chat')
+          .create(
+            {
+              requestId: REQUEST_ID,
+              modelVersionId,
+              messages: [{ role: 'user', content: 'Hi' }],
+              model: 'x/y'
+            },
+            { ...paramsFor(owner), connection }
+          ),
+        { name: 'BadRequest' }
+      )
+      assert.strictEqual(published.length, 0)
+    })
   })
 })

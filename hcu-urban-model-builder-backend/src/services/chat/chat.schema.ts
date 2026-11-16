@@ -35,6 +35,7 @@ export const chatRequestValidator = getValidator(chatRequestSchema, dataValidato
 export const chatResponseSchema = Type.Object(
   {
     requestId: Type.String(),
+    status: Type.Literal('completed'),
     model: Type.String(),
     message: Type.Object({ role: Type.Literal('assistant'), content: Type.String() }),
     toolCalls: Type.Array(
@@ -56,3 +57,10 @@ export const chatResponseSchema = Type.Object(
   { $id: 'ChatResponse', additionalProperties: false }
 )
 export type ChatResponse = Static<typeof chatResponseSchema>
+
+/** Result of `create` over a real-time connection: the answer follows as a progress event. */
+export const chatStartedSchema = Type.Object(
+  { requestId: Type.String(), status: Type.Literal('started') },
+  { $id: 'ChatStarted', additionalProperties: false }
+)
+export type ChatStarted = Static<typeof chatStartedSchema>

@@ -1,0 +1,151 @@
+// Modelling assistant: the chat view of the editor's sidebar. Monochrome like
+// the rest of the chrome; the user's messages are inked, the assistant's are
+// plain text on paper.
+
+.umb-assistant__head {
+  display: flex;
+  gap: var(--s-2);
+  align-items: center;
+  justify-content: space-between;
+}
+
+// The view fills the sidebar: the messages scroll, the composer stays put.
+.sidebar__content.umb-assistant {
+  gap: var(--s-3);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.umb-assistant__setup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  overflow-y: auto;
+
+  p {
+    margin: 0;
+  }
+}
+
+.umb-assistant__consent {
+  @include ui-small;
+}
+
+.umb-assistant__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  align-items: center;
+}
+
+.umb-assistant__messages {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-height: 8rem;
+  overflow-y: auto;
+}
+
+.umb-assistant__empty {
+  color: var(--grau-text);
+
+  p {
+    margin: 0 0 var(--s-2);
+  }
+}
+
+.umb-assistant__message {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.umb-assistant__message--user {
+  align-self: flex-end;
+  max-width: 85%;
+  padding: var(--s-2) var(--s-3);
+  color: var(--on-ink);
+  background: var(--ink);
+}
+
+// Answers are plain text; line breaks of the model are kept.
+.umb-assistant__text {
+  white-space: pre-wrap;
+}
+
+.umb-assistant__tools {
+  @include plan-meta;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: 0;
+  margin: 0;
+  color: var(--grau-meta);
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: var(--s-2);
+    align-items: center;
+  }
+}
+
+.umb-assistant__tool--failed {
+  color: var(--signal-error);
+}
+
+.umb-assistant__notice {
+  @include ui-small;
+
+  padding: var(--s-2) var(--s-3);
+  color: var(--grau-text);
+  border: var(--linie-haar) dashed var(--grau-55);
+}
+
+.umb-assistant__notice--error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  align-items: flex-start;
+  color: var(--signal-error);
+  border: var(--linie-haar) solid var(--signal-error);
+}
+
+.umb-assistant__composer {
+  display: flex;
+  gap: var(--s-2);
+  align-items: flex-end;
+
+  textarea {
+    flex: 1;
+    max-height: 10rem;
+    resize: none;
+    field-sizing: content;
+  }
+}
+
+.umb-assistant__settings {
+  border-top: var(--linie-haar) solid var(--grau-85);
+}
+
+.umb-assistant__settings-toggle {
+  display: flex;
+  gap: var(--s-1);
+  align-items: center;
+  width: 100%;
+  padding: var(--s-2) 0;
+  color: var(--grau-meta);
+  background: none;
+  border: 0;
+}
+
+.umb-assistant__settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-2) 0;
+}

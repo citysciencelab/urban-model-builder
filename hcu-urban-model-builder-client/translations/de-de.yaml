@@ -180,6 +180,53 @@ routes:
     title: Demo
 
 components:
+  assistant:
+    title: Assistent
+    clear: Neue Unterhaltung
+    empty: Bitten Sie den Assistenten, dieses Modell zu erklären, aufzubauen, zu ändern oder zu simulieren. Er arbeitet direkt an dem Modell, das Sie geöffnet haben.
+    read_only: Diese Version können Sie nur lesen. Der Assistent kann sie erklären und simulieren, aber nicht ändern.
+    placeholder: Nachricht an den Assistenten
+    send: Senden
+    thinking: Arbeitet…
+    limit_reached: Der Assistent hat angehalten, weil er zu viele Schritte benötigte. Bitten Sie ihn fortzufahren.
+    checkpoint: "Vor der ersten Änderung wurde eine Sicherungskopie als {name} gespeichert."
+    checkpoint_open: Kopie öffnen
+    unavailable: Der Assistent ist auf diesem Server nicht eingerichtet.
+    settings_error: Die Einstellungen des Assistenten konnten nicht geladen oder gespeichert werden. Bitte versuchen Sie es erneut.
+    setup_intro: Der Assistent ist ein Sprachmodell, das in Ihrem Namen an Ihren Modellen arbeitet. Er läuft über OpenRouter mit Ihrem eigenen API-Schlüssel; die Kosten werden über Ihr OpenRouter-Konto abgerechnet.
+    setup_key_help: 'Einen Schlüssel können Sie auf <a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer">openrouter.ai</a> erstellen. Er wird verschlüsselt gespeichert und nicht wieder angezeigt.'
+    key_label: OpenRouter-API-Schlüssel
+    key_placeholder: sk-or-…
+    save_key: Schlüssel speichern
+    consent: Ich bin einverstanden, dass meine Nachrichten und die Inhalte der Modelle, die der Assistent liest, an OpenRouter und an den Anbieter des gewählten Sprachmodells übermittelt werden.
+    settings: Einstellungen
+    model: Sprachmodell
+    key_stored: "API-Schlüssel {hint}"
+    change_key: Schlüssel ersetzen
+    remove_key: Schlüssel entfernen
+    privacy_note: Nachrichten und Modellinhalte gehen an OpenRouter und den Anbieter des gewählten Sprachmodells. Die Unterhaltung wird nur in diesem Browser-Tab gehalten.
+    errors:
+      missing_api_key: Es ist kein API-Schlüssel gespeichert. Hinterlegen Sie Ihren OpenRouter-Schlüssel in den Einstellungen.
+      invalid_api_key: OpenRouter hat den API-Schlüssel nicht akzeptiert.
+      insufficient_credits: Ihr OpenRouter-Konto hat kein ausreichendes Guthaben.
+      rate_limited: OpenRouter begrenzt derzeit die Anfragen. Versuchen Sie es gleich noch einmal.
+      llm_error: Das Sprachmodell war nicht erreichbar oder ist fehlgeschlagen. Versuchen Sie es erneut oder wählen Sie ein anderes Modell.
+      busy: Der Assistent arbeitet noch an Ihrer vorherigen Nachricht.
+      timeout: Es ist keine Antwort eingetroffen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.
+      unknown: Der Assistent ist unerwartet fehlgeschlagen. Bitte versuchen Sie es erneut.
+    tools:
+      list_models: Modelle aufgelistet
+      get_model: Modell nachgeschlagen
+      get_model_version: Modell gelesen
+      get_modeling_reference: Modellierungsreferenz gelesen
+      create_model: Modell erstellt
+      update_simulation_settings: Simulationseinstellungen geändert
+      apply_graph_patch: Modell geändert
+      auto_layout: Modell neu angeordnet
+      validate_model: Modell geprüft
+      simulate: Simulation ausgeführt
+      new_draft: Neuen Entwurf erstellt
+      clone_model_version: Modell kopiert
   app_rail:
     label: Hauptnavigation
     models: Modelle

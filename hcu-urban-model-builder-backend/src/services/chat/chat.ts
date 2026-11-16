@@ -26,7 +26,9 @@ export const chat = (app: Application) => {
   // itself is not published at all (see the default publisher in channels.ts).
   app.service(chatPath).publish(CHAT_PROGRESS_EVENT, (data: any) => {
     const { [PROGRESS_CHANNEL_KEY]: channel, ...progress } = data
-    return app.channel(channel).send(progress)
+    // The channel only exists for callers with a real-time connection. Asking for a channel creates it,
+    // so it must not be asked for otherwise.
+    return app.channels.includes(channel) ? app.channel(channel).send(progress) : undefined
   })
 }
 

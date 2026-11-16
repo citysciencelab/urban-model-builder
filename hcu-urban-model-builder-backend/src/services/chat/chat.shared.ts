@@ -1,8 +1,8 @@
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.shared.html
 import type { ClientApplication } from '../../client.js'
-import type { ChatProgress, ChatRequest, ChatResponse, ChatService } from './chat.class.js'
+import type { ChatProgress, ChatRequest, ChatResponse, ChatStarted, ChatService } from './chat.class.js'
 
-export type { ChatProgress, ChatRequest, ChatResponse }
+export type { ChatProgress, ChatRequest, ChatResponse, ChatStarted }
 
 export type ChatClientService = Pick<ChatService, (typeof chatMethods)[number]>
 

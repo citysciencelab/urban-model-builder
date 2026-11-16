@@ -180,6 +180,53 @@ routes:
     title: Demo
 
 components:
+  assistant:
+    title: Assistant
+    clear: New conversation
+    empty: Ask the assistant to explain, build, change or simulate this model. It works directly on the model you have open.
+    read_only: This version is read-only for you. The assistant can explain and simulate it, but not change it.
+    placeholder: Message to the assistant
+    send: Send
+    thinking: Working…
+    limit_reached: The assistant stopped because it needed too many steps. Ask it to continue.
+    checkpoint: "Before the first change, a backup copy was saved as {name}."
+    checkpoint_open: Open the copy
+    unavailable: The assistant is not set up on this server.
+    settings_error: The settings of the assistant could not be loaded or saved. Please try again.
+    setup_intro: The assistant is a language model that works on your models on your behalf. It runs through OpenRouter with your own API key, so the costs are billed to your OpenRouter account.
+    setup_key_help: 'You can create a key at <a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer">openrouter.ai</a>. It is stored encrypted and is never shown again.'
+    key_label: OpenRouter API key
+    key_placeholder: sk-or-…
+    save_key: Save key
+    consent: I agree that my messages and the content of the models the assistant reads are sent to OpenRouter and to the provider of the model I choose.
+    settings: Settings
+    model: Model
+    key_stored: "API key {hint}"
+    change_key: Replace key
+    remove_key: Remove key
+    privacy_note: Messages and model content go to OpenRouter and the provider of the chosen model. The conversation is kept in this browser tab only.
+    errors:
+      missing_api_key: No API key is stored. Add your OpenRouter key in the settings.
+      invalid_api_key: OpenRouter did not accept the API key.
+      insufficient_credits: Your OpenRouter account has insufficient credits.
+      rate_limited: OpenRouter is limiting requests at the moment. Try again shortly.
+      llm_error: The model could not be reached or failed. Try again, or choose another model.
+      busy: The assistant is still working on your previous message.
+      timeout: No answer arrived. Check your connection and try again.
+      unknown: The assistant failed unexpectedly. Please try again.
+    tools:
+      list_models: Listed models
+      get_model: Looked up the model
+      get_model_version: Read the model
+      get_modeling_reference: Read the modelling reference
+      create_model: Created a model
+      update_simulation_settings: Changed the simulation settings
+      apply_graph_patch: Changed the model
+      auto_layout: Rearranged the model
+      validate_model: Checked the model
+      simulate: Ran a simulation
+      new_draft: Created a new draft
+      clone_model_version: Copied the model
   app_rail:
     label: Main navigation
     models: Models

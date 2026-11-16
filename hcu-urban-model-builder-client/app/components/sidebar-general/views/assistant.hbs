@@ -1,0 +1,315 @@
+<div class="sidebar__header" {{did-insert this.load}}>
+  <div class="umb-assistant__head">
+    <h4 class="mb-0">{{t "components.assistant.title"}}</h4>
+    {{#if this.conversation.messages.length}}
+      <button
+        type="button"
+        class="umb-btn umb-btn--sm umb-btn--ghost"
+        disabled={{this.conversation.isRunning}}
+        data-test-assistant-clear
+        {{on "click" this.clear}}
+      >
+        {{t "components.assistant.clear"}}
+      </button>
+    {{/if}}
+  </div>
+</div>
+
+<div class="sidebar__content umb-assistant">
+  {{#if this.settingsError}}
+    <div class="alert alert-danger" role="alert">
+      {{t "components.assistant.settings_error"}}
+    </div>
+  {{/if}}
+
+  {{#if (not this.settings)}}
+    {{#unless this.settingsError}}
+      <p class="umb-meta">{{t "actions.loading"}}</p>
+    {{/unless}}
+  {{else if (not this.settings.chatAvailable)}}
+    <p data-test-assistant-unavailable>
+      {{t "components.assistant.unavailable"}}
+    </p>
+  {{else if this.showKeyForm}}
+    <form
+      class="umb-assistant__setup"
+      aria-label={{t "components.assistant.key_label"}}
+      data-test-assistant-setup
+      {{on "submit" this.saveKey}}
+    >
+      <p>{{t "components.assistant.setup_intro"}}</p>
+      <p class="umb-meta">
+        {{t "components.assistant.setup_key_help" htmlSafe=true}}
+      </p>
+
+      <div>
+        <label class="form-label" for="assistant-key">
+          {{t "components.assistant.key_label"}}
+        </label>
+        <input
+          id="assistant-key"
+          class="form-control"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder={{t "components.assistant.key_placeholder"}}
+          value={{this.keyInput}}
+          {{on "input" this.onKeyInput}}
+        />
+      </div>
+
+      {{#if this.needsConsent}}
+        <div class="form-check">
+          <input
+            id="assistant-consent"
+            class="form-check-input"
+            type="checkbox"
+            checked={{this.consentChecked}}
+            {{on "change" this.onConsentChange}}
+          />
+          <label class="umb-assistant__consent" for="assistant-consent">
+            {{t "components.assistant.consent"}}
+            <LinkTo
+              @route="datenschutz"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{t "general.privacy_policy"}}
+            </LinkTo>
+          </label>
+        </div>
+      {{/if}}
+
+      <div class="umb-assistant__row">
+        <button
+          type="submit"
+          class="umb-btn umb-btn--primary"
+          disabled={{not this.canSaveKey}}
+        >
+          {{t "components.assistant.save_key"}}
+        </button>
+        {{#if this.isEditingKey}}
+          <button
+            type="button"
+            class="umb-btn"
+            {{on "click" this.cancelEditKey}}
+          >
+            {{t "actions.cancel"}}
+          </button>
+        {{/if}}
+      </div>
+    </form>
+  {{else}}
+    <div
+      class="umb-assistant__messages"
+      aria-live="polite"
+      {{did-insert this.scrollToEnd}}
+      {{did-update
+        this.scrollToEnd
+        this.conversation.messages.length
+        this.conversation.streamingText
+        this.conversation.activity.length
+      }}
+    >
+      {{#unless this.conversation.messages.length}}
+        <div class="umb-assistant__empty" data-test-assistant-empty>
+          <p>{{t "components.assistant.empty"}}</p>
+          {{#unless @modelVersion.canEdit}}
+            <p class="umb-meta">{{t "components.assistant.read_only"}}</p>
+          {{/unless}}
+        </div>
+      {{/unless}}
+
+      {{#each this.conversation.messages as |message|}}
+        {{#if (eq message.kind "user")}}
+          <div
+            class="umb-assistant__message umb-assistant__message--user"
+            data-test-assistant-message="user"
+          >
+            {{! on one line: the text keeps its line breaks, so whitespace here would show }}
+            <span class="umb-assistant__text">{{message.content}}</span>
+          </div>
+        {{else if (eq message.kind "assistant")}}
+          <div
+            class="umb-assistant__message"
+            data-test-assistant-message="assistant"
+          >
+            {{#if message.tools.length}}
+              <ul class="umb-assistant__tools">
+                {{#each message.tools as |tool|}}
+                  <li class={{unless tool.ok "umb-assistant__tool--failed"}}>
+                    <SvgIcon @icon={{if tool.ok "check" "close"}} @size="sm" />
+                    {{t (concat "components.assistant.tools." tool.name)}}
+                  </li>
+                {{/each}}
+              </ul>
+            {{/if}}
+            {{#if message.content}}
+              <div class="umb-assistant__text">{{message.content}}</div>
+            {{/if}}
+            {{#if message.limitReached}}
+              <p class="umb-meta">{{t "components.assistant.limit_reached"}}</p>
+            {{/if}}
+          </div>
+        {{else if (eq message.kind "checkpoint")}}
+          <div
+            class="umb-assistant__notice"
+            data-test-assistant-message="checkpoint"
+          >
+            {{t "components.assistant.checkpoint" name=message.name}}
+            <LinkTo
+              @route="models.versions.show"
+              @models={{array message.modelId message.modelVersionId}}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{t "components.assistant.checkpoint_open"}}
+            </LinkTo>
+          </div>
+        {{else}}
+          <div
+            class="umb-assistant__notice umb-assistant__notice--error"
+            role="alert"
+            data-test-assistant-message="error"
+          >
+            {{t (concat "components.assistant.errors." message.reason)}}
+            {{#if (eq message.reason "invalid_api_key")}}
+              <button
+                type="button"
+                class="umb-btn umb-btn--sm"
+                {{on "click" this.editKey}}
+              >
+                {{t "components.assistant.change_key"}}
+              </button>
+            {{/if}}
+          </div>
+        {{/if}}
+      {{/each}}
+
+      {{#if this.conversation.isRunning}}
+        <div
+          class="umb-assistant__message umb-assistant__message--running"
+          data-test-assistant-running
+        >
+          {{#if this.conversation.activity.length}}
+            <ul class="umb-assistant__tools">
+              {{#each this.conversation.activity as |tool|}}
+                <li
+                  class={{if (eq tool.ok false) "umb-assistant__tool--failed"}}
+                >
+                  {{#if (eq tool.ok null)}}
+                    <span
+                      class="spinner-border spinner-border-sm"
+                      aria-hidden="true"
+                    ></span>
+                  {{else}}
+                    <SvgIcon @icon={{if tool.ok "check" "close"}} @size="sm" />
+                  {{/if}}
+                  {{t (concat "components.assistant.tools." tool.name)}}
+                </li>
+              {{/each}}
+            </ul>
+          {{/if}}
+          {{#if this.conversation.streamingText}}
+            <div
+              class="umb-assistant__text"
+            >{{this.conversation.streamingText}}</div>
+          {{else}}
+            <span class="umb-meta">{{t "components.assistant.thinking"}}</span>
+          {{/if}}
+        </div>
+      {{/if}}
+    </div>
+
+    <form
+      class="umb-assistant__composer"
+      aria-label={{t "components.assistant.placeholder"}}
+      {{on "submit" this.send}}
+    >
+      <label class="visually-hidden" for="assistant-draft">
+        {{t "components.assistant.placeholder"}}
+      </label>
+      <textarea
+        id="assistant-draft"
+        class="form-control"
+        rows="2"
+        maxlength="20000"
+        placeholder={{t "components.assistant.placeholder"}}
+        value={{this.draft}}
+        {{on "input" this.onDraftInput}}
+        {{on "keydown" this.onDraftKeydown}}
+      ></textarea>
+      <button
+        type="submit"
+        class="umb-btn umb-btn--primary umb-btn--icon"
+        disabled={{not this.canSend}}
+        aria-label={{t "components.assistant.send"}}
+        title={{t "components.assistant.send"}}
+      >
+        <SvgIcon @icon="arrow_upward" @size="sm" />
+      </button>
+    </form>
+
+    <div class="umb-assistant__settings">
+      <button
+        type="button"
+        class="umb-assistant__settings-toggle umb-label"
+        aria-expanded={{if this.showSettings "true" "false"}}
+        data-test-assistant-settings
+        {{on "click" this.toggleSettings}}
+      >
+        <SvgIcon
+          @icon={{if this.showSettings "expand_more" "chevron_right"}}
+          @size="sm"
+        />
+        {{t "components.assistant.settings"}}
+      </button>
+      {{#if this.showSettings}}
+        <div class="umb-assistant__settings-body">
+          <div>
+            <label class="form-label" for="assistant-model">
+              {{t "components.assistant.model"}}
+            </label>
+            <select
+              id="assistant-model"
+              class="form-select form-select-sm"
+              disabled={{this.isSaving}}
+              {{on "change" this.onModelChange}}
+            >
+              {{#each this.modelOptions as |choice|}}
+                <option value={{choice.model}} selected={{choice.isSelected}}>
+                  {{choice.model}}
+                </option>
+              {{/each}}
+            </select>
+          </div>
+          <div class="umb-assistant__row">
+            <span class="umb-meta">
+              {{t
+                "components.assistant.key_stored"
+                hint=this.settings.openRouterKeyHint
+              }}
+            </span>
+            <button
+              type="button"
+              class="umb-btn umb-btn--sm"
+              {{on "click" this.editKey}}
+            >
+              {{t "components.assistant.change_key"}}
+            </button>
+            <button
+              type="button"
+              class="umb-btn umb-btn--sm"
+              disabled={{this.isSaving}}
+              data-test-assistant-remove-key
+              {{on "click" this.removeKey}}
+            >
+              {{t "components.assistant.remove_key"}}
+            </button>
+          </div>
+          <p class="umb-meta mb-0">{{t "components.assistant.privacy_note"}}</p>
+        </div>
+      {{/if}}
+    </div>
+  {{/if}}
+</div>

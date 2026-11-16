@@ -27,6 +27,10 @@ export default class SidebarGeneralNavComponent extends Component<SidebarGeneral
         icon: 'share',
       },
       {
+        id: 'assistant',
+        icon: 'smart_toy',
+      },
+      {
         id: 'settings',
         icon: 'settings',
       },

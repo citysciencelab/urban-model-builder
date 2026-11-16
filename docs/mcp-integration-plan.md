@@ -1,6 +1,6 @@
 # MCP integration plan
 
-Status: phases 1 to 3 implemented, phases 4–6 open. The client follows the UMB Design System (branch
+Status: phases 1 to 4 implemented, phases 5 and 6 open. The client follows the UMB Design System (branch
 `feature/umb-design-system`, merged into this branch).
 
 ## Goal
@@ -90,8 +90,11 @@ Deployment: run the migration, and make sure a reverse proxy in front of the bac
   decrypted only on the server for a chat request. The settings also tell the client which models are available.
 - Service `chat` (`create`): one call is one turn. The client sends the conversation so far (the server keeps no
   history), the server runs the agent loop (`src/llm/agent.ts`) against OpenRouter's streaming chat completions API
-  (`src/llm/openrouter.ts`) with the tool registry, and returns the final answer with the tool calls and token usage.
-- While a turn runs, `progress` events (`text_delta`, `tool_call`, `tool_result`) go to the calling connection only.
+  (`src/llm/openrouter.ts`) with the tool registry, and produces the final answer with the tool calls and token usage.
+- Over a real-time connection `create` returns at once (`status: 'started'`), because the client's socket gives up
+  on a request after 10 seconds. `progress` events (`text_delta`, `tool_call`, `tool_result`, and finally `done`
+  with the answer or `error`) go to the calling connection only. REST and internal callers get the answer as the
+  result of `create`.
 - With `createCheckpoint`, the model version is copied into a new model of the user before the first change of a
   turn; the response names the copy. The client decides when to ask for it (once per chat session).
 - Limits: one running turn per user, a configurable number of model calls per turn, five minutes per turn, tool
@@ -107,14 +110,23 @@ Configuration (`config/default.json`, section `llm`; environment variables in br
   choose from. The defaults in the repository were not checked against OpenRouter's current catalogue.
 - `openRouterBaseUrl` (`OPENROUTER_BASE_URL`), `maxIterations`.
 
-The Feathers client bundle has not been republished for these two services yet; phase 4 does that.
+### Phase 4: chat panel in the Ember app (implemented)
 
-### Phase 4: chat panel in the Ember app
+- Sidebar view "Assistant" in the editor (`app/components/sidebar-general/views/assistant.*`, robot icon in the
+  sidebar's navigation), styled with the UMB Design System (`app/styles/design-system/_assistant.scss`). It shows
+  the conversation, the tools the assistant uses while a turn runs, and the answer as plain text.
+- Service `assistant` (`app/services/assistant.ts`): settings and one conversation per model version, kept in
+  memory for the lifetime of the browser tab. It asks the backend for a backup copy once per conversation, before
+  the first change, and shows a link to the copy.
+- First use: the view asks for the OpenRouter API key and for consent to send messages and model content to
+  OpenRouter and the model provider. The consent is remembered in the browser (`localStorage`). The settings of the
+  view allow choosing a model from the server's list and replacing or removing the key.
+- Privacy page (`datenschutz`): new section on the assistant and on access by programs with access tokens. The text
+  is a draft and needs a legal review.
+- Feathers client bundle 1.0.0-17 with the `chat` and `llm-settings` services.
 
-- Side panel in the model editor bound to the current model version, model selection from an allowlist, visible log
-  of tool calls.
-- Key entry in the user settings with a consent note that content goes to OpenRouter and its providers.
-- Translations and an update of the `datenschutz` page.
+Not part of this phase: rendering Markdown in answers (the assistant is told to write plain text), stopping a
+running turn, and the assistant in the demo route.
 
 ### Phase 5: OAuth for claude.ai and ChatGPT
 
