@@ -6,7 +6,9 @@ import type Controller from '@ember/controller';
 import type ModelModel from 'hcu-urban-model-builder-client/models/model';
 
 export default class PublicModelsRoute extends Route {
+  // The Library screen is shared with "My models".
   controllerName = 'models.index';
+  templateName = 'models/index';
 
   @service declare store: Store;
 

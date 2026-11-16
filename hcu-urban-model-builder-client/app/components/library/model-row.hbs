@@ -1,0 +1,60 @@
+<tr data-test-model-row ...attributes>
+  {{#let
+    (if
+      @model.latestDraftVersion
+      @model.latestDraftVersion
+      @model.latestPublishedVersion
+    )
+    as |version|
+  }}
+    <td>
+      <LinkTo
+        @route="models.versions.show"
+        @models={{array @model.id version}}
+        class="umb-table__name"
+      >
+        {{@model.internalName}}
+      </LinkTo>
+    </td>
+    <td>
+      <span class="umb-card__chips">
+        <Library::StateChip @version={{version}} @named={{true}} />
+      </span>
+    </td>
+    <td class="umb-meta">
+      {{#if version.hasVersion}}{{version.versionString}}{{/if}}
+    </td>
+    <td class="umb-meta">
+      {{#if @model.updatedAt}}
+        <span
+          title={{format-date
+            @model.updatedAt localeMatcher="lookup" format="dateTime"
+          }}
+        >
+          {{time-ago this.intl.primaryLocale @model.updatedAt}}
+        </span>
+      {{/if}}
+    </td>
+    <td class="umb-table__mix">
+      <Library::ModelSummary @versionId={{this.versionId}} as |graph|>
+        <Library::NodeMix @graph={{graph}} />
+        <span class="umb-meta">
+          {{#if graph.summary}}
+            {{t "components.library.nodes" count=graph.summary.nodeCount}}
+            ·
+          {{/if}}
+          {{graph.caption}}
+        </span>
+      </Library::ModelSummary>
+    </td>
+    <td class="umb-meta">{{this.roleLabel}}</td>
+    <td class="umb-table__actions">
+      <Library::ModelMenu
+        @model={{@model}}
+        @version={{version}}
+        @onEdit={{@onEdit}}
+        @onDelete={{@onDelete}}
+      />
+    </td>
+  {{/let}}
+</tr>

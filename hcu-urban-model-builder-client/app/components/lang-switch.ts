@@ -11,7 +11,7 @@ export interface LangSwitchSignature {
     default: [];
   };
   // The element to which `...attributes` is applied in the component template
-  Element: null;
+  Element: HTMLButtonElement;
 }
 
 export default class LangSwitchComponent extends Component<LangSwitchSignature> {

@@ -1,0 +1,20 @@
+{{! The model's nodes as blocks in their colours and forms, generated from
+    the node positions. Decorative: the card's text carries the information. }}
+<svg
+  viewBox="0 0 300 150"
+  preserveAspectRatio="xMidYMid meet"
+  aria-hidden="true"
+  focusable="false"
+  ...attributes
+>
+  {{#each @shapes as |shape|}}
+    <rect
+      class="umb-thumb__node umb-thumb__node--{{shape.type}}"
+      x={{shape.x}}
+      y={{shape.y}}
+      width={{shape.width}}
+      height={{shape.height}}
+      rx={{shape.rx}}
+    />
+  {{/each}}
+</svg>

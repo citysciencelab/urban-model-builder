@@ -1,0 +1,173 @@
+// UMB Design System — text styles.
+//
+// Display (Funnel Display) for titles, Interface (Funnel Sans) for running
+// text, Plan (IBM Plex Mono) for everything that orders or measures.
+
+// Display
+@mixin titel-xl {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+}
+
+@mixin titel-l {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+@mixin titel-m {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+// Interface
+@mixin ui-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+@mixin ui-strong {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+@mixin ui-small {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+@mixin node-name {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+// Plan
+@mixin plan-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@mixin plan-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+@mixin plan-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.umb-titel-xl {
+  @include titel-xl;
+}
+
+.umb-titel-l {
+  @include titel-l;
+}
+
+.umb-titel-m {
+  @include titel-m;
+}
+
+.umb-label {
+  @include plan-label;
+  color: var(--grau-meta);
+}
+
+.umb-meta {
+  @include plan-meta;
+  color: var(--grau-meta);
+}
+
+.umb-value {
+  @include plan-value;
+}
+
+// Headings of content pages and Bootstrap components.
+%heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: $headings-font-weight;
+  line-height: $headings-line-height;
+  letter-spacing: -0.015em;
+
+  .content-page & {
+    margin-bottom: 1rem;
+  }
+}
+
+h1,
+.h1 {
+  @extend %heading;
+  @include font-size($h1-font-size);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+h2,
+.h2 {
+  @extend %heading;
+  @include font-size($h2-font-size);
+  letter-spacing: -0.02em;
+}
+
+h3,
+.h3 {
+  @extend %heading;
+  @include font-size($h3-font-size);
+}
+
+h4,
+.h4 {
+  @extend %heading;
+  @include font-size($h4-font-size);
+}
+
+h5,
+.h5 {
+  @extend %heading;
+  @include font-size($h5-font-size);
+}
+
+h6,
+.h6 {
+  @extend %heading;
+  @include font-size($h6-font-size);
+}
+
+code,
+kbd,
+pre,
+.version-string,
+.code-textarea {
+  font-family: var(--font-mono);
+}

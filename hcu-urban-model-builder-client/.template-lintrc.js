@@ -3,6 +3,7 @@
 module.exports = {
   extends: 'recommended',
   rules: {
-    'no-bare-strings': true,
+    // The middle dot separates items of a meta line ("v1.4 · 12 nodes").
+    'no-bare-strings': ['·'],
   },
 };

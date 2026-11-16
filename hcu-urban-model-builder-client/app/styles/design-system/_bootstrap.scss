@@ -1,0 +1,547 @@
+// UMB Design System — Bootstrap bridge.
+//
+// Bootstrap (and ember-bootstrap) stays the component layer. This file points
+// Bootstrap's runtime custom properties at the design tokens, so both themes
+// work without recompiling, and restyles the components the app uses: square,
+// ink, hairlines, one hard shadow.
+
+// 1. Custom properties -------------------------------------------------------
+
+:root,
+[data-bs-theme="light"],
+[data-bs-theme="dark"] {
+  --bs-body-bg: var(--paper);
+  --bs-body-color: var(--ink);
+  --bs-emphasis-color: var(--ink);
+  --bs-secondary-color: var(--grau-text);
+  --bs-tertiary-color: var(--grau-meta);
+  --bs-secondary-bg: var(--paper-2);
+  --bs-tertiary-bg: var(--paper-2);
+  --bs-border-color: var(--grau-85);
+  --bs-border-color-translucent: var(--grau-85);
+  --bs-heading-color: inherit;
+  --bs-link-color: var(--ink);
+  --bs-link-hover-color: var(--grau-text);
+  --bs-code-color: var(--ink);
+  --bs-box-shadow: var(--schatten-hart);
+  --bs-box-shadow-sm: var(--schatten-hart);
+  --bs-box-shadow-lg: var(--schatten-hart);
+  --bs-form-invalid-color: var(--signal-error);
+  --bs-form-invalid-border-color: var(--signal-error);
+}
+
+// Bootstrap builds some colours as `rgba(var(--bs-*-rgb), alpha)`, which needs
+// the channels of the token values.
+@mixin bootstrap-rgb($paper, $paper-2, $ink, $grau-text, $signal-error) {
+  --bs-body-bg-rgb: #{to-rgb($paper)};
+  --bs-body-color-rgb: #{to-rgb($ink)};
+  --bs-emphasis-color-rgb: #{to-rgb($ink)};
+  --bs-secondary-color-rgb: #{to-rgb($grau-text)};
+  --bs-secondary-bg-rgb: #{to-rgb($paper-2)};
+  --bs-tertiary-bg-rgb: #{to-rgb($paper-2)};
+  --bs-link-color-rgb: #{to-rgb($ink)};
+  --bs-link-hover-color-rgb: #{to-rgb($grau-text)};
+  --bs-primary: #{$ink};
+  --bs-primary-rgb: #{to-rgb($ink)};
+  --bs-secondary: #{$grau-text};
+  --bs-secondary-rgb: #{to-rgb($grau-text)};
+  --bs-light: #{$paper-2};
+  --bs-light-rgb: #{to-rgb($paper-2)};
+  --bs-dark: #{$ink};
+  --bs-dark-rgb: #{to-rgb($ink)};
+  --bs-danger: #{$signal-error};
+  --bs-danger-rgb: #{to-rgb($signal-error)};
+}
+
+:root,
+[data-bs-theme="light"] {
+  @include bootstrap-rgb(#fff, #f4f4f4, #000, #555, #c8001e);
+}
+
+[data-bs-theme="dark"] {
+  @include bootstrap-rgb(#0f0f0f, #1a1a1a, #f2f2f2, #b3b3b3, #ff5a4a);
+}
+
+// 2. Base ---------------------------------------------------------------------
+
+body {
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: var(--ink);
+}
+
+// Focus: 2px ink ring with 2px offset, the same sign as selection on the canvas.
+:focus-visible {
+  outline: var(--linie-fokus) solid var(--ink);
+  outline-offset: 2px;
+}
+
+.btn-primary:focus-visible,
+.umb-rail__item[aria-current="page"]:focus-visible {
+  outline-offset: 3px;
+}
+
+hr {
+  opacity: 1;
+  color: var(--grau-85);
+}
+
+// 3. Buttons ------------------------------------------------------------------
+
+.btn {
+  --bs-btn-padding-x: 16px;
+  --bs-btn-padding-y: 9px;
+  --bs-btn-font-size: 14px;
+  --bs-btn-line-height: 20px;
+  --bs-btn-color: var(--ink);
+  --bs-btn-bg: var(--paper);
+  --bs-btn-border-color: var(--ink);
+  --bs-btn-hover-color: var(--ink);
+  --bs-btn-hover-bg: var(--paper-2);
+  --bs-btn-hover-border-color: var(--ink);
+  --bs-btn-active-color: var(--ink);
+  --bs-btn-active-bg: var(--paper-2);
+  --bs-btn-active-border-color: var(--ink);
+  --bs-btn-disabled-color: var(--grau-meta);
+  --bs-btn-disabled-bg: var(--paper);
+  --bs-btn-disabled-border-color: var(--grau-55);
+  --bs-btn-disabled-opacity: 1;
+  --bs-btn-box-shadow: none;
+  --bs-btn-focus-box-shadow: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  transition:
+    background-color var(--motion-duration) var(--motion-ease),
+    color var(--motion-duration) var(--motion-ease),
+    border-color var(--motion-duration) var(--motion-ease);
+
+  &:disabled,
+  &.disabled {
+    cursor: not-allowed;
+    pointer-events: auto;
+  }
+}
+
+.btn-sm {
+  --bs-btn-padding-x: 12px;
+  --bs-btn-padding-y: 5px;
+  --bs-btn-font-size: 13px;
+}
+
+.btn-lg {
+  --bs-btn-padding-x: 24px;
+  --bs-btn-padding-y: 13px;
+  --bs-btn-font-size: 16px;
+}
+
+// One primary action per area: ink fill.
+.btn-primary {
+  --bs-btn-color: var(--on-ink);
+  --bs-btn-bg: var(--ink);
+  --bs-btn-hover-color: var(--on-ink);
+  --bs-btn-hover-bg: var(--grau-text);
+  --bs-btn-hover-border-color: var(--grau-text);
+  --bs-btn-active-color: var(--on-ink);
+  --bs-btn-active-bg: var(--grau-text);
+  --bs-btn-active-border-color: var(--grau-text);
+}
+
+// Tertiary actions: ghost.
+.btn-tertiary,
+.btn-link {
+  --bs-btn-border-color: transparent;
+  --bs-btn-bg: transparent;
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-border-color: transparent;
+  --bs-btn-disabled-border-color: transparent;
+  --bs-btn-disabled-bg: transparent;
+}
+
+.btn-link {
+  text-decoration: underline;
+}
+
+.btn-danger,
+.btn-outline-danger {
+  --bs-btn-color: var(--signal-error);
+  --bs-btn-border-color: var(--signal-error);
+  --bs-btn-hover-color: var(--paper);
+  --bs-btn-hover-bg: var(--signal-error);
+  --bs-btn-hover-border-color: var(--signal-error);
+  --bs-btn-active-color: var(--paper);
+  --bs-btn-active-bg: var(--signal-error);
+  --bs-btn-active-border-color: var(--signal-error);
+}
+
+// Icon buttons: square hit target.
+.btn.btn-round {
+  --bs-btn-padding-x: 0;
+  --bs-btn-padding-y: 0;
+
+  width: var(--hit-target);
+  height: var(--hit-target);
+  flex: none;
+}
+
+// Pressed state of toggles and radio groups: ink.
+.btn-check:checked + .btn,
+.btn.active {
+  --bs-btn-active-color: var(--on-ink);
+  --bs-btn-active-bg: var(--ink);
+  --bs-btn-active-border-color: var(--ink);
+}
+
+.btn-group > .btn-tertiary {
+  --bs-btn-border-color: var(--grau-85);
+  --bs-btn-hover-border-color: var(--ink);
+}
+
+// 4. Forms --------------------------------------------------------------------
+
+@mixin umb-input {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  color: var(--ink);
+  appearance: none;
+  background-color: var(--paper);
+  background-clip: padding-box;
+  border: var(--linie-haar) solid var(--ink);
+  border-radius: 0;
+
+  &:focus,
+  &:focus-visible {
+    border-color: var(--ink);
+    box-shadow: none;
+    outline: var(--linie-fokus) solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+.form-control,
+.form-select {
+  border-color: var(--ink);
+
+  &::placeholder {
+    color: var(--grau-meta);
+  }
+
+  &:focus {
+    outline: var(--linie-fokus) solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &[readonly] {
+    color: var(--grau-text);
+    background-color: var(--paper-2);
+    border-color: var(--grau-55);
+  }
+
+  &.is-invalid {
+    border-color: var(--signal-error);
+  }
+}
+
+.form-label,
+.col-form-label {
+  font-weight: 600;
+}
+
+.form-text {
+  color: var(--grau-text);
+}
+
+.input-group-text {
+  color: var(--grau-text);
+  background-color: var(--paper-2);
+  border-color: var(--ink);
+}
+
+.form-check-input {
+  border-color: var(--ink);
+
+  // Not plain `:indeterminate`: a radio group without a selection matches it.
+  &:checked,
+  &[type="checkbox"]:indeterminate {
+    background-color: var(--ink);
+    border-color: var(--ink);
+  }
+
+  &:focus {
+    border-color: var(--ink);
+    outline: var(--linie-fokus) solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+// The checked glyphs are embedded SVGs with a fixed stroke, so Night needs
+// its own set drawn in on-ink.
+[data-bs-theme="dark"] {
+  $on-ink-dark: #0f0f0f;
+
+  .form-check-input:checked[type="checkbox"] {
+    --bs-form-check-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='#{$on-ink-dark}' stroke-linecap='square' stroke-width='3' d='m6 10 3 3 6-6'/></svg>");
+  }
+
+  .form-check-input:checked[type="radio"] {
+    --bs-form-check-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='2' fill='#{$on-ink-dark}'/></svg>");
+  }
+
+  .form-switch .form-check-input:checked {
+    --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><rect x='-3' y='-3' width='6' height='6' fill='#{$on-ink-dark}'/></svg>");
+  }
+}
+
+// Square switch knob, in keeping with radius-0 for all chrome.
+.form-switch .form-check-input {
+  --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><rect x='-3' y='-3' width='6' height='6' fill='%238c8c8c'/></svg>");
+
+  &:focus {
+    --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><rect x='-3' y='-3' width='6' height='6' fill='%238c8c8c'/></svg>");
+  }
+
+  &:checked {
+    --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><rect x='-3' y='-3' width='6' height='6' fill='%23fff'/></svg>");
+  }
+}
+
+.invalid-feedback,
+.text-danger {
+  color: var(--signal-error) !important;
+}
+
+// 5. Surfaces -----------------------------------------------------------------
+
+.card {
+  --bs-card-bg: var(--paper);
+  --bs-card-border-color: var(--grau-85);
+  --bs-card-cap-bg: transparent;
+
+  .card-header,
+  .card-footer {
+    padding: var(--s-4);
+  }
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+// Everything that floats is framed like a plan sheet.
+.modal-content,
+.dropdown-menu,
+.popover {
+  border: var(--linie-kante) solid var(--ink);
+  box-shadow: var(--schatten-hart);
+}
+
+.modal {
+  --bs-modal-bg: var(--paper);
+  --bs-modal-header-border-color: var(--grau-85);
+  --bs-modal-footer-border-color: var(--grau-85);
+}
+
+.modal-title {
+  @include titel-m;
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--paper);
+  --bs-dropdown-color: var(--ink);
+  --bs-dropdown-link-color: var(--ink);
+  --bs-dropdown-link-hover-color: var(--ink);
+  --bs-dropdown-link-hover-bg: var(--paper-2);
+  --bs-dropdown-link-active-color: var(--on-ink);
+  --bs-dropdown-link-active-bg: var(--ink);
+  --bs-dropdown-divider-bg: var(--grau-85);
+  --bs-dropdown-font-size: 14px;
+}
+
+.dropdown-item {
+  display: flex;
+  gap: var(--s-3);
+  align-items: center;
+}
+
+.tooltip {
+  --bs-tooltip-bg: var(--ink);
+  --bs-tooltip-color: var(--on-ink);
+  --bs-tooltip-opacity: 1;
+  --bs-tooltip-font-size: 12px;
+}
+
+// Signal: error only. Everything else is a neutral note.
+.alert {
+  --bs-alert-bg: var(--paper-2);
+  --bs-alert-color: var(--ink);
+  --bs-alert-border-color: var(--ink);
+  --bs-alert-link-color: var(--ink);
+}
+
+.alert-danger {
+  --bs-alert-bg: var(--paper);
+  --bs-alert-color: var(--signal-error);
+  --bs-alert-border-color: var(--signal-error);
+  --bs-alert-link-color: var(--signal-error);
+}
+
+.alert-sm {
+  font-size: 12px;
+  padding: var(--s-1) var(--s-2);
+}
+
+.list-group {
+  --bs-list-group-bg: var(--paper);
+  --bs-list-group-color: var(--ink);
+  --bs-list-group-border-color: var(--grau-85);
+  --bs-list-group-action-hover-bg: var(--paper-2);
+  --bs-list-group-action-active-bg: var(--paper-2);
+  --bs-list-group-active-bg: var(--ink);
+  --bs-list-group-active-border-color: var(--ink);
+  --bs-list-group-active-color: var(--on-ink);
+}
+
+.accordion {
+  --bs-accordion-bg: var(--paper);
+  --bs-accordion-color: var(--ink);
+  --bs-accordion-border-color: var(--grau-85);
+  --bs-accordion-btn-color: var(--ink);
+  --bs-accordion-btn-bg: var(--paper);
+  --bs-accordion-active-color: var(--ink);
+  --bs-accordion-active-bg: var(--paper-2);
+  --bs-accordion-btn-focus-box-shadow: none;
+}
+
+// 6. Status and navigation ----------------------------------------------------
+
+// Badges are chips: square, mono, upper case. State is told by form
+// (`umb-chip--draft` dashed, `umb-chip--published` filled), never by colour.
+.badge {
+  @include plan-label;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  padding: 4px var(--s-2);
+  color: var(--ink) !important;
+  white-space: nowrap;
+  text-decoration: none;
+  background-color: var(--paper) !important;
+  border: var(--linie-haar) solid var(--grau-85);
+}
+
+.nav-tabs {
+  --bs-nav-tabs-border-width: 0;
+  --bs-nav-link-color: var(--grau-text);
+  --bs-nav-link-hover-color: var(--ink);
+  --bs-nav-tabs-link-active-color: var(--ink);
+  --bs-nav-tabs-link-active-bg: transparent;
+
+  border-bottom: var(--linie-haar) solid var(--grau-85);
+
+  .nav-link {
+    margin-bottom: -1px;
+    font-weight: 600;
+    border: 0;
+    border-bottom: 2px solid transparent;
+
+    &.active {
+      border-bottom-color: var(--ink);
+    }
+  }
+}
+
+.pagination {
+  --bs-pagination-color: var(--ink);
+  --bs-pagination-bg: transparent;
+  --bs-pagination-border-width: 0;
+  --bs-pagination-hover-color: var(--ink);
+  --bs-pagination-hover-bg: var(--paper-2);
+  --bs-pagination-focus-color: var(--ink);
+  --bs-pagination-focus-bg: var(--paper-2);
+  --bs-pagination-focus-box-shadow: none;
+  --bs-pagination-active-color: var(--on-ink);
+  --bs-pagination-active-bg: var(--ink);
+  --bs-pagination-disabled-color: var(--grau-55);
+  --bs-pagination-disabled-bg: transparent;
+
+  @include plan-meta;
+
+  margin-bottom: 0;
+}
+
+.spinner-border {
+  --bs-spinner-border-width: 2px;
+
+  color: var(--ink);
+}
+
+// 7. Ember Power Select -------------------------------------------------------
+
+.ember-power-select-trigger {
+  min-height: 2.25rem;
+  color: var(--ink);
+  background-color: var(--paper);
+  border-color: var(--ink);
+  border-radius: 0;
+
+  &:focus,
+  &--active {
+    border-color: var(--ink);
+    box-shadow: none;
+    outline: var(--linie-fokus) solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+.ember-power-select-dropdown {
+  color: var(--ink);
+  background-color: var(--paper);
+  border: var(--linie-kante) solid var(--ink);
+  border-radius: 0;
+  box-shadow: var(--schatten-hart);
+}
+
+.ember-power-select-option[aria-current="true"] {
+  color: var(--ink);
+  background-color: var(--paper-2);
+}
+
+.ember-power-select-option[aria-selected="true"] {
+  color: var(--on-ink);
+  background-color: var(--ink);
+}
+
+.ember-power-select-search-input {
+  color: var(--ink);
+  background-color: var(--paper);
+  border-color: var(--ink);
+  border-radius: 0;
+}
+
+.ember-power-select-multiple-options {
+  .ember-power-select-multiple-option {
+    padding: var(--s-1) var(--s-2);
+    color: var(--ink);
+    background-color: var(--paper-2);
+    border: var(--linie-haar) solid var(--grau-85);
+    border-radius: 0;
+  }
+
+  .ember-power-select-trigger-multiple-input:focus {
+    box-shadow: none;
+    outline: 0;
+  }
+}
+
+.ember-content-editable {
+  @include umb-input;
+}

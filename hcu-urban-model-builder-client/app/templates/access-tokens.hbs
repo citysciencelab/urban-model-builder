@@ -1,217 +1,223 @@
 {{page-title (t "routes.access_tokens.title")}}
 
-<div class="container main-content access-tokens">
-  <div class="card mb-4">
-    <div class="card-header">
-      <h1 class="h4 mb-0">{{t "routes.access_tokens.title"}}</h1>
-    </div>
-    <div class="card-body">
-      <p>{{t "routes.access_tokens.intro"}}</p>
-      <label class="form-label" for="access-tokens-endpoint">
-        {{t "routes.access_tokens.endpoint"}}
-      </label>
-      <div class="input-group">
-        <input
-          id="access-tokens-endpoint"
-          class="form-control font-monospace"
-          type="text"
-          readonly
-          value={{this.mcpUrl}}
+<section class="umb-library umb-access">
+  <header class="umb-library__head">
+    <span class="umb-label">{{t "routes.access_tokens.eyebrow"}}</span>
+    <h1 class="umb-library__title">{{t "routes.access_tokens.title"}}</h1>
+    <p class="umb-access__lead">{{t "routes.access_tokens.intro"}}</p>
+  </header>
+
+  <section class="umb-access__section">
+    <h2 class="umb-titel-m">{{t "routes.access_tokens.endpoint"}}</h2>
+    <div class="umb-access__copy-row">
+      <code class="umb-access__code" data-test-endpoint>{{this.mcpUrl}}</code>
+      <button
+        class="umb-btn umb-btn--sm"
+        type="button"
+        {{on "click" (fn this.copy "endpoint" this.mcpUrl)}}
+      >
+        <SvgIcon
+          @icon={{if (eq this.copiedKey "endpoint") "check" "content_copy"}}
+          @size="sm"
         />
-        <button
-          class="btn btn-outline-secondary"
-          type="button"
-          {{on "click" (fn this.copy "endpoint" this.mcpUrl)}}
-        >
-          {{#if (eq this.copiedKey "endpoint")}}
-            {{t "routes.access_tokens.copied"}}
-          {{else}}
-            {{t "routes.access_tokens.copy"}}
-          {{/if}}
-        </button>
+        {{t
+          (if
+            (eq this.copiedKey "endpoint")
+            "routes.access_tokens.copied"
+            "routes.access_tokens.copy"
+          )
+        }}
+      </button>
+    </div>
+  </section>
+
+  <section class="umb-access__section">
+    <h2 class="umb-titel-m">{{t "routes.access_tokens.tokens_title"}}</h2>
+    <p>{{t "routes.access_tokens.tokens_intro"}}</p>
+
+    {{#if this.hasError}}
+      <div class="alert alert-danger" role="alert">
+        {{t "routes.access_tokens.error"}}
       </div>
-    </div>
-  </div>
+    {{/if}}
 
-  <div class="card mb-4">
-    <div class="card-header">
-      <h2 class="h5 mb-0">{{t "routes.access_tokens.tokens_title"}}</h2>
-    </div>
-    <div class="card-body">
-      <p>{{t "routes.access_tokens.tokens_intro"}}</p>
-
-      {{#if this.hasError}}
-        <div class="alert alert-danger" role="alert">
-          {{t "routes.access_tokens.error"}}
-        </div>
-      {{/if}}
-
-      {{#if this.createdToken}}
-        <div class="alert alert-success" role="status">
-          <h3 class="h6">{{t "routes.access_tokens.created_title"}}</h3>
-          <p>{{t "routes.access_tokens.created_notice"}}</p>
-          <div class="input-group">
-            <input
-              class="form-control font-monospace"
-              type="text"
-              readonly
-              aria-label={{t "routes.access_tokens.token"}}
-              value={{this.createdToken}}
-            />
-            <button
-              class="btn btn-success"
-              type="button"
-              {{on "click" (fn this.copy "token" this.createdToken)}}
-            >
-              {{#if (eq this.copiedKey "token")}}
-                {{t "routes.access_tokens.copied"}}
-              {{else}}
-                {{t "routes.access_tokens.copy"}}
-              {{/if}}
-            </button>
-          </div>
-        </div>
-      {{/if}}
-
-      {{#if this.rows.length}}
-        <div class="table-responsive">
-          <table class="table align-middle">
-            <thead>
-              <tr>
-                <th scope="col">{{t "routes.access_tokens.name"}}</th>
-                <th scope="col">{{t "routes.access_tokens.token"}}</th>
-                <th scope="col">{{t "routes.access_tokens.created"}}</th>
-                <th scope="col">{{t "routes.access_tokens.expires"}}</th>
-                <th scope="col">{{t "routes.access_tokens.last_used"}}</th>
-                <th scope="col"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {{#each this.rows key="token.id" as |row|}}
-                <tr>
-                  <td>{{row.token.name}}</td>
-                  <td class="font-monospace">{{row.maskedToken}}</td>
-                  <td>{{format-date row.token.createdAt}}</td>
-                  <td>
-                    {{#if row.isExpired}}
-                      <span class="badge text-bg-warning">
-                        {{t "routes.access_tokens.expired"}}
-                      </span>
-                    {{else}}
-                      {{format-date row.token.expiresAt}}
-                    {{/if}}
-                  </td>
-                  <td>
-                    {{#if row.token.lastUsedAt}}
-                      {{format-date row.token.lastUsedAt}}
-                    {{else}}
-                      {{t "routes.access_tokens.never_used"}}
-                    {{/if}}
-                  </td>
-                  <td class="text-end">
-                    <button
-                      class="btn btn-sm btn-outline-danger"
-                      type="button"
-                      {{on "click" (fn this.revokeToken row.token)}}
-                    >
-                      {{t "routes.access_tokens.revoke"}}
-                    </button>
-                  </td>
-                </tr>
-              {{/each}}
-            </tbody>
-          </table>
-        </div>
-      {{else}}
-        <p class="text-body-secondary">{{t "routes.access_tokens.no_tokens"}}</p>
-      {{/if}}
-
-      <form class="row g-3 align-items-end" {{on "submit" this.createToken}}>
-        <div class="col-md-6">
-          <label class="form-label" for="access-tokens-name">
-            {{t "routes.access_tokens.name"}}
-          </label>
-          <input
-            id="access-tokens-name"
-            class="form-control"
-            type="text"
-            maxlength="255"
-            placeholder={{t "routes.access_tokens.name_placeholder"}}
-            value={{this.name}}
-            {{on "input" this.onNameInput}}
-          />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label" for="access-tokens-lifetime">
-            {{t "routes.access_tokens.validity"}}
-          </label>
-          <select
-            id="access-tokens-lifetime"
-            class="form-select"
-            {{on "change" this.onLifetimeChange}}
-          >
-            {{#each this.lifetimes as |days|}}
-              <option value={{days}} selected={{eq days this.expiresInDays}}>
-                {{t "routes.access_tokens.days" days=days}}
-              </option>
-            {{/each}}
-          </select>
-        </div>
-        <div class="col-md-3">
+    {{#if this.createdToken}}
+      <div class="umb-access__new" role="status" data-test-new-token>
+        <span class="umb-label">{{t "routes.access_tokens.created_title"}}</span>
+        <p>{{t "routes.access_tokens.created_notice"}}</p>
+        <div class="umb-access__copy-row">
+          <code class="umb-access__code">{{this.createdToken}}</code>
           <button
-            class="btn btn-primary w-100"
-            type="submit"
-            disabled={{not this.canCreate}}
+            class="umb-btn umb-btn--sm umb-btn--primary"
+            type="button"
+            {{on "click" (fn this.copy "token" this.createdToken)}}
           >
-            {{t "routes.access_tokens.create"}}
+            <SvgIcon
+              @icon={{if (eq this.copiedKey "token") "check" "content_copy"}}
+              @size="sm"
+            />
+            {{t
+              (if
+                (eq this.copiedKey "token")
+                "routes.access_tokens.copied"
+                "routes.access_tokens.copy"
+              )
+            }}
           </button>
         </div>
-      </form>
-    </div>
-  </div>
+      </div>
+    {{/if}}
 
-  <div class="card mb-4">
-    <div class="card-header">
-      <h2 class="h5 mb-0">{{t "routes.access_tokens.setup_title"}}</h2>
-    </div>
-    <div class="card-body">
-      {{#unless this.createdToken}}
-        <p class="text-body-secondary">
-          {{t "routes.access_tokens.setup_placeholder_notice"}}
-        </p>
-      {{/unless}}
+    {{#if this.rows.length}}
+      <table class="umb-table">
+        <thead>
+          <tr>
+            <th scope="col">{{t "routes.access_tokens.name"}}</th>
+            <th scope="col">{{t "routes.access_tokens.token"}}</th>
+            <th scope="col">{{t "routes.access_tokens.created"}}</th>
+            <th scope="col">{{t "routes.access_tokens.expires"}}</th>
+            <th scope="col">{{t "routes.access_tokens.last_used"}}</th>
+            <th scope="col">
+              <span class="visually-hidden">
+                {{t "routes.access_tokens.revoke"}}
+              </span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each this.rows key="token.id" as |row|}}
+            <tr data-test-token-row>
+              <td>{{row.token.name}}</td>
+              <td class="umb-value">{{row.maskedToken}}</td>
+              <td class="umb-meta">{{format-date row.token.createdAt}}</td>
+              <td class="umb-meta">
+                {{#if row.isExpired}}
+                  <span class="umb-chip umb-chip--draft">
+                    {{t "routes.access_tokens.expired"}}
+                  </span>
+                {{else}}
+                  {{format-date row.token.expiresAt}}
+                {{/if}}
+              </td>
+              <td class="umb-meta">
+                {{#if row.token.lastUsedAt}}
+                  {{format-date row.token.lastUsedAt}}
+                {{else}}
+                  {{t "routes.access_tokens.never_used"}}
+                {{/if}}
+              </td>
+              <td class="umb-table__actions">
+                <button
+                  class="umb-btn umb-btn--sm"
+                  type="button"
+                  {{on "click" (fn this.revokeToken row.token)}}
+                >
+                  {{t "routes.access_tokens.revoke"}}
+                </button>
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      <p class="umb-meta" data-test-no-tokens>
+        {{t "routes.access_tokens.no_tokens"}}
+      </p>
+    {{/if}}
 
-      <p class="mb-1">{{t "routes.access_tokens.setup_claude_code"}}</p>
-      <pre class="access-tokens__code"><code>{{this.claudeCodeCommand}}</code></pre>
+    <form class="umb-access__form" {{on "submit" this.createToken}}>
+      <div class="umb-access__field umb-access__field--grow">
+        <label class="form-label" for="access-tokens-name">
+          {{t "routes.access_tokens.name"}}
+        </label>
+        <input
+          id="access-tokens-name"
+          class="form-control"
+          type="text"
+          maxlength="255"
+          placeholder={{t "routes.access_tokens.name_placeholder"}}
+          value={{this.name}}
+          {{on "input" this.onNameInput}}
+        />
+      </div>
+      <div class="umb-access__field">
+        <label class="form-label" for="access-tokens-lifetime">
+          {{t "routes.access_tokens.validity"}}
+        </label>
+        <select
+          id="access-tokens-lifetime"
+          class="form-select"
+          {{on "change" this.onLifetimeChange}}
+        >
+          {{#each this.lifetimes as |days|}}
+            <option value={{days}} selected={{eq days this.expiresInDays}}>
+              {{t "routes.access_tokens.days" days=days}}
+            </option>
+          {{/each}}
+        </select>
+      </div>
       <button
-        class="btn btn-sm btn-outline-secondary mb-4"
+        class="umb-btn umb-btn--primary"
+        type="submit"
+        disabled={{not this.canCreate}}
+      >
+        {{t "routes.access_tokens.create"}}
+      </button>
+    </form>
+  </section>
+
+  <section class="umb-access__section">
+    <h2 class="umb-titel-m">{{t "routes.access_tokens.setup_title"}}</h2>
+    {{#unless this.createdToken}}
+      <p class="umb-meta">
+        {{t "routes.access_tokens.setup_placeholder_notice"}}
+      </p>
+    {{/unless}}
+
+    <p>{{t "routes.access_tokens.setup_claude_code"}}</p>
+    <div class="umb-access__copy-row umb-access__copy-row--top">
+      <pre class="umb-access__code">{{this.claudeCodeCommand}}</pre>
+      <button
+        class="umb-btn umb-btn--sm"
         type="button"
         {{on "click" (fn this.copy "claude-code" this.claudeCodeCommand)}}
       >
-        {{#if (eq this.copiedKey "claude-code")}}
-          {{t "routes.access_tokens.copied"}}
-        {{else}}
-          {{t "routes.access_tokens.copy"}}
-        {{/if}}
+        <SvgIcon
+          @icon={{if (eq this.copiedKey "claude-code") "check" "content_copy"}}
+          @size="sm"
+        />
+        {{t
+          (if
+            (eq this.copiedKey "claude-code")
+            "routes.access_tokens.copied"
+            "routes.access_tokens.copy"
+          )
+        }}
       </button>
+    </div>
 
-      <p class="mb-1">{{t "routes.access_tokens.setup_json"}}</p>
-      <pre class="access-tokens__code"><code>{{this.jsonConfig}}</code></pre>
+    <p>{{t "routes.access_tokens.setup_json"}}</p>
+    <div class="umb-access__copy-row umb-access__copy-row--top">
+      <pre class="umb-access__code">{{this.jsonConfig}}</pre>
       <button
-        class="btn btn-sm btn-outline-secondary mb-4"
+        class="umb-btn umb-btn--sm"
         type="button"
         {{on "click" (fn this.copy "json" this.jsonConfig)}}
       >
-        {{#if (eq this.copiedKey "json")}}
-          {{t "routes.access_tokens.copied"}}
-        {{else}}
-          {{t "routes.access_tokens.copy"}}
-        {{/if}}
+        <SvgIcon
+          @icon={{if (eq this.copiedKey "json") "check" "content_copy"}}
+          @size="sm"
+        />
+        {{t
+          (if
+            (eq this.copiedKey "json")
+            "routes.access_tokens.copied"
+            "routes.access_tokens.copy"
+          )
+        }}
       </button>
-
-      <p class="text-body-secondary mb-0">
-        {{t "routes.access_tokens.setup_limitation"}}
-      </p>
     </div>
-  </div>
-</div>
+
+    <p class="umb-meta">{{t "routes.access_tokens.setup_limitation"}}</p>
+  </section>
+</section>

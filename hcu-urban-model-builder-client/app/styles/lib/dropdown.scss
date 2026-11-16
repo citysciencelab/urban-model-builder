@@ -1,11 +1,7 @@
 .primitives-card,
 .simulate-card {
-  background-color: $white;
-  border-color: $border-color;
-  border-width: $border-width;
-  border-style: $border-style;
-  box-shadow: $box-shadow-lg;
-  border-radius: $border-radius-lg;
+  @extend .umb-float;
+
   padding: get-spacer(3);
   min-width: 512px;
   margin-bottom: 3rem;
@@ -16,9 +12,8 @@
     justify-content: space-between;
 
     a {
-      background-color: $black;
-      opacity: 0.2;
-      border-radius: $border-radius-pill;
+      color: var(--grau-55);
+      border: var(--linie-haar) solid var(--grau-85);
       width: 2rem;
       height: 2rem;
       display: flex;
@@ -26,19 +21,26 @@
       justify-content: center;
 
       svg {
-        fill: $white;
+        fill: currentColor;
+      }
+
+      &:hover {
+        color: var(--ink);
+        border-color: var(--ink);
       }
 
       &.pinned {
-        background-color: $color-primary;
-        color: $black;
-        opacity: 1;
+        background-color: var(--ink);
+        border-color: var(--ink);
+        color: var(--on-ink);
       }
     }
   }
 
   h6 {
-    font-weight: $font-weight-base;
+    @include plan-label;
+
+    color: var(--grau-meta);
     padding-top: get-spacer(3);
     &:first-child {
       padding-top: 0;
@@ -60,19 +62,4 @@
 
 .simulate-card {
   min-width: 600px;
-}
-
-.ember-basic-dropdown-trigger--above::after {
-  content: "";
-  position: absolute;
-  top: -3.2rem;
-  z-index: 999999;
-
-  width: 0px;
-  height: 0px;
-  border-style: solid;
-  border-width: 20px 15px 0 15px;
-  border-color: white transparent transparent transparent;
-  transform: rotate(0deg) translateX(-50%);
-  left: 50%;
 }

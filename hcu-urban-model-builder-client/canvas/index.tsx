@@ -456,7 +456,8 @@ function Flow({
       <Panel position="bottom-center">
         <div className="toolbar__container" ref={toolbarContainerRef}></div>
       </Panel>
-      <Background />
+      {/* Dot grid at the s-6 pitch of the design system */}
+      <Background gap={24} size={1.5} />
       <Controls />
       <div
         className="sidebar__container sidebar__container--right"

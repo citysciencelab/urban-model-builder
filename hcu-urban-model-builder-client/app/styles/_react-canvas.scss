@@ -4,13 +4,53 @@
 $max-node-width: 300px;
 $ghost-node-opacity: 0.66;
 
+// The canvas is a plan: paper ground, dot grid in grau-85, ink for selection
+// and focus. Colour only ever comes from node types and their edges.
 .react-flow {
   z-index: unset !important;
+
+  --xy-background-color: var(--paper);
+  --xy-background-pattern-color: var(--grau-85);
+  --xy-node-color: var(--ink);
+  --xy-node-background-color: var(--paper);
+  --xy-node-border-radius: var(--radius-0);
+  --xy-node-boxshadow-hover: none;
+  --xy-node-boxshadow-selected: none;
+  --xy-handle-border-color: var(--paper);
+  --xy-edge-stroke: var(--grau-55);
+  --xy-edge-stroke-selected: var(--ink);
+  --xy-connectionline-stroke: var(--ink);
+  --xy-edge-label-color: var(--ink);
+  --xy-edge-label-background-color: var(--paper);
+  --xy-selection-background-color: var(--select-fill);
+  --xy-selection-border: var(--linie-haar) dashed var(--ink);
+  --xy-resize-background-color: var(--ink);
+  --xy-controls-button-background-color: var(--paper);
+  --xy-controls-button-background-color-hover: var(--paper-2);
+  --xy-controls-button-color: var(--ink);
+  --xy-controls-button-color-hover: var(--ink);
+  --xy-controls-button-border-color: var(--grau-85);
+  --xy-controls-box-shadow: var(--schatten-hart);
+  --xy-attribution-background-color: transparent;
+}
+
+.react-flow__controls {
+  border: var(--linie-kante) solid var(--ink);
+}
+
+.react-flow__attribution a {
+  color: var(--grau-meta);
 }
 
 .react-flow__resize-control.line {
-  border-color: $node-selected-color;
+  border-color: var(--ink);
   z-index: 1;
+}
+
+// Link edges: 1px grau-55, dashed 4/3. Flow, transition and agent-population
+// edges are solid and take their colour below.
+.react-flow__edge-link .react-flow__edge-path {
+  stroke-dasharray: 4 3;
 }
 
 .react-flow {
@@ -24,7 +64,7 @@ $ghost-node-opacity: 0.66;
 @each $name, $color in $node-color-map {
   .react-flow__node-#{$name} .react-flow__handle,
   .react-flow__node-ghost__content.--type-#{$name} .react-flow__handle {
-    background-color: $color;
+    background-color: var(--node-#{$name});
   }
 }
 
@@ -47,16 +87,11 @@ $ghost-node-opacity: 0.66;
   }
 }
 
-.react-flow__node {
-  --xy-resize-background-color-default: #{$node-selected-color};
-}
-
 @mixin node-content() {
   width: 100%;
   height: 100%;
-  border: var(--xy-node-border-default);
-  border-radius: var(--xy-node-border-radius-default);
-  // overflow: hidden;
+  border: var(--linie-node) solid var(--grau-55);
+  border-radius: var(--node-radius, var(--radius-0));
 }
 
 .react-flow__node-base__content,
@@ -66,8 +101,7 @@ $ghost-node-opacity: 0.66;
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
-  background-color: $white;
-  border-radius: $border-radius-lg;
+  background-color: var(--paper);
   max-width: $max-node-width;
 }
 
@@ -76,12 +110,14 @@ $ghost-node-opacity: 0.66;
   opacity: $ghost-node-opacity;
 }
 
+// Selected: 2px ink outline with 2px offset, identical to keyboard focus.
+// The border keeps the type colour, so selection never hides the type.
 .react-flow__node.selected {
   .react-flow__node-base__content,
   .react-flow__node-ghost__content {
     border-style: solid;
-    border-color: $node-selected-color;
-    box-shadow: 0px 0px 3px 1px $node-selected-color;
+    outline: var(--linie-fokus) solid var(--ink);
+    outline-offset: 2px;
   }
 
   .react-flow__node-ghost__content {
@@ -97,12 +133,13 @@ $ghost-node-opacity: 0.66;
   justify-content: center;
   align-items: center;
   padding: get-spacer(1) get-spacer(3);
-  font-size: $font-size-base;
-  font-weight: $headings-font-weight;
+  @include node-name;
+
   width: 100%;
-  border-radius: calc($border-radius-lg - 1px);
-  // border-bottom-right-radius: var(--xy-node-border-radius-default);
-  // border-bottom-left-radius: var(--xy-node-border-radius-default);
+  $inner-radius: max(0px, calc(var(--node-radius, 0px) - var(--linie-node)));
+
+  border-radius: $inner-radius $inner-radius 0 0;
+
   .react-flow__node-base__icon {
     display: flex;
     align-items: center;
@@ -132,8 +169,10 @@ $ghost-node-opacity: 0.66;
     width: 100%;
 
     .react-flow__node-base--single-tag {
+      @include plan-label;
+
+      font-size: inherit;
       padding: get-spacer(1) get-spacer(2);
-      border-radius: $border-radius-xl;
       max-width: 100%;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -154,61 +193,87 @@ $ghost-node-opacity: 0.66;
   padding: 0 0.5rem;
 }
 
+// Tags are square chips in the node colour flattened 50% towards paper.
+@mixin node-tag($color, $paper) {
+  $tag: flatten-color($color, 0.5, $paper);
+
+  background-color: $tag;
+  color: color-contrast($tag);
+}
+
 @each $name, $color in $node-color-map {
   .react-flow__node-ghost__content.--type-#{$name},
   .react-flow__node-#{$name} .react-flow__node-base__content {
-    border-color: $color;
+    --node-radius: #{map-get($node-radius-map, $name)};
+
+    border-color: var(--node-#{$name});
+
     .react-flow__node-base__header {
-      background-color: $white;
-    }
-    .react-flow__node-base--single-tag {
-      background-color: flatten-color($color, 0.5);
-      color: color-contrast(flatten-color($color, 0.5));
+      background-color: var(--paper);
     }
   }
 
-  $node-types-with-colored-header: (
-    "stock",
-    "state",
-    "action",
-    "population",
-    "agent"
-  );
+  .react-flow__node-ghost__content.--type-#{$name},
+  .react-flow__node-#{$name} {
+    .react-flow__node-base--single-tag {
+      @include node-tag($color, #fff);
+
+      [data-bs-theme="dark"] & {
+        @include node-tag($color, #0f0f0f);
+      }
+    }
+  }
+
   @if index($node-types-with-colored-header, $name) {
     .react-flow__node-ghost__content.--type-#{$name},
     .react-flow__node-#{$name} .react-flow__node-base__content {
       .react-flow__node-base__header {
-        background-color: $color;
-        color: color-contrast($color);
+        background-color: var(--node-#{$name});
+        color: node-text-color($name);
 
         .react-flow__node-base__icon svg {
-          fill: color-contrast($color);
+          fill: node-text-color($name);
         }
       }
     }
   }
 
+  // Flow and transition are arrows: drawn in their line colour so the pipe
+  // stays visible on paper.
   @if ($name == "flow" or $name == "transition") {
     .react-flow__node-#{$name} {
-      .react-flow__node-base--single-tag {
-        background-color: flatten-color($color, 0.5);
-        color: contrast-color(flatten-color($color, 0.5));
-      }
-
       .react-flow__node-arrow__handle__target,
       .react-flow__node-arrow__handle__source {
-        background-color: $color;
-        border-color: $color;
+        background-color: var(--node-#{$name}-line);
+        border-color: var(--node-#{$name}-line);
       }
 
       .react-flow__node-arrow__content {
         .react-flow__node-arrow__icon {
-          color: $color;
+          color: var(--node-#{$name}-line);
           &::before {
-            background-color: $color;
+            background-color: var(--node-#{$name}-line);
           }
         }
       }
+    }
+  }
+}
+
+// Variable is a pill: give its content room inside the round ends.
+.react-flow__node-variable .react-flow__node-base__content,
+.react-flow__node-ghost__content.--type-variable {
+  padding: 0 get-spacer(2);
+}
+
+// Night: stock, converter and action are too dark against the ground
+// (2.2-2.6:1), so they get an outer hairline. Interim answer to the design
+// system's open point; lighter Night variants are the alternative.
+[data-bs-theme="dark"] {
+  @each $name in ("stock", "converter", "action") {
+    .react-flow__node-#{$name} .react-flow__node-base__content,
+    .node-toolbar__node.--#{$name} {
+      box-shadow: 0 0 0 var(--linie-haar) var(--grau-55);
     }
   }
 }
@@ -219,12 +284,13 @@ $group-nodes: "folder", "agent";
   .react-flow__node-#{$name} {
     .react-flow__node-folder__content {
       @include node-content();
-      background-color: map.get($node-color-map, $name);
+      background-color: var(--node-#{$name});
     }
 
+    // A node dragged over the group: hovered drop target.
     &.intersect .react-flow__node-base__content {
-      // add outer shine
-      box-shadow: 0px 0px 1px 1px map.get($node-color-map, $name);
+      background-color: var(--select-fill);
+      border-style: dashed;
     }
   }
 }
@@ -232,7 +298,7 @@ $group-nodes: "folder", "agent";
 @each $name, $color in $edge-color-map {
   .react-flow__edge-#{$name} {
     --xy-edge-stroke: #{$color};
-    --xy-edge-stroke-selected: #{map.get($edge-color-selected-map, $name)};
+    --xy-edge-stroke-selected: var(--ink);
     --xy-edge-stroke-width: 2;
   }
 
@@ -248,9 +314,7 @@ $group-nodes: "folder", "agent";
 }
 
 .react-flow__node-arrow__content {
-  border: var(--xy-node-border-default);
-  border-radius: var(--xy-node-border-radius-default);
-  border-color: transparent;
+  border: var(--linie-node) solid transparent;
   max-width: 300px;
 }
 
@@ -259,8 +323,8 @@ $group-nodes: "folder", "agent";
   justify-content: center;
   align-items: center;
   padding: get-spacer(1) get-spacer(3);
-  font-size: $font-size-base;
-  font-weight: $headings-font-weight;
+  @include node-name;
+
   width: 100%;
   gap: get-spacer(2);
 
@@ -317,7 +381,8 @@ $direction-config: (
 }
 
 .selected > .react-flow__node-arrow__content {
-  border-color: $node-selected-color;
+  outline: var(--linie-fokus) solid var(--ink);
+  outline-offset: 2px;
 }
 
 .react-flow__node {
@@ -334,7 +399,7 @@ $direction-config: (
     align-items: center;
     border: none;
     svg {
-      color: white;
+      color: var(--paper);
       pointer-events: none;
     }
   }
@@ -359,9 +424,8 @@ $direction-config: (
 }
 
 .react-flow__node-toolbar {
-  border-radius: calc(1rem + 1px);
-  background-color: $dark;
-  color: $white;
+  background-color: var(--ink);
+  color: var(--on-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -370,17 +434,20 @@ $direction-config: (
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: $white;
+    color: var(--on-ink);
     background: transparent;
     border: none;
     padding: 0;
     height: 2rem;
     width: 2rem;
-    border-radius: 50%;
     margin: 2px;
     text-align: center;
     &:hover {
-      background-color: lighten($dark, 20%);
+      background-color: var(--grau-text);
+    }
+    &:focus-visible {
+      outline-color: var(--on-ink);
+      outline-offset: -2px;
     }
   }
 }
@@ -411,7 +478,7 @@ $direction-config: (
   .react-flow__node-base__content,
   .react-flow__node-base__header {
     border-color: $col;
-    color: $col;
+    color: var(--grau-text);
   }
 }
 
@@ -435,7 +502,7 @@ $direction-config: (
       content: "";
       width: 100%;
       height: 4px;
-      background-color: $white;
+      background-color: var(--paper);
       position: absolute;
       bottom: -2px;
       left: 0;
@@ -456,5 +523,5 @@ $direction-config: (
 }
 
 .react-flow__handle.connectingto:not(.valid) {
-  background-color: $red;
+  background-color: var(--signal-error);
 }

@@ -1,46 +1,125 @@
-{{page-title (t "routes.models.index.title")}}
+{{page-title
+  (t (if this.isPublic "routes.public_models.title" "routes.models.index.title"))
+}}
 
-<div class="container main-content">
-  <div class="card">
-    {{! header }}
-    {{#let this._q as |searchQuery|}}
-      <ModelsIndexHeader
-        @title={{t "routes.models.index.list_of_models"}}
-        @onShowSearch={{this.onShowSearch}}
-        @hasSearchQuery={{this.hasSearchQuery}}
-        @q={{this.q}}
-        @searchQuery={{searchQuery}}
-        @clearSearch={{this.clearSearch}}
-        @onSearchChange={{this.onSearchChange}}
-        @sort_key={{this.sort_key}}
-        @sort_direction={{this.sort_direction}}
-        @onSortChange={{this.onSortChange}}
-        @startCreating={{this.startCreating}}
-      />
-    {{/let}}
-    {{! list }}
-    <ModelsIndexList
-      @persistedModels={{this.persistedModels}}
-      @user={{this.user}}
-      @intl={{this.intl}}
-      @startEditing={{this.startEditing}}
-      @startDeleting={{this.startDeleting}}
-    />
-    {{! footer }}
-    <div class="card-footer model-index-footer text-body-secondary">
-      <Ui::Pagination
-        @model={{this.persistedModels}}
-        @limit={{this.limit}}
-        @total={{this.model.meta.total}}
-        @page={{this.page}}
-        @onPageChanged={{this.onPageChanged}}
-        @onLimitChanged={{this.onLimitChanged}}
-      />
+<section class="umb-library">
+  <header class="umb-library__head">
+    <span class="umb-label" data-test-library-eyebrow>
+      {{t "components.library.eyebrow" count=this.total}}
+    </span>
+    <h1 class="umb-library__title">
+      {{t (if this.isPublic "routes.public_models.title" "routes.models.title")}}
+    </h1>
+  </header>
+
+  <nav class="umb-library__tabs" aria-label={{t "components.library.tabs"}}>
+    <LinkTo
+      @route="models.index"
+      @query={{hash page=1 q=""}}
+      class="umb-library__tab"
+    >
+      {{t "components.library.tab_mine"}}
+    </LinkTo>
+    <LinkTo
+      @route="public-models"
+      @query={{hash page=1 q=""}}
+      class="umb-library__tab"
+    >
+      {{t "components.library.tab_public"}}
+    </LinkTo>
+  </nav>
+
+  <Library::Toolbar
+    @q={{this.q}}
+    @sortKey={{this.sort_key}}
+    @sortDirection={{this.sort_direction}}
+    @view={{this.view}}
+    @onSearch={{this.onSearch}}
+    @onClearSearch={{this.clearSearch}}
+    @onSortChange={{this.onSortChange}}
+    @onViewChange={{this.onViewChange}}
+    @onCreate={{unless this.isPublic this.startCreating}}
+  />
+
+  {{#if this.persistedModels.length}}
+    {{#if (eq this.view "table")}}
+      <table class="umb-table">
+        <thead>
+          <tr>
+            <th scope="col">{{t "components.library.table.name"}}</th>
+            <th scope="col">{{t "components.library.table.state"}}</th>
+            <th scope="col">{{t "components.library.table.version"}}</th>
+            <th scope="col">{{t "components.library.table.last_edit"}}</th>
+            <th scope="col">{{t "components.library.table.nodes"}}</th>
+            <th scope="col">{{t "components.library.table.role"}}</th>
+            <th scope="col">
+              <span class="visually-hidden">
+                {{t "components.library.table.actions"}}
+              </span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each this.persistedModels key="id" as |model|}}
+            <Library::ModelRow
+              @model={{model}}
+              @onEdit={{this.startEditing}}
+              @onDelete={{this.startDeleting}}
+            />
+          {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      <ul class="umb-library__grid">
+        {{#each this.persistedModels key="id" as |model|}}
+          {{#let (eq model.id this.featuredModelId) as |featured|}}
+            <li class={{if featured "umb-library__featured"}}>
+              <Library::ModelCard
+                @model={{model}}
+                @featured={{featured}}
+                @onEdit={{this.startEditing}}
+                @onDelete={{this.startDeleting}}
+              />
+            </li>
+          {{/let}}
+        {{/each}}
+      </ul>
+    {{/if}}
+  {{else}}
+    <div class="umb-library__empty" data-test-library-empty>
+      {{#if this.hasSearchQuery}}
+        <p>{{t "components.library.empty_search" q=this.q}}</p>
+        <button type="button" class="umb-btn" {{on "click" this.clearSearch}}>
+          {{t "components.library.clear_search"}}
+        </button>
+      {{else}}
+        <p>{{t "routes.models.index.no_models_found"}}</p>
+        {{#unless this.isPublic}}
+          <button
+            type="button"
+            class="umb-btn umb-btn--primary"
+            {{on "click" this.startCreating}}
+          >
+            <SvgIcon @icon="add" @size="sm" />
+            {{t "components.library.new_model"}}
+          </button>
+        {{/unless}}
+      {{/if}}
     </div>
-  </div>
-</div>
+  {{/if}}
 
-{{! Use the new component for the Modal / Form }}
+  <footer class="umb-library__footer">
+    <Ui::Pagination
+      @model={{this.persistedModels}}
+      @limit={{this.limit}}
+      @total={{this.total}}
+      @page={{this.page}}
+      @onPageChanged={{this.onPageChanged}}
+      @onLimitChanged={{this.onLimitChanged}}
+    />
+  </footer>
+</section>
+
 <Model::FormModal
   @isOpen={{this.isModalOpen}}
   @mode={{this.mode}}

@@ -1,0 +1,89 @@
+<article
+  class="umb-card {{if @featured 'umb-card--featured'}}"
+  data-test-model-card
+  ...attributes
+>
+  {{#let
+    (if
+      @model.latestDraftVersion
+      @model.latestDraftVersion
+      @model.latestPublishedVersion
+    )
+    as |version|
+  }}
+    <Library::ModelSummary @versionId={{this.versionId}} as |graph|>
+      <div class="umb-card__thumb">
+        <Library::Thumbnail @shapes={{graph.summary.shapes}} />
+      </div>
+
+      <div class="umb-card__body">
+        <div class="umb-card__row">
+          <span class="umb-card__chips">
+            <Library::StateChip @version={{version}} />
+          </span>
+          {{#if @model.updatedAt}}
+            <span
+              class="umb-meta"
+              title={{concat
+                (t "general.modified_at")
+                ": "
+                (format-date
+                  @model.updatedAt localeMatcher="lookup" format="dateTime"
+                )
+              }}
+            >
+              {{time-ago this.intl.primaryLocale @model.updatedAt}}
+            </span>
+          {{/if}}
+        </div>
+
+        {{#if @featured}}
+          <span class="umb-label">{{t "components.library.continue"}}</span>
+        {{/if}}
+
+        <h3 class="umb-card__title">
+          <LinkTo
+            @route="models.versions.show"
+            @models={{array @model.id version}}
+            class="umb-card__link"
+          >
+            {{@model.internalName}}
+          </LinkTo>
+        </h3>
+
+        {{#if (and @featured @model.description)}}
+          <p class="umb-card__description">{{@model.description}}</p>
+        {{/if}}
+
+        <div class="umb-card__footer">
+          <Library::NodeMix @graph={{graph}} />
+          <div class="umb-card__row umb-card__meta umb-meta">
+            <span data-test-mix-caption>{{graph.caption}}</span>
+            <span>
+              {{#if version.hasVersion}}
+                {{version.versionString}}
+                ·
+              {{/if}}
+              {{#if graph.summary}}
+                {{t "components.library.nodes" count=graph.summary.nodeCount}}
+              {{/if}}
+              {{#if this.roleLabel}}
+                ·
+                {{this.roleLabel}}
+              {{/if}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Library::ModelSummary>
+
+    <div class="umb-card__menu">
+      <Library::ModelMenu
+        @model={{@model}}
+        @version={{version}}
+        @onEdit={{@onEdit}}
+        @onDelete={{@onDelete}}
+      />
+    </div>
+  {{/let}}
+</article>

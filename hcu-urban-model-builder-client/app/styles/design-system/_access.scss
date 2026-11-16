@@ -1,0 +1,86 @@
+// "AI access" screen (access tokens for MCP clients). A content screen in the
+// Library's layout: same head, monochrome, tokens and commands in mono.
+
+.umb-access {
+  max-width: 1100px;
+}
+
+.umb-access__lead {
+  max-width: 44rem;
+  margin: 0;
+  color: var(--grau-text);
+}
+
+.umb-access__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding-top: var(--s-6);
+  border-top: var(--linie-haar) solid var(--ink);
+
+  > p {
+    max-width: 44rem;
+    margin: 0;
+  }
+}
+
+.umb-access__copy-row {
+  display: flex;
+  gap: var(--s-2);
+  align-items: center;
+}
+
+.umb-access__copy-row--top {
+  align-items: flex-start;
+}
+
+.umb-access__code {
+  @include plan-value;
+
+  flex: 1;
+  min-width: 0;
+  padding: var(--s-2) var(--s-3);
+  margin: 0;
+  color: var(--ink);
+  // tokens and commands are long and have to stay readable on narrow screens
+  word-break: break-all;
+  white-space: pre-wrap;
+  background: var(--paper-2);
+  border: var(--linie-haar) solid var(--grau-85);
+}
+
+// The token that is shown only once.
+.umb-access__new {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-4);
+  border: var(--linie-kante) solid var(--ink);
+  box-shadow: var(--schatten-hart);
+
+  p {
+    margin: 0;
+  }
+}
+
+.umb-access__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  align-items: flex-end;
+}
+
+.umb-access__field {
+  min-width: 10rem;
+
+  .form-label {
+    @include plan-label;
+
+    color: var(--grau-meta);
+  }
+}
+
+.umb-access__field--grow {
+  flex: 1;
+  min-width: 16rem;
+}

@@ -15,25 +15,29 @@ export default class ModelVersionChannelManagerService extends Service {
     super(owner);
   }
 
+  private isListening = false;
+
   listen() {
-    this.router.on('routeDidChange', this.onRouteDidChange.bind(this));
-    this.feathers.app.on('authenticated', this.onAuthenticated.bind(this));
+    this.router.on('routeDidChange', this.onRouteDidChange);
+    this.feathers.app.on('authenticated', this.onAuthenticated);
+    this.isListening = true;
   }
 
-  private async onRouteDidChange(transition: Transition) {
+  // Arrow functions, so the same reference can be removed again in willDestroy.
+  private onRouteDidChange = async (transition: Transition) => {
     if (this.isModelVersionRoute(transition.from)) {
       await this.leaveChannel(transition.from);
     }
     if (this.isModelVersionRoute(transition.to)) {
       await this.joinChannel(transition.to);
     }
-  }
+  };
 
-  private async onAuthenticated() {
+  private onAuthenticated = async () => {
     if (this.isModelVersionRoute(this.router.currentRoute)) {
       await this.joinChannel(this.router.currentRoute);
     }
-  }
+  };
 
   private getModelVersionId(routeInfo: RouteInfo | RouteInfoWithAttributes) {
     return 'attributes' in routeInfo
@@ -64,8 +68,11 @@ export default class ModelVersionChannelManagerService extends Service {
   }
 
   willDestroy(): void {
-    this.router.off('routeDidChange', this.onRouteDidChange);
-    this.feathers.app.off('authenticated', this.onAuthenticated);
+    super.willDestroy();
+    if (this.isListening) {
+      this.router.off('routeDidChange', this.onRouteDidChange);
+      this.feathers.app.off('authenticated', this.onAuthenticated);
+    }
   }
 }
 

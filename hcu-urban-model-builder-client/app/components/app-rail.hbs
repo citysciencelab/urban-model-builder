@@ -1,0 +1,114 @@
+<nav class="umb-rail" aria-label={{t "components.app_rail.label"}} ...attributes>
+  <LinkTo
+    @route="index"
+    @activeClass=""
+    class="umb-rail__item umb-rail__item--mark"
+    aria-label={{t "general.brand"}}
+  >
+    {{svg-jar "umb-mark" width="28" height="28" aria-hidden="true"}}
+  </LinkTo>
+
+  {{#if this.session.isAuthenticated}}
+    <LinkTo
+      @route="models"
+      class="umb-rail__item"
+      aria-current={{if this.isModelsActive "page"}}
+    >
+      <SvgIcon @icon="grid_view" @size="sm" />
+      {{t "components.app_rail.models"}}
+    </LinkTo>
+    <LinkTo
+      @route="public-models"
+      class="umb-rail__item"
+      aria-current={{if this.isPublicActive "page"}}
+    >
+      <SvgIcon @icon="public" @size="sm" />
+      {{t "components.app_rail.public"}}
+    </LinkTo>
+  {{else}}
+    <LinkTo
+      @route="login"
+      class="umb-rail__item"
+      aria-current={{if this.isLoginActive "page"}}
+    >
+      <SvgIcon @icon="login" @size="sm" />
+      {{t "actions.login"}}
+    </LinkTo>
+  {{/if}}
+
+  <a
+    class="umb-rail__item"
+    href={{this.docsUrl}}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <SvgIcon @icon="menu_book" @size="sm" />
+    {{t "components.app_rail.docs"}}
+  </a>
+
+  <span class="umb-rail__spacer"></span>
+
+  <button
+    type="button"
+    class="umb-rail__item"
+    aria-pressed={{if this.theme.isDark "true" "false"}}
+    title={{t "components.app_rail.theme_title"}}
+    {{on "click" this.theme.toggle}}
+  >
+    <SvgIcon @icon={{if this.theme.isDark "light_mode" "dark_mode"}} @size="sm" />
+    {{t (if this.theme.isDark "components.app_rail.theme_paper" "components.app_rail.theme_night")}}
+  </button>
+
+  <LangSwitch />
+
+  <BsDropdown @direction="right" as |dd|>
+    <dd.toggle
+      class="umb-rail__item umb-rail__item--mark"
+      aria-label={{t
+        (if
+          this.session.isAuthenticated
+          "components.app_rail.account"
+          "general.legal"
+        )
+      }}
+    >
+      {{#if this.session.isAuthenticated}}
+        <span class="umb-avatar" aria-hidden="true">{{this.initials}}</span>
+      {{else}}
+        <SvgIcon @icon="more_horiz" @size="sm" />
+      {{/if}}
+    </dd.toggle>
+    <dd.menu as |menu|>
+      {{#if this.session.isAuthenticated}}
+        <h6 class="dropdown-header umb-label">{{this.userName}}</h6>
+        <menu.item>
+          <menu.linkTo @route="access-tokens">
+            {{t "routes.access_tokens.title"}}
+          </menu.linkTo>
+        </menu.item>
+        <menu.divider />
+      {{/if}}
+      <menu.item>
+        <menu.linkTo @route="impressum">{{t "general.imprint"}}</menu.linkTo>
+      </menu.item>
+      <menu.item>
+        <menu.linkTo @route="datenschutz">
+          {{t "general.privacy_policy"}}
+        </menu.linkTo>
+      </menu.item>
+      <menu.item>
+        <menu.linkTo @route="nutzungsbedingungen">
+          {{t "general.terms_of_service"}}
+        </menu.linkTo>
+      </menu.item>
+      {{#if this.session.isAuthenticated}}
+        <menu.divider />
+        <menu.item>
+          <button type="button" class="dropdown-item" {{on "click" @onLogout}}>
+            {{t "actions.logout"}}
+          </button>
+        </menu.item>
+      {{/if}}
+    </dd.menu>
+  </BsDropdown>
+</nav>

@@ -144,7 +144,7 @@ routes:
     title: Öffentliche Modelle
     list_of_models: Öffentliche Modelle
   access_tokens:
-    nav: KI-Zugriff
+    eyebrow: Model Context Protocol
     title: KI-Zugriff
     intro: Verbinden Sie einen KI-Assistenten wie Claude mit dem Urban Model Builder. Der Assistent kann dann in Ihrem Namen Ihre Modelle lesen, erstellen, bearbeiten und simulieren. Grundlage ist das Model Context Protocol (MCP).
     endpoint: MCP-Endpunkt
@@ -180,6 +180,61 @@ routes:
     title: Demo
 
 components:
+  app_rail:
+    label: Hauptnavigation
+    models: Modelle
+    public: Öffentlich
+    docs: Doku
+    account: Konto
+    theme_night: Nacht
+    theme_paper: Papier
+    theme_title: Zwischen den Themen Papier und Nacht wechseln
+    language_title: Sprache wechseln
+  title_block:
+    back_library: Zurück zur Bibliothek
+    back_home: Zurück zur Startseite
+    saving: speichert…
+    saved_at: gespeichert {time}
+    not_saved: nicht gespeichert
+  library:
+    eyebrow: "Bibliothek · {count, plural, =1 {# Modell} other {# Modelle}}"
+    tabs: Bereiche der Bibliothek
+    tab_mine: Meine
+    tab_public: Öffentlich
+    search: Modelle suchen
+    clear_search: Suche zurücksetzen
+    sort: Sortierung
+    view: Ansicht
+    view_grid: Kachelansicht
+    view_table: Tabellenansicht
+    new_model: Neues Modell
+    continue: Weiterarbeiten
+    nodes: "{count, plural, =1 {# Knoten} other {# Knoten}}"
+    node_mix: "Knotenmix: {parts}"
+    node_mix_empty: Noch keine Knoten
+    paradigm_percent: "{name} {percent} Prozent"
+    paradigm:
+      sd: System Dynamics
+      abm: agentenbasiert
+      geo: Geodaten
+    paradigm_short:
+      sd: SD
+      abm: ABM
+      geo: GEO
+    ump: UMP
+    ump_title: Auf der Urban Model Platform veröffentlicht
+    actions_for: Aktionen für {name}
+    open: Öffnen
+    edit_details: Details bearbeiten
+    empty_search: Keine Modelle zu „{q}“ gefunden
+    table:
+      name: Name
+      state: Status
+      version: Version
+      last_edit: Zuletzt bearbeitet
+      nodes: Knoten
+      role: Rolle
+      actions: Aktionen
   edit_state_badge:
     view_mode:
       tooltip: Diese Version kann nicht mehr bearbeitet werden

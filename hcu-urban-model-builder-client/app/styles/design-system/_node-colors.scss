@@ -1,0 +1,80 @@
+// UMB Design System — node colours.
+//
+// The only colours in the interface: every coloured pixel is a node type, an
+// edge or a model's composition. Keys are the React Flow node type names, so
+// they can be used to build class names (`.react-flow__node-#{$name}`).
+// Values are unchanged from the previous UMB styles.
+$node-color-map: (
+  "stock": #465166,
+  "flow": #a3c4ff,
+  "variable": #8093b3,
+  "converter": #225f50,
+  "ogc-api-features": #c1a7cd,
+  "folder": #686868,
+  "state": #fbe094,
+  "transition": #ffae33,
+  "action": #584560,
+  "population": #70c883,
+  "agent": #ffae33,
+);
+
+// Fills that are dark enough to need `node-on-dark` text. All other fills take
+// `node-on-light`.
+$node-types-on-dark: ("stock", "action", "converter", "folder");
+
+// Types whose header is filled with the type colour. All others have a paper
+// header and are told apart by border colour and form.
+$node-types-with-colored-header: (
+  "stock",
+  "state",
+  "action",
+  "population",
+  "agent"
+);
+
+// The form of a node: radius encodes the family (shape before colour).
+$node-radius-map: (
+  "stock": var(--radius-0),
+  "population": var(--radius-0),
+  "variable": var(--radius-pill),
+  "converter": var(--radius-node),
+  "action": var(--radius-node),
+  "ogc-api-features": var(--radius-node),
+  "state": var(--radius-soft),
+);
+
+// Line variants: light node colours darkened to at least 4.3:1 on paper so
+// 2px strokes stay visible. In Night the original colour is used.
+$node-line-color-map: (
+  "flow": (
+    "light": #3f72cf,
+    "dark": #a3c4ff,
+  ),
+  "transition": (
+    "light": #a86600,
+    "dark": #ffae33,
+  ),
+  "population": (
+    "light": #2f8a45,
+    "dark": #70c883,
+  ),
+);
+
+// Edge type -> custom property holding its stroke colour.
+$edge-color-map: (
+  "flow": var(--node-flow-line),
+  "transition": var(--node-transition-line),
+  "agent-population": var(--node-population-line),
+);
+
+@function node-text-color($name) {
+  @if index($node-types-on-dark, $name) {
+    @return var(--node-on-dark);
+  }
+  @return var(--node-on-light);
+}
+
+// A colour flattened towards a ground, e.g. node tags at 50%.
+@function flatten-color($color, $alpha, $background: white) {
+  @return mix($background, $color, $alpha * 100%);
+}

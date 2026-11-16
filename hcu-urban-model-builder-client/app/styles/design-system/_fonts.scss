@@ -1,0 +1,24 @@
+// UMB Design System — typefaces, self-hosted (latin subset, woff2).
+//
+// Funnel Display 700/800 (titles), Funnel Sans 400/600 (interface) and
+// IBM Plex Mono 400/500 (plan labels, values). All three are licensed under
+// the SIL Open Font License 1.1, see public/assets/fonts/README.md.
+
+$font-faces: (
+  ("Funnel Display", "funnel-display", (700, 800)),
+  ("Funnel Sans", "funnel-sans", (400, 600)),
+  ("IBM Plex Mono", "ibm-plex-mono", (400, 500))
+);
+
+@each $family, $file, $weights in $font-faces {
+  @each $weight in $weights {
+    @font-face {
+      font-display: swap;
+      font-family: $family;
+      font-style: normal;
+      font-weight: $weight;
+      src: url("../assets/fonts/#{$file}-latin-#{$weight}-normal.woff2")
+        format("woff2");
+    }
+  }
+}

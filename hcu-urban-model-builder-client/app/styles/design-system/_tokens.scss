@@ -1,0 +1,112 @@
+// UMB Design System — tokens.
+//
+// Mirror of `project/tokens.json` in the "UMB Design System" artifact. Names
+// are kept identical to the design system so both stay comparable; change a
+// value there first, then here.
+//
+// Themes: Paper (light, default) and Night (dark). The theme is selected with
+// `data-bs-theme` on <html> (see app/services/theme.ts) so that Bootstrap's
+// own dark-mode rules follow the same switch.
+
+:root,
+[data-bs-theme="light"] {
+  color-scheme: light;
+
+  // Neutrals
+  --paper: #fff;
+  --paper-2: #f4f4f4;
+  --ink: #000;
+  --on-ink: #fff;
+  --grau-85: #d9d9d9;
+  --grau-55: #8c8c8c;
+  --grau-text: #555;
+  --grau-meta: #6b6b6b;
+  --select-fill: rgb(0 0 0 / 4%);
+  --signal-error: #c8001e;
+
+  // Node colours (same in both themes)
+  @each $name, $color in $node-color-map {
+    --node-#{$name}: #{$color};
+  }
+  --node-ogc: var(--node-ogc-api-features);
+  --node-on-dark: #fff;
+  --node-on-light: #000;
+
+  // Line variants
+  @each $name, $colors in $node-line-color-map {
+    --node-#{$name}-line: #{map-get($colors, "light")};
+  }
+
+  // Shadow
+  --schatten-hart: 4px 4px 0 0 rgb(0 0 0 / 14%);
+
+  // Type families
+  --font-display: #{$font-family-display};
+  --font-sans: #{$font-family-sans-serif};
+  --font-mono: #{$font-family-monospace};
+
+  // Spacing
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-6: 24px;
+  --s-10: 40px;
+  --s-14: 56px;
+
+  // Radius
+  --radius-0: 0px;
+  --radius-node: 6px;
+  --radius-soft: 14px;
+  --radius-pill: 999px;
+
+  // Line
+  --linie-haar: 1px;
+  --linie-kante: 1.5px;
+  --linie-node: 2px;
+  --linie-fokus: 2px;
+
+  // Size
+  --rail-width: 64px;
+  --titleblock-height: 48px;
+  --dock-height: 56px;
+  --inspector-width: 336px;
+  --hit-target: 40px;
+
+  // Motion
+  --motion-duration: 160ms;
+  --motion-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+[data-bs-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #0f0f0f;
+  --paper-2: #1a1a1a;
+  --ink: #f2f2f2;
+  --on-ink: #0f0f0f;
+  --grau-85: #333;
+  --grau-55: #6e6e6e;
+  --grau-text: #b3b3b3;
+  --grau-meta: #9a9a9a;
+  --select-fill: rgb(255 255 255 / 6%);
+  --signal-error: #ff5a4a;
+
+  @each $name, $colors in $node-line-color-map {
+    --node-#{$name}-line: #{map-get($colors, "dark")};
+  }
+
+  --schatten-hart: 4px 4px 0 0 rgb(0 0 0 / 70%);
+}
+
+@media (pointer: coarse) {
+  :root {
+    --hit-target: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration: 0ms;
+  }
+}

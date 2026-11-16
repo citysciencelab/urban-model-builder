@@ -1,0 +1,21 @@
+{{! State is told by form, not by colour: Draft is a dashed outline,
+    a published version a solid ink chip with its version number (or, with
+    @named, the word "Published" where the version has its own column). }}
+{{#if @version.isPublished}}
+  <span class="umb-chip umb-chip--published" data-test-state="published">
+    {{#if @named}}
+      {{t "models.model.states.published"}}
+    {{else}}
+      {{@version.versionString}}
+    {{/if}}
+  </span>
+{{else}}
+  <span class="umb-chip umb-chip--draft" data-test-state="draft">
+    {{t "models.model.states.draft"}}
+  </span>
+{{/if}}
+{{#if @version.publishedToUMPAt}}
+  <span class="umb-chip" title={{t "components.library.ump_title"}}>
+    {{t "components.library.ump"}}
+  </span>
+{{/if}}

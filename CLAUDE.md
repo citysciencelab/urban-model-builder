@@ -71,6 +71,8 @@ This runs `npm version` in the backend (its `postversion` compiles and packs int
 - The model editor is a React canvas (from `canvas/`) mounted inside Ember via `react-wrapper` and `app/services/ember-react-connector.ts`; communication between both sides goes through that connector and `event-bus`.
 - `app/utils/create-demo-feathers-app.ts` provides an in-memory Feathers app (MemoryService) for the unauthenticated demo route.
 - Translations in `translations/` (ember-intl); German legal pages (`datenschutz`, `impressum`, `nutzungsbedingungen`).
+- Styling follows the **UMB Design System** (claude.ai artifact "UMB Design System"): the interface is monochrome, colour belongs to node types. Tokens (`--paper`, `--ink`, `--grau-*`, `--node-*`, spacing, radii) live in `app/styles/design-system/_tokens.scss` and mirror the design system's `tokens.json` — change values there first. `_bootstrap.scss` maps Bootstrap's custom properties onto the tokens; never hard-code chrome colours. Paper/Night themes switch via `data-bs-theme` on `<html>` (`app/services/theme.ts`). Fonts are self-hosted in `public/assets/fonts/`.
+- Shell: `AppRail` (64px left rail) on all screens except the editor routes (`models.versions.show`, `demo`), which show the floating `Editor::TitleBlock` instead. The Library (`models/index` template, shared by `models.index` and `public-models`) renders `Library::*` components; node mix and thumbnails come from `app/utils/model-summary.ts` via one slim `nodes` query per card.
 
 ## Deployment
 
