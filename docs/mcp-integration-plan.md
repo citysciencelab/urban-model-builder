@@ -1,6 +1,7 @@
 # MCP integration plan
 
-Status: phases 1 and 2 implemented, phases 3–6 open.
+Status: phases 1 to 3 implemented, phases 4–6 open. The client follows the UMB Design System (branch
+`feature/umb-design-system`, merged into this branch).
 
 ## Goal
 
@@ -69,8 +70,9 @@ Deliberately left out of phase 1:
 - `/mcp` on the backend (`src/mcp/mcp.ts`), a Koa middleware using `@modelcontextprotocol/sdk` (Streamable HTTP,
   stateless, JSON responses). The bearer token resolves to a user, who is passed to the tool layer. Tool errors are
   returned as tool results, so the model can read and correct them.
-- Client: page "AI access" (`/access-tokens`) to create and revoke tokens, with copyable configuration for
-  Claude Code and for programs that use an `mcpServers` configuration file.
+- Client: page "AI access" (`/authenticated/access-tokens`, reached from the account menu of the app rail) to
+  create and revoke tokens, with copyable configuration for Claude Code and for programs that use an `mcpServers`
+  configuration file.
 
 Connecting, for example with Claude Code:
 
@@ -81,13 +83,31 @@ claude mcp add --transport http urban-model-builder https://<backend>/mcp --head
 Deployment: run the migration, and make sure a reverse proxy in front of the backend forwards `/mcp` and the
 `Authorization` header.
 
-### Phase 3: chat backend
+### Phase 3: chat backend (implemented)
 
-- Migration and service `llm-settings`: OpenRouter key encrypted with AES-256-GCM using a server secret from the
-  environment. Write-only: the API never returns the key, only whether one is set.
-- Service `chat`: agent loop against OpenRouter's chat completions API with the tool registry. Text deltas and tool
-  events stream to the requesting connection only; iteration cap per turn.
-- Automatic `cloneVersion` checkpoint before the first write of a chat session, as a substitute for undo.
+- Service `llm-settings` (`get('me')`, `patch('me')`) with migration: the user's OpenRouter API key and preferred
+  model. The key is write-only: stored encrypted with AES-256-GCM (`src/llm/secret-box.ts`), never returned, and
+  decrypted only on the server for a chat request. The settings also tell the client which models are available.
+- Service `chat` (`create`): one call is one turn. The client sends the conversation so far (the server keeps no
+  history), the server runs the agent loop (`src/llm/agent.ts`) against OpenRouter's streaming chat completions API
+  (`src/llm/openrouter.ts`) with the tool registry, and returns the final answer with the tool calls and token usage.
+- While a turn runs, `progress` events (`text_delta`, `tool_call`, `tool_result`) go to the calling connection only.
+- With `createCheckpoint`, the model version is copied into a new model of the user before the first change of a
+  turn; the response names the copy. The client decides when to ask for it (once per chat session).
+- Limits: one running turn per user, a configurable number of model calls per turn, five minutes per turn, tool
+  results capped in size. Errors of the provider reach the client with a reason (`missing_api_key`,
+  `invalid_api_key`, `insufficient_credits`, `rate_limited`, `llm_error`).
+
+Configuration (`config/default.json`, section `llm`; environment variables in brackets):
+
+- `encryptionSecret` (`LLM_ENCRYPTION_SECRET`): required for the chat, at least 16 characters, no default. Without
+  it keys cannot be stored and `chatAvailable` is false. Changing it makes stored keys unreadable; users then have
+  to enter their key again.
+- `models` (`LLM_MODELS`, JSON array) and `defaultModel` (`LLM_DEFAULT_MODEL`): OpenRouter model ids users may
+  choose from. The defaults in the repository were not checked against OpenRouter's current catalogue.
+- `openRouterBaseUrl` (`OPENROUTER_BASE_URL`), `maxIterations`.
+
+The Feathers client bundle has not been republished for these two services yet; phase 4 does that.
 
 ### Phase 4: chat panel in the Ember app
 

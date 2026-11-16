@@ -1,3 +1,5 @@
+import { chat } from './chat/chat.js'
+import { llmSettings } from './llm-settings/llm-settings.js'
 import { accessTokens } from './access-tokens/access-tokens.js'
 import { adminPublicModelVersionsUnapprove } from './admin/public-model-versions/unapprove/unapprove.js'
 import { adminPublicModelVersionsApprove } from './admin/public-model-versions/approve/approve.js'
@@ -20,6 +22,8 @@ import { touchParent } from '../utils/touch-parent.js'
 
 export const services = (app: Application) => {
   app.configure(accessTokens)
+  app.configure(llmSettings)
+  app.configure(chat)
   app.configure(adminPublicModelVersionsUnapprove)
   app.configure(adminPublicModelVersionsApprove)
   app.configure(adminPublicModelVersions)

@@ -35,5 +35,15 @@
   "redis": {
     "host": "localhost",
     "port": 6379
+  },
+  "llm": {
+    "openRouterBaseUrl": "https://openrouter.ai/api/v1",
+    "models": [
+      "anthropic/claude-sonnet-4.5",
+      "openai/gpt-5",
+      "google/gemini-2.5-pro"
+    ],
+    "defaultModel": "anthropic/claude-sonnet-4.5",
+    "maxIterations": 12
   }
 }

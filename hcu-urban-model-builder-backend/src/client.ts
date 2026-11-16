@@ -7,6 +7,14 @@ const authenticationClient =
   authenticationClientModule as unknown as typeof authenticationClientModule.default
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
+import { chatClient } from './services/chat/chat.shared.js'
+export type { ChatProgress, ChatRequest, ChatResponse } from './services/chat/chat.shared.js'
+export { CHAT_PROGRESS_EVENT } from './services/chat/chat.shared.js'
+
+import { llmSettingsClient, LLM_SETTINGS_ID } from './services/llm-settings/llm-settings.shared.js'
+export type { LlmSettings, LlmSettingsPatch } from './services/llm-settings/llm-settings.shared.js'
+export { LLM_SETTINGS_ID }
+
 import { accessTokensClient } from './services/access-tokens/access-tokens.shared.js'
 export type {
   AccessTokens,
@@ -128,6 +136,8 @@ export const createClient = <Configuration = any>(
   client.configure(adminPublicModelVersionsApproveClient)
   client.configure(adminPublicModelVersionsUnapproveClient)
   client.configure(accessTokensClient)
+  client.configure(llmSettingsClient)
+  client.configure(chatClient)
   return client
 }
 

@@ -13,8 +13,17 @@
       "issuer": "OIDC_ISSUER"
     }
   },
-  "redis":{
+  "redis": {
     "host": "REDIS_HOST",
     "port": "REDIS_PORT"
+  },
+  "llm": {
+    "encryptionSecret": "LLM_ENCRYPTION_SECRET",
+    "openRouterBaseUrl": "OPENROUTER_BASE_URL",
+    "models": {
+      "__name": "LLM_MODELS",
+      "__format": "json"
+    },
+    "defaultModel": "LLM_DEFAULT_MODEL"
   }
 }

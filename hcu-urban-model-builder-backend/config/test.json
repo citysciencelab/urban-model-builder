@@ -3,5 +3,8 @@
   "postgresql": {
     "client": "pg",
     "connection": "postgres://hcu_admin:123123123@localhost:5432/hcu_urban_model_builder_test"
+  },
+  "llm": {
+    "encryptionSecret": "test-secret-for-llm-settings"
   }
 }
