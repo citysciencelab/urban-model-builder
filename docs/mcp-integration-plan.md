@@ -1,6 +1,6 @@
 # MCP integration plan
 
-Status: phases 1 to 4 implemented, phases 5 and 6 open. The client follows the UMB Design System (branch
+Status: phases 1 to 5 implemented, phase 6 open. The client follows the UMB Design System (branch
 `feature/umb-design-system`, merged into this branch).
 
 ## Goal
@@ -15,7 +15,7 @@ Let language models read, build, edit and simulate models in the Urban Model Bui
 | Question | Decision |
 |---|---|
 | Where does the chat live? | In the Model Builder (side panel next to the canvas). |
-| Authentication of external clients | Personal access tokens first, OAuth 2.1 via Keycloak later. |
+| Authentication of external clients | Personal access tokens, and OAuth 2.1 via Keycloak (phase 5). |
 | Where does the chat's agent loop run? | In the backend, calling the tool layer in-process. |
 | Where does the OpenRouter key live? | Per user, encrypted in the database. |
 
@@ -128,11 +128,65 @@ Configuration (`config/default.json`, section `llm`; environment variables in br
 Not part of this phase: rendering Markdown in answers (the assistant is told to write plain text), stopping a
 running turn, and the assistant in the demo route.
 
-### Phase 5: OAuth for claude.ai and ChatGPT
+### Phase 5: OAuth for claude.ai and ChatGPT (implemented)
 
-- Spike first: Keycloak version, audience binding and client registration, checked against the current MCP
-  authorization specification and the requirements of both connectors.
-- Then protected-resource metadata and token validation on `/mcp`, in parallel to the tokens of phase 2.
+The backend is an OAuth resource server for `/mcp`; Keycloak, which already signs users in, is the authorization
+server. An MCP client discovers Keycloak through the backend, registers itself there, sends the user through
+Keycloak's login and consent screen, and calls `/mcp` with the access token it gets. Personal access tokens keep
+working alongside.
+
+Backend (`src/mcp/oauth.ts`), off unless `mcp.oauth.enabled` is set:
+
+- Protected resource metadata (RFC 9728) at `/.well-known/oauth-protected-resource` and
+  `/.well-known/oauth-protected-resource/mcp`, naming the OIDC issuer as authorization server and `mcp` as scope.
+- `401` responses of `/mcp` carry `WWW-Authenticate: Bearer resource_metadata="…", scope="mcp"`.
+- A token is accepted only if it is signed by the issuer, not expired, has the MCP endpoint (`mcp.publicUrl`) as
+  audience and carries the scope. Tokens of the web app have another audience and are rejected. The user is looked
+  up by the token's subject and created on first use, as the web app's login does.
+
+Keycloak (`scripts/keycloak-configure-mcp.mjs`, safe to run repeatedly):
+
+- Client scope `mcp` with an audience mapper (adds the MCP endpoint as audience) and an email mapper, offered to
+  newly registered clients as an optional scope.
+- Anonymous dynamic client registration for clients whose redirect URIs are on a trusted host (default:
+  `claude.ai`, `claude.com`, `chatgpt.com`, `localhost`, `127.0.0.1`), and permission to ask for the scope.
+  Keycloak shows such clients' users a consent screen.
+
+Client: the "AI access" page asks the server for the metadata and, if OAuth is on, explains connecting by signing
+in and shows the endpoint URL the server announces.
+
+Results of the spike (Keycloak 25.0.4 with the realm of this repository, run locally):
+
+- No upgrade is needed. Keycloak 25 publishes authorization server metadata, supports PKCE (S256), public clients
+  and dynamic client registration.
+- Keycloak ignores the `resource` parameter (RFC 8707). Audience binding therefore goes through the scope: only a
+  token requested with the scope `mcp` gets the audience. Clients learn the scope from the metadata and the
+  `WWW-Authenticate` header.
+- Out of the box, anonymous registration is rejected by the "Trusted Hosts" policy, and a client asking for the
+  scope `mcp` by the "Allowed Client Scopes" policy. The script changes both.
+- Keycloak serves its metadata only below the realm path (`/realms/<realm>/.well-known/…`), not at the
+  path-inserted location of RFC 8414. The client of the official MCP SDK (1.32) tries the standard locations
+  first and then finds it; a client that only tries the RFC 8414 location would fail.
+- Verified end to end: the SDK's client, given only the `/mcp` URL, discovered Keycloak, registered, went through
+  login and consent (played by a script), and listed and called the tools.
+
+Deployment:
+
+1. Run the script against the production Keycloak with `MCP_PUBLIC_URL` set to the public URL of `/mcp`.
+2. Set `MCP_PUBLIC_URL` and `MCP_OAUTH_ENABLED=true` on the backend. The URL has to be exactly the one of step 1,
+   because it is the audience.
+3. Make sure the reverse proxy forwards `/mcp` and `/.well-known/oauth-protected-resource` (with anything after
+   it) to the backend, including the `Authorization` header.
+
+Not verified, because it needs the deployed system: a connection from claude.ai and from ChatGPT themselves. The
+trusted hosts are the redirect hosts of these services as far as known; if a registration is rejected, Keycloak's
+error names the host to add to `MCP_TRUSTED_HOSTS`.
+
+Open points:
+
+- Every connection of a user registers a new client in Keycloak, and the realm's "Max Clients Limit" policy stops
+  anonymous registration at 200 clients. Unused clients have to be removed, or the limit raised.
+- Access is all or nothing: the scope `mcp` gives a client all tools with the user's permissions.
 
 ### Phase 6: hardening
 

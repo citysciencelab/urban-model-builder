@@ -45,5 +45,12 @@
     ],
     "defaultModel": "anthropic/claude-sonnet-4.5",
     "maxIterations": 12
+  },
+  "mcp": {
+    "publicUrl": "http://localhost:3030/mcp",
+    "oauth": {
+      "enabled": false,
+      "scope": "mcp"
+    }
   }
 }

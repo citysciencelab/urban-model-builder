@@ -1,11 +1,12 @@
-import type { Middleware } from 'koa'
+import type { Context, Middleware } from 'koa'
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 import type { Application } from '../declarations.js'
 import { logger } from '../logger.js'
 import { callTool, listTools, ToolError } from '../model-tools/index.js'
-import { resolveAccessToken } from '../services/access-tokens/token.js'
+import { ACCESS_TOKEN_PREFIX, resolveAccessToken } from '../services/access-tokens/token.js'
+import { getChallenge, getOAuthSettings, OAuthTokenError, resolveOAuthToken } from './oauth.js'
 import type { User } from '../services/users/users.js'
 
 export const MCP_PATH = '/mcp'
@@ -65,26 +66,47 @@ const getBearerToken = (header: string | undefined) => {
 /**
  * Koa middleware that serves the MCP endpoint (Streamable HTTP transport) at `MCP_PATH`.
  *
- * Callers authenticate with a personal access token. The endpoint is stateless: every request gets its own
- * server and transport, so it needs no session affinity and works behind a load balancer.
+ * Callers authenticate with a personal access token or, if enabled, with an OAuth access token of the
+ * authorization server (see oauth.ts). The endpoint is stateless: every request gets its own server and
+ * transport, so it needs no session affinity and works behind a load balancer.
  */
 export function mcpMiddleware(app: Application): Middleware {
+  const unauthorized = (ctx: Context, status: 401 | 403, error?: 'invalid_token' | 'insufficient_scope') => {
+    ctx.status = status
+    ctx.set('WWW-Authenticate', getChallenge(app, error))
+    // browser-based clients can only read the header if it is exposed
+    ctx.set('Access-Control-Expose-Headers', 'WWW-Authenticate')
+    ctx.body = {
+      jsonrpc: '2.0',
+      error: { code: -32001, message: 'A valid access token is required.' },
+      id: null
+    }
+  }
+
   return async (ctx, next) => {
     if (ctx.path !== MCP_PATH) {
       return next()
     }
 
     const token = getBearerToken(ctx.get('authorization'))
-    const user = token ? await resolveAccessToken(app, token) : null
-    if (!user) {
-      ctx.status = 401
-      ctx.set('WWW-Authenticate', 'Bearer realm="Urban Model Builder"')
-      ctx.body = {
-        jsonrpc: '2.0',
-        error: { code: -32001, message: 'A valid personal access token is required.' },
-        id: null
+    if (!token) {
+      return unauthorized(ctx, 401)
+    }
+    let user: User | null
+    if (token.startsWith(ACCESS_TOKEN_PREFIX) || !getOAuthSettings(app)) {
+      user = await resolveAccessToken(app, token)
+      if (!user) {
+        return unauthorized(ctx, 401, 'invalid_token')
       }
-      return
+    } else {
+      try {
+        user = await resolveOAuthToken(app, token)
+      } catch (error) {
+        if (error instanceof OAuthTokenError) {
+          return unauthorized(ctx, error.reason === 'insufficient_scope' ? 403 : 401, error.reason)
+        }
+        throw error
+      }
     }
 
     if (ctx.method !== 'POST') {

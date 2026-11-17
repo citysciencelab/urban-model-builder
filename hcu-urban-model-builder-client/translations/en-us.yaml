@@ -145,6 +145,9 @@ routes:
     list_of_models: Public Models
   access_tokens:
     eyebrow: Model Context Protocol
+    oauth_title: Connect by signing in
+    oauth_intro: Claude (claude.ai), ChatGPT and other programs that support signing in need no token. Add a custom connector there with the MCP endpoint above. You are then asked to sign in with your Urban Model Builder account and to confirm the access.
+    oauth_note: The access tokens below are for programs that cannot sign you in, such as scripts.
     title: AI access
     intro: Connect an AI assistant such as Claude to the Urban Model Builder. The assistant can then read, build, edit and simulate your models on your behalf, using the Model Context Protocol (MCP).
     endpoint: MCP endpoint

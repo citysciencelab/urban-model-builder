@@ -25,5 +25,14 @@
       "__format": "json"
     },
     "defaultModel": "LLM_DEFAULT_MODEL"
+  },
+  "mcp": {
+    "publicUrl": "MCP_PUBLIC_URL",
+    "oauth": {
+      "enabled": {
+        "__name": "MCP_OAUTH_ENABLED",
+        "__format": "boolean"
+      }
+    }
   }
 }

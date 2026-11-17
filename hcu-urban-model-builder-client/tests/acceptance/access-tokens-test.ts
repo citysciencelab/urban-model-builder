@@ -1,5 +1,5 @@
 import { module, test } from 'qunit';
-import { click, currentURL, fillIn, visit } from '@ember/test-helpers';
+import { click, currentURL, fillIn, visit, waitFor } from '@ember/test-helpers';
 import { authenticateSession } from 'ember-simple-auth/test-support';
 import Service from '@ember/service';
 import type IntlService from 'ember-intl/services/intl';
@@ -98,6 +98,29 @@ module('Acceptance | access tokens', function (hooks) {
     await visit('/impressum');
     await visit(URL);
     assert.dom('[data-test-new-token]').doesNotExist();
+  });
+
+  test('explains signing in when the server offers it', async function (assert) {
+    await visit(URL);
+    assert.dom('[data-test-oauth]').doesNotExist();
+    assert.dom('[data-test-no-oauth]').exists();
+
+    const originalFetch = window.fetch;
+    window.fetch = async () =>
+      new Response(
+        JSON.stringify({ resource: 'https://api.example.org/mcp' }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      );
+    try {
+      await visit('/impressum');
+      await visit(URL);
+      await waitFor('[data-test-oauth]');
+
+      assert.dom('[data-test-endpoint]').hasText('https://api.example.org/mcp');
+      assert.dom('[data-test-no-oauth]').doesNotExist();
+    } finally {
+      window.fetch = originalFetch;
+    }
   });
 
   test('a token can be revoked', async function (assert) {

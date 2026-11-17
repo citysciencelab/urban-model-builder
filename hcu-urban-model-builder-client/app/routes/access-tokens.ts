@@ -19,5 +19,7 @@ export default class AccessTokensRoute extends Route {
     controller.tokens = model;
     // a token is shown once: it must not reappear when the page is visited again
     controller.createdToken = null;
+    // not awaited: the page is usable before the answer arrives
+    controller.checkOAuth();
   }
 }

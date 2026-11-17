@@ -35,8 +35,28 @@ export default class AccessTokensController extends Controller {
 
   lifetimes = [30, 90, 365];
 
+  /**
+   * The MCP endpoint as the server announces it, if the server lets programs sign users in (OAuth).
+   * Null if only access tokens are accepted.
+   */
+  @tracked oauthResource: string | null = null;
+
   get mcpUrl() {
-    return `${ENV.apiURL}/mcp`;
+    return this.oauthResource ?? `${ENV.apiURL}/mcp`;
+  }
+
+  /** Asks the server whether programs can sign users in themselves, which makes tokens unnecessary for them. */
+  async checkOAuth() {
+    try {
+      const response = await fetch(
+        `${ENV.apiURL}/.well-known/oauth-protected-resource/mcp`,
+      );
+      const metadata = response.ok ? await response.json() : null;
+      this.oauthResource =
+        typeof metadata?.resource === 'string' ? metadata.resource : null;
+    } catch {
+      this.oauthResource = null;
+    }
   }
 
   get rows() {

@@ -31,6 +31,14 @@
     </div>
   </section>
 
+  {{#if this.oauthResource}}
+    <section class="umb-access__section" data-test-oauth>
+      <h2 class="umb-titel-m">{{t "routes.access_tokens.oauth_title"}}</h2>
+      <p>{{t "routes.access_tokens.oauth_intro"}}</p>
+      <p class="umb-meta">{{t "routes.access_tokens.oauth_note"}}</p>
+    </section>
+  {{/if}}
+
   <section class="umb-access__section">
     <h2 class="umb-titel-m">{{t "routes.access_tokens.tokens_title"}}</h2>
     <p>{{t "routes.access_tokens.tokens_intro"}}</p>
@@ -43,7 +51,9 @@
 
     {{#if this.createdToken}}
       <div class="umb-access__new" role="status" data-test-new-token>
-        <span class="umb-label">{{t "routes.access_tokens.created_title"}}</span>
+        <span class="umb-label">{{t
+            "routes.access_tokens.created_title"
+          }}</span>
         <p>{{t "routes.access_tokens.created_notice"}}</p>
         <div class="umb-access__copy-row">
           <code class="umb-access__code">{{this.createdToken}}</code>
@@ -218,6 +228,10 @@
       </button>
     </div>
 
-    <p class="umb-meta">{{t "routes.access_tokens.setup_limitation"}}</p>
+    {{#unless this.oauthResource}}
+      <p class="umb-meta" data-test-no-oauth>
+        {{t "routes.access_tokens.setup_limitation"}}
+      </p>
+    {{/unless}}
   </section>
 </section>

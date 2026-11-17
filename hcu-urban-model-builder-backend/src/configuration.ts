@@ -9,6 +9,17 @@ export const configurationSchema = Type.Intersect([
     host: Type.String(),
     port: Type.Number(),
     public: Type.String(),
+    // The MCP endpoint for external AI assistants
+    mcp: Type.Object({
+      /** The URL under which clients reach the MCP endpoint, e.g. https://api.example.org/mcp. */
+      publicUrl: Type.String({ format: 'uri' }),
+      oauth: Type.Object({
+        /** Accept OAuth access tokens of the OIDC issuer in addition to personal access tokens. */
+        enabled: Type.Boolean(),
+        /** The client scope of the authorization server that adds `publicUrl` as audience to a token. */
+        scope: Type.String()
+      })
+    }),
     // Language models for the in-app chat, reached through OpenRouter with the users' own API keys
     llm: Type.Object({
       /** Secret the users' API keys are encrypted with. Without it, keys cannot be stored and the chat is off. */
