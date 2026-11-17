@@ -12,7 +12,9 @@ const NODE_TYPE_PURPOSE: Partial<Record<NodeType, string>> = {
   [NodeType.Agent]:
     'Container that defines one kind of agent. Put its states, transitions and other nodes inside.',
   [NodeType.Population]: 'A collection of agents of the agent definition connected to it.',
-  [NodeType.Folder]: 'Container that only groups nodes visually.'
+  [NodeType.Folder]: 'Container that only groups nodes visually.',
+  [NodeType.OgcApiFeatures]:
+    'Loads features from a geodata service (OGC API Features) when the model runs. Its value is a vector that other nodes use in their equations.'
 }
 
 /** Reference text for language models: how a model is built from nodes and edges. */
@@ -38,8 +40,16 @@ edited; a published version needs a new draft first.
 ## Node types and their data fields
 ${nodeTypes}
 
-Read-only node types: "ghost" (a second visual copy of a node, edges on it count for the original) and
-"ogc-api-features" (loads features from a geodata service).
+Read-only node type: "ghost" (a second visual copy of a node, edges on it count for the original).
+
+## Geodata
+An ogc-api-features node brings real-world data into a model, for example from the Urban Data Platform Hamburg.
+Find data with list_ogc_datasets, list_ogc_collections and describe_ogc_collection, then create the node with
+apiId, collectionId, the properties to load (query.properties) and a dataTransform. Load only the properties
+you need. The node's value is a vector; use it in other nodes like any node, by name: with a keyProperty and one
+value property, [Districts]{"Altona"} selects one value; Sum([Districts]), Mean([Districts]), Max([Districts])
+and [Districts].Length() work on all values. The data is loaded anew on every run, so the model follows the
+source. Only services enabled on this server can be used.
 
 ## Edge types
 - link: makes the source available in the equations of the target. Needed for every [Name] reference.
@@ -67,8 +77,9 @@ consistently, otherwise leave them out everywhere.
 ## Workflow
 1. create_model, or get_model and get_model_version for an existing model.
 2. update_simulation_settings for time units, start, length and step.
-3. apply_graph_patch with all nodes and edges of a change in one call. Give new nodes a "ref" and use it in
+3. If the model should use real-world data, find it with the geodata tools first.
+4. apply_graph_patch with all nodes and edges of a change in one call. Give new nodes a "ref" and use it in
    "parent", "source" and "target". Omit positions; the layout is automatic.
-4. validate_model, then simulate, and correct the model based on the results.
+5. validate_model, then simulate, and correct the model based on the results.
 `
 }

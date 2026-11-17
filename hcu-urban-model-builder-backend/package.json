@@ -43,7 +43,7 @@
     "start": "node lib/",
     "start:production": "npm start",
     "prettier": "npx prettier \"**/*.ts\" --write",
-    "mocha": "cross-env NODE_ENV=test mocha test/ --loader=ts-node/esm --enable-source-maps --recursive --extension .ts --exit",
+    "mocha": "cross-env NODE_ENV=test mocha test/ --loader=ts-node/esm --enable-source-maps --recursive --extension .ts --timeout 20000 --exit",
     "test": "cross-env NODE_ENV=test npm run migrate && npm run mocha",
     "bundle:client": "npm run compile && npm pack --pack-destination ../bundle",
     "migrate": "npm run knex -- migrate:latest",

@@ -1,6 +1,6 @@
 # MCP integration plan
 
-Status: phases 1 to 5 implemented, phase 6 open. The client follows the UMB Design System (branch
+Status: all phases implemented, including geodata for the tools (option 2, together with phase 6). The client follows the UMB Design System (branch
 `feature/umb-design-system`, merged into this branch).
 
 ## Goal
@@ -188,21 +188,51 @@ Open points:
   anonymous registration at 200 clients. Unused clients have to be removed, or the limit raised.
 - Access is all or nothing: the scope `mcp` gives a client all tools with the user's permissions.
 
-### Phase 6: hardening
+### Phase 6: hardening, and geodata for the tools (implemented)
 
-- Configurable host allowlist or egress restriction for the OGC API Features node.
-- Rate limits per user, simulation through the BullMQ queue, audit log of tool calls.
+Geodata (OGC API Features), `src/model-tools/ogc.ts`:
+
+- Three read-only tools to find data: `list_ogc_datasets` (endpoints of the model version and their datasets,
+  with search), `list_ogc_collections` and `describe_ogc_collection` (properties, feature count, a few sample
+  features).
+- `apply_graph_patch` creates and changes `ogc-api-features` nodes: endpoint, dataset, collection, query and
+  data transform. The node gets the endpoint copied in and the editor's query defaults (limit 1000).
+- The server only talks to endpoints that are configured on the model version *and* whose host is on the
+  allowlist `ogc.allowedHosts` (`OGC_ALLOWED_HOSTS`, JSON array; default `["api.hamburg.de"]`). A tool cannot set a
+  URL of its own. Redirects are not followed, requests time out after 20 seconds. `simulate` refuses models with
+  OGC nodes outside the allowlist, also nodes made in the editor.
+- Feature content reaches the language model. The tool descriptions tell it to treat that content as data;
+  this reduces, but does not remove, the risk of instructions hidden in a data source. The allowlist is the
+  actual safeguard: only sources the operators trust are used.
+
+Limits (`limits` in the configuration):
+
+- Rate limits per user in Redis, valid across server processes: tool calls per minute (default 120),
+  simulations per minute (20), chat messages per hour (60). If Redis is unreachable, the limits are suspended
+  and the log says so, rather than making the tools unusable.
+- Simulations started by tools run in worker threads (`simulation-runner.ts`, `simulation-worker.ts`): at most
+  `maxConcurrentSimulations` at a time (2), further ones wait (up to 20), and one that runs longer than
+  `simulationTimeoutSeconds` (30) is terminated. The server stays responsive meanwhile. This replaces the BullMQ
+  queue planned originally: the tools need the result within the same call, and a queue would only have moved
+  the blocking computation into another process of the same server without a time limit.
+
+Log of tool calls (`tool_calls` table, `src/model-tools/audit-log.ts`):
+
+- Per call: user, front end (`mcp`, `chat`, `internal`), tool, model or version it concerned, success or error
+  code, duration. No arguments or results, because they contain model content.
+- Entries older than `auditLogRetentionDays` (90) are deleted. There is no interface to read the log yet; it is
+  meant for operators (SQL).
 
 ## Risks
 
-- **Server-side requests and prompt injection**: the OGC API Features node fetches URLs during simulation. Until
-  phase 6 the tool layer does not let a language model create or edit such nodes, and `simulate` refuses models whose
-  OGC nodes point to hosts other than the default endpoint.
+- **Server-side requests and prompt injection**: OGC nodes make the server request external services, and
+  feature content reaches the language model. Both are limited to the hosts on `ogc.allowedHosts`.
 - **No undo**: an agent can damage a draft. Phase 3 adds an automatic checkpoint; until then callers should use
   `clone_model_version` before larger changes.
 - **Data protection**: OpenRouter routes content to third-party providers. Consent and the privacy page are part of
   phase 4.
-- **Synchronous simulation**: `models.simulate` runs inside the request; phase 6 moves it to the queue.
+- **Simulation load**: simulations of the tools run in worker threads with a time limit; simulations started in
+  the editor run in the browser and the UMP's via BullMQ, as before.
 
 ## Open points
 

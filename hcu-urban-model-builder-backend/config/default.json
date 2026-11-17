@@ -52,5 +52,16 @@
       "enabled": false,
       "scope": "mcp"
     }
+  },
+  "ogc": {
+    "allowedHosts": ["api.hamburg.de"]
+  },
+  "limits": {
+    "toolCallsPerMinute": 120,
+    "simulationsPerMinute": 20,
+    "chatTurnsPerHour": 60,
+    "simulationTimeoutSeconds": 30,
+    "maxConcurrentSimulations": 2,
+    "auditLogRetentionDays": 90
   }
 }

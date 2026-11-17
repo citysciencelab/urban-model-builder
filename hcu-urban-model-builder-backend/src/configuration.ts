@@ -9,6 +9,22 @@ export const configurationSchema = Type.Intersect([
     host: Type.String(),
     port: Type.Number(),
     public: Type.String(),
+    // Geodata services (OGC API Features) the server itself may request data from, on behalf of the tools
+    ogc: Type.Object({
+      /** Hosts, with port if it is not the default one, e.g. "api.hamburg.de". */
+      allowedHosts: Type.Array(Type.String())
+    }),
+    // Limits that protect the server from a runaway or abusive assistant
+    limits: Type.Object({
+      toolCallsPerMinute: Type.Number({ minimum: 1 }),
+      simulationsPerMinute: Type.Number({ minimum: 1 }),
+      chatTurnsPerHour: Type.Number({ minimum: 1 }),
+      /** A simulation started by a tool is stopped after this time. */
+      simulationTimeoutSeconds: Type.Number({ minimum: 1 }),
+      maxConcurrentSimulations: Type.Number({ minimum: 1 }),
+      /** Entries of the tool call log are deleted after this many days. */
+      auditLogRetentionDays: Type.Number({ minimum: 1 })
+    }),
     // The MCP endpoint for external AI assistants
     mcp: Type.Object({
       /** The URL under which clients reach the MCP endpoint, e.g. https://api.example.org/mcp. */

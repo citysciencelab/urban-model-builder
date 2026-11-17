@@ -6,6 +6,7 @@ import type { Application } from '../../declarations.js'
 import { runAgent, type AgentEvent } from '../../llm/agent.js'
 import { logger } from '../../logger.js'
 import { LlmError, type ChatMessage } from '../../llm/openrouter.js'
+import { consumeRateLimit } from '../../utils/rate-limiter.js'
 import type { ModelsVersions } from '../models-versions/models-versions.schema.js'
 import type { User } from '../users/users.js'
 import type { ChatRequest, ChatResponse, ChatStarted } from './chat.schema.js'
@@ -85,6 +86,20 @@ export class ChatService {
       throw new BadRequest('Add your OpenRouter API key in the settings to use the assistant.', {
         reason: 'missing_api_key'
       })
+    }
+
+    const { allowed, retryAfterSeconds } = await consumeRateLimit(
+      this.app,
+      'chat-turns',
+      user.id,
+      this.app.get('limits').chatTurnsPerHour,
+      3600
+    )
+    if (!allowed) {
+      throw new TooManyRequests(
+        `You have reached the limit of messages per hour. Try again in ${Math.ceil(retryAfterSeconds / 60)} minutes.`,
+        { reason: 'too_many_messages' }
+      )
     }
 
     if (this.busyUsers.has(user.id)) {

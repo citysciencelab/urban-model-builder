@@ -57,6 +57,7 @@ const KNOWN_ERROR_REASONS = [
   'invalid_api_key',
   'insufficient_credits',
   'rate_limited',
+  'too_many_messages',
   'llm_error',
   'busy',
   'timeout',

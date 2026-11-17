@@ -89,7 +89,7 @@ export async function runAgent(options: {
             hasWritten = true
             await options.beforeFirstWrite?.()
           }
-          result = JSON.stringify(await callTool(app, user, name, args))
+          result = JSON.stringify(await callTool(app, user, name, args, { source: 'chat' }))
         } catch (toolError) {
           if (!(toolError instanceof ToolError)) {
             throw toolError

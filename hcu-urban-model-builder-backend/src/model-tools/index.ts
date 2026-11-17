@@ -3,11 +3,13 @@ import type { ValidateFunction } from 'ajv'
 import type { Application } from '../declarations.js'
 import { logger } from '../logger.js'
 import type { User } from '../services/users/users.js'
+import { consumeRateLimit } from '../utils/rate-limiter.js'
+import { recordToolCall } from './audit-log.js'
 import { tools } from './tools.js'
-import { ToolError, type ToolDefinition, type ToolErrorCode } from './types.js'
+import { ToolError, type ToolDefinition, type ToolErrorCode, type ToolSource } from './types.js'
 
 export { ToolError } from './types.js'
-export type { ToolContext, ToolDefinition, ToolErrorCode } from './types.js'
+export type { ToolContext, ToolDefinition, ToolErrorCode, ToolSource } from './types.js'
 
 /**
  * The tool layer: everything a language model can do with the Urban Model Builder, independent of how it is
@@ -49,15 +51,33 @@ const CODE_BY_HTTP_STATUS: Record<number, ToolErrorCode> = {
   422: 'invalid_input'
 }
 
-/**
- * Runs a tool on behalf of a user. Every failure is a `ToolError`: its message is written for the language
- * model, and nothing about the server's internals leaks through it.
- */
-export async function callTool(app: Application, user: User, name: string, input: unknown = {}) {
-  const tool = toolsByName.get(name)
-  if (!tool) {
-    throw new ToolError('unknown_tool', `There is no tool named "${name}".`)
+async function checkRateLimits(app: Application, user: User, tool: ToolDefinition) {
+  const limits = app.get('limits')
+  const checks: [string, number][] = [['tool-calls', limits.toolCallsPerMinute]]
+  if (tool.name === 'simulate') {
+    checks.push(['simulations', limits.simulationsPerMinute])
   }
+  for (const [name, limit] of checks) {
+    const { allowed, retryAfterSeconds } = await consumeRateLimit(app, name, user.id, limit, 60)
+    if (!allowed) {
+      throw new ToolError(
+        'rate_limited',
+        `Too many requests. Wait ${retryAfterSeconds} seconds before the next call.`,
+        { retryAfterSeconds }
+      )
+    }
+  }
+}
+
+/** Validates the input, runs the tool and turns every failure into a `ToolError`. */
+async function runTool(
+  app: Application,
+  user: User,
+  tool: ToolDefinition,
+  input: unknown,
+  source: ToolSource
+) {
+  await checkRateLimits(app, user, tool)
 
   // validation fills in defaults, which must not change the caller's object
   const validatedInput = structuredClone(input ?? {})
@@ -71,13 +91,13 @@ export async function callTool(app: Application, user: User, name: string, input
             : ''
         }`
     )
-    throw new ToolError('invalid_input', `Invalid input for ${name}:\n- ${problems.join('\n- ')}`, {
+    throw new ToolError('invalid_input', `Invalid input for ${tool.name}:\n- ${problems.join('\n- ')}`, {
       problems
     })
   }
 
   try {
-    return await tool.handler({ app, user }, validatedInput)
+    return await tool.handler({ app, user, source }, validatedInput)
   } catch (error: any) {
     if (error instanceof ToolError) {
       throw error
@@ -87,7 +107,45 @@ export async function callTool(app: Application, user: User, name: string, input
       // errors of the services (permissions, validation) are meant for clients and safe to pass on
       throw new ToolError(code, error.message, error.data)
     }
-    logger.error(`Tool ${name} failed unexpectedly`, error)
-    throw new ToolError('internal', `The tool ${name} failed unexpectedly.`)
+    logger.error(`Tool ${tool.name} failed unexpectedly`, error)
+    throw new ToolError('internal', `The tool ${tool.name} failed unexpectedly.`)
+  }
+}
+
+/**
+ * Runs a tool on behalf of a user. Every failure is a `ToolError`: its message is written for the language
+ * model, and nothing about the server's internals leaks through it. Every call is rate limited and recorded
+ * in the tool call log.
+ */
+export async function callTool(
+  app: Application,
+  user: User,
+  name: string,
+  input: unknown = {},
+  options: { source?: ToolSource } = {}
+) {
+  const tool = toolsByName.get(name)
+  if (!tool) {
+    throw new ToolError('unknown_tool', `There is no tool named "${name}".`)
+  }
+  const source = options.source ?? 'internal'
+  const startedAt = performance.now()
+  let errorCode: ToolErrorCode | undefined
+
+  try {
+    return await runTool(app, user, tool, input, source)
+  } catch (error) {
+    errorCode = error instanceof ToolError ? error.code : 'internal'
+    throw error
+  } finally {
+    await recordToolCall(app, {
+      userId: user.id,
+      source,
+      tool: tool.name,
+      input,
+      ok: errorCode === undefined,
+      errorCode,
+      durationMs: performance.now() - startedAt
+    })
   }
 }

@@ -370,6 +370,28 @@ describe('chat service', () => {
     }
   })
 
+  it('limits the messages of a user per hour', async () => {
+    const limits = app.get('limits')
+    const original = limits.chatTurnsPerHour
+    limits.chatTurnsPerHour = 1
+    // a user who has not sent anything yet, as the counter covers the whole hour
+    const newcomer = await app.service('users').create({ email: 'newcomer@example.com' })
+    await app.service('llm-settings').patch('me', { openRouterKey: KEY }, { user: newcomer })
+    await app.service('models-users').create({ modelId, userId: newcomer.id, role: Roles.viewer })
+    try {
+      replies.push(textReply('first'))
+      await chat(newcomer)
+      await assert.rejects(chat(newcomer), (error: any) => {
+        assert.strictEqual(error.name, 'TooManyRequests')
+        assert.strictEqual(error.data.reason, 'too_many_messages')
+        return true
+      })
+      assert.strictEqual(requests.length, 1)
+    } finally {
+      limits.chatTurnsPerHour = original
+    }
+  })
+
   it('handles one message per user at a time', async () => {
     replies.push({ ...textReply('first'), delayMs: 150 })
     const first = chat(owner)

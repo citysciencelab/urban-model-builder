@@ -22,6 +22,7 @@ import {
   NODE_TYPE_NAMES
 } from './graph-format.js'
 import { arrowDirection, computeLayout, edgeHandles, type LayoutNode } from './layout.js'
+import { resolveOgcNodeData } from './ogc.js'
 import { ToolError, type ToolContext } from './types.js'
 import { buildReferenceIndex, checkReferences, validateGraph } from './validate.js'
 
@@ -283,6 +284,18 @@ export async function applyGraphPatch(ctx: ToolContext, input: GraphPatch) {
     node.parameterStep ??= (node.parameterMax - node.parameterMin) / 100
   }
 
+  /** OGC nodes make the server request data, so their service has to be one the server allows. */
+  const resolveOgcData = (node: WorkNode, endpointChosen: boolean, label: string) => {
+    try {
+      node.data = resolveOgcNodeData(ctx.app, version, node.data, endpointChosen)
+    } catch (error) {
+      if (!(error instanceof ToolError)) {
+        throw error
+      }
+      errors.push(`${label}: ${error.message}`)
+    }
+  }
+
   ;(input.createNodes ?? []).forEach((create, index) => {
     const label = `createNodes[${index}] (${create.name})`
     const type = NODE_TYPE_BY_NAME[create.type]
@@ -310,6 +323,9 @@ export async function applyGraphPatch(ctx: ToolContext, input: GraphPatch) {
       needsPosition: !create.position
     }
     applyParameterSettings(node, create, label)
+    if (type === NodeType.OgcApiFeatures) {
+      resolveOgcData(node, true, label)
+    }
 
     if (create.ref !== undefined) {
       if (idByRef.has(create.ref) || originals.has(create.ref)) {
@@ -349,6 +365,9 @@ export async function applyGraphPatch(ctx: ToolContext, input: GraphPatch) {
       }
       node.data = data
       dataChanged.add(node.id)
+      if (node.type === NodeType.OgcApiFeatures) {
+        resolveOgcData(node, 'endpointId' in update.data, label)
+      }
     }
     applyParameterSettings(node, update, label)
     if (update.parent !== undefined) {
@@ -408,6 +427,9 @@ export async function applyGraphPatch(ctx: ToolContext, input: GraphPatch) {
     if (type === EdgeType.Link) {
       if ([sourceType, targetType].some((t) => t === undefined || CONTAINER_NODE_TYPES.includes(t))) {
         return 'agents and folders cannot have links.'
+      }
+      if (targetType === NodeType.OgcApiFeatures) {
+        return 'a geodata node has no inputs; links can only start from it.'
       }
       if (targetType === NodeType.Converter && edges.some((e) => e.targetId === target.id)) {
         return `the converter "${target.name}" already has an input; a converter takes exactly one.`

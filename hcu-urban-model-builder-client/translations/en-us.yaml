@@ -213,6 +213,7 @@ components:
       invalid_api_key: OpenRouter did not accept the API key.
       insufficient_credits: Your OpenRouter account has insufficient credits.
       rate_limited: OpenRouter is limiting requests at the moment. Try again shortly.
+      too_many_messages: You have reached the limit of messages per hour. Try again later.
       llm_error: The model could not be reached or failed. Try again, or choose another model.
       busy: The assistant is still working on your previous message.
       timeout: No answer arrived. Check your connection and try again.
@@ -230,6 +231,9 @@ components:
       simulate: Ran a simulation
       new_draft: Created a new draft
       clone_model_version: Copied the model
+      list_ogc_datasets: Searched geodata
+      list_ogc_collections: Listed geodata layers
+      describe_ogc_collection: Looked at geodata
   app_rail:
     label: Main navigation
     models: Models

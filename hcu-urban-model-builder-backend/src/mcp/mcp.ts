@@ -40,7 +40,9 @@ export function createMcpServer(app: Application, user: User) {
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     try {
-      const result = await callTool(app, user, request.params.name, request.params.arguments ?? {})
+      const result = await callTool(app, user, request.params.name, request.params.arguments ?? {}, {
+        source: 'mcp'
+      })
       return { content: [{ type: 'text', text: JSON.stringify(result) }] }
     } catch (error) {
       if (error instanceof ToolError) {

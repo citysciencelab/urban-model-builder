@@ -6,7 +6,11 @@ import type { User } from '../services/users/users.js'
 export interface ToolContext {
   app: Application
   user: User
+  /** Through which front end the tool was called. */
+  source: ToolSource
 }
+
+export type ToolSource = 'mcp' | 'chat' | 'internal'
 
 export interface ToolDefinition<S extends TSchema = TSchema> {
   name: string
@@ -27,6 +31,8 @@ export type ToolErrorCode =
   | 'forbidden'
   | 'conflict'
   | 'simulation_failed'
+  | 'rate_limited'
+  | 'external_service_failed'
   | 'internal'
 
 /** An error whose message is meant to be shown to the language model so it can correct itself. */

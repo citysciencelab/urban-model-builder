@@ -35,7 +35,7 @@ const invert = <K extends number, V extends string>(map: Record<K, V>) =>
 export const NODE_TYPE_BY_NAME = invert<NodeType, NodeTypeName>(NODE_TYPE_NAMES)
 export const EDGE_TYPE_BY_NAME = invert<EdgeType, EdgeTypeName>(EDGE_TYPE_NAMES)
 
-/** Node types a tool may create. Ghost and OGC API Features nodes are read-only for now (see the plan). */
+/** Node types a tool may create. Ghost nodes are read-only. */
 export const CREATABLE_NODE_TYPE_NAMES = [
   'stock',
   'variable',
@@ -46,7 +46,8 @@ export const CREATABLE_NODE_TYPE_NAMES = [
   'action',
   'population',
   'agent',
-  'folder'
+  'folder',
+  'ogc-api-features'
 ] as const satisfies readonly NodeTypeName[]
 
 export const CONTAINER_NODE_TYPES: NodeType[] = [NodeType.Agent, NodeType.Folder]
@@ -123,7 +124,23 @@ export const NODE_DATA_FIELDS: Partial<Record<NodeType, Record<string, DataField
     networkFunction: { description: 'Network equation for "Custom Function".', formula: true }
   },
   [NodeType.Agent]: {},
-  [NodeType.Folder]: {}
+  [NodeType.Folder]: {},
+  [NodeType.OgcApiFeatures]: {
+    endpointId: {
+      description:
+        'Geodata endpoint of the model version, see list_ogc_datasets. Default: its default endpoint.'
+    },
+    apiId: { description: 'Dataset of the endpoint (not for single-API endpoints), see list_ogc_datasets.' },
+    collectionId: { description: 'Collection to load, see list_ogc_collections. Required.' },
+    query: {
+      description:
+        'Which features to load: { limit (default 1000), properties: [names to load], propertyFilters: { name: { value, operator } } (operator "=" by default), skipGeometry (default true) }.'
+    },
+    dataTransform: {
+      description:
+        'How the features become the value of the node: { keyProperty, valueProperties: [names] }. With keyProperty and one value property the value is a named vector {key: value}; with value properties only a list of values (one property) or of records (several). Without it the value is the list of raw features.'
+    }
+  }
 }
 
 /** Values a simulation needs but a language model tends to leave out, set when a tool creates a node. */

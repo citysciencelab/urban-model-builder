@@ -6,5 +6,15 @@
   },
   "llm": {
     "encryptionSecret": "test-secret-for-llm-settings"
+  },
+  "limits": {
+    "toolCallsPerMinute": 100000,
+    "simulationsPerMinute": 100000,
+    "chatTurnsPerHour": 100000
+  },
+  "ogc": {
+    "allowedHosts": [
+      "api.hamburg.de"
+    ]
   }
 }

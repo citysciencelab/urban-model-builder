@@ -34,5 +34,11 @@
         "__format": "boolean"
       }
     }
+  },
+  "ogc": {
+    "allowedHosts": {
+      "__name": "OGC_ALLOWED_HOSTS",
+      "__format": "json"
+    }
   }
 }

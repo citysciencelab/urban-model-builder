@@ -213,6 +213,7 @@ components:
       invalid_api_key: OpenRouter hat den API-Schlüssel nicht akzeptiert.
       insufficient_credits: Ihr OpenRouter-Konto hat kein ausreichendes Guthaben.
       rate_limited: OpenRouter begrenzt derzeit die Anfragen. Versuchen Sie es gleich noch einmal.
+      too_many_messages: Sie haben die Höchstzahl an Nachrichten pro Stunde erreicht. Versuchen Sie es später erneut.
       llm_error: Das Sprachmodell war nicht erreichbar oder ist fehlgeschlagen. Versuchen Sie es erneut oder wählen Sie ein anderes Modell.
       busy: Der Assistent arbeitet noch an Ihrer vorherigen Nachricht.
       timeout: Es ist keine Antwort eingetroffen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.
@@ -230,6 +231,9 @@ components:
       simulate: Simulation ausgeführt
       new_draft: Neuen Entwurf erstellt
       clone_model_version: Modell kopiert
+      list_ogc_datasets: Geodaten gesucht
+      list_ogc_collections: Geodaten-Ebenen aufgelistet
+      describe_ogc_collection: Geodaten angesehen
   app_rail:
     label: Hauptnavigation
     models: Modelle

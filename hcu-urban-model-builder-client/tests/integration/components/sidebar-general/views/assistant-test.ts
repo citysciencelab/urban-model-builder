@@ -273,6 +273,26 @@ module(
       assert.dom('[data-test-assistant-setup]').exists();
     });
 
+    test('explains reaching the hourly limit and names geodata tools', async function (assert) {
+      await renderView();
+      await send('Find population data');
+      feathers.emit({ type: 'tool_call', id: 'g1', name: 'list_ogc_datasets' });
+      await settled();
+      assert
+        .dom('[data-test-assistant-running]')
+        .includesText('Searched geodata');
+
+      feathers.emit({
+        type: 'error',
+        message: 'x',
+        reason: 'too_many_messages',
+      });
+      await settled();
+      assert
+        .dom('[data-test-assistant-message="error"]')
+        .includesText('limit of messages per hour');
+    });
+
     test('explains a turn that could not start', async function (assert) {
       feathers.onCreate = async () => {
         throw Object.assign(new Error('busy'), { name: 'Conflict' });

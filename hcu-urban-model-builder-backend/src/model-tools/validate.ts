@@ -154,6 +154,9 @@ export function validateGraph(nodes: CheckNode[], edges: CheckEdge[]): GraphIssu
         report('error', node, 'A converter can have only one input link.')
       }
     }
+    if (node.type === NodeType.OgcApiFeatures && isEmpty(node.data.collectionId)) {
+      report('error', node, 'The geodata node has no collection (data.collectionId).')
+    }
     if (node.type === NodeType.Population) {
       if (incoming(node, EdgeType.AgentPopulation).length === 0) {
         report('error', node, 'The population has no agent. Connect an agent with an agent-population edge.')

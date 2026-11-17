@@ -1,7 +1,7 @@
 import { Type } from '@feathersjs/typebox'
 import { NodeType, Roles } from '../client.js'
 import type { Nodes } from '../services/nodes/nodes.schema.js'
-import { DEFAULT_OGC_ENDPOINT, resolveOgcEndpoint } from '../shared/simulation-adapter/ogc-endpoints.js'
+import { resolveOgcEndpoint } from '../shared/simulation-adapter/ogc-endpoints.js'
 import { NODE_TYPE_TO_PARAMETER_NAME_MAP } from '../shared/simulation-adapter/simulation-adapter.js'
 import { Literals } from '../utils/schema.js'
 import { getEditableVersion, getReadableVersion, loadGraph, userParams } from './access.js'
@@ -15,7 +15,9 @@ import {
   serializeVersion
 } from './graph-format.js'
 import { arrowDirection, computeLayout, edgeHandles, type LayoutNode } from './layout.js'
+import { isAllowedOgcUrl, ogcTools } from './ogc.js'
 import { getModelingReference } from './reference.js'
+import { runSimulation } from './simulation-runner.js'
 import { summarizeSimulation } from './simulation-summary.js'
 import { defineTool, ToolError, type ToolContext, type ToolDefinition } from './types.js'
 import { validateGraph } from './validate.js'
@@ -238,23 +240,20 @@ const validateModel = defineTool({
 })
 
 /**
- * Simulating a model with OGC API Features nodes makes the server fetch the configured URL. Until there is a
- * configurable allowlist, only the default endpoint is accepted when the simulation is started by a tool.
+ * Simulating a model with OGC API Features nodes makes the server request the configured service. A tool only
+ * starts such a simulation if every service is on the server's allowlist.
  */
-function assertOgcEndpointsAllowed(nodes: Nodes[], ogcEndpoints: Parameters<typeof resolveOgcEndpoint>[1]) {
-  const allowedHost = new URL(DEFAULT_OGC_ENDPOINT.baseUrl).host
+function assertOgcEndpointsAllowed(
+  ctx: ToolContext,
+  nodes: Nodes[],
+  ogcEndpoints: Parameters<typeof resolveOgcEndpoint>[1]
+) {
   for (const node of nodes.filter((node) => node.type === NodeType.OgcApiFeatures)) {
     const { baseUrl } = resolveOgcEndpoint(node.data, ogcEndpoints)
-    let host: string | null = null
-    try {
-      host = new URL(baseUrl).host
-    } catch {
-      // handled below
-    }
-    if (host !== allowedHost) {
+    if (!isAllowedOgcUrl(ctx.app, baseUrl)) {
       throw new ToolError(
         'forbidden',
-        `The node "${node.name}" loads data from ${baseUrl}. Simulations started by tools may only use ${allowedHost}; run this model in the editor instead.`
+        `The node "${node.name}" loads data from ${baseUrl}, which is not enabled for assistants on this server. Run this model in the editor instead.`
       )
     }
   }
@@ -284,9 +283,9 @@ const simulate = defineTool({
   }),
   handler: async (ctx, input) => {
     const version = await getReadableVersion(ctx, input.modelVersionId)
-    const { nodes } = await loadGraph(ctx, version.id)
+    const { nodes, edges } = await loadGraph(ctx, version.id)
     const nodesById = new Map(nodes.map((node) => [node.id, node]))
-    assertOgcEndpointsAllowed(nodes, version.ogcEndpoints)
+    assertOgcEndpointsAllowed(ctx, nodes, version.ogcEndpoints)
 
     for (const nodeId of Object.keys(input.parameterValues ?? {})) {
       const node = nodesById.get(nodeId)
@@ -306,16 +305,19 @@ const simulate = defineTool({
 
     let result
     try {
-      // an internal call: the service method is not available to external callers, access was checked above
-      result = await ctx.app
-        .service('models')
-        .simulate({ id: version.id, nodeIdToParameterValueMap: input.parameterValues })
-    } catch (error: any) {
-      const nodeId: string | undefined = error?.data?.nodeId ?? error?.nodeId ?? undefined
-      throw new ToolError('simulation_failed', `The simulation failed: ${error.message}`, {
-        nodeId,
-        nodeName: nodeId ? nodesById.get(nodeId)?.name : undefined
+      // in a thread of its own: access was checked above, the thread only gets the graph
+      result = await runSimulation(ctx.app, {
+        version,
+        nodes,
+        edges,
+        parameterValues: input.parameterValues ?? {}
       })
+    } catch (error) {
+      if (error instanceof ToolError && error.code === 'simulation_failed') {
+        const nodeId = (error.details as { nodeId?: string } | undefined)?.nodeId
+        error.details = { nodeId, nodeName: nodeId ? nodesById.get(nodeId)?.name : undefined }
+      }
+      throw error
     }
 
     return {
@@ -368,5 +370,6 @@ export const tools = [
   validateModel,
   simulate,
   newDraft,
-  cloneModelVersion
+  cloneModelVersion,
+  ...ogcTools
 ] as unknown as ToolDefinition[]
