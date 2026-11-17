@@ -2,7 +2,7 @@ import assert from 'assert'
 import { app } from '../../src/app.js'
 import { EdgeType, NodeType, Roles } from '../../src/client.js'
 import { callTool, listTools, ToolError } from '../../src/model-tools/index.js'
-import { sampleIndices } from '../../src/model-tools/simulation-summary.js'
+import { sampleIndices } from '../../src/shared/simulation-summary.js'
 import type { User } from '../../src/services/users/users.js'
 
 const UNKNOWN_ID = '00000000-0000-4000-8000-000000000000'

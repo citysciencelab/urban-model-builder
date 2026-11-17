@@ -62,6 +62,7 @@
     "chatTurnsPerHour": 60,
     "simulationTimeoutSeconds": 30,
     "maxConcurrentSimulations": 2,
+    "browserSimulationTimeoutSeconds": 120,
     "auditLogRetentionDays": 90
   }
 }

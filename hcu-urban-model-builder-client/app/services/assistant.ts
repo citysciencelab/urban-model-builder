@@ -1,5 +1,9 @@
 import Service, { service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
+import {
+  SimulationAdapter,
+  summarizeSimulation,
+} from 'hcu-urban-model-builder-backend';
 import type FeathersService from 'hcu-urban-model-builder-client/services/feathers';
 
 /** The user's settings for the assistant, as the `llm-settings` service returns them. */
@@ -43,12 +47,22 @@ type ChatResponse = {
   checkpoint?: { name: string; modelId: string; modelVersionId: string };
 };
 
+/** The server asks the browser to run a simulation for the assistant. */
+type SimulationRequest = {
+  type: 'simulation_request';
+  simulationId: string;
+  modelVersionId: string;
+  parameterValues: Record<string, number>;
+  maxPoints: number;
+};
+
 type ChatProgress = { requestId: string } & (
   | { type: 'text_delta'; text: string }
   | { type: 'tool_call'; id: string; name: string }
   | { type: 'tool_result'; id: string; name: string; ok: boolean }
   | { type: 'done'; response: ChatResponse }
   | { type: 'error'; reason?: string }
+  | SimulationRequest
 );
 
 /** Reasons of a failed turn the interface has a text for (`components.assistant.errors.*`). */
@@ -243,6 +257,8 @@ export default class AssistantService extends Service {
         );
       } else if (event.type === 'done') {
         complete(event.response);
+      } else if (event.type === 'simulation_request') {
+        void this.simulate(event);
       } else if (event.type === 'error') {
         fail(event.reason);
       }
@@ -268,6 +284,52 @@ export default class AssistantService extends Service {
         data?: { reason?: string };
       };
       fail(name === 'Conflict' ? 'busy' : data?.reason);
+    }
+  }
+
+  /**
+   * Runs a simulation the assistant asked for, here in the browser like the simulations of the editor, and
+   * sends its summary back. The server neither computes it nor loads its geodata.
+   */
+  private async simulate(request: SimulationRequest) {
+    const chat = this.feathers.app.service('chat');
+    let answer;
+    try {
+      const adapter = await new SimulationAdapter(
+        this.feathers.app,
+        request.modelVersionId,
+        new Map(Object.entries(request.parameterValues)),
+      ).simulate();
+      const nodes = await this.feathers.app.service('nodes').find({
+        query: { modelsVersionsId: request.modelVersionId },
+      });
+      answer = {
+        summary: summarizeSimulation(
+          adapter.getResults(),
+          nodes.data as Parameters<typeof summarizeSimulation>[1],
+          request.maxPoints,
+        ),
+      };
+    } catch (error) {
+      const { message, data } = error as {
+        message?: string;
+        data?: { nodeId?: string | null };
+      };
+      answer = {
+        error: {
+          message: String(message ?? error).slice(0, 2000),
+          nodeId: data?.nodeId ?? null,
+        },
+      };
+    }
+    try {
+      await chat.submitSimulation({
+        simulationId: request.simulationId,
+        ...answer,
+      });
+    } catch (error) {
+      // the turn then ends with the server's own time limit
+      console.error('Could not return the simulation to the assistant', error);
     }
   }
 

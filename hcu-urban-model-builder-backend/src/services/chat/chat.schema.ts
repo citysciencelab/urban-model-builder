@@ -64,3 +64,38 @@ export const chatStartedSchema = Type.Object(
   { $id: 'ChatStarted', additionalProperties: false }
 )
 export type ChatStarted = Static<typeof chatStartedSchema>
+
+/**
+ * What the user's browser sends back after simulating on behalf of the assistant: the summary of
+ * `summarizeSimulation` (src/shared/simulation-summary.ts), or the error of the simulation.
+ */
+export const chatSimulationResultSchema = Type.Object(
+  {
+    simulationId: Type.String({ format: 'uuid' }),
+    summary: Type.Optional(
+      Type.Object(
+        {
+          steps: Type.Integer({ minimum: 0 }),
+          sampledTimes: Type.Array(Type.Number(), { maxItems: 500 }),
+          series: Type.Array(Type.Object({ nodeId: Type.String() }, { additionalProperties: true }), {
+            maxItems: 1000
+          }),
+          hint: Type.Optional(Type.String({ maxLength: 500 }))
+        },
+        { additionalProperties: false }
+      )
+    ),
+    error: Type.Optional(
+      Type.Object(
+        {
+          message: Type.String({ maxLength: 2000 }),
+          nodeId: Type.Optional(Type.Union([Type.String(), Type.Null()]))
+        },
+        { additionalProperties: false }
+      )
+    )
+  },
+  { $id: 'ChatSimulationResult', additionalProperties: false }
+)
+export type ChatSimulationResult = Static<typeof chatSimulationResultSchema>
+export const chatSimulationResultValidator = getValidator(chatSimulationResultSchema, dataValidator)

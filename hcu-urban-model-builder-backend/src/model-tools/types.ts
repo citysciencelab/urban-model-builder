@@ -1,6 +1,7 @@
 import type { Static, TSchema } from '@feathersjs/typebox'
 import type { Application } from '../declarations.js'
 import type { User } from '../services/users/users.js'
+import type { SimulationSummary } from '../shared/simulation-summary.js'
 
 /** Everything a tool needs to act: the app and the user on whose behalf it acts. */
 export interface ToolContext {
@@ -8,7 +9,21 @@ export interface ToolContext {
   user: User
   /** Through which front end the tool was called. */
   source: ToolSource
+  /**
+   * Runs simulations somewhere other than on the server: the in-app chat lets the user's browser simulate.
+   * Without it, `simulate` runs on the server.
+   */
+  simulator?: Simulator
 }
+
+export type SimulationRequest = {
+  modelVersionId: string
+  parameterValues: Record<string, number>
+  maxPoints: number
+}
+
+/** Resolves with the summary of `summarizeSimulation`, rejects with a `ToolError` if the simulation failed. */
+export type Simulator = (request: SimulationRequest) => Promise<SimulationSummary>
 
 export type ToolSource = 'mcp' | 'chat' | 'internal'
 

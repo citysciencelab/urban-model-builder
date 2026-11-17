@@ -3,7 +3,7 @@ import { hooks as schemaHooks } from '@feathersjs/schema'
 
 import type { Application } from '../../declarations.js'
 import { ChatService, PROGRESS_CHANNEL_KEY } from './chat.class.js'
-import { chatRequestValidator } from './chat.schema.js'
+import { chatRequestValidator, chatSimulationResultValidator } from './chat.schema.js'
 import { chatPath, chatMethods, CHAT_PROGRESS_EVENT } from './chat.shared.js'
 
 export * from './chat.class.js'
@@ -18,7 +18,8 @@ export const chat = (app: Application) => {
 
   app.service(chatPath).hooks({
     before: {
-      create: [schemaHooks.validateData(chatRequestValidator)]
+      create: [schemaHooks.validateData(chatRequestValidator)],
+      submitSimulation: [schemaHooks.validateData(chatSimulationResultValidator)]
     }
   })
 

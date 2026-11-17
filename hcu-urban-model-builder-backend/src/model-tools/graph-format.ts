@@ -1,23 +1,10 @@
 import { EdgeType, NodeType, Roles } from '../client.js'
+import { NODE_TYPE_NAMES } from '../shared/node-type-names.js'
 import type { Edges } from '../services/edges/edges.schema.js'
 import type { ModelsVersions } from '../services/models-versions/models-versions.schema.js'
 import type { Nodes } from '../services/nodes/nodes.schema.js'
 
-/** Names used towards language models instead of the numeric enums. */
-export const NODE_TYPE_NAMES = {
-  [NodeType.Stock]: 'stock',
-  [NodeType.Variable]: 'variable',
-  [NodeType.Flow]: 'flow',
-  [NodeType.Converter]: 'converter',
-  [NodeType.State]: 'state',
-  [NodeType.Transition]: 'transition',
-  [NodeType.Action]: 'action',
-  [NodeType.Population]: 'population',
-  [NodeType.Agent]: 'agent',
-  [NodeType.Folder]: 'folder',
-  [NodeType.Ghost]: 'ghost',
-  [NodeType.OgcApiFeatures]: 'ogc-api-features'
-} as const satisfies Record<NodeType, string>
+export { NODE_TYPE_NAMES }
 
 export const EDGE_TYPE_NAMES = {
   [EdgeType.Link]: 'link',

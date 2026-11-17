@@ -2,7 +2,7 @@ import assert from 'assert'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'http'
 import type { AddressInfo } from 'net'
 import { app } from '../../../src/app.js'
-import { Roles } from '../../../src/client.js'
+import { NodeType, Roles } from '../../../src/client.js'
 import { callTool } from '../../../src/model-tools/index.js'
 import type { ChatResponse } from '../../../src/services/chat/chat.js'
 import type { User } from '../../../src/services/users/users.js'
@@ -479,6 +479,156 @@ describe('chat service', () => {
       )
       assert.strictEqual(published[0].data.reason, 'invalid_api_key')
       assert.ok(!JSON.stringify(published[0].data).includes(KEY))
+    })
+
+    /** Waits until the turn asks the browser to simulate, and returns that request. */
+    const simulationRequested = async () => {
+      for (let attempt = 0; attempt < 200; attempt++) {
+        const request = published.find(({ data }) => data.type === 'simulation_request')
+        if (request) {
+          return request.data
+        }
+        await new Promise((resolve) => setTimeout(resolve, 10))
+      }
+      assert.fail('the browser was not asked to simulate')
+    }
+
+    const SUMMARY = {
+      steps: 21,
+      sampledTimes: [0, 20],
+      series: [{ nodeId: 'n1', name: 'Trees', type: 'stock', first: 100, last: 300, values: [100, 300] }]
+    }
+
+    it('lets the browser simulate and gives its result to the model', async () => {
+      // a geodata node on a host the server may not contact: in the browser that is no reason to refuse
+      await app.service('nodes').create({
+        modelsVersionsId: modelVersionId,
+        type: NodeType.OgcApiFeatures,
+        name: 'Elsewhere',
+        data: { baseUrl: 'https://geodata.example.org', collectionId: 'c' },
+        position: { x: 0, y: 0 },
+        isParameter: false,
+        isOutputParameter: false
+      })
+      replies.push(toolReply('simulate', { modelVersionId, maxPoints: 2 }), textReply('Trees triple.'))
+
+      await start()
+      const request = await simulationRequested()
+      assert.deepStrictEqual(
+        { ...request, simulationId: undefined },
+        {
+          type: 'simulation_request',
+          requestId: REQUEST_ID,
+          simulationId: undefined,
+          modelVersionId,
+          parameterValues: {},
+          maxPoints: 2
+        }
+      )
+      assert.deepStrictEqual(published.find(({ data }) => data.type === 'simulation_request')!.connections, [
+        connection
+      ])
+
+      await app
+        .service('chat')
+        .submitSimulation({ simulationId: request.simulationId, summary: SUMMARY }, paramsFor(owner))
+      await finished()
+
+      const toolResult = JSON.parse(requests[1].body.messages.at(-1).content)
+      assert.deepStrictEqual(toolResult, { timeUnits: 'Years', ...SUMMARY })
+      const done = published.find(({ data }) => data.type === 'done')!.data
+      assert.deepStrictEqual(
+        done.response.toolCalls.map((call: any) => [call.name, call.ok]),
+        [['simulate', true]]
+      )
+
+      // a result is accepted once
+      await assert.rejects(
+        app
+          .service('chat')
+          .submitSimulation({ simulationId: request.simulationId, summary: SUMMARY }, paramsFor(owner)),
+        { name: 'NotFound' }
+      )
+    })
+
+    it('passes the error of a simulation in the browser to the model', async () => {
+      const nodes = await app.service('nodes').create({
+        modelsVersionsId: modelVersionId,
+        type: NodeType.Variable,
+        name: 'Broken',
+        data: { value: '1 +* 2' },
+        position: { x: 0, y: 0 },
+        isParameter: false,
+        isOutputParameter: true
+      })
+      replies.push(toolReply('simulate', { modelVersionId }), textReply('There is an error.'))
+
+      await start()
+      const request = await simulationRequested()
+      await app
+        .service('chat')
+        .submitSimulation(
+          { simulationId: request.simulationId, error: { message: 'equation error', nodeId: nodes.id } },
+          paramsFor(owner)
+        )
+      await finished()
+
+      const toolResult = JSON.parse(requests[1].body.messages.at(-1).content)
+      assert.match(toolResult.error, /^simulation_failed: The simulation failed: equation error/)
+      assert.match(toolResult.error, /"nodeName":"Broken"/)
+    })
+
+    it('gives up on a browser that does not answer', async () => {
+      const limits = app.get('limits')
+      const original = limits.browserSimulationTimeoutSeconds
+      limits.browserSimulationTimeoutSeconds = 0.2
+      try {
+        replies.push(toolReply('simulate', { modelVersionId }), textReply('No result.'))
+        await start()
+        await simulationRequested()
+        await finished()
+
+        const toolResult = JSON.parse(requests[1].body.messages.at(-1).content)
+        assert.match(toolResult.error, /did not return the simulation/)
+      } finally {
+        limits.browserSimulationTimeoutSeconds = original
+      }
+    })
+
+    it('accepts results only from the user of the turn', async () => {
+      replies.push(toolReply('simulate', { modelVersionId }), textReply('Done.'))
+      await start()
+      const request = await simulationRequested()
+
+      await assert.rejects(
+        app
+          .service('chat')
+          .submitSimulation({ simulationId: request.simulationId, summary: SUMMARY }, paramsFor(viewer)),
+        { name: 'NotFound' }
+      )
+      await assert.rejects(
+        app
+          .service('chat')
+          .submitSimulation(
+            { simulationId: request.simulationId, summary: SUMMARY, error: { message: 'x' } },
+            paramsFor(owner)
+          ),
+        { name: 'BadRequest' }
+      )
+      await assert.rejects(
+        app
+          .service('chat')
+          .submitSimulation(
+            { simulationId: request.simulationId, summary: { ...SUMMARY, injected: true } } as any,
+            paramsFor(owner)
+          ),
+        { name: 'BadRequest' }
+      )
+
+      await app
+        .service('chat')
+        .submitSimulation({ simulationId: request.simulationId, summary: SUMMARY }, paramsFor(owner))
+      await finished()
     })
 
     it('rejects a request that cannot start right away', async () => {

@@ -8,7 +8,13 @@ const authenticationClient =
 import type { AuthenticationClientOptions } from '@feathersjs/authentication-client'
 
 import { chatClient } from './services/chat/chat.shared.js'
-export type { ChatProgress, ChatRequest, ChatResponse, ChatStarted } from './services/chat/chat.shared.js'
+export type {
+  ChatProgress,
+  ChatRequest,
+  ChatResponse,
+  ChatSimulationResult,
+  ChatStarted
+} from './services/chat/chat.shared.js'
 export { CHAT_PROGRESS_EVENT } from './services/chat/chat.shared.js'
 
 import { llmSettingsClient, LLM_SETTINGS_ID } from './services/llm-settings/llm-settings.shared.js'
@@ -156,3 +162,5 @@ export {
   isSingleApiEndpoint
 } from './shared/simulation-adapter/ogc-endpoints.js'
 export type { OgcEndpoint, OgcApiType } from './shared/simulation-adapter/ogc-endpoints.js'
+export { summarizeSimulation } from './shared/simulation-summary.js'
+export type { SimulationSummary } from './shared/simulation-summary.js'

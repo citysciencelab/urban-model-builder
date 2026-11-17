@@ -210,11 +210,18 @@ Limits (`limits` in the configuration):
 - Rate limits per user in Redis, valid across server processes: tool calls per minute (default 120),
   simulations per minute (20), chat messages per hour (60). If Redis is unreachable, the limits are suspended
   and the log says so, rather than making the tools unusable.
-- Simulations started by tools run in worker threads (`simulation-runner.ts`, `simulation-worker.ts`): at most
-  `maxConcurrentSimulations` at a time (2), further ones wait (up to 20), and one that runs longer than
-  `simulationTimeoutSeconds` (30) is terminated. The server stays responsive meanwhile. This replaces the BullMQ
-  queue planned originally: the tools need the result within the same call, and a queue would only have moved
-  the blocking computation into another process of the same server without a time limit.
+- Where `simulate` runs depends on the front end. Simulations run in the browser by default, as in the editor:
+  - **Assistant in the editor:** the server sends a `simulation_request` progress event to the user's browser.
+    The browser runs the editor's `SimulationAdapter`, summarizes the result with the shared
+    `summarizeSimulation` (`src/shared/simulation-summary.ts`) and returns it with `chat.submitSimulation`. Only the
+    user of the turn can answer, once; without an answer within `browserSimulationTimeoutSeconds` (120) the model
+    gets an error. The browser loads the geodata itself, so the server's host allowlist does not apply here.
+  - **MCP and callers without a real-time connection:** there is no browser, so the server simulates, in worker
+    threads (`simulation-runner.ts`, `simulation-worker.ts`): at most `maxConcurrentSimulations` (2) at a time,
+    further ones wait (up to 20), and one that runs longer than `simulationTimeoutSeconds` (30) is terminated. The
+    server stays responsive meanwhile. Geodata only from hosts on the allowlist.
+- BullMQ remains what it was before this work: the queue of the OGC API Processes interface for the Urban Model
+  Platform. The tools do not use it, as they need the result within the same call.
 
 Log of tool calls (`tool_calls` table, `src/model-tools/audit-log.ts`):
 
@@ -231,8 +238,10 @@ Log of tool calls (`tool_calls` table, `src/model-tools/audit-log.ts`):
   `clone_model_version` before larger changes.
 - **Data protection**: OpenRouter routes content to third-party providers. Consent and the privacy page are part of
   phase 4.
-- **Simulation load**: simulations of the tools run in worker threads with a time limit; simulations started in
-  the editor run in the browser and the UMP's via BullMQ, as before.
+- **Simulation load**: the server only simulates for MCP clients (worker threads with a time limit) and, as
+  before, for the UMP (BullMQ). Simulations of the editor and of its assistant run in the browser.
+- **Trust in browser results**: a browser could return a made-up summary. It only reaches the language model of
+  the same user's own conversation, so there is nobody to deceive but that user.
 
 ## Open points
 

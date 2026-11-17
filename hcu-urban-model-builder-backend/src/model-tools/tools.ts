@@ -18,7 +18,7 @@ import { arrowDirection, computeLayout, edgeHandles, type LayoutNode } from './l
 import { isAllowedOgcUrl, ogcTools } from './ogc.js'
 import { getModelingReference } from './reference.js'
 import { runSimulation } from './simulation-runner.js'
-import { summarizeSimulation } from './simulation-summary.js'
+import { summarizeSimulation } from '../shared/simulation-summary.js'
 import { defineTool, ToolError, type ToolContext, type ToolDefinition } from './types.js'
 import { validateGraph } from './validate.js'
 
@@ -285,9 +285,10 @@ const simulate = defineTool({
     const version = await getReadableVersion(ctx, input.modelVersionId)
     const { nodes, edges } = await loadGraph(ctx, version.id)
     const nodesById = new Map(nodes.map((node) => [node.id, node]))
-    assertOgcEndpointsAllowed(ctx, nodes, version.ogcEndpoints)
+    const parameterValues = input.parameterValues ?? {}
+    const maxPoints = input.maxPoints ?? 25
 
-    for (const nodeId of Object.keys(input.parameterValues ?? {})) {
+    for (const nodeId of Object.keys(parameterValues)) {
       const node = nodesById.get(nodeId)
       if (!node) {
         throw new ToolError(
@@ -303,15 +304,19 @@ const simulate = defineTool({
       }
     }
 
-    let result
+    let summary
     try {
-      // in a thread of its own: access was checked above, the thread only gets the graph
-      result = await runSimulation(ctx.app, {
-        version,
-        nodes,
-        edges,
-        parameterValues: input.parameterValues ?? {}
-      })
+      if (ctx.simulator) {
+        // In the user's browser, as the simulations of the editor: the server neither computes nor loads
+        // geodata, so the allowlist of geodata hosts does not apply.
+        summary = await ctx.simulator({ modelVersionId: version.id, parameterValues, maxPoints })
+      } else {
+        // The server requests the geodata itself here, so only allowed hosts
+        assertOgcEndpointsAllowed(ctx, nodes, version.ogcEndpoints)
+        // in a thread of its own: access was checked above, the thread only gets the graph
+        const result = await runSimulation(ctx.app, { version, nodes, edges, parameterValues })
+        summary = summarizeSimulation(result, nodes, maxPoints)
+      }
     } catch (error) {
       if (error instanceof ToolError && error.code === 'simulation_failed') {
         const nodeId = (error.details as { nodeId?: string } | undefined)?.nodeId
@@ -320,10 +325,7 @@ const simulate = defineTool({
       throw error
     }
 
-    return {
-      timeUnits: version.timeUnits,
-      ...summarizeSimulation(result as any, nodes, input.maxPoints ?? 25)
-    }
+    return { timeUnits: version.timeUnits, ...summary }
   }
 })
 

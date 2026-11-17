@@ -1,8 +1,15 @@
-import { NodeType } from '../client.js'
-import type { Nodes } from '../services/nodes/nodes.schema.js'
-import { NODE_TYPE_NAMES } from './graph-format.js'
+import { NodeType } from '../services/nodes/nodes.shared.js'
+import { NODE_TYPE_NAMES } from './node-type-names.js'
 
-type SimulationResult = {
+/**
+ * Shared by the server and the browser: the simulate tool of language models gets this summary, whether the
+ * simulation ran on the server (MCP) or in the user's browser (assistant of the editor).
+ */
+
+/** The parts of a node the summary needs. */
+type SummaryNode = { id: string; name?: string | null; type: NodeType }
+
+export type SimulationResultForSummary = {
   times: number[]
   nodes: Record<string, { series: unknown[] }>
 }
@@ -28,7 +35,11 @@ const round = (value: number) => (Number.isFinite(value) ? Number(value.toPrecis
  * Reduces a simulation result to what a language model can use: per recorded node a few statistics and a
  * sample of the series, instead of every time step.
  */
-export function summarizeSimulation(result: SimulationResult, nodes: Nodes[], maxPoints: number) {
+export function summarizeSimulation(
+  result: SimulationResultForSummary,
+  nodes: SummaryNode[],
+  maxPoints: number
+) {
   const nodesById = new Map(nodes.map((node) => [node.id, node]))
   const indices = sampleIndices(result.times.length, maxPoints)
 
@@ -81,3 +92,5 @@ export function summarizeSimulation(result: SimulationResult, nodes: Nodes[], ma
       : {})
   }
 }
+
+export type SimulationSummary = ReturnType<typeof summarizeSimulation>

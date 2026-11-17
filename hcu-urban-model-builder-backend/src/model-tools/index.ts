@@ -6,10 +6,23 @@ import type { User } from '../services/users/users.js'
 import { consumeRateLimit } from '../utils/rate-limiter.js'
 import { recordToolCall } from './audit-log.js'
 import { tools } from './tools.js'
-import { ToolError, type ToolDefinition, type ToolErrorCode, type ToolSource } from './types.js'
+import {
+  ToolError,
+  type Simulator,
+  type ToolDefinition,
+  type ToolErrorCode,
+  type ToolSource
+} from './types.js'
 
 export { ToolError } from './types.js'
-export type { ToolContext, ToolDefinition, ToolErrorCode, ToolSource } from './types.js'
+export type {
+  SimulationRequest,
+  Simulator,
+  ToolContext,
+  ToolDefinition,
+  ToolErrorCode,
+  ToolSource
+} from './types.js'
 
 /**
  * The tool layer: everything a language model can do with the Urban Model Builder, independent of how it is
@@ -75,7 +88,8 @@ async function runTool(
   user: User,
   tool: ToolDefinition,
   input: unknown,
-  source: ToolSource
+  source: ToolSource,
+  simulator?: Simulator
 ) {
   await checkRateLimits(app, user, tool)
 
@@ -97,7 +111,7 @@ async function runTool(
   }
 
   try {
-    return await tool.handler({ app, user, source }, validatedInput)
+    return await tool.handler({ app, user, source, simulator }, validatedInput)
   } catch (error: any) {
     if (error instanceof ToolError) {
       throw error
@@ -122,7 +136,7 @@ export async function callTool(
   user: User,
   name: string,
   input: unknown = {},
-  options: { source?: ToolSource } = {}
+  options: { source?: ToolSource; simulator?: Simulator } = {}
 ) {
   const tool = toolsByName.get(name)
   if (!tool) {
@@ -133,7 +147,7 @@ export async function callTool(
   let errorCode: ToolErrorCode | undefined
 
   try {
-    return await runTool(app, user, tool, input, source)
+    return await runTool(app, user, tool, input, source, options.simulator)
   } catch (error) {
     errorCode = error instanceof ToolError ? error.code : 'internal'
     throw error

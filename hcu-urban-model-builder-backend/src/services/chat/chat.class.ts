@@ -5,14 +5,16 @@ import { randomUUID } from 'node:crypto'
 import type { Application } from '../../declarations.js'
 import { runAgent, type AgentEvent } from '../../llm/agent.js'
 import { logger } from '../../logger.js'
+import { ToolError, type SimulationRequest, type Simulator } from '../../model-tools/index.js'
+import type { SimulationSummary } from '../../shared/simulation-summary.js'
 import { LlmError, type ChatMessage } from '../../llm/openrouter.js'
 import { consumeRateLimit } from '../../utils/rate-limiter.js'
 import type { ModelsVersions } from '../models-versions/models-versions.schema.js'
 import type { User } from '../users/users.js'
-import type { ChatRequest, ChatResponse, ChatStarted } from './chat.schema.js'
+import type { ChatRequest, ChatResponse, ChatSimulationResult, ChatStarted } from './chat.schema.js'
 import { CHAT_PROGRESS_EVENT } from './chat.shared.js'
 
-export type { ChatRequest, ChatResponse, ChatStarted }
+export type { ChatRequest, ChatResponse, ChatSimulationResult, ChatStarted }
 
 /**
  * Payload of the progress event. A turn that was started over a real-time connection ends with exactly one
@@ -22,7 +24,19 @@ export type ChatProgress = { requestId: string } & (
   | AgentEvent
   | { type: 'done'; response: ChatResponse }
   | { type: 'error'; message: string; reason?: string }
+  /** Asks the browser to simulate; it answers with `submitSimulation`. */
+  | ({ type: 'simulation_request'; simulationId: string } & SimulationRequest)
 )
+
+// Results larger than this are not passed on to the language model
+const MAX_SIMULATION_RESULT_LENGTH = 200_000
+
+type PendingSimulation = {
+  userId: string
+  resolve: (summary: SimulationSummary) => void
+  reject: (error: ToolError) => void
+  timer: NodeJS.Timeout
+}
 
 /** Internal: the channel a progress event is published to. Removed before the event is sent. */
 export const PROGRESS_CHANNEL_KEY = '_channel'
@@ -53,6 +67,8 @@ Working rules:
 export class ChatService {
   /** Users with a running turn; a second one has to wait, which also bounds the load a user can cause. */
   private busyUsers = new Set<string>()
+  /** Simulations the users' browsers were asked for, by id. */
+  private pendingSimulations = new Map<string, PendingSimulation>()
 
   constructor(private app: Application) {}
 
@@ -120,11 +136,21 @@ export class ChatService {
         [PROGRESS_CHANNEL_KEY]: channel
       })
 
-    const turn = this.runTurn(data, user, version, modelRecord.internalName, apiKey, model, emit).finally(
-      () => {
-        this.busyUsers.delete(user.id)
-      }
-    )
+    // With a browser on the other end, the assistant's simulations run there, as those of the editor do
+    const simulator = connection ? this.browserSimulator(user, emit) : undefined
+
+    const turn = this.runTurn(
+      data,
+      user,
+      version,
+      modelRecord.internalName,
+      apiKey,
+      model,
+      emit,
+      simulator
+    ).finally(() => {
+      this.busyUsers.delete(user.id)
+    })
 
     if (!connection) {
       return turn
@@ -154,7 +180,8 @@ export class ChatService {
     modelName: string,
     apiKey: string,
     model: string,
-    emit: (event: AgentEvent) => void
+    emit: (event: AgentEvent) => void,
+    simulator?: Simulator
   ): Promise<ChatResponse> {
     let checkpoint: ChatResponse['checkpoint']
     try {
@@ -169,6 +196,7 @@ export class ChatService {
         ],
         signal: AbortSignal.timeout(TURN_TIMEOUT_MS),
         onEvent: emit,
+        simulator,
         beforeFirstWrite: data.createCheckpoint
           ? async () => {
               checkpoint = await this.createCheckpoint(version, modelName, user)
@@ -195,6 +223,65 @@ export class ChatService {
       }
       throw error
     }
+  }
+
+  /** A simulator that asks the user's browser, through the progress events of the turn. */
+  private browserSimulator(user: User, emit: (event: Record<string, unknown>) => void): Simulator {
+    return (request) =>
+      new Promise((resolve, reject) => {
+        const simulationId = randomUUID()
+        const seconds = this.app.get('limits').browserSimulationTimeoutSeconds
+        const timer = setTimeout(() => {
+          this.pendingSimulations.delete(simulationId)
+          reject(
+            new ToolError(
+              'simulation_failed',
+              `The user's browser did not return the simulation within ${seconds} seconds. It may have been closed.`
+            )
+          )
+        }, seconds * 1000)
+        this.pendingSimulations.set(simulationId, { userId: user.id, resolve, reject, timer })
+        emit({ type: 'simulation_request', simulationId, ...request })
+      })
+  }
+
+  /**
+   * The browser returns a simulation it was asked for. Only the user whose turn asked for it can answer, and
+   * only once.
+   */
+  async submitSimulation(data: ChatSimulationResult, params?: Params): Promise<{ simulationId: string }> {
+    const user = params?.user as User | undefined
+    if (!user) {
+      throw new NotAuthenticated()
+    }
+    const pending = this.pendingSimulations.get(data.simulationId)
+    if (!pending || pending.userId !== user.id) {
+      throw new NotFound('No simulation is waiting for this result.')
+    }
+    if (!data.summary === !data.error) {
+      throw new BadRequest('Send either a summary or an error.')
+    }
+
+    this.pendingSimulations.delete(data.simulationId)
+    clearTimeout(pending.timer)
+
+    if (data.error) {
+      pending.reject(
+        new ToolError('simulation_failed', `The simulation failed: ${data.error.message}`, {
+          nodeId: data.error.nodeId ?? undefined
+        })
+      )
+    } else if (JSON.stringify(data.summary).length > MAX_SIMULATION_RESULT_LENGTH) {
+      pending.reject(
+        new ToolError(
+          'simulation_failed',
+          'The simulation result is too large. Ask for fewer points (maxPoints) or record fewer nodes.'
+        )
+      )
+    } else {
+      pending.resolve(data.summary as SimulationSummary)
+    }
+    return { simulationId: data.simulationId }
   }
 
   private async getVersion(modelVersionId: string, user: User) {

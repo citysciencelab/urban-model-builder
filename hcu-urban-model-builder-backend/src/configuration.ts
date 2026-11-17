@@ -22,6 +22,8 @@ export const configurationSchema = Type.Intersect([
       /** A simulation started by a tool is stopped after this time. */
       simulationTimeoutSeconds: Type.Number({ minimum: 1 }),
       maxConcurrentSimulations: Type.Number({ minimum: 1 }),
+      /** How long the in-app chat waits for the user's browser to return a simulation. */
+      browserSimulationTimeoutSeconds: Type.Number({ minimum: 1 }),
       /** Entries of the tool call log are deleted after this many days. */
       auditLogRetentionDays: Type.Number({ minimum: 1 })
     }),

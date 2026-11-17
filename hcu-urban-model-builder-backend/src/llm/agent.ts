@@ -1,5 +1,5 @@
 import type { Application } from '../declarations.js'
-import { callTool, listTools, ToolError } from '../model-tools/index.js'
+import { callTool, listTools, ToolError, type Simulator } from '../model-tools/index.js'
 import type { User } from '../services/users/users.js'
 import { streamChatCompletion, type ChatMessage, type ToolSpecification, type Usage } from './openrouter.js'
 
@@ -41,6 +41,8 @@ export async function runAgent(options: {
   onEvent?: (event: AgentEvent) => void
   /** Called once, before the first tool that changes data. */
   beforeFirstWrite?: () => Promise<void>
+  /** Where the `simulate` tool runs; on the server if omitted. */
+  simulator?: Simulator
 }) {
   const { app, user, onEvent } = options
   const { openRouterBaseUrl, maxIterations } = app.get('llm')
@@ -89,12 +91,16 @@ export async function runAgent(options: {
             hasWritten = true
             await options.beforeFirstWrite?.()
           }
-          result = JSON.stringify(await callTool(app, user, name, args, { source: 'chat' }))
+          result = JSON.stringify(
+            await callTool(app, user, name, args, { source: 'chat', simulator: options.simulator })
+          )
         } catch (toolError) {
           if (!(toolError instanceof ToolError)) {
             throw toolError
           }
-          error = `${toolError.code}: ${toolError.message}`
+          // the details tell the model where to look, e.g. the node of a failing equation
+          const details = toolError.details === undefined ? '' : ` ${JSON.stringify(toolError.details)}`
+          error = `${toolError.code}: ${toolError.message}${details}`
         }
       }
 

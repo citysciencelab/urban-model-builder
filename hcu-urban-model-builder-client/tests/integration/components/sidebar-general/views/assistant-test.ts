@@ -6,13 +6,70 @@ import {
   render,
   settled,
   triggerKeyEvent,
+  waitUntil,
   type TestContext,
 } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 import { setupIntl } from 'ember-intl/test-support';
 import Service from '@ember/service';
+import { MemoryService } from '@feathersjs/memory';
+import { NodeType } from 'hcu-urban-model-builder-backend';
 
 const KEY = 'sk-or-v1-0123456789abcdef0123456789abcdef';
+
+/** A model version for simulations in the browser: one variable, one stock with an inflow. */
+const VERSION = {
+  id: 'version-1',
+  timeUnits: 'Years',
+  timeStart: 0,
+  timeLength: 10,
+  timeStep: 1,
+  algorithm: 'Euler',
+  globals: '',
+};
+const node = (id: string, type: NodeType, name: string, data: object) => ({
+  id,
+  type,
+  name,
+  data,
+  modelsVersionsId: VERSION.id,
+  parentId: null,
+  ghostParentId: null,
+  isParameter: false,
+  isOutputParameter: true,
+  position: { x: 0, y: 0 },
+});
+const NODES = [
+  node('rate', NodeType.Variable, 'Rate', { value: '5' }),
+  node('trees', NodeType.Stock, 'Trees', { value: '100' }),
+  node('planting', NodeType.Flow, 'Planting', { rate: '[Rate]' }),
+];
+const EDGES = [
+  {
+    id: 'e1',
+    type: 0,
+    sourceId: 'rate',
+    targetId: 'planting',
+    sourceHandle: 'source-right',
+    targetHandle: 'target-0',
+    modelsVersionsId: VERSION.id,
+  },
+  {
+    id: 'e2',
+    type: 1,
+    sourceId: 'planting',
+    targetId: 'trees',
+    sourceHandle: 'flow-source',
+    targetHandle: 'target-left',
+    modelsVersionsId: VERSION.id,
+  },
+];
+const memory = (records: { id: string }[]) =>
+  new MemoryService({
+    id: 'id',
+    store: Object.fromEntries(records.map((record) => [record.id, record])),
+    paginate: { default: 1000, max: 1000 },
+  });
 const SETTINGS = {
   chatAvailable: true,
   hasOpenRouterKey: true,
@@ -43,9 +100,18 @@ class FeathersStub extends Service {
     this.listeners.forEach((listener) => listener({ requestId, ...event }));
   }
 
+  /** What the browser sent back for simulations the assistant asked for. */
+  simulations: Record<string, unknown>[] = [];
+  graph: Record<string, MemoryService> = {
+    'models-versions': memory([VERSION]),
+    nodes: memory(NODES),
+    edges: memory(EDGES),
+  };
+
   app = {
     service: (name: string) =>
-      name === 'llm-settings'
+      this.graph[name] ??
+      (name === 'llm-settings'
         ? {
             get: async () => ({ ...this.settings }),
             patch: async (_id: string, data: Record<string, unknown>) => {
@@ -68,7 +134,11 @@ class FeathersStub extends Service {
               this.listeners.add(listener),
             removeListener: (_event: string, listener: Listener) =>
               this.listeners.delete(listener),
-          },
+            submitSimulation: async (data: Record<string, unknown>) => {
+              this.simulations.push(data);
+              return { simulationId: data['simulationId'] };
+            },
+          }),
   };
 }
 
@@ -94,8 +164,10 @@ module(
     hooks.beforeEach(function (this: TestContext) {
       window.localStorage.removeItem('umb-assistant-consent');
       this.owner.register('service:feathers', FeathersStub);
-      feathers = this.owner.lookup('service:feathers') as FeathersStub;
-      this.owner.setupRouter();
+      feathers = this.owner.lookup(
+        'service:feathers',
+      ) as unknown as FeathersStub;
+      (this.owner as unknown as { setupRouter(): void }).setupRouter();
       this.set('modelVersion', { id: 'version-1', canEdit: true });
     });
 
@@ -291,6 +363,61 @@ module(
       assert
         .dom('[data-test-assistant-message="error"]')
         .includesText('limit of messages per hour');
+    });
+
+    test('runs the simulations of the assistant in the browser', async function (assert) {
+      await renderView();
+      await send('Simulate the model');
+      feathers.emit({ type: 'tool_call', id: 's1', name: 'simulate' });
+      feathers.emit({
+        type: 'simulation_request',
+        simulationId: 'sim-1',
+        modelVersionId: VERSION.id,
+        parameterValues: { rate: 10 },
+        maxPoints: 3,
+      });
+      await waitUntil(() => feathers.simulations.length > 0);
+
+      const [answer] = feathers.simulations as {
+        simulationId: string;
+        summary: {
+          steps: number;
+          sampledTimes: number[];
+          series: { name: string; type: string; values: number[] }[];
+        };
+      }[];
+      assert.strictEqual(answer!.simulationId, 'sim-1');
+      assert.strictEqual(answer!.summary.steps, 11);
+      assert.deepEqual(answer!.summary.sampledTimes, [0, 5, 10]);
+      const trees = answer!.summary.series.find(
+        (series) => series.name === 'Trees',
+      );
+      // the parameter value of the request is used: 100 trees plus 10 per year
+      assert.deepEqual(trees?.values, [100, 150, 200]);
+      assert.strictEqual(trees?.type, 'stock');
+    });
+
+    test('reports a failing simulation in the browser to the assistant', async function (assert) {
+      await feathers.graph['nodes']!.patch('rate', {
+        data: { value: '1 +* 2' },
+      });
+      await renderView();
+      await send('Simulate the model');
+      feathers.emit({
+        type: 'simulation_request',
+        simulationId: 'sim-2',
+        modelVersionId: VERSION.id,
+        parameterValues: {},
+        maxPoints: 3,
+      });
+      await waitUntil(() => feathers.simulations.length > 0);
+
+      const [answer] = feathers.simulations as {
+        error: { message: string; nodeId: string | null };
+      }[];
+      assert.ok(answer!.error.message.length > 0);
+      assert.strictEqual(answer!.error.nodeId, 'rate');
+      assert.notOk('summary' in answer!);
     });
 
     test('explains a turn that could not start', async function (assert) {
