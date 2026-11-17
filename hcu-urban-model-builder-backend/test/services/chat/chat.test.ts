@@ -461,17 +461,15 @@ describe('chat service', () => {
 
     it('rejects a request that cannot start right away', async () => {
       await assert.rejects(
-        app
-          .service('chat')
-          .create(
-            {
-              requestId: REQUEST_ID,
-              modelVersionId,
-              messages: [{ role: 'user', content: 'Hi' }],
-              model: 'x/y'
-            },
-            { ...paramsFor(owner), connection }
-          ),
+        app.service('chat').create(
+          {
+            requestId: REQUEST_ID,
+            modelVersionId,
+            messages: [{ role: 'user', content: 'Hi' }],
+            model: 'x/y'
+          },
+          { ...paramsFor(owner), connection }
+        ),
         { name: 'BadRequest' }
       )
       assert.strictEqual(published.length, 0)
